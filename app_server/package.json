@@ -1,0 +1,34 @@
+{
+  "name": "worldscope",
+  "version": "0.0.0",
+  "description": "A mobile to mobile broadcast platform",
+  "main": "./app/router.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "./node_modules/lab/bin/lab -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nus-mtp/worldscope.git"
+  },
+  "keywords": [
+    "broadcast",
+    "mobile",
+    "live",
+    "stream"
+  ],
+  "author": "litmus",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nus-mtp/worldscope/issues"
+  },
+  "homepage": "https://github.com/nus-mtp/worldscope#readme",
+  "dependencies": {
+    "hapi": "^10.0.1"
+  },
+  "devDependencies": {
+    "lab": "^5.18.1"
+  }
+}
