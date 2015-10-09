@@ -1,12 +1,17 @@
+/**
+ * Router module. The main entry point for worldscope application server
+ * @module Router
+ */
 var Hapi = require('hapi');
 var Utility = require('local/Utility');
 
 var logger = Utility.createLogger(__filename);
 
+/* Configure Hapi server instance */
 var server = new Hapi.Server();
 server.connection({ port: 3000 });
 
-// Configure Good process monitor
+/* Configure Good process monitor */
 var goodOptions = {
   reporters: [{
     reporter: require('good-console'),
@@ -14,7 +19,7 @@ var goodOptions = {
   }, {
     reporter: require('good-file'),
     events: { ops: '*' },
-    config: './hapi_server_log.log'
+    config: './process_log.log'
   }]
 };
 

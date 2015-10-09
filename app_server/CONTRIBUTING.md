@@ -38,6 +38,14 @@ Use [good](https://github.com/hapijs/good) for Hapi server logging and process m
 
 Use [winston](https://github.com/winstonjs/winston) module for other general logging needs.
 
+To create a default `winston` logger with timestamp, colorized log level and output log data to `worldscope_log.log`, use the following snippet:
+```javascript
+var Utility = require('local/Utility');
+var logger = Utility.createLogger(__filename);
+
+logger.info("Logging...");
+```
+
 ## Testing
 Use [lab](https://github.com/hapijs/lab) module for unit testing.
 
