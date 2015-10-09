@@ -7,7 +7,7 @@ var Utility = require('local/Utility');
 
 var logger = Utility.createLogger(__filename);
 
-/* Configure Hapi server instance */
+/* Configure Hapi server connection */
 var server = new Hapi.Server();
 server.connection({ port: 3000 });
 
