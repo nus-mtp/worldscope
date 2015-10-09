@@ -10,6 +10,13 @@ var logger = Utility.createLogger(__filename);
 /* Configure Hapi server connection */
 var server = new Hapi.Server();
 server.connection({ port: 3000 });
+server.route({
+  method: 'GET',
+  path: '/',
+  handler: function (request, reply) {
+    reply('Welcome to WorldScope');
+  }
+});
 
 /* Configure Good process monitor */
 var goodOptions = {
@@ -28,7 +35,18 @@ server.register({
   options: goodOptions
 }, function (err) {
   if (err) {
-    logger.error("Unable to register good process monitor");
+    logger.error('Unable to register good process monitor: %j', err);
+  }
+});
+
+/* Register controllers */
+server.register({
+  register: require('./controllers/UserController.js')
+}, {
+  routes: { prefix: '/user' }
+}, function (err) {
+  if (err) {
+    logger.error('Unable to register UserController: %j', err);
   }
 });
 

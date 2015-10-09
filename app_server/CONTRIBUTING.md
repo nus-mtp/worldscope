@@ -47,7 +47,7 @@ logger.info("Logging...");
 ```
 
 ## Testing
-Use [lab](https://github.com/hapijs/lab) module for unit testing.
+Use [lab](https://github.com/hapijs/lab) module and [code](https://github.com/hapijs/code) assertion module for unit testing.
 
 Tests should be put inside the top level `test` directory and mirror the structure of the `app` directory.
 
