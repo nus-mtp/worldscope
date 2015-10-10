@@ -7,6 +7,7 @@ subcribers (listening and watching on their mobile phones).
 ## Getting Started
 
 ## Application Server
+See [Application Server Overview](app_server/README.md)
 
 ## Media Server
 
