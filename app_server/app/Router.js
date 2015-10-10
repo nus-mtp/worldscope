@@ -1,9 +1,10 @@
 /**
  * Router module. The main entry point for worldscope application server
- * @module Router
+ * @module app/Router
  */
+var rfr = require('rfr');
 var Hapi = require('hapi');
-var Utility = require('local/Utility');
+var Utility = rfr('app/util/Utility');
 
 var logger = Utility.createLogger(__filename);
 
@@ -41,7 +42,7 @@ server.register({
 
 /* Register controllers */
 server.register({
-  register: require('./controllers/UserController.js')
+  register: rfr('app/controllers/UserController.js')
 }, {
   routes: { prefix: '/user' }
 }, function (err) {

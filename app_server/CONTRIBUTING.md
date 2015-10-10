@@ -3,6 +3,15 @@ Follow [Google Javascript Style Guide](https://google.github.io/styleguide/javas
 
 # Additional Conventions
 
+## Module
+To require an internal module from the project root instead of using relative path, use the [rfr](https://github.com/warmsea/node-rfr) module.
+```javascript
+var rfr = require('rfr');
+var Utility = rfr('app/util/Utility');
+```
+
+Modules' names should be in Pascal case. Packages (directories) names should be in snake case.
+
 ## OOP Conventions
 Use simple prototypical OOP and inheritance. Avoid complex tricks and libraries to mimic classical OOP. However, [util.inherits](https://nodejs.org/docs/latest/api/util.html#util_util_inherits_constructor_superconstructor) can be used to simplify inheritance.
 ```javascript

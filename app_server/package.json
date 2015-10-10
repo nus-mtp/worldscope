@@ -28,7 +28,8 @@
   },
   "homepage": "https://github.com/nus-mtp/worldscope#readme",
   "dependencies": {
-    "hapi": "^10.0.1"
+    "hapi": "^10.0.1",
+    "rfr": "^1.2.2"
   },
   "devDependencies": {
     "code": "^1.5.0",

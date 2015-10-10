@@ -1,8 +1,9 @@
+var rfr = require('rfr');
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var Code = require('code');
 
-var Utility = require('local/Utility');
+var Utility = rfr('app/util/Utility');
 
 lab.experiment("Utility#getModuleName Tests", function () {
   lab.test("Empty path", function (done) {

@@ -1,6 +1,6 @@
 /**
- * Utility modules
- * @module local/Utility
+ * Utility module
+ * @module app/util/Utility
  */
 var path = require('path');
 var winston = require('winston');
