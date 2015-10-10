@@ -7,7 +7,9 @@
     "test": "test"
   },
   "scripts": {
-    "test": "./node_modules/lab/bin/lab -c"
+    "start": "node ./app/Router.js",
+    "test": "./node_modules/lab/bin/lab -c -r console -o stdout -r html -o report/coverage.html",
+    "doc": "jsdoc -r -c config/jsdoc_conf.json -R README.md -d doc"
   },
   "repository": {
     "type": "git",
@@ -26,9 +28,11 @@
   },
   "homepage": "https://github.com/nus-mtp/worldscope#readme",
   "dependencies": {
-    "hapi": "^10.0.1"
+    "hapi": "^10.0.1",
+    "rfr": "^1.2.2"
   },
   "devDependencies": {
+    "code": "^1.5.0",
     "lab": "^5.18.1"
   }
 }

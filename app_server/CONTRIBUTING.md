@@ -3,6 +3,15 @@ Follow [Google Javascript Style Guide](https://google.github.io/styleguide/javas
 
 # Additional Conventions
 
+## Module
+To require an internal module from the project root instead of using relative path, use the [rfr](https://github.com/warmsea/node-rfr) module.
+```javascript
+var rfr = require('rfr');
+var Utility = rfr('app/util/Utility');
+```
+
+Modules' names should be in Pascal case. Packages (directories) names should be in snake case.
+
 ## OOP Conventions
 Use simple prototypical OOP and inheritance. Avoid complex tricks and libraries to mimic classical OOP. However, [util.inherits](https://nodejs.org/docs/latest/api/util.html#util_util_inherits_constructor_superconstructor) can be used to simplify inheritance.
 ```javascript
@@ -38,8 +47,16 @@ Use [good](https://github.com/hapijs/good) for Hapi server logging and process m
 
 Use [winston](https://github.com/winstonjs/winston) module for other general logging needs.
 
+To create a default `winston` logger with timestamp, colorized log level and output log data to `worldscope_log.log`, use the following snippet:
+```javascript
+var Utility = require('local/Utility');
+var logger = Utility.createLogger(__filename);
+
+logger.info("Logging...");
+```
+
 ## Testing
-Use [lab](https://github.com/hapijs/lab) module for unit testing.
+Use [lab](https://github.com/hapijs/lab) module and [code](https://github.com/hapijs/code) assertion module for unit testing.
 
 Tests should be put inside the top level `test` directory and mirror the structure of the `app` directory.
 
