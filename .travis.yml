@@ -4,4 +4,7 @@ node_js:
 env:
     APP_SERVER_DIR=app_server
 script: cd $APP_SERVER_DIR && npm install && npm test
-after_success: cd $APP_SERVER_DIR && ./node_modules/.bin/coveralls < ./report/coverage.info
+after_success: ./node_modules/.bin/coveralls < ./report/coverage.info
+branches:
+    only:
+        - master
