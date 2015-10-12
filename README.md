@@ -6,7 +6,8 @@ subcribers (listening and watching on their mobile phones).
 
 ## Getting Started
 
-## Application Server
+## Application Server [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
+
 See [Application Server Overview](app_server/README.md)
 
 ## Media Server
