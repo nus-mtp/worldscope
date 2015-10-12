@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node ./app/Router.js",
-    "test": "./node_modules/lab/bin/lab -c -r console -o stdout -r html -o report/coverage.html",
+    "test": "./node_modules/lab/bin/lab -c -r console -o stdout -r html -o report/coverage.html -r lcov -o report/coverage.info",
     "doc": "jsdoc -r -c config/jsdoc_conf.json -R README.md -d doc"
   },
   "repository": {
@@ -28,11 +28,16 @@
   },
   "homepage": "https://github.com/nus-mtp/worldscope#readme",
   "dependencies": {
+    "good": "^6.4.0",
+    "good-console": "^5.1.0",
+    "good-file": "^5.1.0",
     "hapi": "^10.0.1",
-    "rfr": "^1.2.2"
+    "rfr": "^1.2.2",
+    "winston": "^1.1.0"
   },
   "devDependencies": {
     "code": "^1.5.0",
+    "coveralls": "^2.11.4",
     "lab": "^5.18.1"
   }
 }

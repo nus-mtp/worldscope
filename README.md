@@ -6,7 +6,8 @@ subcribers (listening and watching on their mobile phones).
 
 ## Getting Started
 
-## Application Server
+## Application Server [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
+
 See [Application Server Overview](app_server/README.md)
 
 ## Media Server
@@ -25,3 +26,9 @@ See [Application Server Overview](app_server/README.md)
 ## Supervisors
 * [Ooi Wei Tsang](https://github.com/weitsang)
 * [Jay Chua](https://github.com/Jayinmn)
+
+[travis-image]: https://travis-ci.org/nus-mtp/worldscope.svg?branch=master
+[travis-url]: https://travis-ci.org/nus-mtp/worldscope
+
+[coveralls-image]: https://coveralls.io/repos/nus-mtp/worldscope/badge.svg?branch=master&service=github
+[coveralls-url]: https://coveralls.io/github/nus-mtp/worldscope?branch=master
