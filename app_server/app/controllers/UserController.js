@@ -50,7 +50,7 @@ var singleUserValidator = {
 };
 
 exports.register = function (server, options, next) {
-  userController = new UserController(server, options);
+  var userController = new UserController(server, options);
   userController.registerRoutes();
   next();
 };
