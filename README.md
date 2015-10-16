@@ -1,6 +1,6 @@
 # Welcome to WorldScope
 
-Worldscope is an open source clone of Periscope, a mobile client and server
+WorldScope is an open source clone of Periscope, a mobile client and server
 that allow a user to stream video and audio live from a mobile phone to their
 subcribers (listening and watching on their mobile phones).
 
