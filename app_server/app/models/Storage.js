@@ -9,16 +9,16 @@ var logger = Utility.createLogger(__filename);
 
 function Storage() {
   var Sequelize = require('sequelize');
-  var config = require('./Config');
+  var config = rfr('config/DatabaseConfig');
   var db = {};
 
   // initialize database connection
   var sequelize = new Sequelize(
-    config.name,
-    config.username,
-    config.password, {
-      host: config.host,
-      dialect: config.dialect
+      config.name,
+      config.username,
+      config.password, {
+        host: config.host,
+        dialect: config.dialect
   });
 
   // load models
@@ -28,12 +28,12 @@ function Storage() {
 
   // import each model
   models.forEach(function(model) {
-    logger.info(model + " imported");
+    logger.info(model + ' model imported');
     db[model] = sequelize.import(__dirname + '/' + model);
   });
 
   Object.keys(db).forEach(function(modelName) {
-    if ("associate" in db[modelName]) {
+    if ('associate' in db[modelName]) {
       db[modelName].associate(db);
     }
   });
