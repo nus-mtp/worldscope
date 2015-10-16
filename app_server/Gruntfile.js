@@ -9,10 +9,10 @@ module.exports = function(grunt) {
       all: {
         files: [{
           expand: true,
-          cwd: './public/javascripts',
           src: ['*.js', '!*.min.js'],
-          dest: './public/javascripts',
           ext: '.min.js'
+          cwd: './public/js/dist',
+          dest: './public/js/dist',
         }]
       }
     },
