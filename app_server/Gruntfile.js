@@ -41,12 +41,33 @@ module.exports = function(grunt) {
           './public/js/dist/app.js': ['./public/js/modules/app.js']
         }
       }
+    },
+
+    sass: {
+      debug: {
+        options: {
+          outputStyle: 'expanded',
+          sourceMap: true
+        },
+        files: {
+          './public/css/style.css': './public/css/style.scss'
+        }
+      },
+      dist: {
+        options: {
+          outputStyle: 'compressed'
+        },
+        files: {
+          './public/css/style.css': './public/css/style.scss'
+        }
+      }
     }
   });
 
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-sass');
 
-  grunt.registerTask('debug', ['browserify:debug']);
-  grunt.registerTask('default', ['browserify:dist', 'uglify']);
+  grunt.registerTask('debug', ['browserify:debug', 'sass:debug']);
+  grunt.registerTask('default', ['browserify:dist', 'uglify', 'sass:dist']);
 };
