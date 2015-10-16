@@ -9,16 +9,44 @@ module.exports = function(grunt) {
       all: {
         files: [{
           expand: true,
-          src: ['*.js', '!*.min.js'],
-          ext: '.min.js'
           cwd: './public/js/dist',
+          src: ['*.js'],
           dest: './public/js/dist',
+          ext: '.js'
         }]
       }
     },
+
+    browserify: {
+      debug: {
+        options: {
+          browserifyOptions: {
+            debug: true
+          },
+          transform: [
+              ['babelify']
+          ]
+        },
+        files: {
+          './public/js/dist/app.js': ['./public/js/modules/app.js']
+        }
+      },
+      dist: {
+        options: {
+          transform: [
+            ['babelify']
+          ]
+        },
+        files: {
+          './public/js/dist/app.js': ['./public/js/modules/app.js']
+        }
+      }
+    }
   });
 
+  grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-contrib-uglify');
 
-  grunt.registerTask('default', ['uglify']);
+  grunt.registerTask('debug', ['browserify:debug']);
+  grunt.registerTask('default', ['browserify:dist', 'uglify']);
 };
