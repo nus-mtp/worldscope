@@ -39,7 +39,7 @@ public class RecordActivity extends AppCompatActivity {
     final static String LOG_TAG = CLASS_LABEL;
     final Context mContext = this;
     //Change this to stream RMTP
-    String ffmpeg_link = "rtmp://multimedia.worldscope.tk/dash/streamkey";
+    String ffmpeg_link = "rtmp://worldscope.tk/dash/streamkey";
 
     long startTime = 0;
     boolean recording = false;
@@ -200,7 +200,7 @@ public class RecordActivity extends AppCompatActivity {
 
         Log.i(LOG_TAG, "Camera open");
         cameraView = new CameraView(this, cameraDevice);
-        topLayout.addView(cameraView, frameLayoutParam);
+        topLayout.addView(cameraView, frame LayoutParam);
         Log.i(LOG_TAG, "Camera preview start: OK");
 
         // TODO: Tweak start buttons
