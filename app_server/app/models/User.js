@@ -34,6 +34,5 @@ module.exports = function(sequelize, DataTypes){
       type: DataTypes.STRING
     },
   });
-  console.log("new user")
   return User;
 };
