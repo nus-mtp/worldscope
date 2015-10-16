@@ -28,10 +28,12 @@
   },
   "homepage": "https://github.com/nus-mtp/worldscope#readme",
   "dependencies": {
+    "boom": "^2.9.0",
     "good": "^6.4.0",
     "good-console": "^5.1.0",
     "good-file": "^5.1.0",
     "hapi": "^10.0.1",
+    "joi": "^6.9.1",
     "rfr": "^1.2.2",
     "winston": "^1.1.0"
   },

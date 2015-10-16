@@ -44,7 +44,7 @@ server.register({
 server.register({
   register: rfr('app/controllers/UserController.js')
 }, {
-  routes: { prefix: '/user' }
+  routes: { prefix: '/users' }
 }, function (err) {
   if (err) {
     logger.error('Unable to register UserController: %j', err);
