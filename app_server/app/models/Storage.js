@@ -28,14 +28,8 @@ function Storage() {
 
   // import each model
   models.forEach(function(model) {
-    logger.info(model + ' model imported');
     db[model] = sequelize.import(__dirname + '/' + model);
-  });
-
-  Object.keys(db).forEach(function(modelName) {
-    if ('associate' in db[modelName]) {
-      db[modelName].associate(db);
-    }
+    logger.info(model + ' model imported');
   });
 }
 
