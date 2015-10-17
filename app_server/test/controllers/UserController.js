@@ -22,7 +22,7 @@ lab.experiment('UserController Tests', function () {
 
   lab.test('Get list of users', function (done) {
     Router.inject('/api/users/asd', function (res) {
-      var errorMsg = 'child \'id\' fails because [\'id\' must be a number]';
+      var errorMsg = 'child "id" fails because ["id" must be a number]';
       Code.expect(res.result.statusCode).to.equal(400);
       Code.expect(res.result.message).to.equal(errorMsg);
       done();

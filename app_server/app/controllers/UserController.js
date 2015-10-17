@@ -31,7 +31,7 @@ Class.getListOfUsers = function (request, reply) {
 };
 
 Class.getUserById = function (request, reply) {
-  reply('Hello ' + request.params.id + "!");
+  reply('Hello ' + request.params.id + '!');
 };
 
 Class.login = function (request, reply) {

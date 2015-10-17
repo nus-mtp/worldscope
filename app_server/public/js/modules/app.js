@@ -35,5 +35,5 @@ const isLoggedIn = true;
 if (!isLoggedIn) {
   m.route(document.body, '/login', routes.locked);
 } else {
-  m.route(document.body, '/metrics', routes.app)
+  m.route(document.body, '/metrics', routes.app);
 }
