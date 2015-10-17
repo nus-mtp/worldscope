@@ -5,10 +5,10 @@ var Code = require('code');
 
 var Router = rfr('app/Router.js');
 
-lab.experiment("Router Tests", function () {
-  lab.test("Root request", function (done) {
+lab.experiment('Router Tests', function () {
+  lab.test('Root request', function (done) {
     Router.inject('/', function (res) {
-      Code.expect(res.result).to.equal("Welcome to WorldScope");
+      Code.expect(res.result).to.equal('Welcome to WorldScope');
       done();
     });
   });

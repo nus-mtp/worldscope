@@ -10,7 +10,7 @@ var logger = Utility.createLogger(__filename);
 
 /* Configure Hapi server connection */
 var server = new Hapi.Server();
-server.connection({ port: 3000 });
+server.connection({port: 3000});
 server.route({
   method: 'GET',
   path: '/',
@@ -23,10 +23,10 @@ server.route({
 var goodOptions = {
   reporters: [{
     reporter: require('good-console'),
-    events: { log: '*', response: '*' }
+    events: {log: '*', response: '*'}
   }, {
     reporter: require('good-file'),
-    events: { ops: '*' },
+    events: {ops: '*'},
     config: './process_log.log'
   }]
 };
@@ -44,7 +44,7 @@ server.register({
 server.register({
   register: rfr('app/controllers/UserController.js')
 }, {
-  routes: { prefix: '/users' }
+  routes: {prefix: '/api/users'}
 }, function (err) {
   if (err) {
     logger.error('Unable to register UserController: %j', err);
