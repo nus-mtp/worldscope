@@ -39,3 +39,31 @@ Nav.navItems = [
     'sub': []
   }
 ];
+
+Nav.controller = function () {
+  this.getVisibleItems = function () {
+    // TODO: adjust based on auth
+    return Nav.navItems;
+  }
+};
+
+Nav.view = function (ctrl) {
+  let getLink = (item) => m('a[href="' + item.href + '"]', {config: m.route}, item.name);
+
+  let makeList = function (items) {
+    if (!items) {
+      return;
+    }
+
+    return m('ul', [
+      items.map(function (item) {
+        let isActive = m.route().startsWith(item.href);
+        return isActive ?
+            m('li', {className: 'active'}, getLink(item), makeList(item.sub)) :
+            m('li', getLink(item));
+      })
+    ]);
+  };
+
+  return makeList(ctrl.getVisibleItems());
+};
