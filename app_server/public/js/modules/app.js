@@ -1,7 +1,19 @@
 const m = require('mithril');
+const nav = require('./components/nav');
+
+const mixinPage = function (nav, page) {
+  return {
+    view: function() {
+      return m('div', {id: 'container'}, [
+        m('div', {id: 'nav'}, nav),
+        m('div', {id: 'content'}, page)
+      ]);
+    }
+  };
+};
 
 // TODO: remove after implementing pages
-const blank = {view: () => m('div', 'TODO')};
+const blank = mixinPage(nav, {view: () => m('div', 'TODO')});
 
 const routes = {
   locked: {
