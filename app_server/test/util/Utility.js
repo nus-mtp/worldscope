@@ -5,20 +5,20 @@ var Code = require('code');
 
 var Utility = rfr('app/util/Utility');
 
-lab.experiment("Utility#getModuleName Tests", function () {
-  lab.test("Empty path", function (done) {
-    Code.expect(Utility.getModuleName("")).to.equal("");
+lab.experiment('Utility#getModuleName Tests', function () {
+  lab.test('Empty path', function (done) {
+    Code.expect(Utility.getModuleName('')).to.equal('');
     done();
   });
 
-  lab.test("Null path", function (done) {
-    Code.expect(Utility.getModuleName()).to.equal("undefined");
+  lab.test('Null path', function (done) {
+    Code.expect(Utility.getModuleName()).to.equal('undefined');
     done();
   });
 
-  lab.test("Valid path 1", function (done) {
+  lab.test('Valid path 1', function (done) {
     Code.expect(Utility.getModuleName('path/to/module.js'))
-        .to.equal("module.js");
+        .to.equal('module.js');
     done();
   });
 });

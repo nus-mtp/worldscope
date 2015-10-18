@@ -13,7 +13,7 @@ var getModuleName =
  */
 exports.getModuleName = function (filename) {
   return path.basename(filename);
-}
+};
 
 var createLogger =
 /**

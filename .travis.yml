@@ -3,7 +3,7 @@ node_js:
     - "4.0"
 env:
     APP_SERVER_DIR=app_server
-script: cd $APP_SERVER_DIR && npm install && npm test
+script: cd $APP_SERVER_DIR && npm install && npm run linter && npm test
 after_success: ./node_modules/.bin/coveralls < ./report/coverage.info
 branches:
     only:

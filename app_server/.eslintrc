@@ -1,0 +1,53 @@
+{
+  env: {
+    node: true,   // Node.js global variables and Node.js-specific rules.
+  },
+
+  rules: {
+    // Possible Errors
+    no-extra-semi: 1,         // disallow unnecessary semicolons
+    no-inner-declarations: 2, // disallow function or variable declarations in nested blocks
+
+    // Best Practices
+    curly: 2,                 // specify curly brace conventions for all control statements
+    no-eval: 2,               // disallow use of eval()
+    no-extend-native: 2,      // disallow adding to native types
+    no-new-wrappers: 2,       // disallows creating new instances of String, Number, and Boolean
+    no-with: 2,               // disallow use of the with statement
+
+    // Strict Mode
+
+    // Variables
+    no-undef: 2,              // disallow use of undeclared variables unless mentioned in a /*global */ block
+
+    // Node.js
+
+    // Stylistic Issues
+    array-bracket-spacing: [2, 'never'], // enforce spacing inside array brackets (off by default)
+    indent: [2, 2],                      // this option sets a specific tab width for your code (off by default)
+    no-array-constructor: 2,             // disallow use of the Array constructor
+    no-mixed-spaces-and-tabs: 2,         // disallow mixed spaces and tabs for indentation
+    no-new-object: 2,                    // disallow use of the Object constructor
+    object-curly-spacing: [2, 'never'],  // require or disallow padding inside curly braces (off by default)
+    semi: 2,                             // require or disallow use of semicolons instead of ASI
+    camelcase: 1,
+    new-cap: 1,
+    brace-style: [2, '1tbs', {allowSingleLine: true}],
+    comma-spacing: [2, {before: false, after: true}],
+    comma-style: [2, 'last'],
+    key-spacing: [2, {beforeColon: false, afterColon: true}],
+    linebreak-style: 2,
+    no-nested-ternary: 2,
+    quotes: [2, 'single', 'avoid-escape'],
+    space-after-keywords: 2,
+    space-before-blocks: 2,
+    space-before-keywords: [2, 'always'],
+    space-return-throw-case: 2,
+    space-unary-ops: 2,
+
+    // ECMAScript 6
+
+    // Legacy
+    max-len: [1, 80, 2] // specify the maximum length of a line in your program (off by default)
+  }
+}

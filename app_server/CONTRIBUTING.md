@@ -10,7 +10,7 @@ var rfr = require('rfr');
 var Utility = rfr('app/util/Utility');
 ```
 
-Modules' names should be in Pascal case. Packages (directories) names should be in snake case.
+Modules' names should be in PascalCase. Packages (directories) names should be in snake\_case.
 
 ## OOP Conventions
 Use simple prototypical OOP and inheritance. Avoid complex tricks and libraries to mimic classical OOP. However, [util.inherits](https://nodejs.org/docs/latest/api/util.html#util_util_inherits_constructor_superconstructor) can be used to simplify inheritance.
