@@ -36,3 +36,5 @@ var Class = SocialMediaAdapter.prototype;
 Class.getUser = function () {
   return this.platform.getUser();
 }
+
+module.exports = SocialMediaAdapter;
