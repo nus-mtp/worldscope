@@ -44,11 +44,12 @@ Nav.controller = function () {
   this.getVisibleItems = function () {
     // TODO: adjust based on auth
     return Nav.navItems;
-  }
+  };
 };
 
 Nav.view = function (ctrl) {
-  let getLink = (item) => m('a[href="' + item.href + '"]', {config: m.route}, item.name);
+  let getLink = (item) =>
+      m('a[href="' + item.href + '"]', {config: m.route}, item.name);
 
   let makeList = function (items) {
     if (!items) {

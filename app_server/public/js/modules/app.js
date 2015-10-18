@@ -5,8 +5,8 @@ const mixinPage = function (nav, page) {
   return {
     view: function() {
       return m('div', {id: 'container'}, [
-          m('div', {id: 'nav'}, nav),
-          m('div', {id: 'content'}, page)
+        m('div', {id: 'nav'}, nav),
+        m('div', {id: 'content'}, page)
       ]);
     }
   };
