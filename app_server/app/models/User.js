@@ -36,7 +36,17 @@ module.exports = function(sequelize, DataTypes){
       type: DataTypes.STRING
     },
   }, {
-    freezeTableName: true
+    freezeTableName: true,
+    setterMethods : {
+      password: function(newPassword) {
+        console.log('called in user js');
+        this.setDataValue('password', newPassword);
+      },
+      alias: function(newAlias) {
+        console.log('called in user js');
+        this.setDataValue('alias', newAlias);
+      },
+    }
   });
   return User;
 };
