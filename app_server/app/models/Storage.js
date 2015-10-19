@@ -18,7 +18,8 @@ function Storage() {
       config.username,
       config.password, {
         host: config.host,
-        dialect: config.dialect
+        dialect: config.dialect,
+        logging: config.logging
   });
 
   // load models
@@ -35,7 +36,7 @@ function Storage() {
 
   // create the tables
   sequelize
-    .sync()
+    .sync({force: true})
     .then(function(err) {
       logger.info('Table synchronized');
     }, function (err) {
@@ -45,7 +46,6 @@ function Storage() {
 }
 
 var Class = Storage.prototype;
-
 
 Class.createUser = function(username, alias, email, password,
                             accessToken, platformType, description) {
@@ -57,6 +57,10 @@ Class.createUser = function(username, alias, email, password,
       accessToken: accessToken,
       platformType: platformType,
       description: description,
+  }).then(function(user) {
+    return user;
+  }).catch(function(err) {
+    logger.error('Error in creating user');
   });
 };
 
@@ -66,50 +70,62 @@ Class.getUserByEmail = function(email) {
       email: email
     }
   }).then(function(user) {
+    logger.info('User retrieved');
     return user;
   });
 };
 
-Class.deleteUserById = function(userId) {
-  this.models.User.findById(userId).then(function(user) {
-    user.destroy().then(function() {
-      logger.info('User deleted');
+Class.getUserById = function(userId) {
+  this.models.User.findById(userId)
+    .then(function(user) {
+      logger.info('User retrieved');
+      return user;
     });
-  });
+};
+
+Class.deleteUserById = function(userId) {
+  this.models.User.findById(userId)
+    .then(function(user) {
+      user.destroy().then(function() {
+        logger.info('User deleted');
+      });
+    });
 };
 
 Class.deleteUserByEmail = function(email) {
-  this.models.User.findOne({
-    where: {
-      email: email
-    }
-  }).then(function(user) {
-    user.destroy().then(function() {
-      logger.info('User deleted');
+  this.getUserByEmail(email)
+    .then(function(user) {
+      user.destroy().then(function() {
+        logger.info('User deleted');
+      });
     });
-  });
 };
 
 Class.updatePassword = function(email, newPassword) {
-  this.models.User.findOne({
-    where: {
-      email: email
-    }
-  }).then(function(user) {
-    user.password = newPassword;
-    user.save();
-  });
+  this.getUserByEmail(email)
+    .then(function(user) {
+      user.password = newPassword;
+      user.save();
+      logger.info('Password updated');
+    });
 };
 
 Class.updateAlias = function(email, newAlias) {
-  this.models.User.findOne({
-    where: {
-      email: email
-    }
-  }).then(function(user) {
-    user.alias = newAlias;
-    user.save();
-  });
+  this.getUserByEmail(email)
+    .then(function(user) {
+      user.alias = newAlias;
+      user.save();
+      logger.info('Alias updated');
+    });
+};
+
+Class.updateDescription = function(email, newDescription) {
+  this.getUserByEmail(email)
+    .then(function(user) {
+      user.description = newDescription;
+      user.save();
+      logger.info('Description updated');
+    });
 };
 
 module.exports = new Storage();
