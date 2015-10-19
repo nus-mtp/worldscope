@@ -7,7 +7,8 @@ var config = {
   username: '',
   password: '',
   host: 'localhost',
-  dialect: 'mysql'
+  dialect: 'mysql',
+  logging: false
 };
 
 module.exports = config;
