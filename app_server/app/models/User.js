@@ -1,7 +1,8 @@
 module.exports = function(sequelize, DataTypes){
   var User = sequelize.define('User', {
     userId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
       unique: true,
       allowNull: false,
       primaryKey: true
@@ -15,6 +16,7 @@ module.exports = function(sequelize, DataTypes){
     },
     email: {
       type: DataTypes.STRING,
+      allowNull: false,
       unique: true
     },
     password: {
@@ -33,6 +35,8 @@ module.exports = function(sequelize, DataTypes){
     location: {
       type: DataTypes.STRING
     },
+  }, {
+    freezeTableName: true
   });
   return User;
 };
