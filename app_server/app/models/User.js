@@ -37,15 +37,51 @@ module.exports = function(sequelize, DataTypes){
     },
   }, {
     freezeTableName: true,
+    getterMethods : {
+      username: function() {
+        return this.getDataValue('username');
+      },
+      alias: function() {
+        return this.getDataValue('alias');
+      },
+      email: function() {
+        return this.getDataValue('email');
+      },
+      platformType: function() {
+        return this.getDataValue('platformType');
+      },
+      description: function() {
+        return this.getDataValue('description');
+      },
+      location: function() {
+        return this.getDataValue('location');
+      },
+    },
     setterMethods : {
-      password: function(newPassword) {
-        console.log('called in user js');
-        this.setDataValue('password', newPassword);
+      username: function(newUsername) {
+        this.setDataValue('username', newUsername);
       },
       alias: function(newAlias) {
-        console.log('called in user js');
         this.setDataValue('alias', newAlias);
       },
+      email: function(newEmail) {
+        this.setDataValue('email', newEmail);
+      },
+      password: function(newPassword) {
+        this.setDataValue('password', newPassword);
+      },
+      accessToken: function(newToken) {
+        this.setDataValue('accessToken', newToken);
+      },
+      platformType: function(newPlatform) {
+        this.setDataValue('platformType', newPlatform);
+      },
+      description: function(newDescription) {
+        this.setDataValue('description', newDescription);
+      },
+      location: function(newLocation) {
+        this.setDataValue('location', newLocation);
+      }
     }
   });
   return User;
