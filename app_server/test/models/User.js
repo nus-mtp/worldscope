@@ -27,20 +27,40 @@ lab.experiment('User Model Tests', function () {
         });
   });
 
-  lab.test('Add User', function (done) {
+  lab.test('Create User', function (done) {
     Storage.createUser(user)
       .then(function(user) {
-        console.log(user.username);
         expect(user.username).to.equal('Jane Tan');
         done();
       });
   });
 
-  lab.test('Delete non-existing user', function (done) {
-    Storage.deleteUserByEmail('nouser@gmail.com')
-      .then(function(res) {
-        console.log(res);
-        expect(res).to.equal(false);
+  lab.test('Get User by Id', function (done) {
+    Storage.createUser(user)
+      .then(function(user) {
+        Storage.getUserById(user.userId)
+          .then(function(data) {
+            expect(data.username).to.equal('Jane Tan');
+            done();
+          });
+      });
+  });
+
+  lab.test('Get User by Email', function (done) {
+    Storage.createUser(user)
+      .then(function(user) {
+        Storage.getUserByEmail(user.email)
+          .then(function(data) {
+            expect(data.username).to.equal('Jane Tan');
+            done();
+          });
+      });
+  });
+
+  lab.test('Delete Non-Existing User', function (done) {
+    Storage.deleteUserById('19f9bd98-ffff-aaaa-bbbb-3109f617667d')
+      .then(function(err) {
+        expect(err).to.equal(false);
         done();
       });
   });
@@ -48,9 +68,8 @@ lab.experiment('User Model Tests', function () {
   lab.test('Delete User', function (done) {
     Storage.createUser(user)
       .then(function(user) {
-        Storage.deleteUserByEmail(user.email)
+        Storage.deleteUserById(user.userId)
           .then(function(res) {
-            console.log(res);
             expect(res).to.equal(true);
             done();
           });
@@ -62,7 +81,6 @@ lab.experiment('User Model Tests', function () {
       .then(function() {
         Storage.createUser(user)
           .then(function(res) {
-            console.log(res);
             expect(res).to.equal(false);
             done();
           });
@@ -77,9 +95,8 @@ lab.experiment('User Model Tests', function () {
 
     Storage.createUser(user)
       .then(function(user) {
-        Storage.updateParticulars(user.email, newParticulars)
+        Storage.updateParticulars(user.userId, newParticulars)
           .then(function(res) {
-            console.log(res);
             expect(res).to.equal(true);
             done();
           });

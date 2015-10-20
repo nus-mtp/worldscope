@@ -6,7 +6,6 @@
 var rfr = require('rfr');
 var Utility = rfr('app/util/Utility');
 var logger = Utility.createLogger(__filename);
-var Promise = require('bluebird');
 
 function Storage() {
   var Sequelize = require('sequelize');
@@ -49,84 +48,59 @@ function Storage() {
 var Class = Storage.prototype;
 
 Class.createUser = function(particulars) {
-  var that = this;
-  return new Promise(function(resolve, reject) {
-    that.models.User.create(particulars)
-      .then(function(user) {
-        logger.info('User created');
-        resolve(user);
-      }).catch(function(err) {
-        logger.error('Error in creating user');
-        resolve(false);
-      });
-  });
+  return this.models.User.create(particulars)
+         .catch(function(err) {
+           logger.error('Error in creating user');
+           return false;
+         });
 };
 
 Class.getUserByEmail = function(email) {
-  var user = this.models.User.findOne({
-    where: {
-      email: email
-    }
-  });
-  return user;
-};
+  return this.models.User.findOne({
+           email: email
+         })
+         .catch(function(err) {
+           logger.error('Unable to retrieve user: %s', err);
+           return false;
+         });
+  };
 
 Class.getUserById = function(userId) {
-  var user = this.models.User.findById(userId);
-  return user;
+  return this.models.User.findById(userId)
+         .catch(function(err) {
+           logger.error('Unable to retrieve user: %s', err);
+           return false;
+         });
 };
 
 Class.deleteUserById = function(userId) {
-  var that = this;
-  return new Promise(function(resolve, reject){
-    that.models.User.findById(userId)
-      .then(function(user) {
-        user.destroy();
-      })
-      .then(function() {
-        logger.info('User deleted');
-        resolve(true);
-      })
-      .catch(function(err) {
-        resolve(false);
-      });
-  });
+  return this.getUserById(userId)
+         .then(function(user) {
+           user.destroy();
+         })
+         .then(function() {
+           return true;
+         })
+         .catch(function(err) {
+           logger.error('Error in deleting user' + err);
+           return false;
+         });
 };
 
-Class.deleteUserByEmail = function(email) {
-  var that = this;
-  return new Promise(function(resolve, reject){
-    that.getUserByEmail(email)
-      .then(function(user) {
-        user.destroy();
-      })
-      .then(function() {
-        resolve(true);
-      })
-      .catch(function(err) {
-        resolve(false);
-      });
-  });
-};
-
-Class.updateParticulars = function(email, newParticulars) {
-  var that = this;
-  return new Promise(function(resolve, reject) {
-    that.getUserByEmail(email)
-      .then(function(user) {
-        user.update(newParticulars, {
-          fields: newParticulars.keys
-        })
-        .then(function(value){
-          logger.info('Particulars updated');
-          resolve(true);
-        })
-        .catch(function(err) {
-          logger.info('Error in updating user particulars');
-          resolve(false);
-        });
-      });
-  });
+Class.updateParticulars = function(userId, newParticulars) {
+  return this.getUserById(userId)
+         .then(function(user) {
+           user.update(newParticulars, {
+             fields: newParticulars.keys
+           });
+         })
+         .then(function() {
+           return true;
+         })
+         .catch(function(err) {
+           logger.info('Error in updating user particulars');
+           return false;
+         });
 };
 
 module.exports = new Storage();
