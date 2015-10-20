@@ -60,7 +60,7 @@ Class.getUserByEmail = function(email) {
            email: email
          })
          .catch(function(err) {
-           logger.error('Unable to retrieve user: %s', err);
+           logger.error('Unable to retrieve user');
            return false;
          });
   };
@@ -68,7 +68,7 @@ Class.getUserByEmail = function(email) {
 Class.getUserById = function(userId) {
   return this.models.User.findById(userId)
          .catch(function(err) {
-           logger.error('Unable to retrieve user: %s', err);
+           logger.error('Unable to retrieve user');
            return false;
          });
 };
@@ -79,10 +79,11 @@ Class.deleteUserById = function(userId) {
            user.destroy();
          })
          .then(function() {
+           logger.info('User deleted');
            return true;
          })
          .catch(function(err) {
-           logger.error('Error in deleting user' + err);
+           logger.error('Error in deleting user');
            return false;
          });
 };
@@ -95,10 +96,11 @@ Class.updateParticulars = function(userId, newParticulars) {
            });
          })
          .then(function() {
+           logger.info('User particulars updated');
            return true;
          })
          .catch(function(err) {
-           logger.info('Error in updating user particulars');
+           logger.error('Error in updating user particulars');
            return false;
          });
 };
