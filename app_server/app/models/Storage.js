@@ -20,7 +20,7 @@ function Storage() {
         host: config.host,
         dialect: config.dialect,
         logging: config.logging
-  });
+      });
 
   // load models
   var modelArr = [
@@ -35,7 +35,7 @@ function Storage() {
   }
 
   // create the tables
-  sequelize
+  this.sequelize
     .sync({force: true})
     .then(function(err) {
       logger.info('Table synchronized');
@@ -49,60 +49,60 @@ var Class = Storage.prototype;
 
 Class.createUser = function(particulars) {
   return this.models.User.create(particulars)
-         .catch(function(err) {
-           logger.error('Error in creating user');
-           return false;
-         });
+    .catch(function(err) {
+      logger.error('Error in creating user');
+      return false;
+    });
 };
 
 Class.getUserByEmail = function(email) {
   return this.models.User.findOne({
-           email: email
-         })
-         .catch(function(err) {
-           logger.error('Unable to retrieve user');
-           return false;
-         });
-  };
+    email: email
+  })
+    .catch(function(err) {
+      logger.error('Unable to retrieve user');
+      return false;
+    });
+};
 
 Class.getUserById = function(userId) {
   return this.models.User.findById(userId)
-         .catch(function(err) {
-           logger.error('Unable to retrieve user');
-           return false;
-         });
+    .catch(function(err) {
+      logger.error('Unable to retrieve user');
+      return false;
+    });
 };
 
 Class.deleteUserById = function(userId) {
   return this.getUserById(userId)
-         .then(function(user) {
-           user.destroy();
-         })
-         .then(function() {
-           logger.info('User deleted');
-           return true;
-         })
-         .catch(function(err) {
-           logger.error('Error in deleting user');
-           return false;
-         });
+    .then(function(user) {
+      user.destroy();
+    })
+    .then(function() {
+      logger.info('User deleted');
+      return true;
+    })
+    .catch(function(err) {
+      logger.error('Error in deleting user');
+      return false;
+    });
 };
 
 Class.updateParticulars = function(userId, newParticulars) {
   return this.getUserById(userId)
-         .then(function(user) {
-           user.update(newParticulars, {
-             fields: newParticulars.keys
-           });
-         })
-         .then(function() {
-           logger.info('User particulars updated');
-           return true;
-         })
-         .catch(function(err) {
-           logger.error('Error in updating user particulars');
-           return false;
-         });
+    .then(function(user) {
+      user.update(newParticulars, {
+        fields: newParticulars.keys
+      });
+    })
+    .then(function() {
+      logger.info('User particulars updated');
+      return true;
+    })
+    .catch(function(err) {
+      logger.error('Error in updating user particulars');
+      return false;
+    });
 };
 
 module.exports = new Storage();

@@ -13,18 +13,19 @@ lab.experiment('User Model Tests', function () {
     alias: 'Jane the kid',
     email: 'jane@gmail.com',
     password: 'secretpass',
-    acessToken:'atoken',
+    accessToken: 'atoken',
     platformType: 'facebook',
+    platformId: 'asdfadf-asdfasdf-asdfasdfaf-dfddf',
     description: 'a long long long description about jane'
   };
 
   lab.beforeEach(function (done) {
-      // Delete database, run before every single test
-      Storage.sequelize
-        .sync({force: true})
-        .then(function() {
-          done();
-        });
+    // Delete database, run before every single test
+    Storage.sequelize
+      .sync({force: true})
+      .then(function() {
+        done();
+      });
   });
 
   lab.test('Create User', function (done) {

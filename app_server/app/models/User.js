@@ -1,4 +1,4 @@
-module.exports = function(sequelize, DataTypes){
+module.exports = function(sequelize, DataTypes) {
   var User = sequelize.define('User', {
     userId: {
       type: DataTypes.UUID,
@@ -41,7 +41,7 @@ module.exports = function(sequelize, DataTypes){
     },
   }, {
     freezeTableName: true,
-    getterMethods : {
+    getterMethods: {
       userId: function() {
         return this.getDataValue('userId');
       },
@@ -73,7 +73,7 @@ module.exports = function(sequelize, DataTypes){
         return this.getDataValue('location');
       },
     },
-    setterMethods : {
+    setterMethods: {
       username: function(newUsername) {
         this.setDataValue('username', newUsername);
       },

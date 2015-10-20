@@ -3,8 +3,8 @@
  */
 
 var config = {
-  name: 'travis',
-  username: 'root',
+  name: 'worldscope_db',
+  username: 'travis',
   password: '',
   host: 'localhost',
   dialect: 'mysql',
