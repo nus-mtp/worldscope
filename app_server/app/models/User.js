@@ -38,6 +38,9 @@ module.exports = function(sequelize, DataTypes){
   }, {
     freezeTableName: true,
     getterMethods : {
+      userId: function() {
+        return this.getDataValue('userId');
+      },
       username: function() {
         return this.getDataValue('username');
       },
@@ -46,6 +49,12 @@ module.exports = function(sequelize, DataTypes){
       },
       email: function() {
         return this.getDataValue('email');
+      },
+      password: function() {
+        return this.getDataValue('password');
+      },
+      accessToken: function() {
+        return this.getDataValue('accessToken');
       },
       platformType: function() {
         return this.getDataValue('platformType');

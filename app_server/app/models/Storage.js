@@ -6,6 +6,7 @@
 var rfr = require('rfr');
 var Utility = rfr('app/util/Utility');
 var logger = Utility.createLogger(__filename);
+var Promise = require('bluebird');
 
 function Storage() {
   var Sequelize = require('sequelize');
@@ -13,7 +14,7 @@ function Storage() {
   this.models = {};
 
   // initialize database connection
-  var sequelize = new Sequelize(
+  this.sequelize = new Sequelize(
       config.name,
       config.username,
       config.password, {
@@ -29,103 +30,103 @@ function Storage() {
 
   // importing models
   for (var i = 0; i < modelArr.length; i++) {
-    modelName = modelArr[i];
-    this.models[modelName] = sequelize.import(__dirname + '/' + modelName);
+    var modelName = modelArr[i];
+    this.models[modelName] = this.sequelize.import(__dirname + '/' + modelName);
     logger.info(modelName + ' model imported');
   }
 
   // create the tables
-  sequelize
+/*  sequelize
     .sync({force: true})
     .then(function(err) {
       logger.info('Table synchronized');
     }, function (err) {
       logger.info('An error occurred while synchronizing table:', err);
-    });
+    });*/
 
 }
 
 var Class = Storage.prototype;
 
-Class.createUser = function(username, alias, email, password,
-                            accessToken, platformType, description) {
-  var newUser = this.models.User.create({
-      username: username,
-      alias: alias,
-      email: email,
-      password: password,
-      accessToken: accessToken,
-      platformType: platformType,
-      description: description,
-  }).then(function(user) {
-    return user;
-  }).catch(function(err) {
-    logger.error('Error in creating user');
+Class.createUser = function(particulars) {
+  var that = this;
+  return new Promise(function(resolve, reject) {
+    that.models.User.create(particulars)
+      .then(function(user) {
+        logger.info('User created');
+        resolve(user);
+      }).catch(function(err) {
+        logger.error('Error in creating user');
+        resolve(false);
+      });
   });
 };
 
 Class.getUserByEmail = function(email) {
-  this.models.User.findOne({
+  var user = this.models.User.findOne({
     where: {
       email: email
     }
-  }).then(function(user) {
-    logger.info('User retrieved');
-    return user;
   });
+  return user;
 };
 
 Class.getUserById = function(userId) {
-  this.models.User.findById(userId)
-    .then(function(user) {
-      logger.info('User retrieved');
-      return user;
-    });
+  var user = this.models.User.findById(userId);
+  return user;
 };
 
 Class.deleteUserById = function(userId) {
-  this.models.User.findById(userId)
-    .then(function(user) {
-      user.destroy().then(function() {
+  var that = this;
+  return new Promise(function(resolve, reject){
+    that.models.User.findById(userId)
+      .then(function(user) {
+        user.destroy();
+      })
+      .then(function() {
         logger.info('User deleted');
+        resolve(true);
+      })
+      .catch(function(err) {
+        resolve(false);
       });
-    });
+  });
 };
 
 Class.deleteUserByEmail = function(email) {
-  this.getUserByEmail(email)
-    .then(function(user) {
-      user.destroy().then(function() {
-        logger.info('User deleted');
+  var that = this;
+  return new Promise(function(resolve, reject){
+    that.getUserByEmail(email)
+      .then(function(user) {
+        user.destroy();
+      })
+      .then(function() {
+        resolve(true);
+      })
+      .catch(function(err) {
+        resolve(false);
       });
-    });
+  });
 };
 
-Class.updatePassword = function(email, newPassword) {
-  this.getUserByEmail(email)
-    .then(function(user) {
-      user.password = newPassword;
-      user.save();
-      logger.info('Password updated');
-    });
-};
-
-Class.updateAlias = function(email, newAlias) {
-  this.getUserByEmail(email)
-    .then(function(user) {
-      user.alias = newAlias;
-      user.save();
-      logger.info('Alias updated');
-    });
-};
-
-Class.updateDescription = function(email, newDescription) {
-  this.getUserByEmail(email)
-    .then(function(user) {
-      user.description = newDescription;
-      user.save();
-      logger.info('Description updated');
-    });
+Class.updateParticulars = function(email, newParticulars) {
+  var that = this;
+  return new Promise(function(resolve, reject) {
+    that.getUserByEmail(email)
+      .then(function(user) {
+        user.update(newParticulars, {
+          fields: newParticulars.keys
+        })
+        .then(function(value){
+          logger.info('Particulars updated');
+          resolve(true);
+        })
+        .catch(function(err) {
+          logger.info('Error in updating user particulars');
+          resolve(false);
+        });
+      });
+  });
 };
 
 module.exports = new Storage();
