@@ -35,13 +35,13 @@ function Storage() {
   }
 
   // create the tables
-/*  sequelize
+  sequelize
     .sync({force: true})
     .then(function(err) {
       logger.info('Table synchronized');
     }, function (err) {
       logger.info('An error occurred while synchronizing table:', err);
-    });*/
+    });
 
 }
 
