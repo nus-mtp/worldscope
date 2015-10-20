@@ -3,8 +3,8 @@
  */
 
 var config = {
-  name: '',
-  username: '',
+  name: 'travis',
+  username: 'root',
   password: '',
   host: 'localhost',
   dialect: 'mysql',

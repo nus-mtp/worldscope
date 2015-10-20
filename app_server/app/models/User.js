@@ -7,6 +7,10 @@ module.exports = function(sequelize, DataTypes){
       allowNull: false,
       primaryKey: true
     },
+    platformId: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     username: {
       type: DataTypes.STRING,
       allowNull: false
@@ -40,6 +44,9 @@ module.exports = function(sequelize, DataTypes){
     getterMethods : {
       userId: function() {
         return this.getDataValue('userId');
+      },
+      platformId: function() {
+        return this.getDataValue('platformId');
       },
       username: function() {
         return this.getDataValue('username');
