@@ -35,6 +35,6 @@ var Class = Facebook.prototype;
 Class.getUser = function () {
   return this.__makeAPICall(util.format('/%s/me', this.apiVersion),
                             {'access_token': this.accessToken});
-}
+};
 
 module.exports = Facebook;

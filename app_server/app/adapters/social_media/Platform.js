@@ -26,22 +26,22 @@ var Class = Platform.prototype;
  * @return {Promise} a promise of response string
  */
 Class.__makeAPICall = function makeAPICall(apiPath, pathParams, payload) {
-    var paramsArr = _.map(pathParams, function(value, key) {
-      return util.format('%s=%s', key, value);
-    });
+  var paramsArr = _.map(pathParams, function(value, key) {
+    return util.format('%s=%s', key, value);
+  });
 
-    var query = '?' + paramsArr.join('&');
-    var request = this.apiDomain + apiPath + query;
+  var query = '?' + paramsArr.join('&');
+  var request = this.apiDomain + apiPath + query;
 
-    logger.info('Requesting: ' + request);
+  logger.info('Requesting: ' + request);
 
-    return Wreck.getAsync(request, {json: 'force'})
-    .spread(function processAPICallResponse(res, payload) {
-      return payload;
-    }).catch(function processAPICallError(err) {
-      logger.error(util.format('Unable to make API request %s: %s',
-                               request, err));
-    });
+  return Wreck.getAsync(request, {json: 'force'})
+  .spread(function processAPICallResponse(res, payload) {
+    return payload;
+  }).catch(function processAPICallError(err) {
+    logger.error(util.format('Unable to make API request %s: %s',
+                              request, err));
+  });
 };
 
 module.exports = Platform;
