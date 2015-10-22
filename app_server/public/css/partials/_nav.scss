@@ -1,0 +1,60 @@
+$nav-primary-bg-color: color("grey", "darken-3");
+$nav-secondary-focus-color: color("teal", "accent-4");
+$nav-secondary-bg-color: color("teal", "lighten-4");
+
+#nav {
+  position: fixed;
+  height: 100%;
+  padding-left: 0;
+  padding-right: 0;
+  background-color: $nav-primary-bg-color;
+  font-weight: bold;
+  text-align: right;
+  box-shadow: 0 2px 5px 0 rgba(178, 223, 219, 0.5), 0 2px 10px 0 rgba(0, 0, 0, 0.15);
+
+  ul li {
+    padding-top: 0.5em;
+    font-size: 1.2rem;
+
+    a {
+      display: block;
+      height: 2em;
+      padding: 0 0.75em;
+      color: #FFFFFF;
+      opacity: $opacity-light-on-dark-secondary;
+
+      &:hover {
+        opacity: $opacity-light-on-dark-primary
+      }
+    }
+
+    ul li a {
+      font-size: 0.8em;
+      font-weight: normal;
+      opacity: $opacity-dark-on-light-secondary;
+
+      &:hover {
+        opacity: $opacity-dark-on-light-primary
+      }
+    }
+
+    &.active {
+      background-color: $nav-secondary-focus-color;
+
+      a {
+        color: #000000;
+      }
+
+      ul li {
+        background-color: $nav-secondary-bg-color;
+
+        &.active {
+          a {
+            font-weight: bold;
+            opacity: $opacity-dark-on-light-primary;
+          }
+        }
+      }
+    }
+  }
+}
