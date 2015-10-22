@@ -47,7 +47,8 @@ module.exports = function(grunt) {
       debug: {
         options: {
           outputStyle: 'expanded',
-          sourceMap: true
+          sourceMap: true,
+          includePaths: ['./node_modules/materialize-css/sass/']
         },
         files: {
           './public/css/style.css': './public/css/style.scss'
@@ -55,7 +56,8 @@ module.exports = function(grunt) {
       },
       dist: {
         options: {
-          outputStyle: 'compressed'
+          outputStyle: 'compressed',
+          includePaths: ['./node_modules/materialize-css/sass/']
         },
         files: {
           './public/css/style.css': './public/css/style.scss'
