@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/nus-mtp/worldscope#readme",
   "dependencies": {
+    "bluebird": "^2.10.2",
     "boom": "^2.9.0",
     "good": "^6.4.0",
     "good-console": "^5.1.0",
@@ -39,7 +40,9 @@
     "rfr": "^1.2.2",
     "winston": "^1.1.0",
     "mysql": "~2.9.0",
-    "sequelize": "~3.12.1"
+    "sequelize": "~3.12.1",
+    "underscore": "^1.8.3",
+    "wreck": "^6.3.0"
   },
   "devDependencies": {
     "babelify": "^6.3.0",
