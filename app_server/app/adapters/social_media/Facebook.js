@@ -18,10 +18,12 @@ var logger = Utility.createLogger(__filename);
  * @return {Facebook}
  */
 function Facebook(options) {
-  Platform.call(this, 'https://graph.facebook.com');
+  var FACEBOOK_API_URL = 'https://graph.facebook.com';
+
+  Platform.call(this, FACEBOOK_API_URL);
 
   if (!options.accessToken) {
-    var errorMsg = util.format('Facebook platform requires an access token');
+    var errorMsg = 'Facebook platform requires an access token';
     logger.error(errorMsg);
     throw new Error(errorMsg);
   }

@@ -1,5 +1,5 @@
 module.exports = {
   facebook: {
-    app_secret: ''
+    app_id: ''
   }
 }

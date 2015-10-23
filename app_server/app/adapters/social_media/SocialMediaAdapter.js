@@ -19,7 +19,9 @@ var logger = Utility.createLogger(__filename);
  * @return {object}
  */
 function SocialMediaAdapter(platform, options) {
-  if (platform === 'facebook') {
+  var PLATFORM_FACEBOOK = 'facebook';
+
+  if (platform === PLATFORM_FACEBOOK) {
     this.platform = new Facebook(options);
   } else {
     var errorMsg = util.format('Platform %s is not supported', platform);
