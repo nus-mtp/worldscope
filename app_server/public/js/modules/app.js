@@ -3,19 +3,27 @@ const nav = require('./components/nav');
 
 const mixinPage = function (nav, page) {
   return {
-    view: function() {
+    controller: function() {
+      let ctrl = this;
+      ctrl.navCtrl = new nav.controller();
+      ctrl.pageCtrl = new page.controller();
+    },
+    view: function(ctrl) {
       return m('div', {id: 'container', class: 'row'}, [
         m('div', {id: 'nav', class: 'col s2 l1'},
-            nav),
+            nav.view(ctrl.navCtrl)),
         m('div', {id: 'content', class: 'col offset-s2 s10 offset-l1 l11'},
-            page)
+            page.view(ctrl.pageCtrl))
       ]);
     }
   };
 };
 
 // TODO: remove after implementing pages
-const blank = mixinPage(nav, {view: () => m('div', 'TODO')});
+const blank = mixinPage(nav, {
+  controller: () => {},
+  view: () => m('div', 'TODO')
+});
 
 const routes = {
   locked: {
