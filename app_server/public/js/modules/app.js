@@ -29,7 +29,7 @@ const routes = {
 
     '/streams': {controller: () => m.route('/streams/live')},
     '/streams/live': blank,
-    '/streams/all': blank,
+    '/streams/all': mixinPage(nav, require('./pages/streams')),
     '/streams/search': blank,
 
     '/users': {controller: () => m.route('/users/all')},
