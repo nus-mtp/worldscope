@@ -39,10 +39,9 @@ function Storage() {
     .sync({force: true})
     .then(function(err) {
       logger.info('Table synchronized');
-    }, function (err) {
+    }, function(err) {
       logger.info('An error occurred while synchronizing table:', err);
     });
-
 }
 
 var Class = Storage.prototype;
@@ -67,6 +66,17 @@ Class.getUserByEmail = function(email) {
 
 Class.getUserById = function(userId) {
   return this.models.User.findById(userId)
+    .catch(function(err) {
+      logger.error('Unable to retrieve user');
+      return false;
+    });
+};
+
+Class.getUserByPlatformId = function(platformType, platformId) {
+  return this.models.User.findOne({
+    platformType: platformType,
+    platformId: platformId
+  })
     .catch(function(err) {
       logger.error('Unable to retrieve user');
       return false;
@@ -101,6 +111,16 @@ Class.updateParticulars = function(userId, newParticulars) {
     })
     .catch(function(err) {
       logger.error('Error in updating user particulars');
+      return false;
+    });
+};
+
+Class.getListOfUsers = function() {
+  return this.models.User.findAll({
+    order: [['username', 'ASC']]
+  })
+    .catch(function(err) {
+      logger.error('Error in fetching list of users');
       return false;
     });
 };

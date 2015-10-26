@@ -25,6 +25,9 @@ lab.experiment('User Model Tests', function () {
       .sync({force: true})
       .then(function() {
         done();
+      })
+      .catch(function(err) {
+        console.log('Database Connection refused');
       });
   });
 
@@ -50,11 +53,31 @@ lab.experiment('User Model Tests', function () {
   lab.test('Get User by Email', function (done) {
     Storage.createUser(user)
       .then(function(user) {
-        Storage.getUserByEmail(user.email)
+        Storage.getUserByEmail('jane@gmail.com')
           .then(function(data) {
             expect(data.username).to.equal('Jane Tan');
             done();
           });
+      });
+  });
+
+  lab.test('Get User by platformId', function (done) {
+    Storage.createUser(user)
+      .then(function(user) {
+        Storage.getUserByPlatformId('facebook',
+            'asdfadf-asdfasdf-asdfasdfaf-dfddf')
+          .then(function(data) {
+            expect(data.username).to.equal('Jane Tan');
+            done();
+          });
+      });
+  });
+
+  lab.test('Get Non-Existing User', function (done) {
+    Storage.getUserById('19f9bd98-ffff-aaaa-bbbb-3109f617667d')
+      .then(function(data) {
+        expect(data).to.be.null();
+        done();
       });
   });
 
@@ -71,7 +94,7 @@ lab.experiment('User Model Tests', function () {
       .then(function(user) {
         Storage.deleteUserById(user.userId)
           .then(function(res) {
-            expect(res).to.equal(true);
+            expect(res).to.be.true();
             done();
           });
       });
@@ -82,7 +105,7 @@ lab.experiment('User Model Tests', function () {
       .then(function() {
         Storage.createUser(user)
           .then(function(res) {
-            expect(res).to.equal(false);
+            expect(res).to.be.false();
             done();
           });
       });
@@ -98,10 +121,27 @@ lab.experiment('User Model Tests', function () {
       .then(function(user) {
         Storage.updateParticulars(user.userId, newParticulars)
           .then(function(res) {
-            expect(res).to.equal(true);
+            expect(res).to.be.true();
             done();
           });
       });
+  });
+
+  lab.test('Get a list of users', function (done) {
+    Storage.models.User.bulkCreate([
+      {username: 'Jane', password:'asdf', email: 'jane@gmail.com'},
+      {username: 'Alan', password:'asdf', email: 'alan@gmail.com'},
+      {username: 'John', password:'asdf', email: 'john@gmail.com'}
+    ])
+    .then(function() {
+      Storage.getListOfUsers()
+      .then(function(users) {
+        expect(users[0].username).to.equal('Alan');
+        expect(users[1].username).to.equal('Jane');
+        expect(users[2].username).to.equal('John');
+        done();
+      });
+    });
   });
 
 });
