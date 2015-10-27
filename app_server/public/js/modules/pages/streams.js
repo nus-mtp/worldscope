@@ -1,5 +1,20 @@
 const m = require('mithril');
 
+const getData = function () {
+  return m.request({method: 'GET', url: 'js/modules/mockdata/streams.json'}).
+      then((streams) => streams.map(
+          function (stream) {
+            return {
+              title: stream.title,
+              desc: stream.description,
+              stats: stream.totalViewers + 'V ' + stream.totalStickers + 'S',
+              date: stream.startDateTime,
+              user: stream.user.alias
+            };
+          }
+      ));
+};
+
 const Streams = module.exports = {
   controller: function () {
     this.currentPage = m.prop(1);
