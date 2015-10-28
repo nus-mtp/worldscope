@@ -2,6 +2,7 @@
  * User Controller
  * @module UserController
  */
+var rfr = require('rfr');
 var Joi = require('joi');
 
 var Utility = rfr('app/util/Utility');
