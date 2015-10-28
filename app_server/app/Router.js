@@ -4,6 +4,7 @@
  */
 var rfr = require('rfr');
 var Hapi = require('hapi');
+
 var Utility = rfr('app/util/Utility');
 
 var logger = Utility.createLogger(__filename);

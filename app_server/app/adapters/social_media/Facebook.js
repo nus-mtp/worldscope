@@ -8,6 +8,7 @@ var util = require('util');
 
 var Utility = rfr('app/util/Utility');
 var Platform = rfr('app/adapters/social_media/Platform');
+var SocialMediaConfig = rfr('config/SocialMediaConfig');
 
 var logger = Utility.createLogger(__filename);
 
@@ -27,6 +28,11 @@ function Facebook(options) {
     logger.error(errorMsg);
     throw new Error(errorMsg);
   }
+  if (!options.appId || options.appId !== SocialMediaConfig.facebook.appId) {
+    var errorMsg = 'App id for facebook does not match';
+    logger.error(errorMsg);
+    throw new Error(errorMsg);
+  }
 
   this.accessToken = options.accessToken;
   this.apiVersion = 'v2.5';
@@ -34,6 +40,10 @@ function Facebook(options) {
 util.inherits(Facebook, Platform);
 var Class = Facebook.prototype;
 
+/**
+ * Get a user's profile from facebook
+ * @return {Promise} of a response JSON object or null if error
+ */
 Class.getUser = function () {
   return this.__makeAPICall(util.format('/%s/me', this.apiVersion),
                             {'access_token': this.accessToken});

@@ -1,5 +1,5 @@
 module.exports = {
   facebook: {
-    app_id: ''
+    appId: '1538685659789985'
   }
 }

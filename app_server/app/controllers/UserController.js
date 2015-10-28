@@ -4,6 +4,11 @@
  */
 var Joi = require('joi');
 
+var Utility = rfr('app/util/Utility');
+var Authenticator = rfr('app/policies/Authenticator');
+
+var logger = Utility.createLogger(__filename);
+
 function UserController(server, options) {
   this.server = server;
   this.options = options;

@@ -23,7 +23,7 @@ var Class = Platform.prototype;
  * @param apiPath {string}
  * @param pathParams {object} object of string keys to string values
  * @param payload {object}
- * @return {Promise} a promise of response string
+ * @return {Promise} a promise of response JSON object or null if error
  */
 Class.__makeAPICall = function makeAPICall(apiPath, pathParams, payload) {
   var paramsArr = _.map(pathParams, function(value, key) {
@@ -41,6 +41,7 @@ Class.__makeAPICall = function makeAPICall(apiPath, pathParams, payload) {
   }).catch(function processAPICallError(err) {
     logger.error(util.format('Unable to make API request %s: %s',
                               request, err));
+    return null;
   });
 };
 
