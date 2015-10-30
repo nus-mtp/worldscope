@@ -35,7 +35,8 @@ Class.authenticateUser = function (platformType, credentials) {
   var profilePromise = socialMediaAdapter.getUser();
   var userPromise = profilePromise.then(function receiveProfile(profile) {
     if (!profile || profile instanceof Error || !('id' in profile)) {
-      throw new Error(Class.ERRORS.RETRIEVE_PROFILE);
+      throw new Error(Class.ERRORS.RETRIEVE_PROFILE + ' ' +
+                      JSON.stringify(profile));
     }
 
     return Service.getUserByPlatform(platformType, profile.id);
@@ -105,6 +106,6 @@ Class.changeUserPassword = function (user) {
 
     throw new Error('Unable to update password for user %j', user);
   });
-}
+};
 
 module.exports = new Authenticator();

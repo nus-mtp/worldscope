@@ -15,7 +15,7 @@ var logger = Utility.createLogger(__filename);
 function UserController(server, options) {
   this.server = server;
   this.options = options;
-  this.defaultPlatform = SocialMediaAdapter.PLATFORMS.FACEBOOK; 
+  this.defaultPlatform = SocialMediaAdapter.PLATFORMS.FACEBOOK;
 }
 var Class = UserController.prototype;
 
@@ -28,6 +28,7 @@ Class.registerRoutes = function () {
                     handler: this.getUserById});
 
   this.server.route({method: 'POST', path: '/login',
+                    config: {validate: loginPayloadValidator},
                     handler: this.login});
 
   this.server.route({method: 'POST', path: '/logout',
@@ -44,10 +45,6 @@ Class.getUserById = function (request, reply) {
 };
 
 Class.login = function (request, reply) {
-  if (!request.payload.accessToken || !request.payload.appId) {
-    return reply(Boom.unauthorized('Missing accessToken or appId'));
-  }
-
   var credentials = {
     accessToken: request.payload.accessToken,
     appId: request.payload.appId
@@ -59,11 +56,12 @@ Class.login = function (request, reply) {
       return reply(Boom.unauthorized('Failed to authenticate user ' + user));
     }
 
-    request.auth.session.set({username: user.username,
+    request.auth.session.set({userId: user.userId,
+                              username: user.username,
                               password: user.password});
     return reply(user);
   }).catch(function fail(err) {
-      return reply(Boom.unauthorized('Failed to authenticate user: ' + err));
+    return reply(Boom.unauthorized('Failed to authenticate user: ' + err));
   });
 };
 
@@ -75,6 +73,13 @@ Class.logout = function (request, reply) {
 var singleUserValidator = {
   params: {
     id: Joi.number().min(0)
+  }
+};
+
+var loginPayloadValidator = {
+  payload: {
+    appId: Joi.string().required(),
+    accessToken: Joi.string().required()
   }
 };
 
