@@ -2,7 +2,6 @@
  * Singleton used for authenticating users
  * @module app/policies/Authenticator
  */
-
 var rfr = require('rfr');
 var util = require('util');
 var Promise = require('bluebird');
@@ -63,7 +62,7 @@ Class.authenticateUser = function (platformType, credentials) {
  * @return {Promise} of new user
  */
 Class.generateNewUser = function (platformType, profile, credentials) {
-  var generatedPassword = Utility.randomValueBase64(15);
+  var generatedPassword = Utility.randomValueBase64(20);
 
   return bcrypt.genSaltAsync(10)
   .then(function generateHash(salt) {
@@ -89,14 +88,22 @@ Class.generateNewUser = function (platformType, profile, credentials) {
 };
 
 Class.changeUserPassword = function (user) {
-  var generatedPassword = Utility.randomValueBase64(15);
+  var generatedPassword = Utility.randomValueBase64(20);
 
   return bcrypt.genSaltAsync(10)
   .then(function generateHash(salt) {
     return bcrypt.hashAsync(generatedPassword, salt);
   }).then(function updateUser(hash) {
-    return user;
-  })
+    user.password = hash;
+    return Storage.updateParticulars(user.userId, user);
+  }).then(function afterUpdateUser(status) {
+    if (status) {
+      user.password = generatedPassword;
+      return user;
+    }
+
+    throw new Error('Unable to update password for user %j', user);
+  });
 }
 
 module.exports = new Authenticator();

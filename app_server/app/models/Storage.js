@@ -98,6 +98,7 @@ Class.getUserByEmail = function(email) {
 Class.getUserById = function(userId) {
   return this.models.User.findById(userId)
     .catch(function(err) {
+
       logger.error('Unable to retrieve user');
       return false;
     });
