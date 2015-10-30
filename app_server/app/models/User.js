@@ -1,3 +1,8 @@
+/*
+ * User is a sequelize object
+ * @module User
+ */
+
 module.exports = function(sequelize, DataTypes) {
   var User = sequelize.define('User', {
     userId: {

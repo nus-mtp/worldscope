@@ -129,9 +129,9 @@ lab.experiment('User Model Tests', function () {
 
   lab.test('Get a list of users', function (done) {
     Storage.models.User.bulkCreate([
-      {username: 'Jane', password:'asdf', email: 'jane@gmail.com'},
-      {username: 'Alan', password:'asdf', email: 'alan@gmail.com'},
-      {username: 'John', password:'asdf', email: 'john@gmail.com'}
+      {username: 'Jane', password: 'asdf', email: 'jane@gmail.com'},
+      {username: 'Alan', password: 'asdf', email: 'alan@gmail.com'},
+      {username: 'John', password: 'asdf', email: 'john@gmail.com'}
     ])
     .then(function() {
       Storage.getListOfUsers()

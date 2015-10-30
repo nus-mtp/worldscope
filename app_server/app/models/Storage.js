@@ -1,12 +1,18 @@
 /*
  * Storage class is a singleton object and acts as a facade to the storage
  * internals.
+ * @module Storage
  */
 
 var rfr = require('rfr');
 var Utility = rfr('app/util/Utility');
 var logger = Utility.createLogger(__filename);
 
+/**
+ * Initialises the datbase connection and load the models written in
+ * modelArr. Model files have to be stored in the models directory
+ * @constructor
+ */
 function Storage() {
   var Sequelize = require('sequelize');
   var config = rfr('config/DatabaseConfig');
@@ -46,6 +52,12 @@ function Storage() {
 
 var Class = Storage.prototype;
 
+/**
+ * @param  {object} particulars
+ * @param  {string} particulars.username
+ * @param  {string} particulars.password
+ * @return {Promise<Sequelize.object>}
+ */
 Class.createUser = function(particulars) {
   return this.models.User.create(particulars)
     .catch(function(err) {
@@ -54,6 +66,10 @@ Class.createUser = function(particulars) {
     });
 };
 
+/**
+ * @param  {string} email - the user's email
+ * @return {Promise<Sequelize.object>}
+ */
 Class.getUserByEmail = function(email) {
   return this.models.User.findOne({
     email: email
@@ -64,6 +80,10 @@ Class.getUserByEmail = function(email) {
     });
 };
 
+/**
+ * @param  {string} userId
+ * @return {Promise<Sequelize.object>}
+ */
 Class.getUserById = function(userId) {
   return this.models.User.findById(userId)
     .catch(function(err) {
@@ -72,6 +92,11 @@ Class.getUserById = function(userId) {
     });
 };
 
+/**
+ * @param  {string} platformType
+ * @param  {string} platformId
+ * @return {Promise<Sequelize.object>}
+ */
 Class.getUserByPlatformId = function(platformType, platformId) {
   return this.models.User.findOne({
     platformType: platformType,
@@ -83,6 +108,10 @@ Class.getUserByPlatformId = function(platformType, platformId) {
     });
 };
 
+/**
+ * @param  {string} userId
+ * @return {boolean}
+ */
 Class.deleteUserById = function(userId) {
   return this.getUserById(userId)
     .then(function(user) {
@@ -98,6 +127,13 @@ Class.deleteUserById = function(userId) {
     });
 };
 
+/**
+ * @param  {string}
+ * @param  {object} newParticulars
+ * @param  {string} newParticulars.username
+ * @param  {string} newParticulars.password
+ * @return {boolean}
+ */
 Class.updateParticulars = function(userId, newParticulars) {
   return this.getUserById(userId)
     .then(function(user) {
@@ -115,6 +151,9 @@ Class.updateParticulars = function(userId, newParticulars) {
     });
 };
 
+/**
+ * @return {Promise<List<Sequelize.object>>} - a list of users
+ */
 Class.getListOfUsers = function() {
   return this.models.User.findAll({
     order: [['username', 'ASC']]
