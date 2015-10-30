@@ -51,6 +51,26 @@ server.register({
   }
 });
 
+/* Register static file handler */
+server.register(require('inert'), function(err) {
+  if (err) {
+    logger.error('Unable to register inert file handler: %j', err);
+    throw err;
+  }
+
+  server.route({
+    method: 'GET',
+    path: '/admin/{param*}',
+    handler: {
+      directory: {
+        path: 'public',
+        listing: true,
+        index: 'index.htm'
+      }
+    }
+  });
+});
+
 server.start(function () {
   logger.info('Server running at: ' + server.info.uri);
 });
