@@ -22,6 +22,7 @@ const Streams = module.exports = {
     ctrl.columns = m.prop(table.columns);
     ctrl.names = m.prop(table.names);
     ctrl.currentPage = m.prop(m.route.param('page') || 1);
+    ctrl.itemsPerPage = m.prop(10);
 
     let formatStats = (viewers, stickers) => [
       m('span', viewers + 'V'),
@@ -43,10 +44,17 @@ const Streams = module.exports = {
 
     ctrl.rawData = table.data.then(parse);
 
+    let paginate = function (streams) {
+      let items = parseInt(ctrl.itemsPerPage());
+      let from = (parseInt(ctrl.currentPage()) - 1) * items;
+      let to = from + items;
+      return streams.slice(from, to);
+    };
+
     ctrl.data = m.prop([]);
 
     ctrl.update = function () {
-      ctrl.data = ctrl.rawData;
+      ctrl.data = ctrl.rawData.then(paginate);
     };
 
     ctrl.update();
@@ -80,8 +88,9 @@ const Streams = module.exports = {
 
     return [m('h1', 'Streams'),
       m('div', {className: 'row right-align'}, [
-        m('div', {className: 'col s12'}, [
-        ])
+        m('div', {className: 'col s12'},
+          m('ul', {className: 'pagination'}, getPagination())
+        )
       ]),
       m('table', {className: 'bordered responsive-table'}, [
         m('thead', [
