@@ -35,13 +35,14 @@
     "good-console": "^5.1.0",
     "good-file": "^5.1.0",
     "hapi": "^10.0.1",
+    "inert": "^3.2.0",
     "joi": "^6.9.1",
     "mithril": "^0.2.0",
-    "rfr": "^1.2.2",
-    "winston": "^1.1.0",
     "mysql": "~2.9.0",
+    "rfr": "^1.2.2",
     "sequelize": "~3.12.1",
     "underscore": "^1.8.3",
+    "winston": "^1.1.0",
     "wreck": "^6.3.0"
   },
   "devDependencies": {
