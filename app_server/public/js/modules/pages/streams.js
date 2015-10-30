@@ -1,25 +1,7 @@
 const m = require('mithril');
 
-const getData = function () {
-  let formatStats = (viewers, stickers) => [
-    m('span', viewers + 'V'),
-    m('br'),
-    m('span', stickers + 'S')
-  ];
-
-  return m.request({method: 'GET', url: 'js/modules/mockdata/streams.json'}).
-      then((streams) => streams.map(
-          function (stream) {
-            return {
-              title: stream.title,
-              desc: stream.description,
-              stats: formatStats(stream.totalViewers, stream.totalStickers),
-              date: stream.startDateTime,
-              user: stream.user.alias
-            };
-          }
-      ));
-};
+const getData = () =>
+    m.request({method: 'GET', url: 'js/modules/mockdata/streams.json'});
 
 const Streams = module.exports = {
   controller: function () {
@@ -34,11 +16,40 @@ const Streams = module.exports = {
       },
       data: getData()
     };
-    this.table = m.prop(table);
-    this.columns = m.prop(table.columns);
-    this.names = m.prop(table.names);
-    this.data = table.data;
-    this.currentPage = m.prop(1);
+    let ctrl = this;
+
+    ctrl.table = m.prop(table);
+    ctrl.columns = m.prop(table.columns);
+    ctrl.names = m.prop(table.names);
+    ctrl.currentPage = m.prop(m.route.param('page') || 1);
+
+    let formatStats = (viewers, stickers) => [
+      m('span', viewers + 'V'),
+      m('br'),
+      m('span', stickers + 'S')
+    ];
+
+    let parse = (streams) => streams.map(
+        function (stream) {
+          return {
+            title: stream.title,
+            desc: stream.description,
+            stats: formatStats(stream.totalViewers, stream.totalStickers),
+            date: stream.startDateTime,
+            user: stream.user.alias
+          };
+        }
+    );
+
+    ctrl.rawData = table.data.then(parse);
+
+    ctrl.data = m.prop([]);
+
+    ctrl.update = function () {
+      ctrl.data = ctrl.rawData;
+    };
+
+    ctrl.update();
   },
   view: function (ctrl) {
     let getPageRange = function (curPage, totalLength) {
