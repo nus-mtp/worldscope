@@ -6,6 +6,7 @@ var rfr = require('rfr');
 var Hapi = require('hapi');
 
 var Utility = rfr('app/util/Utility');
+var ServerConfig = rfr('config/ServerConfig');
 
 var logger = Utility.createLogger(__filename);
 
@@ -39,6 +40,16 @@ server.register({
   if (err) {
     logger.error('Unable to register good process monitor: %j', err);
   }
+});
+
+/* Configure Authentication plugin */
+server.register(require('hapi-auth-cookie'), function (err) {
+  server.auth.strategy('session', 'cookie', {
+    password: ServerConfig.cookiePassword,
+    cookie: 'sid-worldscope',
+    redirectTo: '/api/users/login',
+    isSecure: false
+  });
 });
 
 /* Register controllers */

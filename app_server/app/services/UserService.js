@@ -36,4 +36,8 @@ Class.getUserByPlatform = function(platformType, platformId) {
   });
 };
 
+Class.updateParticulars = function(userId, particulars) {
+  return Storage.updateParticulars(userId, particulars);
+};
+
 module.exports = new UserService();

@@ -29,6 +29,7 @@ Class.ERRORS = {
  *                   or null if failed to authenticate user
  */
 Class.authenticateUser = function (platformType, credentials) {
+  logger.info('Authenticating with %s', platformType);
   var socialMediaAdapter = new SocialMediaAdapter(platformType, credentials);
 
   var profilePromise = socialMediaAdapter.getUser();
@@ -95,7 +96,7 @@ Class.changeUserPassword = function (user) {
     return bcrypt.hashAsync(generatedPassword, salt);
   }).then(function updateUser(hash) {
     user.password = hash;
-    return Storage.updateParticulars(user.userId, user);
+    return Service.updateUserParticulars(user.userId, user);
   }).then(function afterUpdateUser(status) {
     if (status) {
       user.password = generatedPassword;
