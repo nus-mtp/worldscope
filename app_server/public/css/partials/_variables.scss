@@ -8,6 +8,14 @@ $success-color: color("green", "base") !default;
 $error-color: color("red", "base") !default;
 $link-color: color("light-blue", "darken-1") !default;
 
+/*** Opacity ***/
+$opacity-dark-on-light-primary: 0.87;
+$opacity-dark-on-light-secondary: 0.54;
+$opacity-dark-on-light-hint: 0.38;
+$opacity-light-on-dark-primary: 1.0;
+$opacity-light-on-dark-secondary: 0.7;
+$opacity-light-on-dark-hint: 0.3;
+
 /*** Badges ***/
 $badge-bg-color: $secondary-color !default;
 
