@@ -1,3 +1,8 @@
+/*
+ * User is a sequelize object
+ * @module User
+ */
+
 module.exports = function(sequelize, DataTypes) {
   var User = sequelize.define('User', {
     userId: {
@@ -7,9 +12,12 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
+    platformType: {
+      type: DataTypes.ENUM,
+      values: ['facebook']
+    },
     platformId: {
-      type: DataTypes.STRING,
-      allowNull: false
+      type: DataTypes.STRING
     },
     username: {
       type: DataTypes.STRING,
@@ -30,9 +38,6 @@ module.exports = function(sequelize, DataTypes) {
     accessToken: {
       type: DataTypes.STRING
     },
-    platformType: {
-      type: DataTypes.STRING
-    },
     description: {
       type: DataTypes.TEXT
     },
@@ -44,6 +49,9 @@ module.exports = function(sequelize, DataTypes) {
     getterMethods: {
       userId: function() {
         return this.getDataValue('userId');
+      },
+      platformType: function() {
+        return this.getDataValue('platformType');
       },
       platformId: function() {
         return this.getDataValue('platformId');
@@ -62,9 +70,6 @@ module.exports = function(sequelize, DataTypes) {
       },
       accessToken: function() {
         return this.getDataValue('accessToken');
-      },
-      platformType: function() {
-        return this.getDataValue('platformType');
       },
       description: function() {
         return this.getDataValue('description');
