@@ -5,6 +5,22 @@
 var path = require('path');
 var winston = require('winston');
 
+
+var crypto = require('crypto');
+
+var randomValueBase64 =
+/**
+  * Generate a random string of base64 values, replacing + and / by 0
+  * @param {integer} length of the generated string
+  */
+exports.randomValueBase64 = function (len) {
+    return crypto.randomBytes(Math.ceil(len * 3 / 4))
+        .toString('base64')   // convert to base64 format
+        .slice(0, len)        // return required number of characters
+        .replace(/\+/g, '0')  // replace '+' with '0'
+        .replace(/\//g, '0'); // replace '/' with '0'
+};
+
 var getModuleName =
 /**
  * Gets the last part of a path to a file

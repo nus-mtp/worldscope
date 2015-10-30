@@ -6,6 +6,7 @@
 var rfr = require('rfr');
 var util = require('util');
 var Promise = require('bluebird');
+var bcrypt = Promise.promisifyAll(require('bcrypt'));
 
 var SocialMediaAdapter = rfr('app/adapters/social_media/SocialMediaAdapter');
 var Service = rfr('app/services/Service');
@@ -40,26 +41,62 @@ Class.authenticateUser = function (platformType, credentials) {
     return Service.getUserByPlatform(platformType, profile.id);
   });
 
-  return Promise.all([profilePromise, userPromise])
+  return Promise.all([profilePromise, userPromise]).bind(this)
   .spread(function (profile, user) {
     if (!user || user instanceof Error) {
-      var newUser = {
-        platformType: platformType,
-        platformId: profile.id,
-        username: util.format('%s@%s', profile.id, platformType),
-        password: 'to_be_generated', // TODO
-        alias: profile.name,
-        email: '',
-        accessToken: credentials.accessToken
-      };
-      return Service.createNewUser(newUser);
+      return this.generateNewUser(platformType, profile, credentials);
     }
 
-    return user;
+    return this.changeUserPassword(user);
   }).catch(function (err) {
     logger.debug(err);
     return err;
   });
 };
+
+/**
+ * Generate a new user's particulars from a social media profile
+ * and store in database
+ * @param platformType {string}
+ * @param profile {object}
+ * @param credentials {object}
+ * @return {Promise} of new user
+ */
+Class.generateNewUser = function (platformType, profile, credentials) {
+  var generatedPassword = Utility.randomValueBase64(15);
+
+  return bcrypt.genSaltAsync(10)
+  .then(function generateHash(salt) {
+    return bcrypt.hashAsync(generatedPassword, salt);
+  }).then(function generateUser(hash) {
+    var newUser = {
+      platformType: platformType,
+      platformId: profile.id,
+      username: util.format('%s@%s', profile.id, platformType),
+      password: hash,
+      alias: profile.name,
+      email: '',
+      accessToken: credentials.accessToken
+    };
+
+    return newUser;
+  }).then(function createNewUser(generatedUser) {
+    return Service.createNewUser(generatedUser);
+  }).then(function returnUser(user) {
+    user.password = generatedPassword;
+    return user;
+  });
+};
+
+Class.changeUserPassword = function (user) {
+  var generatedPassword = Utility.randomValueBase64(15);
+
+  return bcrypt.genSaltAsync(10)
+  .then(function generateHash(salt) {
+    return bcrypt.hashAsync(generatedPassword, salt);
+  }).then(function updateUser(hash) {
+    return user;
+  })
+}
 
 module.exports = new Authenticator();

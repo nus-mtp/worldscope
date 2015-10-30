@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/nus-mtp/worldscope#readme",
   "dependencies": {
+    "bcrypt": "^0.8.5",
     "bluebird": "^2.10.2",
     "boom": "^2.9.0",
     "good": "^6.4.0",
