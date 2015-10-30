@@ -54,7 +54,8 @@ server.register({
 /* Register static file handler */
 server.register(require('inert'), function(err) {
   if (err) {
-    logger.error('Unable to register inert file handler');
+    logger.error('Unable to register inert file handler: %j', err);
+    throw err;
   }
 
   server.route({
