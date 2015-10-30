@@ -12,6 +12,7 @@ var Class = UserService.prototype;
 
 Class.createNewUser = function(particulars) {
   logger.debug('Creating new user: %j', particulars);
+
   return Storage.createUser(particulars)
   .then(function receiveResult(result) {
     if (result) {
@@ -23,9 +24,15 @@ Class.createNewUser = function(particulars) {
 };
 
 Class.getUserByPlatform = function(platformType, platformId) {
-  // TODO: Call Storage's API
-  return new Promise(function (resolve, reject) {
-    resolve(false);
+  logger.debug('Getting user by platform: %s %s', platformType, platformId);
+
+  return Storage.getUserByPlatformId(platformType, platformId)
+  .then(function receiveResult(result) {
+    if (result) {
+      return result.dataValues;
+    }
+
+    return null;
   });
 };
 
