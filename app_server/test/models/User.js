@@ -73,6 +73,18 @@ lab.experiment('User Model Tests', function () {
       });
   });
 
+  lab.test('Invalid params for getting User by platformId', function (done) {
+    Storage.createUser(user)
+      .then(function(user) {
+        Storage.getUserByPlatformId('twitter',
+            'asdfadf-asdfasdf-asdfasdfaf-dfddf')
+          .then(function(data) {
+            expect(data).to.be.null();
+            done();
+          });
+      });
+  });
+
   lab.test('Get Non-Existing User', function (done) {
     Storage.getUserById('19f9bd98-ffff-aaaa-bbbb-3109f617667d')
       .then(function(data) {

@@ -72,7 +72,9 @@ Class.createUser = function(particulars) {
  */
 Class.getUserByEmail = function(email) {
   return this.models.User.findOne({
-    email: email
+    where: {
+      email: email
+    }
   })
     .catch(function(err) {
       logger.error('Unable to retrieve user');
@@ -99,8 +101,10 @@ Class.getUserById = function(userId) {
  */
 Class.getUserByPlatformId = function(platformType, platformId) {
   return this.models.User.findOne({
-    platformType: platformType,
-    platformId: platformId
+    where: {
+        platformType: platformType,
+        platformId: platformId
+    }
   })
     .catch(function(err) {
       logger.error('Unable to retrieve user');
