@@ -18,7 +18,7 @@ function Authenticator() {
 var Class = Authenticator.prototype;
 
 Class.ERRORS = {
-  RETRIEVE_PROFILE: 'Error retrieving user\'s social media profile'
+  RETRIEVE_PROFILE: 'Error retrieving user\'s social media profile',
 };
 
 /**
@@ -30,9 +30,12 @@ Class.ERRORS = {
  */
 Class.authenticateUser = function (platformType, credentials) {
   logger.info('Authenticating with %s', platformType);
-  var socialMediaAdapter = new SocialMediaAdapter(platformType, credentials);
 
-  var profilePromise = socialMediaAdapter.getUser();
+  var profilePromise =
+    Promise.method(function getSocialMediaAdapter() {
+      return new SocialMediaAdapter(platformType, credentials);
+    })().then(function (adapter) { return adapter.getUser(); });
+
   var userPromise = profilePromise.then(function receiveProfile(profile) {
     if (!profile || profile instanceof Error || !('id' in profile)) {
       throw new Error(Class.ERRORS.RETRIEVE_PROFILE + ' ' +

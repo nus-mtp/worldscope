@@ -6,45 +6,50 @@ var Code = require('code');
 var Authenticator = rfr('app/policies/Authenticator');
 
 lab.experiment('Authenticator Tests', function () {
-  lab.test('Invalid platform should throw Error', function (done) {
-    Code.expect(function () {
-      Authenticator.authenticateUser('bogusbook',
-                                     {appId: '123456789',
-                                      accessToken: 'qwoei'});
-    }).to.throw(Error);
-    done();
+  lab.test('Invalid platform return Error', function (done) {
+    Authenticator.authenticateUser('bogusbook',
+                                   {appId: '123456789',
+                                    accessToken: 'qwoei'})
+    .then(function (result) {
+      Code.expect(result).to.be.an.instanceOf(Error);
+      done();
+    });
   });
 
-  lab.test('Missing appId should throw error', function (done) {
-    Code.expect(function () {
-      Authenticator.authenticateUser('facebook',
-                                     {accessToken: 'qwoei'});
-    }).to.throw(Error);
-    done();
+  lab.test('Missing appId should return error', function (done) {
+    Authenticator.authenticateUser('facebook',
+                                   {accessToken: 'qwoei'})
+    .then(function (result) {
+      Code.expect(result).to.be.an.instanceOf(Error);
+      done();
+    });
   });
 
   lab.test('Wrong appId should throw error', function (done) {
-    Code.expect(function () {
-      Authenticator.authenticateUser('facebook',
-                                     {appId: 'xyz', accessToken: 'qwoei'});
-    }).to.throw(Error);
-    done();
+    Authenticator.authenticateUser('facebook',
+                                   {appId: 'xyz', accessToken: 'qwoei'})
+    .then(function (result) {
+      Code.expect(result).to.be.an.instanceOf(Error);
+      done();
+    });
   });
 
   lab.test('Empty appId should throw error', function (done) {
-    Code.expect(function () {
-      Authenticator.authenticateUser('facebook',
-                                     {appId: '', accessToken: 'qwoei'});
-    }).to.throw(Error);
-    done();
+    Authenticator.authenticateUser('facebook',
+                                   {appId: '', accessToken: 'qwoei'})
+    .then(function (result) {
+      Code.expect(result).to.be.an.instanceOf(Error);
+      done();
+    });
   });
 
   lab.test('Missing accessToken should throw error', function (done) {
-    Code.expect(function () {
-      Authenticator.authenticateUser('facebook',
-                                     {appId: '123456789'});
-    }).to.throw(Error);
-    done();
+    Authenticator.authenticateUser('facebook',
+                                   {appId: '123456789'})
+    .then(function (result) {
+      Code.expect(result).to.be.an.instanceOf(Error);
+      done();
+    });
   });
 
   lab.test('Wrong accessToken', function (done) {
