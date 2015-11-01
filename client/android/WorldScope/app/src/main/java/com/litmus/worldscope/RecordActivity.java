@@ -39,7 +39,7 @@ public class RecordActivity extends AppCompatActivity {
     final static String LOG_TAG = CLASS_LABEL;
     final Context mContext = this;
     //Change this to stream RMTP
-    String ffmpeg_link = "rtmp://worldscope.tk/dash/streamkey";
+    String ffmpeg_link = "rtmp://multimedia.worldscope.tk:1935/live/streamkey";
 
     long startTime = 0;
     boolean recording = false;
