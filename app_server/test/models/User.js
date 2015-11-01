@@ -4,6 +4,9 @@ var lab = exports.lab = Lab.script();
 var Code = require('code');
 var expect = Code.expect;
 
+var Utility = rfr('app/util/Utility');
+var logger = Utility.createLogger(__filename);
+
 var Storage = rfr('app/models/Storage.js');
 
 lab.experiment('User Model Tests', function () {
@@ -27,7 +30,7 @@ lab.experiment('User Model Tests', function () {
         done();
       })
       .catch(function(err) {
-        console.log('Database Connection refused');
+        logger.error('Database Connection refused');
       });
   });
 
@@ -73,7 +76,7 @@ lab.experiment('User Model Tests', function () {
       });
   });
 
-  lab.test('Invalid params for getting User by platformId', function (done) {
+  lab.test('Geting User by invalid platform parameters', function (done) {
     Storage.createUser(user)
       .then(function(user) {
         Storage.getUserByPlatformId('twitter',
