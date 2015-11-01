@@ -94,8 +94,8 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="opencv-3.0.0-1.0" level="project" />
     <orderEntry type="library" exported="" name="artoolkitplus-2.3.1-1.0" level="project" />
-    <orderEntry type="library" exported="" name="libfreenect-0.5.2-1.0" level="project" />
     <orderEntry type="library" exported="" name="videoinput-0.200-1.0" level="project" />
+    <orderEntry type="library" exported="" name="libfreenect-0.5.2-1.0" level="project" />
     <orderEntry type="library" exported="" name="opencv-3.0.0-1.0-android-arm" level="project" />
     <orderEntry type="library" exported="" name="libdc1394-2.2.3-1.0" level="project" />
     <orderEntry type="library" exported="" name="design-23.1.0" level="project" />

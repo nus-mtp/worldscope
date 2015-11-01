@@ -200,7 +200,7 @@ public class RecordActivity extends AppCompatActivity {
 
         Log.i(LOG_TAG, "Camera open");
         cameraView = new CameraView(this, cameraDevice);
-        topLayout.addView(cameraView, frame LayoutParam);
+        topLayout.addView(cameraView, frameLayoutParam);
         Log.i(LOG_TAG, "Camera preview start: OK");
 
         // TODO: Tweak start buttons
