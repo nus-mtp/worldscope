@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.litmus.worldscope"
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -29,4 +29,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.android.support:design:23.1.0'
     compile 'com.android.support:support-v4:23.1.0'
+    //Exoplayer
+    compile 'com.google.android.exoplayer:exoplayer:r1.5.1'
 }
