@@ -128,6 +128,8 @@ lab.experiment('User Model Tests', function () {
 
   lab.test('Update particulars', function (done) {
     var newParticulars = {
+      password: 'anewpassword',
+      accessToken: 'averynewtoken',
       alias: 'anewalias',
       description: 'a new description, so new and new'
     };
@@ -135,8 +137,43 @@ lab.experiment('User Model Tests', function () {
     Storage.createUser(user)
       .then(function(user) {
         Storage.updateParticulars(user.userId, newParticulars)
-          .then(function(res) {
-            expect(res).to.be.true();
+          .then(function(updatedUser) {
+              expect(updatedUser.alias).to.equal('anewalias');
+              expect(updatedUser.password).to.equal('anewpassword');
+              expect(updatedUser.accessToken).to.equal('averynewtoken');
+              expect(updatedUser.description).
+                to.equal('a new description, so new and new');
+              done();
+          });
+      });
+  });
+
+  lab.test('Update particulars with one invalid parameter', function (done) {
+    var newParticulars = {
+      newcol_alias: 23
+    };
+
+    Storage.createUser(user)
+      .then(function(user) {
+        Storage.updateParticulars(user.userId, newParticulars)
+          .catch(function(err) {
+            expect(err).to.be.instanceof(Error);
+            done();
+          });
+      });
+  });
+
+  lab.test('Update particulars with one valid/invalid param', function (done) {
+    var newParticulars = {
+      newcol_alias: 23,
+      description: 'simple'
+    };
+
+    Storage.createUser(user)
+      .then(function(user) {
+        Storage.updateParticulars(user.userId, newParticulars)
+          .catch(function(err, data) {
+            expect(err).to.be.instanceof(Error);
             done();
           });
       });
