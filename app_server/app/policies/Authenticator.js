@@ -99,15 +99,14 @@ Class.changeUserPassword = function (user) {
   .then(function generateHash(salt) {
     return bcrypt.hashAsync(generatedPassword, salt);
   }).then(function updateUser(hash) {
-    user.password = hash;
-    return Service.updateUserParticulars(user.userId, user);
-  }).then(function afterUpdateUser(status) {
-    if (status) {
+    return Service.updateUserParticulars(user.userId, {password: hash});
+  }).then(function afterUpdateUser(updatedUser) {
+    if (updatedUser) {
       user.password = generatedPassword;
       return user;
     }
 
-    throw new Error('Unable to update password for user %j', user);
+    throw new Error('Unable to update password for user ' + user);
   });
 };
 

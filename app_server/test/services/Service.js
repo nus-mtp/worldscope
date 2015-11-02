@@ -86,8 +86,8 @@ lab.experiment('Service tests', function () {
     Service.createNewUser(bob).then(function (result) {
       return Service.updateUserParticulars('invalidUserId',
                                            result);
-    }).then(function(status) {
-      Code.expect(status).to.be.false();
+    }).then(function(user) {
+      Code.expect(user).to.be.null();
       done();
     });
   });
@@ -95,19 +95,17 @@ lab.experiment('Service tests', function () {
   lab.test('updateUserParticulars missing particulars', function(done) {
     Service.createNewUser(bob).then(function (result) {
       return Service.updateUserParticulars(result.userId);
-    }).then(function(status) {
-      Code.expect(status).to.be.false();
+    }).then(function(user) {
+      Code.expect(user).to.be.null();
       done();
     });
   });
 
   lab.test('updateUserParticulars valid', function(done) {
     Service.createNewUser(bob).then(function (result) {
-      var newParticular = result;
-      newParticular.email = 'newemail';
-      return Service.updateUserParticulars(result.userId, newParticular);
-    }).then(function(status) {
-      Code.expect(status).to.be.true();
+      return Service.updateUserParticulars(result.userId, {email: 'newemail'});
+    }).then(function(user) {
+      Code.expect(user.email).to.equal('newemail');
       done();
     });
   });

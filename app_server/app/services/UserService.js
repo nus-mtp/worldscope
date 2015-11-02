@@ -10,7 +10,7 @@ function UserService() {
 
 var Class = UserService.prototype;
 
-Class.createNewUser = function(particulars) {
+Class.createNewUser = function (particulars) {
   logger.debug('Creating new user: %j', particulars);
 
   return Storage.createUser(particulars)
@@ -23,7 +23,7 @@ Class.createNewUser = function(particulars) {
   });
 };
 
-Class.getUserByPlatform = function(platformType, platformId) {
+Class.getUserByPlatform = function (platformType, platformId) {
   logger.debug('Getting user by platform: %s %s', platformType, platformId);
 
   return Storage.getUserByPlatformId(platformType, platformId)
@@ -36,8 +36,21 @@ Class.getUserByPlatform = function(platformType, platformId) {
   });
 };
 
-Class.updateParticulars = function(userId, particulars) {
-  return Storage.updateParticulars(userId, particulars);
+Class.updateParticulars = function (userId, particulars) {
+  return Storage.updateParticulars(userId, particulars)
+  .then(function receiveUser(user) {
+    if (!user || user instanceof Error) {
+      logger.error('Unable to update user particulars %s %j: %j',
+                   userId, particulars, user);
+      return null;
+    }
+
+    return user;
+  }).catch(function fail(err) {
+    logger.error('Unable to update user particulars %s %j: %j',
+                 userId, particulars, err);
+    return null;
+  });
 };
 
 module.exports = new UserService();

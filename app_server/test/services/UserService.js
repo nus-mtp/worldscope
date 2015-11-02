@@ -6,6 +6,9 @@ var expect = Code.expect;
 
 var Storage = rfr('app/models/Storage');
 var UserService = rfr('app/services/UserService');
+var Utility = rfr('app/util/Utility');
+
+var logger = Utility.createLogger(__filename);
 
 lab.experiment('UserService tests', function () {
   var bob = {
@@ -26,7 +29,7 @@ lab.experiment('UserService tests', function () {
         done();
       })
       .catch(function(err) {
-        console.log('Database Connection refused');
+        logger.error('Database Connection refused');
       });
   });
 
@@ -86,8 +89,8 @@ lab.experiment('UserService tests', function () {
     UserService.createNewUser(bob).then(function (result) {
       return UserService.updateParticulars('invalidUserId',
                                            result);
-    }).then(function(status) {
-      Code.expect(status).to.be.false();
+    }).then(function(user) {
+      Code.expect(user).to.be.null();
       done();
     });
   });
@@ -95,19 +98,17 @@ lab.experiment('UserService tests', function () {
   lab.test('updateParticulars missing particulars', function(done) {
     UserService.createNewUser(bob).then(function (result) {
       return UserService.updateParticulars(result.userId);
-    }).then(function(status) {
-      Code.expect(status).to.be.false();
+    }).then(function(user) {
+      Code.expect(user).to.be.null();
       done();
     });
   });
 
   lab.test('updateParticulars valid', function(done) {
     UserService.createNewUser(bob).then(function (result) {
-      var newParticular = result;
-      newParticular.email = 'newemail';
-      return UserService.updateParticulars(result.userId, newParticular);
-    }).then(function(status) {
-      Code.expect(status).to.be.true();
+      return UserService.updateParticulars(result.userId, {email: 'newemail'});
+    }).then(function(user) {
+      Code.expect(user.username).to.equal(bob.username, {email: 'newemail'});
       done();
     });
   });
