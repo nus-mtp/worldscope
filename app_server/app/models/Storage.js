@@ -48,7 +48,7 @@ function Storage() {
   // create the tables
   this.sequelize
     .sync({force: true})
-    .then(function(err) {
+    .then(function(res) {
       logger.info('Table synchronized');
     }, function(err) {
       if (err.parent.code == 'ER_NO_SUCH_TABLE') {

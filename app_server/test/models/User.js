@@ -30,7 +30,11 @@ lab.experiment('User Model Tests', function () {
         done();
       })
       .catch(function(err) {
-        logger.error('Database Connection refused');
+        if (err.parent.code == 'ER_NO_SUCH_TABLE') {
+          logger.info('Building table');
+        } else {
+          logger.error('Database Connection refused');
+        }
       });
   });
 
@@ -131,26 +135,28 @@ lab.experiment('User Model Tests', function () {
       password: 'anewpassword',
       accessToken: 'averynewtoken',
       alias: 'anewalias',
-      description: 'a new description, so new and new'
+      description: 'a new description, so new and new',
+      email: 'anewemail@yahoo.com'
     };
 
     Storage.createUser(user)
       .then(function(user) {
         Storage.updateParticulars(user.userId, newParticulars)
           .then(function(updatedUser) {
-              expect(updatedUser.alias).to.equal('anewalias');
-              expect(updatedUser.password).to.equal('anewpassword');
-              expect(updatedUser.accessToken).to.equal('averynewtoken');
-              expect(updatedUser.description).
-                to.equal('a new description, so new and new');
-              done();
+            expect(updatedUser.alias).to.equal('anewalias');
+            expect(updatedUser.password).to.equal('anewpassword');
+            expect(updatedUser.accessToken).to.equal('averynewtoken');
+            expect(updatedUser.description).
+              to.equal('a new description, so new and new');
+            expect(updatedUser.email).to.equal('anewemail@yahoo.com');
+            done();
           });
       });
   });
 
   lab.test('Update particulars with one invalid parameter', function (done) {
     var newParticulars = {
-      newcol_alias: 23
+      newColAlias: 23
     };
 
     Storage.createUser(user)
@@ -165,7 +171,7 @@ lab.experiment('User Model Tests', function () {
 
   lab.test('Update particulars with one valid/invalid param', function (done) {
     var newParticulars = {
-      newcol_alias: 23,
+      newColAlias: 23,
       description: 'simple'
     };
 
