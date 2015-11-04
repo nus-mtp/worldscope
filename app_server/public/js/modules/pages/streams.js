@@ -1,9 +1,7 @@
 const m = require('mithril');
 
+const StreamModel = require('../models/stream');
 const Datadisplay = require('../components/datadisplay');
-
-const getData = () =>
-    m.request({method: 'GET', url: 'js/modules/mockdata/streams.json'});
 
 const Streams = module.exports = {
   controller: function () {
@@ -28,16 +26,16 @@ const Streams = module.exports = {
     let parse = (streams) => streams.map(
         function (stream) {
           return {
-            title: stream.title,
-            desc: stream.description,
-            stats: formatStats(stream.totalViewers, stream.totalStickers),
-            date: stream.startDateTime,
-            user: stream.user.alias
+            title: stream.title(),
+            desc: stream.description(),
+            stats: formatStats(stream.viewers(), stream.stickers()),
+            date: stream.startDateTime(),
+            user: stream.user()
           };
         }
     );
 
-    ctrl.data = getData().then(parse);
+    ctrl.data = StreamModel.list().then(parse);
   },
   view: function (ctrl) {
     return [m('h1', 'Streams'),

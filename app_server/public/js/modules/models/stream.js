@@ -5,10 +5,17 @@ const Stream = module.exports = function (data) {
   this.key = m.prop(data.streamKey);
   this.room = m.prop(data.roomId);
   this.title = m.prop(data.title);
-  this.startDate = m.prop(new Date(data.startDateTime));
+  this.startDateTime = m.prop(new Date(data.startDateTime));
   this.viewers = m.prop(data.totalViewers);
   this.stickers = m.prop(data.totalStickers);
   this.live = m.prop(data.live === 1);
   this.description = m.prop(data.description);
   this.user = m.prop(data.user.alias);
 };
+
+Stream.list = () =>
+    m.request({
+      method: 'GET',
+      url: 'js/modules/mockdata/streams.json',
+      type: Stream
+    });
