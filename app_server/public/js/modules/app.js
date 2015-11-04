@@ -45,6 +45,7 @@ const routes = {
     '/users': {controller: () => m.route('/users/all')},
     '/users/all': blank,
     '/users/search': blank,
+    '/users/view/:id': mixinPage(nav, require('./pages/user')),
 
     '/admins': {controller: () => m.route('/admins/all')},
     '/admins/all': blank,
