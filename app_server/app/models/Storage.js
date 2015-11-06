@@ -28,7 +28,7 @@ function Storage() {
         logging: config.logging,
         define: {
           hooks: {
-            beforeUpdate: _isFieldsMatch
+            beforeUpdate: isFieldsMatched
           }
         }
       });
@@ -174,7 +174,7 @@ Class.getListOfUsers = function() {
  * Check if the fields to be changed match the fields available in object
  * @private
  */
-var _isFieldsMatch = function(user, options, fn) {
+function isFieldsMatched(user, options, fn) {
   var fieldsToChange = options.fields;
   var index = fieldsToChange.indexOf('updatedAt');
 
@@ -188,6 +188,6 @@ var _isFieldsMatch = function(user, options, fn) {
   } else {
     return fn();
   }
-};
+}
 
 module.exports = new Storage();
