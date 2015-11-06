@@ -19,9 +19,7 @@ var logger = Utility.createLogger(__filename);
  * @return {object}
  */
 function SocialMediaAdapter(platform, options) {
-  var PLATFORM_FACEBOOK = 'facebook';
-
-  if (platform === PLATFORM_FACEBOOK) {
+  if (platform === SocialMediaAdapter.PLATFORMS.FACEBOOK) {
     this.platform = new Facebook(options);
   } else {
     var errorMsg = util.format('Platform %s is not supported', platform);
@@ -30,6 +28,10 @@ function SocialMediaAdapter(platform, options) {
   }
 }
 var Class = SocialMediaAdapter.prototype;
+
+SocialMediaAdapter.PLATFORMS = Class.PLATFORMS = {
+  FACEBOOK: 'facebook'
+};
 
 /**
  * Get a user's profile from the social media platform

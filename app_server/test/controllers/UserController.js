@@ -29,16 +29,61 @@ lab.experiment('UserController Tests', function () {
     });
   });
 
-  lab.test('Valid login', function (done) {
+  lab.test('Valid logout', function (done) {
+    Router.inject({method: 'POST', url: '/api/users/logout'}, function (res) {
+      Code.expect(res.result).to.equal('Logged out!');
+      done();
+    });
+  });
+});
+
+lab.experiment('UserController log in tests', function () {
+  lab.test('Login no credentials', function (done) {
     Router.inject({method: 'POST', url: '/api/users/login'}, function (res) {
-      Code.expect(res.result).to.equal('Logged in!');
+      Code.expect(res.statusCode).to.equal(400);
       done();
     });
   });
 
-  lab.test('Valid logout', function (done) {
-    Router.inject({method: 'POST', url: '/api/users/logout'}, function (res) {
-      Code.expect(res.result).to.equal('Logged out!');
+  lab.test('Login mising appId', function (done) {
+    Router.inject({method: 'POST', url: '/api/users/login',
+                   payload: {accessToken: 'xyz'}}, function (res) {
+      Code.expect(res.statusCode).to.equal(400);
+      done();
+    });
+  });
+
+  lab.test('Login invalid appId', function (done) {
+    Router.inject({method: 'POST', url: '/api/users/login',
+                   payload: {appId: 'blahblah',
+                             accessToken: 'xyz'}}, function (res) {
+      Code.expect(res.statusCode).to.equal(401);
+      done();
+    });
+  });
+
+  lab.test('Login missing accessToken', function (done) {
+    Router.inject({method: 'POST', url: '/api/users/login',
+                   payload: {appId: 'blahblah'}}, function (res) {
+      Code.expect(res.statusCode).to.equal(400);
+      done();
+    });
+  });
+
+  lab.test('Login empty accessToken', function (done) {
+    Router.inject({method: 'POST', url: '/api/users/login',
+                   payload: {appId: '123456789',
+                             accessToken: ''}}, function (res) {
+      Code.expect(res.statusCode).to.equal(400);
+      done();
+    });
+  });
+
+  lab.test('Login invalid accessToken', function (done) {
+    Router.inject({method: 'POST', url: '/api/users/login',
+                   payload: {appId: '123456789',
+                             accessToken: 'xyz'}}, function (res) {
+      Code.expect(res.statusCode).to.equal(401);
       done();
     });
   });

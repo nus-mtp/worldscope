@@ -22,3 +22,10 @@ lab.experiment('Utility#getModuleName Tests', function () {
     done();
   });
 });
+
+lab.experiment('Utility#randomValueBase64 tests', function () {
+  lab.test('Should return some strings', function (done) {
+    Code.expect(Utility.randomValueBase64(20).length).to.equal(20);
+    done();
+  });
+});

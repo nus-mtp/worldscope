@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-    - "4.0"
+    - "0.12"
 env:
     APP_SERVER_DIR=app_server
 before_script:

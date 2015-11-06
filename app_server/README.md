@@ -6,7 +6,7 @@ To start the application server, run `npm start`.
 
 To start the tests suit, run `npm test`. Test reports will be generated int he `report` directory.
 
-To execute code analyzer and code style checker, run `npm linter`.
+To execute code analyzer and code style checker, run `npm run linter`.
 
 To generate documentation, run `npm run doc`. Documentations will be generated in the `doc` directory.
 
