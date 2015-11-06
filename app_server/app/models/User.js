@@ -3,6 +3,8 @@
  * @module User
  */
 
+var _ = require('underscore');
+
 module.exports = function(sequelize, DataTypes) {
   var User = sequelize.define('User', {
     userId: {
@@ -107,3 +109,4 @@ module.exports = function(sequelize, DataTypes) {
   });
   return User;
 };
+
