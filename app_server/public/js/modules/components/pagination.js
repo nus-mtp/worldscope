@@ -3,30 +3,64 @@ const m = require('mithril');
 const Pagination = module.exports = {};
 
 Pagination.view = function (ctrl, args) {
+  let MAX_LENGTH = 5;
+  let maxPage = args.maxPage();
+  let currentPage = parseInt(args.currentPage());
+
   let getPagination = function () {
-    let getPageRange = function (curPage, totalLength) {
-      // TODO: Implement proper page range generation
-      //   Pass in possible items count, divide by items per page
-      //   Insert "..." if more than total length
+    let getPageRange = function (curPage, length) {
+      // TODO: Consider large number of pages (> MAX_LENGTH)
+      //   Insert "..." if more than total length?
+      let startPage = maxPage < length ? 1 : function () {
+        let atFront = 1;
+        let atMiddle = curPage - Math.floor(length / 2);
+        let atBack = maxPage - length + 1;
+        return Math.max(atFront, Math.min(atMiddle, atBack));
+      };
+
+      let totalLength = maxPage < length ? maxPage : length;
+
       let range = [];
-      let startPage = Math.max(curPage - Math.floor(totalLength / 2), 1);
       for (let i = 0; i < totalLength; i++) {
         range.push(startPage + i);
       }
       return range;
     };
 
-    let getPageLink = (page) =>
-        m('a', {href: '?page=' + page, config: m.route}, page);
+    let getPageConfig = function (page) {
+      let config = {};
 
-    return [
-      m('li', [m('a', '<')]),
-      getPageRange(args.currentPage, 5).
-          map((page) => args.currentPage == page ?
-              m('li', {class: 'active'}, getPageLink(page)) :
-              m('li', getPageLink(page))),
-      m('li', [m('a', '>')])
-    ];
+      if (page < 1 || page > maxPage) {
+        config.a = {};
+        config.li = {className: 'disabled'};
+        return config;
+      }
+
+      config.a = {
+        'data-page': page,
+        onclick: m.withAttr('data-page', args.currentPage)
+      };
+
+      if (page === currentPage) {
+        config.li = {className: 'active'};
+      }
+
+      return config;
+    };
+
+    let getPageIndicator = function (page, text) {
+      let config = getPageConfig(page);
+      return m('li', config.li, m('a', config.a, text));
+    };
+
+    let pages = [];
+    pages.push(getPageIndicator(currentPage - 1, '<'));
+    getPageRange(currentPage, MAX_LENGTH).map(function (page) {
+      pages.push(getPageIndicator(page, page));
+    });
+    pages.push(getPageIndicator(currentPage + 1, '>'));
+
+    return pages;
   };
 
   return m('div', {className: 'row right-align'}, [
