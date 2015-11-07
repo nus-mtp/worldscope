@@ -10,6 +10,12 @@ Datadisplay.controller = function () {
 
   ctrl.currentPage = m.prop(m.route.param('page') || 1);
   ctrl.itemsPerPage = m.prop(10);
+  ctrl.maxPage = m.prop(1);
+
+  ctrl.setMaxPage = function (items) {
+    ctrl.maxPage(Math.floor(items.length / ctrl.itemsPerPage() + 1));
+    return items;
+  };
 
   ctrl.paginate = function (items) {
     let count = parseInt(ctrl.itemsPerPage());
@@ -20,11 +26,12 @@ Datadisplay.controller = function () {
 };
 
 Datadisplay.view = function (ctrl, args) {
-  let data = args.data.then(ctrl.paginate);
+  let data = args.data.then(ctrl.setMaxPage).then(ctrl.paginate);
 
   return m('div', [
     m.component(Pagination, {
-      currentPage: ctrl.currentPage()
+      maxPage: ctrl.maxPage,
+      currentPage: ctrl.currentPage
     }),
     m.component(Datatable, {
       columns: args.columns,
