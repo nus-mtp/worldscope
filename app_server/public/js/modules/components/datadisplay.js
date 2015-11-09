@@ -37,6 +37,10 @@ Datadisplay.view = function (ctrl, args) {
       columns: args.columns,
       names: args.names,
       data: data()
+    }),
+    m.component(Pagination, {
+      maxPage: ctrl.maxPage,
+      currentPage: ctrl.currentPage
     })
   ]);
 };
