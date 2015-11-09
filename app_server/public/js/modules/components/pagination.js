@@ -1,26 +1,8 @@
-/*global $*/
 const m = require('mithril');
 
 const Pagination = module.exports = {};
 
 Pagination.view = function (ctrl, args) {
-  const ITEMS_PER_PAGE = [10, 30, 50];
-  let getItemsCountSelect = function () {
-    let selectConfig = {
-      config: () => { $('select').material_select(); }, // for materialize-css
-      onchange: m.withAttr('value', args.itemsPerPage)
-    };
-
-    return [
-      m('select', selectConfig, ITEMS_PER_PAGE.map(function (count) {
-        return count === args.itemsPerPage() ?
-            m('option', {value: count, selected: true}, count) :
-            m('option', {value: count}, count);
-      })),
-      m('label', 'Items per Page')
-    ];
-  };
-
   const MAX_LENGTH = 5;
   let maxPage = args.maxPage();
   let currentPage = parseInt(args.currentPage());
@@ -80,12 +62,9 @@ Pagination.view = function (ctrl, args) {
     return pages;
   };
 
-  return m('div', {className: 'row right-align'}, [
-    m('div', {className: 'input-field col s2 offset-s6'},
-        getItemsCountSelect()
-    ),
-    m('div', {className: 'col s4'},
-        m('ul', {className: 'pagination'}, getPagination())
-    )
-  ]);
+  return m('div', {className: 'row right-align'},
+      m('div', {className: 'col s12'},
+          m('ul', {className: 'pagination'}, getPagination())
+      )
+  );
 };

@@ -1,5 +1,6 @@
 const m = require('mithril');
 
+const ItemsCount = require('../components/itemscount');
 const Pagination = require('../components/pagination');
 const Datatable = require('../components/datatable');
 
@@ -30,11 +31,13 @@ Datadisplay.view = function (ctrl, args) {
 
   let pagination = m.component(Pagination, {
     maxPage: ctrl.maxPage,
-    currentPage: ctrl.currentPage,
-    itemsPerPage: ctrl.itemsPerPage
+    currentPage: ctrl.currentPage
   });
 
   return m('div', [
+    m.component(ItemsCount, {
+      itemsPerPage: ctrl.itemsPerPage
+    }),
     pagination,
     m.component(Datatable, {
       columns: args.columns,
