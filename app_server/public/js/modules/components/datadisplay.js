@@ -28,19 +28,19 @@ Datadisplay.controller = function () {
 Datadisplay.view = function (ctrl, args) {
   let data = args.data.then(ctrl.setMaxPage).then(ctrl.paginate);
 
+  let pagination = m.component(Pagination, {
+    maxPage: ctrl.maxPage,
+    currentPage: ctrl.currentPage,
+    itemsPerPage: ctrl.itemsPerPage
+  });
+
   return m('div', [
-    m.component(Pagination, {
-      maxPage: ctrl.maxPage,
-      currentPage: ctrl.currentPage
-    }),
+    pagination,
     m.component(Datatable, {
       columns: args.columns,
       names: args.names,
       data: data()
     }),
-    m.component(Pagination, {
-      maxPage: ctrl.maxPage,
-      currentPage: ctrl.currentPage
-    })
+    pagination
   ]);
 };
