@@ -9,7 +9,7 @@ Datadisplay.controller = function () {
   let ctrl = this;
 
   ctrl.currentPage = m.prop(m.route.param('page') || 1);
-  ctrl.itemsPerPage = m.prop(10);
+  ctrl.itemsPerPage = m.prop(m.route.param('items') || 10);
   ctrl.maxPage = m.prop(1);
 
   ctrl.setMaxPage = function (items) {

@@ -3,12 +3,26 @@ const m = require('mithril');
 const Pagination = module.exports = {};
 
 Pagination.view = function (ctrl, args) {
-  let ITEMS_PER_PAGE = [10, 30, 50];
+  const ITEMS_PER_PAGE = [10, 30, 50];
+  let getItemsCountSelect = function () {
+    let selectConfig = {
+      config: () => { $('select').material_select(); },
+      onchange: m.withAttr('value', args.itemsPerPage)
+    };
 
-  let MAX_LENGTH = 5;
+    return [
+      m('select', selectConfig, ITEMS_PER_PAGE.map(function (count) {
+        return count === args.itemsPerPage() ?
+            m('option', {value: count, selected: true}, count) :
+            m('option', {value: count}, count);
+      })),
+      m('label', 'Items per Page')
+    ];
+  };
+
+  const MAX_LENGTH = 5;
   let maxPage = args.maxPage();
   let currentPage = parseInt(args.currentPage());
-
   let getPagination = function () {
     let getPageRange = function (curPage, length) {
       // TODO: Consider large number of pages (> MAX_LENGTH)
@@ -65,20 +79,10 @@ Pagination.view = function (ctrl, args) {
     return pages;
   };
 
-  let selectConfig = {
-    config: () => { $('select').material_select(); },
-    onchange: m.withAttr('value', args.itemsPerPage)
-  };
-
   return m('div', {className: 'row right-align'}, [
-    m('div', {className: 'input-field col s2 offset-s6'}, [
-      m('select', selectConfig, ITEMS_PER_PAGE.map(function (count) {
-        return count === args.itemsPerPage() ?
-            m('option', {value: count, selected: true}, count) :
-            m('option', {value: count}, count);
-      })),
-      m('label', 'Items per Page')
-    ]),
+    m('div', {className: 'input-field col s2 offset-s6'},
+        getItemsCountSelect()
+    ),
     m('div', {className: 'col s4'},
         m('ul', {className: 'pagination'}, getPagination())
     )
