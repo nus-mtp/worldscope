@@ -6,11 +6,13 @@ const Datatable = require('../components/datatable');
 
 const Datadisplay = module.exports = {};
 
+const ITEMS_PER_PAGE = [10, 30, 50];
+
 Datadisplay.controller = function () {
   let ctrl = this;
 
   ctrl.currentPage = m.prop(m.route.param('page') || 1);
-  ctrl.itemsPerPage = m.prop(m.route.param('items') || 10);
+  ctrl.itemsPerPage = m.prop(m.route.param('items') || ITEMS_PER_PAGE[0]);
   ctrl.maxPage = m.prop(1);
 
   ctrl.setMaxPage = function (items) {
@@ -36,6 +38,7 @@ Datadisplay.view = function (ctrl, args) {
 
   return m('div', [
     m.component(ItemsCount, {
+      possibleItemsPerPage: ITEMS_PER_PAGE,
       itemsPerPage: ctrl.itemsPerPage
     }),
     pagination,

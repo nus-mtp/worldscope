@@ -4,7 +4,8 @@ const m = require('mithril');
 const ItemsCount = module.exports = {};
 
 ItemsCount.view = function (ctrl, args) {
-  const ITEMS_PER_PAGE = [10, 30, 50];
+  const ITEMS_PER_PAGE = args.possibleItemsPerPage;
+
   let getItemsCountSelect = function () {
     let selectConfig = {
       config: () => { $('select').material_select(); }, // for materialize-css
