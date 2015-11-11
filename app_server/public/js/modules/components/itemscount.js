@@ -5,6 +5,7 @@ const ItemsCount = module.exports = {};
 
 ItemsCount.view = function (ctrl, args) {
   const ITEMS_PER_PAGE = args.possibleItemsPerPage;
+  let currentItemsPerPage = parseInt(args.itemsPerPage());
 
   let getItemsCountSelect = function () {
     let selectConfig = {
@@ -14,7 +15,7 @@ ItemsCount.view = function (ctrl, args) {
 
     return [
       m('select', selectConfig, ITEMS_PER_PAGE.map(function (count) {
-        return count === args.itemsPerPage() ?
+        return count === currentItemsPerPage ?
             m('option', {value: count, selected: true}, count) :
             m('option', {value: count}, count);
       })),
