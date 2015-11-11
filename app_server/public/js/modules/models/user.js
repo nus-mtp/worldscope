@@ -8,3 +8,10 @@ const User = module.exports = function (data) {
   this.description = m.prop(data.description);
   this.email = m.prop(data.email);
 };
+
+User.get = () =>
+    m.request({
+      method: 'GET',
+      url: 'js/modules/mockdata/user.json',
+      type: User
+    });

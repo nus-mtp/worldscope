@@ -1,15 +1,12 @@
 const m = require('mithril');
 
+const UserModel = require('../models/user');
+
 const User = module.exports = {
   controller: function () {
     let ctrl = this;
-    ctrl.user = {
-      username: m.prop(''),
-      password: m.prop(''),
-      alias: m.prop(''),
-      desc: m.prop(''),
-      email: m.prop('')
-    };
+    let id = m.route.param('user') || -1;
+    ctrl.user = UserModel.get(id);
   },
   view: function (ctrl) {
     let makeInput = (id, type, label, prop, isManyLines) => [
@@ -23,7 +20,7 @@ const User = module.exports = {
       m('label', {for: id, className: 'active'}, label)
     ];
 
-    let user = ctrl.user;
+    let user = ctrl.user();
 
     return [
       m('h1', 'Edit User'),
@@ -37,7 +34,7 @@ const User = module.exports = {
           makeInput('email', 'text', 'Email', user.email)
       ),
       m('div', {className: 'input-field col s12'},
-          makeInput('desc', 'text', 'Description', user.desc, true)
+          makeInput('desc', 'text', 'Description', user.description, true)
       ),
       m('div', {className: 'col s12'},
           m('button', {className: 'btn'}, 'Submit')
