@@ -1,0 +1,12 @@
+.pagination {
+  @extend .no-select;
+  li a {
+    cursor: pointer;
+  }
+  li.active a {
+    cursor: default;
+  }
+  li.disabled a {
+    cursor: default;
+  }
+}
