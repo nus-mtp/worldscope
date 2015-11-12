@@ -4,9 +4,14 @@ const UserModel = require('../models/user');
 
 const User = module.exports = {
   controller: function () {
-    let ctrl = this;
     let id = m.route.param('user') || -1;
-    ctrl.user = UserModel.get(id);
+
+    let ctrl = this;
+
+    ctrl.user = m.prop();
+    UserModel.get(id).then(ctrl.user);
+
+    ctrl.update = () => UserModel.update(ctrl.user());
   },
   view: function (ctrl) {
     let makeInput = (id, type, label, prop, isManyLines) => [
@@ -37,7 +42,7 @@ const User = module.exports = {
           makeInput('desc', 'text', 'Description', user.description, true)
       ),
       m('div', {className: 'col s12'},
-          m('button', {className: 'btn'}, 'Submit')
+          m('button', {className: 'btn', onclick: ctrl.update}, 'Submit')
       )
     ];
   }
