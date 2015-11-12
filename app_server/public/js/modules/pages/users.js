@@ -4,13 +4,21 @@ const m = require('mithril');
 const UserModel = require('../models/user');
 const Datadisplay = require('../components/datadisplay');
 
+const platformImg = {
+  facebook: '/admin/img/facebook.png'
+};
+
 const Users = module.exports = {
   controller: function () {
     let ctrl = this;
 
-    ctrl.columns = m.prop(['actions']);
+    ctrl.columns = m.prop(['id', 'name', 'followers', 'platform', 'actions']);
 
     ctrl.names = m.prop({
+      id: 'Id',
+      name: 'Name',
+      followers: 'Followers',
+      platform: 'Platform',
       actions: 'Actions'
     });
 
@@ -18,6 +26,8 @@ const Users = module.exports = {
       config: () => { $('select').material_select(); }, // for materialize-css
       onchange: m.withAttr('value', m.route)
     };
+
+    let getPlatform = (platform) => m('img', {src: platformImg[platform]});
 
     let getActions = (id) => [
       m('select', selectConfig, [
@@ -30,6 +40,10 @@ const Users = module.exports = {
     let parse = (users) => users.map(
         function (user) {
           return {
+            id: user.id(),
+            name: user.alias(),
+            followers: '42', // TODO: Get user's follower count
+            platform: getPlatform(user.platform()),
             actions: getActions(user.id())
           };
         }
