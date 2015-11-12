@@ -43,7 +43,7 @@ const routes = {
     '/streams/stop/:id': blank,
 
     '/users': {controller: () => m.route('/users/all')},
-    '/users/all': blank,
+    '/users/all': mixinPage(nav, require('./pages/users')),
     '/users/search': blank,
     '/users/view/:id': mixinPage(nav, require('./pages/user')),
 
