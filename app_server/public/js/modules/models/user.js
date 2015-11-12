@@ -16,6 +16,13 @@ User.get = () =>
       type: User
     });
 
+User.list = () =>
+    m.request({
+      method: 'GET',
+      url: 'js/modules/mockdata/users.json',
+      type: User
+    });
+
 User.update = (user) =>
     m.request({
       method: 'PUT',
