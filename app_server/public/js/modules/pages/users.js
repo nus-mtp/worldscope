@@ -12,12 +12,12 @@ const Users = module.exports = {
   controller: function () {
     let ctrl = this;
 
-    ctrl.columns = m.prop(['id', 'name', 'followers', 'platform', 'actions']);
+    ctrl.columns = m.prop(['id', 'name', 'subscribers', 'platform', 'actions']);
 
     ctrl.names = m.prop({
       id: 'Id',
       name: 'Name',
-      followers: 'Followers',
+      subscribers: 'Subscribers',
       platform: 'Platform',
       actions: 'Actions'
     });
@@ -42,7 +42,7 @@ const Users = module.exports = {
           return {
             id: user.id(),
             name: user.alias(),
-            followers: '42', // TODO: Get user's follower count
+            subscribers: '42', // TODO: Get user's subscriber count
             platform: getPlatform(user.platform()),
             actions: getActions(user.id())
           };
