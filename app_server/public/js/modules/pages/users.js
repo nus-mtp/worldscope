@@ -2,7 +2,7 @@
 const m = require('mithril');
 
 const UserModel = require('../models/user');
-const Datadisplay = require('../components/datadisplay');
+const DataDisplay = require('../components/datadisplay');
 
 const platformImg = {
   facebook: '/admin/img/facebook.png'
@@ -53,7 +53,7 @@ const Users = module.exports = {
   },
   view: function (ctrl) {
     return [m('h1', 'Users'),
-      m.component(Datadisplay, {
+      m.component(DataDisplay, {
         columns: ctrl.columns(),
         names: ctrl.names(),
         data: ctrl.data
