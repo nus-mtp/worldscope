@@ -78,6 +78,7 @@ server.register({
 }, function (err) {
   if (err) {
     logger.error('Unable to register UserController: %j', err);
+    throw err;
   }
 });
 
@@ -124,6 +125,14 @@ server.register(require('inert'), function(err) {
       }
     }
   });
+});
+
+/* Register SocketAdapter */
+server.register(rfr('app/adapters/socket/SocketAdapter'), function (err) {
+  if (err) {
+    logger.error('Unable to register SocketAdapter: %j', err);
+    throw err;
+  }
 });
 
 server.start(function () {
