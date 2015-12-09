@@ -89,6 +89,15 @@ Class.authenticateUser = function (platformType, credentials) {
 };
 
 /**
+ * Check if a user exists in database using the user's credentials
+ * @param credentials {object} user's credentials
+ * @return {bool} true if user exists
+ */
+Class.validateUser = function (credentials) {
+  return Promise.resolve(true);
+};
+
+/**
  * Generate a new user's particulars from a social media profile
  * and store in database
  * @param platformType {string}

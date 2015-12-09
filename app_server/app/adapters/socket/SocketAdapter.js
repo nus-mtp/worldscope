@@ -1,7 +1,13 @@
+/**
+ * @module SocketAdapter
+ */
+
 var rfr = require('rfr');
+
 var Utility = rfr('app/util/Utility');
 var Client = rfr('app/adapters/socket/Client');
 var ChatRoom = rfr('app/adapters/socket/ChatRoom');
+var Authenticator = rfr('app/policies/Authenticator');
 
 var logger = Utility.createLogger(__filename);
 
@@ -14,17 +20,26 @@ SocketAdapter.prototype.init = function init(server) {
   this.chatRoom = new ChatRoom(this.io);
 
   this.io.on('connection', function (socket) {
-    logger.info('New websocket connection');
+    logger.info('New websocket connection from: ' +
+                socket.conn.request.headers['x-forwarded-for'] ||
+                socket.conn.request.connection.remoteAddress);
+
+    socket.on('identify', function (credentials) {
+      Authenticator.validateUser(credentials).bind(socketAdapter)
+      .then(function validateResult(result) {
+        if (result) {
+          if (this.chatRoom.addClient(new Client(socket, credentials))) {
+            socket.emit('identify', 'OK');
+            return;
+          }
+        }
+
+        socket.emit('identify', 'ERR');
+      });
+    });
   });
 };
 
 var socketAdapter = new SocketAdapter();
 
-exports.register = function (server, options, next) {
-  socketAdapter.init(server);
-  next();
-};
-
-exports.register.attributes = {
-  name: 'SocketAdapter'
-};
+module.exports = socketAdapter;

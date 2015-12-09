@@ -128,12 +128,8 @@ server.register(require('inert'), function(err) {
 });
 
 /* Register SocketAdapter */
-server.register(rfr('app/adapters/socket/SocketAdapter'), function (err) {
-  if (err) {
-    logger.error('Unable to register SocketAdapter: %j', err);
-    throw err;
-  }
-});
+var socketAdapter = rfr('app/adapters/socket/SocketAdapter');
+socketAdapter.init(server);
 
 server.start(function () {
   logger.info('Server running at: ' + server.info.uri);
