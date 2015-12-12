@@ -14,8 +14,7 @@ function ChatRoom(io) {
   this.io = io;
   this.rooms = {};
   this.rooms[DEFAULT_ROOM] = {};
-  this.clients = {}
-  this.err = '';
+  this.clients = {};
 }
 
 /**
@@ -28,20 +27,19 @@ ChatRoom.prototype.addClient = function addClient(client) {
 };
 
 /**
- * Add a client to a socket.io room identified by roomName
+ * Add a client to a socket.io room
  * @param client {Client}
- * @param roomName {string}
+ * @param room {string}
  */
-ChatRoom.prototype.addClientToRoom = function addClientToRoom(client, roomName) {
-  if (!(roomName in this.rooms)) {
-    this.err = 'Room ' + roomName + ' does not exist';
-    logger.error(this.err);
-    return false;
+ChatRoom.prototype.addClientToRoom = function addClientToRoom(client, room) {
+  if (!(room in this.rooms)) {
+    var err = 'Room ' + room + ' does not exist';
+    logger.error(err);
+    throw new Error(err);
   }
 
-  this.rooms[roomName][client.getUsername()] = client;
-  client.joinRoom(roomName);
-  return true;
+  this.rooms[room][client.getUsername()] = client;
+  client.joinRoom(room);
 };
 
 module.exports = ChatRoom;

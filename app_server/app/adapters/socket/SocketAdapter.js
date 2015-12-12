@@ -21,20 +21,23 @@ SocketAdapter.prototype.init = function init(server) {
 
   this.io.on('connection', function (socket) {
     logger.info('New websocket connection from: ' +
-                socket.conn.request.headers['x-forwarded-for'] ||
-                socket.conn.request.connection.remoteAddress);
+                (socket.conn.request.headers['x-forwarded-for'] ||
+                 socket.conn.request.connection.remoteAddress));
 
     socket.on('identify', function (credentials) {
       Authenticator.validateUser(credentials).bind(socketAdapter)
       .then(function validateResult(result) {
-        if (result) {
-          if (this.chatRoom.addClient(new Client(socket, credentials))) {
-            socket.emit('identify', 'OK');
-            return;
-          }
+        if (!result || result instanceof Error) {
+          socket.emit('identify', 'ERR');
         }
 
-        socket.emit('identify', 'ERR');
+        try {
+          this.chatRoom.addClient(new Client(socket, credentials));
+          socket.emit('identify', 'OK');
+        } catch (err) {
+          logger.error(err);
+          socket.emit('identify', 'ERR');
+        }
       });
     });
   });

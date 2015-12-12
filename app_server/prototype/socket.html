@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Socket testing prototype</title>
+    </head>
+    <body>
+        <ul id="output"></ul>
+        <form action="">
+            <input type='text' id='input' autocomplete='off'>
+            <button>Send</button>
+        </form>
+        <script src='http://localhost:3000/socket.io/socket.io.js'></script>
+        <script>
+            var socket = io('http://localhost:3000');
+
+            socket.emit('identify', {username: 'thien', password: '1234'});
+
+            socket.on('identify', function (data) {
+                if (data == 'OK') {
+                    alert('Connected');
+                } else if (data == 'ERR') {
+                    alert('Failed to connect');
+                } else {
+                    alert('Unknown response: ' + data);
+                }
+            });
+
+            var form = document.querySelector('form');
+            var input = document.querySelector('#input');
+            var output = document.querySelector('#output');
+
+            form.onsubmit = function () {
+                socket.emit('comment', input.value);
+                return false;
+            };
+
+            socket.on('comment', function (comment) {
+                console.log(comment);
+                var li = document.createElement('li');
+                li.innerHTML = comment;
+                output.appendChild(li);
+            });
+        </script>
+
+    </body>
+</html>
+

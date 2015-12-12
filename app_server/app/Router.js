@@ -3,6 +3,7 @@
  * @module app/Router
  */
 var rfr = require('rfr');
+var process = require('process');
 var Hapi = require('hapi');
 var Promise = require('bluebird');
 
@@ -125,6 +126,21 @@ server.register(require('inert'), function(err) {
       }
     }
   });
+
+  console.log(process.env.NODE_ENV);
+
+  if (process.env.NODE_ENV == 'development') {
+    server.route({
+      method: 'GET',
+      path: '/prototype/{param*}',
+      handler: {
+        directory: {
+          path: 'prototype',
+          listing: true
+        }
+      }
+    });
+  }
 });
 
 /* Register SocketAdapter */
