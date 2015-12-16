@@ -50,7 +50,7 @@ server.register(require('hapi-auth-cookie'), function (err) {
     validateFunc: function (request, session, callback) {
       logger.debug('Validating user: ' + JSON.stringify(session));
 
-      Authenticator.validateAccount(request, session)
+      Authenticator.validateAccount(server, session)
       .then(function (account) {
         if (!account || account instanceof Error) {
           return callback(account, false);
@@ -105,6 +105,17 @@ server.route({
   }
 });
 
+server.register({
+  register: rfr('app/controllers/CommentController.js')
+}, {
+  routes: {prefix: '/api/comments'}
+}, function (err) {
+  if (err) {
+    logger.error('Unable to register CommentController: %j', err);
+    throw err;
+  }
+});
+
 /* Register static file handler */
 server.register(require('inert'), function(err) {
   if (err) {
@@ -126,8 +137,6 @@ server.register(require('inert'), function(err) {
       }
     }
   });
-
-  console.log(process.env.NODE_ENV);
 
   if (process.env.NODE_ENV == 'development') {
     server.route({

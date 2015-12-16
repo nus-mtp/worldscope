@@ -136,7 +136,7 @@ Class.verifyUserToken = function (user, token) {
   return user.password === parsedToken[0] && user.userId === parsedToken[1];
 };
 
-Class.validateAccount = function (request, session) {
+Class.validateAccount = function (server, session) {
   return Promise.resolve(session.userId)
   .then(function getAccountFromCache(userId) {
     if (!userId) {
@@ -144,7 +144,7 @@ Class.validateAccount = function (request, session) {
     }
 
     return new Promise(function (resolve, reject) {
-      request.server.app.cache.get(userId, function (err, cached) {
+      server.app.cache.get(userId, function (err, cached) {
         if (err) {
           logger.error(err);
           return resolve(null);
@@ -198,7 +198,7 @@ Class.validateAccount = function (request, session) {
         return res;
       }
 
-      request.server.app.cache.set(session.userId, session, 0,
+      server.app.cache.set(session.userId, session, 0,
                                    function (err) {
                                      if (err) {
                                        logger.error(err);

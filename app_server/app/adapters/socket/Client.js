@@ -21,26 +21,32 @@ function Client(socket, credentials) {
 }
 util.inherits(Client, EventEmitter);
 
-Client.prototype.EVENT_COMMENT = 'comment';
+var Class = Client.prototype;
 
-Client.prototype.getUsername = function getUsername() {
+Client.EVENT_COMMENT = Class.EVENT_COMMENT = 'comment';
+
+Class.getUsername = function getUsername() {
   return this.credentials['username'];
 };
 
-Client.prototype.getSocket = function getSocket() {
+Class.getCredentials = function getCredentials() {
+  return this.credentials;
+};
+
+Class.getSocket = function getSocket() {
   return this.socket;
 };
 
-Client.prototype.getRoom = function getRoom() {
+Class.getRoom = function getRoom() {
   return this.room;
 };
 
-Client.prototype.joinRoom = function joinRoom(roomName) {
+Class.joinRoom = function joinRoom(roomName) {
   this.socket.join(roomName);
   this.room = roomName;
 };
 
-Client.prototype.broadcastToRoom = function broadcastToRoom(event, msg) {
+Class.broadcastToRoom = function broadcastToRoom(event, msg) {
   if (!this.room || this.room.length == 0) {
     var err = util.format('@%s: no room to broadcast message to',
                           this.getUsername());
@@ -48,13 +54,13 @@ Client.prototype.broadcastToRoom = function broadcastToRoom(event, msg) {
     throw new Error(err);
   }
 
-  logger.info('%s comments in #%s: %s',
-              this.getUsername(), this.getRoom(), msg);
+  logger.debug('%s comments in #%s: %s',
+               this.getUsername(), this.getRoom(), msg);
   this.socket.to(this.room).emit(event, msg);
   this.socket.emit(event, msg);
 };
 
-Client.prototype.handleSocketEvents = function handleSocketEvents(socket) {
+Class.handleSocketEvents = function handleSocketEvents(socket) {
   socket.on(this.EVENT_COMMENT, (function (comment) {
     this.broadcastToRoom(this.EVENT_COMMENT, comment);
     this.emit(this.EVENT_COMMENT, comment);

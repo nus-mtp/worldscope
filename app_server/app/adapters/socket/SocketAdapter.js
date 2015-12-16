@@ -14,10 +14,12 @@ var logger = Utility.createLogger(__filename);
 function SocketAdapter() {
 }
 
-SocketAdapter.prototype.init = function init(server) {
+var Class = SocketAdapter.prototype;
+
+Class.init = function init(server) {
   this.io = require('socket.io')(server.listener);
 
-  this.chatRoom = new ChatRoom(this.io);
+  this.chatRoom = new ChatRoom(server, this.io);
 
   this.io.on('connection', function (socket) {
     logger.info('New websocket connection from: ' +
@@ -25,7 +27,7 @@ SocketAdapter.prototype.init = function init(server) {
                  socket.conn.request.connection.remoteAddress));
 
     socket.on('identify', function (credentials) {
-      Authenticator.validateUser(credentials).bind(socketAdapter)
+      Authenticator.validateAccount(server, credentials).bind(socketAdapter)
       .then(function validateResult(result) {
         if (!result || result instanceof Error) {
           socket.emit('identify', 'ERR');
