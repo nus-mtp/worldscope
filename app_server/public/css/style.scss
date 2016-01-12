@@ -9,6 +9,7 @@
 
 // Variables
 @import "partials/variables";
+@import "components/variables";
 
 // Reset
 @import "components/normalize";
@@ -19,6 +20,7 @@
 @import "components/roboto";
 @import "components/typography";
 @import "components/dropdown";
+@import "components/buttons";
 @import "components/form";
 
 
@@ -26,3 +28,4 @@
 
 @import "partials/nav";
 @import "partials/pagination";
+@import "partials/tables";

@@ -2,13 +2,13 @@ const m = require('mithril');
 
 const ItemsCount = require('../components/itemscount');
 const Pagination = require('../components/pagination');
-const Datatable = require('../components/datatable');
+const DataTable = require('../components/datatable');
 
-const Datadisplay = module.exports = {};
+const DataDisplay = module.exports = {};
 
 const ITEMS_PER_PAGE = [10, 30, 50];
 
-Datadisplay.controller = function () {
+DataDisplay.controller = function () {
   let ctrl = this;
 
   ctrl.currentPage = m.prop(m.route.param('page') || 1);
@@ -28,7 +28,7 @@ Datadisplay.controller = function () {
   };
 };
 
-Datadisplay.view = function (ctrl, args) {
+DataDisplay.view = function (ctrl, args) {
   let data = args.data.then(ctrl.setMaxPage).then(ctrl.paginate);
 
   let pagination = m.component(Pagination, {
@@ -42,7 +42,7 @@ Datadisplay.view = function (ctrl, args) {
       itemsPerPage: ctrl.itemsPerPage
     }),
     pagination,
-    m.component(Datatable, {
+    m.component(DataTable, {
       columns: args.columns,
       names: args.names,
       data: data()

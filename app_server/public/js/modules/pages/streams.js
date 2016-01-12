@@ -2,7 +2,7 @@
 const m = require('mithril');
 
 const StreamModel = require('../models/stream');
-const Datadisplay = require('../components/datadisplay');
+const DataDisplay = require('../components/datadisplay');
 
 const Streams = module.exports = {
   controller: function () {
@@ -56,7 +56,7 @@ const Streams = module.exports = {
   },
   view: function (ctrl) {
     return [m('h1', 'Streams'),
-      m.component(Datadisplay, {
+      m.component(DataDisplay, {
         columns: ctrl.columns(),
         names: ctrl.names(),
         data: ctrl.data
