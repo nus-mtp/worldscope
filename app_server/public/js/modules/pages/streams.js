@@ -29,8 +29,7 @@ const Streams = module.exports = {
         m('option', {disabled: true, selected: true}, 'Choose...'),
         m('option', {value: '/streams/view/' + id}, 'View / Edit'),
         m('option', {value: '/streams/stop/' + id}, 'Stop')
-      ]),
-      m('label', 'Items per Page')
+      ])
     ];
 
     let parse = (streams) => streams.map(

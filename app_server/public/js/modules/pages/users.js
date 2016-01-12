@@ -27,8 +27,7 @@ const Users = module.exports = {
       m('select', mz.select, [
         m('option', {disabled: true, selected: true}, 'Choose...'),
         m('option', {value: '/users/view/' + id}, 'View / Edit')
-      ]),
-      m('label', 'Items per Page')
+      ])
     ];
 
     let parse = (users) => users.map(
