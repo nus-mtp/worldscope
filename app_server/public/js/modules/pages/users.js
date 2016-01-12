@@ -24,7 +24,7 @@ const Users = module.exports = {
     let getPlatform = (platform) => m('img', {src: platformImg[platform]});
 
     let getActions = (id) => [
-      m('select', mz.select, [
+      m('select', mz.select(m.route), [
         m('option', {disabled: true, selected: true}, 'Choose...'),
         m('option', {value: '/users/view/' + id}, 'View / Edit')
       ])

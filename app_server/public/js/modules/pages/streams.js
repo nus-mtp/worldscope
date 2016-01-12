@@ -25,7 +25,7 @@ const Streams = module.exports = {
     ];
 
     let getActions = (id) => [
-      m('select', mz.select, [
+      m('select', mz.select(m.route), [
         m('option', {disabled: true, selected: true}, 'Choose...'),
         m('option', {value: '/streams/view/' + id}, 'View / Edit'),
         m('option', {value: '/streams/stop/' + id}, 'Stop')
