@@ -53,7 +53,7 @@ const Users = module.exports = {
   },
   view: function (ctrl) {
     return [m('h1', 'Users'),
-      m.component(DataDisplay, {
+      m(DataDisplay, {
         columns: ctrl.columns(),
         names: ctrl.names(),
         data: ctrl.data

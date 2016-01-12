@@ -56,7 +56,7 @@ const Streams = module.exports = {
   },
   view: function (ctrl) {
     return [m('h1', 'Streams'),
-      m.component(DataDisplay, {
+      m(DataDisplay, {
         columns: ctrl.columns(),
         names: ctrl.names(),
         data: ctrl.data
