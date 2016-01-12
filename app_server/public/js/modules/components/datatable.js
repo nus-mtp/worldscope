@@ -1,8 +1,8 @@
 const m = require('mithril');
 
-const Datatable = module.exports = {};
+const DataTable = module.exports = {};
 
-Datatable.view = function (ctrl, args) {
+DataTable.view = function (ctrl, args) {
   return m('table', {className: 'bordered striped responsive-table'}, [
     m('thead', [
       m('tr', [
