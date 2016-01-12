@@ -13,8 +13,6 @@ const Users = module.exports = {
   controller: function () {
     let ctrl = this;
 
-    ctrl.columns = m.prop(['id', 'name', 'subscribers', 'platform', 'actions']);
-
     ctrl.names = m.prop({
       id: 'Id',
       name: 'Name',
@@ -50,7 +48,6 @@ const Users = module.exports = {
   view: function (ctrl) {
     return [m('h1', 'Users'),
       m(DataDisplay, {
-        columns: ctrl.columns(),
         names: ctrl.names(),
         data: ctrl.data
       })

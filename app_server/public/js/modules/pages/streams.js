@@ -9,8 +9,6 @@ const Streams = module.exports = {
   controller: function () {
     let ctrl = this;
 
-    ctrl.columns = m.prop(['title', 'desc', 'stats', 'date', 'user', 'actions']);
-
     ctrl.names = m.prop({
       title: 'Title',
       desc: 'Description',
@@ -53,7 +51,6 @@ const Streams = module.exports = {
   view: function (ctrl) {
     return [m('h1', 'Streams'),
       m(DataDisplay, {
-        columns: ctrl.columns(),
         names: ctrl.names(),
         data: ctrl.data
       })

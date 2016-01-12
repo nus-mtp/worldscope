@@ -43,7 +43,6 @@ DataDisplay.view = function (ctrl, args) {
     }),
     pagination,
     m(DataTable, {
-      columns: args.columns,
       names: args.names,
       data: data()
     }),
