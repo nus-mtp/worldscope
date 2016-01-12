@@ -1,5 +1,6 @@
-/*global $*/
 const m = require('mithril');
+
+const mz = require('../utils/mzInit');
 
 const StreamModel = require('../models/stream');
 const DataDisplay = require('../components/datadisplay');
@@ -25,13 +26,8 @@ const Streams = module.exports = {
       m('span', stickers + 'S')
     ];
 
-    let selectConfig = {
-      config: () => { $('select').material_select(); }, // for materialize-css
-      onchange: m.withAttr('value', m.route)
-    };
-
     let getActions = (id) => [
-      m('select', selectConfig, [
+      m('select', mz.select, [
         m('option', {disabled: true, selected: true}, 'Choose...'),
         m('option', {value: '/streams/view/' + id}, 'View / Edit'),
         m('option', {value: '/streams/stop/' + id}, 'Stop')

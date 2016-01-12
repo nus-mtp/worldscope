@@ -1,5 +1,6 @@
-/*global $*/
 const m = require('mithril');
+
+const mz = require('../utils/mzInit');
 
 const UserModel = require('../models/user');
 const DataDisplay = require('../components/datadisplay');
@@ -22,15 +23,10 @@ const Users = module.exports = {
       actions: 'Actions'
     });
 
-    let selectConfig = {
-      config: () => { $('select').material_select(); }, // for materialize-css
-      onchange: m.withAttr('value', m.route)
-    };
-
     let getPlatform = (platform) => m('img', {src: platformImg[platform]});
 
     let getActions = (id) => [
-      m('select', selectConfig, [
+      m('select', mz.select, [
         m('option', {disabled: true, selected: true}, 'Choose...'),
         m('option', {value: '/users/view/' + id}, 'View / Edit')
       ]),
