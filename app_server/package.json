@@ -39,7 +39,7 @@
     "hapi-auth-cookie": "^3.1.0",
     "inert": "^3.2.0",
     "joi": "^6.9.1",
-    "mithril": "^0.2.0",
+    "mithril": "^0.2.2-rc.1",
     "mysql": "~2.9.0",
     "rfr": "^1.2.2",
     "sequelize": "~3.12.1",
