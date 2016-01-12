@@ -21,18 +21,22 @@ var Class = UserController.prototype;
 
 Class.registerRoutes = function () {
   this.server.route({method: 'GET', path: '/',
-                    handler: this.getListOfUsers});
+                     handler: this.getListOfUsers});
 
   this.server.route({method: 'GET', path: '/{id}',
-                    config: {validate: singleUserValidator},
-                    handler: this.getUserById});
+                     config: {validate: singleUserValidator},
+                     handler: this.getUserById});
 
   this.server.route({method: 'POST', path: '/login',
-                    config: {validate: loginPayloadValidator},
-                    handler: this.login});
+                     config: {
+                       auth: false,
+                       validate: loginPayloadValidator
+                     },
+                     handler: this.login});
 
   this.server.route({method: 'POST', path: '/logout',
-                    handler: this.logout});
+                     config: {auth: false},
+                     handler: this.logout});
 };
 
 /* Routes handlers */
@@ -56,10 +60,21 @@ Class.login = function (request, reply) {
       return reply(Boom.unauthorized('Failed to authenticate user ' + user));
     }
 
-    request.auth.session.set({userId: user.userId,
-                              username: user.username,
-                              password: user.password});
-    return reply(user);
+    var account = {
+      userId: user.userId,
+      username: user.username,
+      password: user.password
+    };
+
+    request.server.app.cache.set(account.userId, account, 0, function (err) {
+      if (err) {
+        return reply(Boom.badImplementation(err.message));
+      }
+
+      request.cookieAuth.set(account);
+
+      return reply(user);
+    });
   }).catch(function fail(err) {
     return reply(Boom.unauthorized('Failed to authenticate user: ' + err));
   });

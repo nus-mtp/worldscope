@@ -44,7 +44,8 @@ exports.createLogger = function (filename) {
       new winston.transports.Console({
         timestamp: true,
         colorize: true,
-        label: getModuleName(filename)
+        label: getModuleName(filename),
+        level: process.env.NODE_ENV == 'development' ? 'debug' : 'info'
       }),
       new (winston.transports.File)({
         timestamp: true,

@@ -14,6 +14,7 @@ var Utility = rfr('app/util/Utility');
 var logger = Utility.createLogger(__filename);
 
 function Authenticator() {
+  this.SID = 'sid-worldscope';
 }
 var Class = Authenticator.prototype;
 
@@ -107,6 +108,48 @@ Class.changeUserPassword = function (user) {
     }
 
     throw new Error('Unable to update password for user ' + user);
+  });
+};
+
+Class.validateAccount = function (request, cache, session) {
+  return Promise.resolve(session.userId)
+  .then(function getAccountFromCache(userId) {
+    if (!userId) {
+      throw new Error('Session cookie is invalid');
+    }
+
+    return new Promise(function (resolve, reject) {
+      cache.get(userId, function (err, cached) {
+        if (err) {
+          return reject(err);
+        }
+
+        if (!cached) {
+          return resolve(null);
+        }
+
+        return resolve(cached);
+      });
+    });
+  }).then(function receiveAccountFromCache(cached) {
+    if (!cached) {
+      return null;
+    }
+
+    if (session.username == cached.username &&
+        session.password == cached.password) {
+      return cached;
+    } else {
+      return new Error('username or password is invalid');
+    }
+  }).then(function getAccountFromDatabase(account) {
+    if (account) {
+      return account;
+    }
+
+    // TODO: Query Storage for user with username and password
+    //       then add the account to cache
+    return null;
   });
 };
 
