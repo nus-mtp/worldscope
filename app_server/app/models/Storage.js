@@ -14,12 +14,12 @@ var _ = require('underscore');
  * @constructor
  */
 function Storage() {
-  var Sequelize = require('sequelize');
   var config = rfr('config/DatabaseConfig');
   this.models = {};
+  this.Sequelize = require('sequelize');
 
   // initialize database connection
-  this.sequelize = new Sequelize(
+  this.sequelize = new this.Sequelize(
       config.name,
       config.username,
       config.password, {

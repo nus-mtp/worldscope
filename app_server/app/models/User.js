@@ -3,8 +3,6 @@
  * @module User
  */
 
-var _ = require('underscore');
-
 module.exports = function(sequelize, DataTypes) {
   var User = sequelize.define('User', {
     userId: {
@@ -31,7 +29,10 @@ module.exports = function(sequelize, DataTypes) {
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
+      validate: {
+        isEmail: true
+      }
     },
     password: {
       type: DataTypes.STRING,
@@ -46,8 +47,12 @@ module.exports = function(sequelize, DataTypes) {
     location: {
       type: DataTypes.STRING
     },
+    permissions: {
+      type: DataTypes.STRING
+    }
   }, {
     freezeTableName: true,
+    paranoid: true,
     getterMethods: {
       userId: function() {
         return this.getDataValue('userId');

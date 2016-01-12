@@ -22,14 +22,19 @@ lab.experiment('User Model Tests', function () {
     description: 'a long long long description about jane'
   };
 
-  lab.beforeEach(function (done) {
+  lab.beforeEach({ timeout: 10000 }, function(done) {
     // Delete database, run before every single test
-    Storage.sequelize
-      .sync({force: true})
-      .then(function() {
-        done();
-      })
-      .catch(function(err) {
+    Storage.sequelize.sync()
+      .then(function(res) {
+        return Storage.sequelize.query('SET FOREIGN_KEY_CHECKS=0', {raw: true});
+      }).then(function(res) {
+        return Storage.sequelize.sync({ force: true });
+      }).then(function() {
+        return Storage.sequelize.query('SET FOREIGN_KEY_CHECKS=1', {raw: true});
+      }).then(function() {
+        logger.info('Database for tests synchronised');
+        return done();
+      }).catch(function(err) {
         if (err.parent.code == 'ER_NO_SUCH_TABLE') {
           logger.info('Building table');
         } else {
