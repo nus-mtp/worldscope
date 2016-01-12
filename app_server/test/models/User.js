@@ -22,13 +22,13 @@ lab.experiment('User Model Tests', function () {
     description: 'a long long long description about jane'
   };
 
-  lab.beforeEach({ timeout: 10000 }, function(done) {
+  lab.beforeEach({timeout: 10000}, function(done) {
     // Delete database, run before every single test
     Storage.sequelize.sync()
       .then(function(res) {
         return Storage.sequelize.query('SET FOREIGN_KEY_CHECKS=0', {raw: true});
       }).then(function(res) {
-        return Storage.sequelize.sync({ force: true });
+        return Storage.sequelize.sync({force: true});
       }).then(function() {
         return Storage.sequelize.query('SET FOREIGN_KEY_CHECKS=1', {raw: true});
       }).then(function() {
@@ -44,57 +44,58 @@ lab.experiment('User Model Tests', function () {
   });
 
   lab.test('Create User', function (done) {
-    Storage.createUser(user)
-      .then(function(user) {
-        expect(user.username).to.equal('Jane Tan');
-        done();
-      });
+    Storage.createUser(user).then(function(user) {
+      expect(user.username).to.equal('Jane Tan');
+      done();
+    });
   });
 
   lab.test('Get User by Id', function (done) {
-    Storage.createUser(user)
-      .then(function(user) {
-        Storage.getUserById(user.userId)
-          .then(function(data) {
-            expect(data.username).to.equal('Jane Tan');
-            done();
-          });
+    Storage.createUser(user).then(function(user) {
+      Storage.getUserById(user.userId).then(function(data) {
+        expect(data.username).to.equal('Jane Tan');
+        done();
       });
+    });
   });
 
   lab.test('Get User by Email', function (done) {
-    Storage.createUser(user)
-      .then(function(user) {
-        Storage.getUserByEmail('jane@gmail.com')
-          .then(function(data) {
-            expect(data.username).to.equal('Jane Tan');
-            done();
-          });
+    Storage.createUser(user).then(function(user) {
+      Storage.getUserByEmail('jane@gmail.com').then(function(data) {
+        expect(data.username).to.equal('Jane Tan');
+        done();
       });
+    });
   });
 
   lab.test('Get User by platformId', function (done) {
-    Storage.createUser(user)
-      .then(function(user) {
-        Storage.getUserByPlatformId('facebook',
-            'asdfadf-asdfasdf-asdfasdfaf-dfddf')
-          .then(function(data) {
+    Storage.createUser(user).then(function(user) {
+      Storage.getUserByPlatformId('facebook',
+          'asdfadf-asdfasdf-asdfasdfaf-dfddf').then(function(data) {
             expect(data.username).to.equal('Jane Tan');
             done();
           });
-      });
+    });
   });
 
-  lab.test('Geting User by invalid platform parameters', function (done) {
-    Storage.createUser(user)
-      .then(function(user) {
-        Storage.getUserByPlatformId('twitter',
-            'asdfadf-asdfasdf-asdfasdfaf-dfddf')
-          .then(function(data) {
+  lab.test('Get User by invalid platform parameters', function (done) {
+    Storage.createUser(user).then(function(user) {
+      Storage.getUserByPlatformId('twitter',
+          'asdfadf-asdfasdf-asdfasdfaf-dfddf').then(function(data) {
             expect(data).to.be.null();
             done();
           });
-      });
+    });
+  });
+
+  lab.test('Get User by username and password', function (done) {
+    Storage.createUser(user).then(function(user) {
+      Storage.getUserByUsernamePassword('Jane Tan', 'secretpass')
+        .then(function(data) {
+          expect(data.username).to.equal('Jane Tan');
+          done();
+        });
+    });
   });
 
   lab.test('Get Non-Existing User', function (done) {
@@ -114,25 +115,21 @@ lab.experiment('User Model Tests', function () {
   });
 
   lab.test('Delete User', function (done) {
-    Storage.createUser(user)
-      .then(function(user) {
-        Storage.deleteUserById(user.userId)
-          .then(function(res) {
-            expect(res).to.be.true();
-            done();
-          });
+    Storage.createUser(user).then(function(user) {
+      Storage.deleteUserById(user.userId).then(function(res) {
+        expect(res).to.be.true();
+        done();
       });
+    });
   });
 
   lab.test('Duplicate Emails', function (done) {
-    Storage.createUser(user)
-      .then(function() {
-        Storage.createUser(user)
-          .then(function(res) {
-            expect(res).to.be.false();
-            done();
-          });
+    Storage.createUser(user).then(function() {
+      Storage.createUser(user).then(function(res) {
+        expect(res).to.be.false();
+        done();
       });
+    });
   });
 
   lab.test('Update particulars', function (done) {
@@ -144,19 +141,18 @@ lab.experiment('User Model Tests', function () {
       email: 'anewemail@yahoo.com'
     };
 
-    Storage.createUser(user)
-      .then(function(user) {
-        Storage.updateParticulars(user.userId, newParticulars)
-          .then(function(updatedUser) {
-            expect(updatedUser.alias).to.equal('anewalias');
-            expect(updatedUser.password).to.equal('anewpassword');
-            expect(updatedUser.accessToken).to.equal('averynewtoken');
-            expect(updatedUser.description).
-              to.equal('a new description, so new and new');
-            expect(updatedUser.email).to.equal('anewemail@yahoo.com');
-            done();
-          });
-      });
+    Storage.createUser(user).then(function(user) {
+      Storage.updateParticulars(user.userId, newParticulars)
+        .then(function(updatedUser) {
+          expect(updatedUser.alias).to.equal('anewalias');
+          expect(updatedUser.password).to.equal('anewpassword');
+          expect(updatedUser.accessToken).to.equal('averynewtoken');
+          expect(updatedUser.description).
+            to.equal('a new description, so new and new');
+          expect(updatedUser.email).to.equal('anewemail@yahoo.com');
+          done();
+        });
+    });
   });
 
   lab.test('Update particulars with one invalid parameter', function (done) {
@@ -164,14 +160,13 @@ lab.experiment('User Model Tests', function () {
       newColAlias: 23
     };
 
-    Storage.createUser(user)
-      .then(function(user) {
-        Storage.updateParticulars(user.userId, newParticulars)
-          .catch(function(err) {
-            expect(err).to.be.instanceof(Error);
-            done();
-          });
-      });
+    Storage.createUser(user).then(function(user) {
+      Storage.updateParticulars(user.userId, newParticulars)
+        .catch(function(err) {
+          expect(err).to.be.instanceof(Error);
+          done();
+        });
+    });
   });
 
   lab.test('Update particulars with one valid/invalid param', function (done) {
@@ -180,14 +175,13 @@ lab.experiment('User Model Tests', function () {
       description: 'simple'
     };
 
-    Storage.createUser(user)
-      .then(function(user) {
-        Storage.updateParticulars(user.userId, newParticulars)
-          .catch(function(err, data) {
-            expect(err).to.be.instanceof(Error);
-            done();
-          });
-      });
+    Storage.createUser(user).then(function(user) {
+      Storage.updateParticulars(user.userId, newParticulars)
+        .catch(function(err, data) {
+          expect(err).to.be.instanceof(Error);
+          done();
+        });
+    });
   });
 
   lab.test('Get a list of users', function (done) {

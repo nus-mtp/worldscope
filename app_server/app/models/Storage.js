@@ -123,6 +123,24 @@ Class.getUserByPlatformId = function(platformType, platformId) {
 };
 
 /**
+ * @param  {string} username
+ * @param  {string} password
+ * @return {Promise<Sequelize.object>}
+ */
+Class.getUserByUsernamePassword = function(username, password) {
+  return this.models.User.findOne({
+    where: {
+      username: username,
+      password: password
+    }
+  })
+    .catch(function(err) {
+      logger.error('Unable to retrieve user');
+      return false;
+    });
+};
+
+/**
  * @param  {string} userId
  * @return {boolean}
  */
