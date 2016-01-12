@@ -106,9 +106,9 @@ lab.experiment('UserService tests', function () {
 
   lab.test('updateParticulars valid', function(done) {
     UserService.createNewUser(bob).then(function (result) {
-      return UserService.updateParticulars(result.userId, {email: 'newemail'});
+      return UserService.updateParticulars(result.userId, {email: 'newemail@lahlahland.candy'});
     }).then(function(user) {
-      Code.expect(user.username).to.equal(bob.username, {email: 'newemail'});
+      Code.expect(user.username).to.equal(bob.username, {email: 'newemail@lahlahland.candy'});
       done();
     });
   });
