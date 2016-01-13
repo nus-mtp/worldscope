@@ -9,7 +9,7 @@ var logger = Utility.createLogger(__filename);
 var _ = require('underscore');
 
 /**
- * Initialises the datbase connection and load the models written in
+ * Initialises the database connection and load the models written in
  * modelArr. Model files have to be stored in the models directory
  * @constructor
  */
@@ -47,7 +47,7 @@ function Storage() {
 
   // create the tables
   this.sequelize
-    .sync({force: true})
+    .sync()
     .then(function(res) {
       logger.info('Table synchronized');
     }, function(err) {

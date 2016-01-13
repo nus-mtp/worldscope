@@ -78,16 +78,6 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
-  lab.test('Get User by invalid platform parameters', function (done) {
-    Storage.createUser(user).then(function(user) {
-      Storage.getUserByPlatformId('twitter',
-          'asdfadf-asdfasdf-asdfasdfaf-dfddf').then(function(data) {
-            expect(data).to.be.null();
-            done();
-          });
-    });
-  });
-
   lab.test('Get User by username and password', function (done) {
     Storage.createUser(user).then(function(user) {
       Storage.getUserByUsernamePassword('Jane Tan', 'secretpass')
@@ -95,6 +85,16 @@ lab.experiment('User Model Tests', function () {
           expect(data.username).to.equal('Jane Tan');
           done();
         });
+    });
+  });
+
+  lab.test('Get User by invalid platform parameters', function (done) {
+    Storage.createUser(user).then(function(user) {
+      Storage.getUserByPlatformId('twitter',
+          'asdfadf-asdfasdf-asdfasdfaf-dfddf').then(function(data) {
+            expect(data).to.be.null();
+            done();
+          });
     });
   });
 
@@ -177,6 +177,36 @@ lab.experiment('User Model Tests', function () {
 
     Storage.createUser(user).then(function(user) {
       Storage.updateParticulars(user.userId, newParticulars)
+        .catch(function(err, data) {
+          expect(err).to.be.instanceof(Error);
+          done();
+        });
+    });
+  });
+
+  lab.test('Update particulars with invalid email', function (done) {
+    var newParticulars = {
+      newEmail: 'newemail',
+      description: 'simple'
+    };
+
+    Storage.createUser(user).then(function(user) {
+      Storage.updateParticulars(user.userId, newParticulars)
+        .catch(function(err, data) {
+          expect(err).to.be.instanceof(Error);
+          done();
+        });
+    });
+  });
+
+  lab.test('Update particulars with invalid userId', function (done) {
+    var newParticulars = {
+      newEmail: 'newemail',
+      description: 'simple'
+    };
+
+    Storage.createUser(user).then(function(user) {
+      Storage.updateParticulars('abcd-abcd', newParticulars)
         .catch(function(err, data) {
           expect(err).to.be.instanceof(Error);
           done();
