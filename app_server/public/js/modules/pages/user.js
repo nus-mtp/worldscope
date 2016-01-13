@@ -19,7 +19,6 @@ const User = module.exports = {
           'textarea' : 'input';
 
       let attributes = {
-        id: id,
         type: type,
         value: prop(),
         onchange: m.withAttr('value', prop)
@@ -29,30 +28,30 @@ const User = module.exports = {
       }
 
       return [
-        m(inputType, attributes),
-        m('label', {for: id, className: 'active'}, label)
+        m(inputType + '#' + id, attributes),
+        m('label.active', {for: id}, label)
       ];
     };
 
     let user = ctrl.user();
     return [
       m('h1', 'Edit User'),
-      m('div', {className: 'input-field col s12'},
+      m('div.input-field col s12',
           getLabelledInput('Username', 'username', 'text', user.username,
               {disabled: true})
       ),
-      m('div', {className: 'input-field col s12'},
+      m('div.input-field col s12',
           getLabelledInput('Alias', 'alias', 'text', user.alias)
       ),
-      m('div', {className: 'input-field col s12'},
+      m('div.input-field col s12',
           getLabelledInput('Email', 'email', 'text', user.email)
       ),
-      m('div', {className: 'input-field col s12'},
+      m('div.input-field col s12',
           getLabelledInput('Description', 'desc', 'text', user.description,
               {className: 'materialize-textarea'})
       ),
-      m('div', {className: 'col s12'},
-          m('button', {className: 'btn', onclick: ctrl.update}, 'Submit')
+      m('div.col s12',
+          m('button.btn', {onclick: ctrl.update}, 'Submit')
       )
     ];
   }

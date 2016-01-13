@@ -9,10 +9,10 @@ const mixinPage = function (nav, page) {
       ctrl.pageCtrl = new page.controller();
     },
     view: function(ctrl) {
-      return m('div', {id: 'container', class: 'row'}, [
-        m('div', {id: 'nav', class: 'col s2 l1'},
+      return m('div#container.row', [
+        m('div#nav.col s2 l1',
             nav.view(ctrl.navCtrl)),
-        m('div', {id: 'content', class: 'col offset-s2 s10 offset-l1 l11'},
+        m('div#content.col offset-s2 s10 offset-l1 l11',
             page.view(ctrl.pageCtrl))
       ]);
     }

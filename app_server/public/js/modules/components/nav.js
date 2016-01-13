@@ -60,7 +60,7 @@ Nav.view = function (ctrl) {
       items.map(function (item) {
         let isActive = m.route().startsWith(item.href);
         return isActive ?
-            m('li', {className: 'active'}, getLink(item), makeList(item.sub)) :
+            m('li.active', getLink(item), makeList(item.sub)) :
             m('li', getLink(item));
       })
     ]);

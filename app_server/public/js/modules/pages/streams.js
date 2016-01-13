@@ -22,13 +22,12 @@ const Streams = module.exports = {
       m('span', stickers + 'S')
     ];
 
-    let getActions = (id) => [
-      m('select', {onchange: m.withAttr('value', m.route)}, [
-        m('option', {disabled: true, selected: true}, 'Choose...'),
-        m('option', {value: '/streams/view/' + id}, 'View / Edit'),
-        m('option', {value: '/streams/stop/' + id}, 'Stop')
-      ])
-    ];
+    let getActions = (id) =>
+        m('select', {onchange: m.withAttr('value', m.route)}, [
+          m('option', {disabled: true, selected: true}, 'Choose...'),
+          m('option', {value: '/streams/view/' + id}, 'View / Edit'),
+          m('option', {value: '/streams/stop/' + id}, 'Stop')
+        ]);
 
     let parse = (streams) => streams.map(
         function (stream) {

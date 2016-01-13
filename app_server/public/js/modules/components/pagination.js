@@ -62,9 +62,9 @@ Pagination.view = function (ctrl, args) {
     return pages;
   };
 
-  return m('div', {className: 'row right-align'},
-      m('div', {className: 'col s12'},
-          m('ul', {className: 'pagination'}, getPagination())
+  return m('div.row right-align',
+      m('div.col s12',
+          m('ul.pagination', getPagination())
       )
   );
 };
