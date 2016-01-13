@@ -1,5 +1,7 @@
 const m = require('mithril');
 
+const mz = require('../utils/mzInit');
+
 const ItemsCount = require('../components/itemscount');
 const Pagination = require('../components/pagination');
 const DataTable = require('../components/datatable');
@@ -36,7 +38,7 @@ DataDisplay.view = function (ctrl, args) {
     currentPage: ctrl.currentPage
   });
 
-  return m('div', [
+  return m('div', mz.select, [
     m(ItemsCount, {
       possibleItemsPerPage: ITEMS_PER_PAGE,
       itemsPerPage: ctrl.itemsPerPage

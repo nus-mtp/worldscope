@@ -1,7 +1,5 @@
 const m = require('mithril');
 
-const mz = require('../utils/mzInit');
-
 const ItemsCount = module.exports = {};
 
 ItemsCount.view = function (ctrl, args) {
@@ -9,7 +7,7 @@ ItemsCount.view = function (ctrl, args) {
   let currentItemsPerPage = parseInt(args.itemsPerPage());
 
   let getItemsCountSelect = [
-    m('select', mz.select(args.itemsPerPage),
+    m('select', {onchange: m.withAttr('value', args.itemsPerPage)},
         ITEMS_PER_PAGE.map((count) =>
             count === currentItemsPerPage ?
                 m('option', {value: count, selected: true}, count) :

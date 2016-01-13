@@ -1,7 +1,5 @@
 const m = require('mithril');
 
-const mz = require('../utils/mzInit');
-
 const UserModel = require('../models/user');
 const DataDisplay = require('../components/datadisplay');
 
@@ -24,7 +22,7 @@ const Users = module.exports = {
     let getPlatform = (platform) => m('img', {src: platformImg[platform]});
 
     let getActions = (id) => [
-      m('select', mz.select(m.route), [
+      m('select', {onchange: m.withAttr('value', m.route)}, [
         m('option', {disabled: true, selected: true}, 'Choose...'),
         m('option', {value: '/users/view/' + id}, 'View / Edit')
       ])

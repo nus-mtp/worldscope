@@ -1,7 +1,5 @@
 const m = require('mithril');
 
-const mz = require('../utils/mzInit');
-
 const StreamModel = require('../models/stream');
 const DataDisplay = require('../components/datadisplay');
 
@@ -25,7 +23,7 @@ const Streams = module.exports = {
     ];
 
     let getActions = (id) => [
-      m('select', mz.select(m.route), [
+      m('select', {onchange: m.withAttr('value', m.route)}, [
         m('option', {disabled: true, selected: true}, 'Choose...'),
         m('option', {value: '/streams/view/' + id}, 'View / Edit'),
         m('option', {value: '/streams/stop/' + id}, 'Stop')
