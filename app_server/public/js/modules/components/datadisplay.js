@@ -17,8 +17,9 @@ DataDisplay.controller = function () {
   ctrl.itemsPerPage = m.prop(m.route.param('items') || ITEMS_PER_PAGE[0]);
   ctrl.maxPage = m.prop(1);
 
-  ctrl.setMaxPage = function (items) {
+  ctrl.updatePageVars = function (items) {
     ctrl.maxPage(Math.floor(items.length / ctrl.itemsPerPage() + 1));
+    ctrl.currentPage(Math.min(ctrl.currentPage(), ctrl.maxPage()));
     return items;
   };
 
@@ -31,7 +32,7 @@ DataDisplay.controller = function () {
 };
 
 DataDisplay.view = function (ctrl, args) {
-  let data = args.data.then(ctrl.setMaxPage).then(ctrl.paginate);
+  let data = args.data.then(ctrl.updatePageVars).then(ctrl.paginate);
 
   let pagination = m(Pagination, {
     maxPage: ctrl.maxPage,
