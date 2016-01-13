@@ -6,6 +6,10 @@ Pagination.view = function (ctrl, args) {
   const MAX_LENGTH = 5;
   let maxPage = args.maxPage();
   let currentPage = parseInt(args.currentPage());
+
+  let isValidPage = (page) => page >= 1 && page <= maxPage;
+  let isCurrentPage = (page) => page === currentPage;
+
   let getPagination = function () {
     let getPageRange = function (curPage, length) {
       // TODO: Consider large number of pages (> MAX_LENGTH)
@@ -26,30 +30,24 @@ Pagination.view = function (ctrl, args) {
       return range;
     };
 
-    let getPageConfig = function (page) {
-      let config = {};
-
-      if (page < 1 || page > maxPage) {
-        config.a = {};
-        config.li = {className: 'disabled'};
-        return config;
-      }
-
-      config.a = {
-        'data-page': page,
-        onclick: m.withAttr('data-page', args.currentPage)
-      };
-
-      if (page === currentPage) {
-        config.li = {className: 'active'};
-      }
-
-      return config;
-    };
-
     let getPageIndicator = function (page, text) {
-      let config = getPageConfig(page);
-      return m('li', config.li, m('a', config.a, text));
+      let liClass = '';
+      let aConfig = {};
+
+      if (!isValidPage(page)) {
+        liClass = '.disabled';
+      } else {
+        if (isCurrentPage(page)) {
+          liClass = '.active';
+        }
+
+        aConfig = {
+          'data-page': page,
+          onclick: m.withAttr('data-page', args.currentPage)
+        };
+      }
+
+      return m('li' + liClass, m('a', aConfig, text));
     };
 
     let pages = [];
