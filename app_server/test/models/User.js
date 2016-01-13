@@ -50,6 +50,42 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
+  lab.test('Create User with missing username parameters', function (done) {
+    var baduser = {
+      email: 'jane@gmail.com',
+      password: 'secretpass'
+    };
+
+    Storage.createUser(baduser).then(function(res) {
+      expect(res).to.be.false();
+      done();
+    });
+  });
+
+  lab.test('Create User with duplicate emails', function (done) {
+    Storage.createUser(user).then(function() {
+      Storage.createUser(user).then(function(res) {
+        expect(res).to.be.false();
+        done();
+      });
+    });
+  });
+
+  lab.test('Create Admin account', function (done) {
+    var admin = {
+      username: 'admin1',
+      email: 'admin@gmail.com',
+      password: 'secretpass',
+      permissions: 'admin'
+    };
+
+    Storage.createUser(admin).then(function(res) {
+      expect(res.username).to.equal('admin1');
+      expect(res.permissions).to.equal('admin');
+      done();
+    });
+  });
+
   lab.test('Get User by Id', function (done) {
     Storage.createUser(user).then(function(user) {
       Storage.getUserById(user.userId).then(function(data) {
@@ -92,7 +128,7 @@ lab.experiment('User Model Tests', function () {
     Storage.createUser(user).then(function(user) {
       Storage.getUserByPlatformId('twitter',
           'asdfadf-asdfasdf-asdfasdfaf-dfddf').then(function(data) {
-            expect(data).to.be.null();
+            expect(data).to.be.false();
             done();
           });
     });
@@ -100,16 +136,16 @@ lab.experiment('User Model Tests', function () {
 
   lab.test('Get Non-Existing User', function (done) {
     Storage.getUserById('19f9bd98-ffff-aaaa-bbbb-3109f617667d')
-      .then(function(data) {
-        expect(data).to.be.null();
+      .then(function(res) {
+        expect(res).to.be.false();
         done();
       });
   });
 
   lab.test('Delete Non-Existing User', function (done) {
     Storage.deleteUserById('19f9bd98-ffff-aaaa-bbbb-3109f617667d')
-      .then(function(err) {
-        expect(err).to.equal(false);
+      .then(function(res) {
+        expect(res).to.be.false();
         done();
       });
   });
@@ -118,15 +154,6 @@ lab.experiment('User Model Tests', function () {
     Storage.createUser(user).then(function(user) {
       Storage.deleteUserById(user.userId).then(function(res) {
         expect(res).to.be.true();
-        done();
-      });
-    });
-  });
-
-  lab.test('Duplicate Emails', function (done) {
-    Storage.createUser(user).then(function() {
-      Storage.createUser(user).then(function(res) {
-        expect(res).to.be.false();
         done();
       });
     });

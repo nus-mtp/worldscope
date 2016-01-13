@@ -65,11 +65,13 @@ var Class = Storage.prototype;
  * @param  {object} particulars
  * @param  {string} particulars.username
  * @param  {string} particulars.password
- * @return {Promise<Sequelize.object>}
+ * @return {Promise<Sequelize.object> | False}
  */
 Class.createUser = function(particulars) {
   return this.models.User.create(particulars)
-    .catch(function(err) {
+    .then(function(user) {
+      return user;
+    }).catch(function(err) {
       logger.error('Error in creating user');
       return false;
     });
@@ -77,37 +79,48 @@ Class.createUser = function(particulars) {
 
 /**
  * @param  {string} email - the user's email
- * @return {Promise<Sequelize.object>}
+ * @return {Promise<Sequelize.object> | False}
  */
 Class.getUserByEmail = function(email) {
   return this.models.User.findOne({
     where: {
       email: email
     }
-  })
-    .catch(function(err) {
-      logger.error('Unable to retrieve user');
+  }).then(function(res) {
+    if (res === null) {
+      logger.info('No such user');
       return false;
-    });
+    } else {
+      return res;
+    }
+  }).catch(function(err) {
+    logger.error('Error in retrieving user');
+    return false;
+  });
 };
 
 /**
  * @param  {string} userId
- * @return {Promise<Sequelize.object>}
+ * @return {Promise<Sequelize.object> | False}
  */
 Class.getUserById = function(userId) {
-  return this.models.User.findById(userId)
-    .catch(function(err) {
-
-      logger.error('Unable to retrieve user');
+  return this.models.User.findById(userId).then(function(res) {
+    if (res === null) {
+      logger.info('No such user');
       return false;
-    });
+    } else {
+      return res;
+    }
+  }).catch(function(err) {
+    logger.error('Error in retrieving user');
+    return false;
+  });
 };
 
 /**
  * @param  {string} platformType
  * @param  {string} platformId
- * @return {Promise<Sequelize.object>}
+ * @return {Promise<Sequelize.object> | False}
  */
 Class.getUserByPlatformId = function(platformType, platformId) {
   return this.models.User.findOne({
@@ -115,17 +128,23 @@ Class.getUserByPlatformId = function(platformType, platformId) {
       platformType: platformType,
       platformId: platformId
     }
-  })
-    .catch(function(err) {
-      logger.error('Unable to retrieve user');
+  }).then(function(res) {
+    if (res === null) {
+      logger.info('No such user');
       return false;
-    });
+    } else {
+      return res;
+    }
+  }).catch(function(err) {
+    logger.error('Error in retrieving user');
+    return false;
+  });
 };
 
 /**
  * @param  {string} username
  * @param  {string} password
- * @return {Promise<Sequelize.object>}
+ * @return {Promise<Sequelize.object> | False}
  */
 Class.getUserByUsernamePassword = function(username, password) {
   return this.models.User.findOne({
@@ -133,11 +152,17 @@ Class.getUserByUsernamePassword = function(username, password) {
       username: username,
       password: password
     }
-  })
-    .catch(function(err) {
-      logger.error('Unable to retrieve user');
+  }).then(function(res) {
+    if (res === null) {
+      logger.info('No user found');
       return false;
-    });
+    } else {
+      return res;
+    }
+  }).catch(function(err) {
+    logger.error('Error in retrieving user');
+    return false;
+  });
 };
 
 /**
@@ -168,25 +193,24 @@ Class.deleteUserById = function(userId) {
            {Error} on fail
  */
 Class.updateParticulars = function(userId, newParticulars) {
-  return this.getUserById(userId)
-    .then(function(user) {
-      return user.update(newParticulars, {
-        fields: Object.keys(newParticulars)
-      });
+  return this.getUserById(userId).then(function(user) {
+    return user.update(newParticulars, {
+      fields: Object.keys(newParticulars)
     });
+  });
 };
 
 /**
  * @return {Promise<List<Sequelize.object>>} - a list of users
+ *         {False} on fail
  */
 Class.getListOfUsers = function() {
   return this.models.User.findAll({
     order: [['username', 'ASC']]
-  })
-    .catch(function(err) {
-      logger.error('Error in fetching list of users');
-      return false;
-    });
+  }).catch(function(err) {
+    logger.error('Error in fetching list of users');
+    return false;
+  });
 };
 
 /**
