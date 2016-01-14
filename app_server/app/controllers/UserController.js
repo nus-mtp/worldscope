@@ -73,6 +73,7 @@ Class.login = function (request, reply) {
 
       request.cookieAuth.set(account);
 
+      delete user.password;
       return reply(user);
     });
   }).catch(function fail(err) {

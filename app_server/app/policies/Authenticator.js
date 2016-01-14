@@ -111,7 +111,7 @@ Class.changeUserPassword = function (user) {
   });
 };
 
-Class.validateAccount = function (request, cache, session) {
+Class.validateAccount = function (request, session) {
   return Promise.resolve(session.userId)
   .then(function getAccountFromCache(userId) {
     if (!userId) {
@@ -119,7 +119,7 @@ Class.validateAccount = function (request, cache, session) {
     }
 
     return new Promise(function (resolve, reject) {
-      cache.get(userId, function (err, cached) {
+      request.server.app.cache.get(userId, function (err, cached) {
         if (err) {
           return reject(err);
         }
