@@ -18,25 +18,22 @@ module.exports = function(grunt) {
     },
 
     browserify: {
+      options: {
+        transform: [
+          ['babelify']
+        ]
+      },
       debug: {
         options: {
           browserifyOptions: {
             debug: true
-          },
-          transform: [
-              ['babelify']
-          ]
+          }
         },
         files: {
           './public/js/dist/app.js': ['./public/js/modules/app.js']
         }
       },
       dist: {
-        options: {
-          transform: [
-            ['babelify']
-          ]
-        },
         files: {
           './public/js/dist/app.js': ['./public/js/modules/app.js']
         }
@@ -44,11 +41,13 @@ module.exports = function(grunt) {
     },
 
     sass: {
+      options: {
+        includePaths: ['./node_modules/materialize-css/sass/']
+      },
       debug: {
         options: {
           outputStyle: 'expanded',
-          sourceMap: true,
-          includePaths: ['./node_modules/materialize-css/sass/']
+          sourceMap: true
         },
         files: {
           './public/css/style.css': './public/css/style.scss'
@@ -56,8 +55,7 @@ module.exports = function(grunt) {
       },
       dist: {
         options: {
-          outputStyle: 'compressed',
-          includePaths: ['./node_modules/materialize-css/sass/']
+          outputStyle: 'compressed'
         },
         files: {
           './public/css/style.css': './public/css/style.scss'
