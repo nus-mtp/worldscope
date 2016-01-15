@@ -20,6 +20,8 @@ var Class = Authenticator.prototype;
 
 Class.ERRORS = {
   RETRIEVE_PROFILE: 'Error retrieving user\'s social media profile',
+  INVALID_CREDENTIALS: 'username or password is invalid',
+  INVALID_SESSION: 'Session cookie is invalid'
 };
 
 /**
@@ -80,7 +82,6 @@ Class.generateNewUser = function (platformType, profile, credentials) {
       username: util.format('%s@%s', profile.id, platformType),
       password: hash,
       alias: profile.name,
-      email: '',
       accessToken: credentials.accessToken
     };
 
@@ -115,13 +116,14 @@ Class.validateAccount = function (request, session) {
   return Promise.resolve(session.userId)
   .then(function getAccountFromCache(userId) {
     if (!userId) {
-      throw new Error('Session cookie is invalid');
+      throw new Error(Class.ERRORS.INVALID_SESSION);
     }
 
     return new Promise(function (resolve, reject) {
       request.server.app.cache.get(userId, function (err, cached) {
         if (err) {
-          return reject(err);
+          logger.error(err);
+          return resolve(null);
         }
 
         if (!cached) {
@@ -136,20 +138,38 @@ Class.validateAccount = function (request, session) {
       return null;
     }
 
-    if (session.username == cached.username &&
-        session.password == cached.password) {
+    if (session.username === cached.username &&
+        session.password === cached.password) {
       return cached;
     } else {
-      return new Error('username or password is invalid');
+      return new Error(Class.ERRORS.INVALID_CREDENTIALS);
     }
   }).then(function getAccountFromDatabase(account) {
     if (account) {
       return account;
     }
 
-    // TODO: Query Storage for user with username and password
-    //       then add the account to cache
-    return null;
+    return Service.getUserById(session.userId)
+    .then(function receiveUser(user) {
+      if (!user || user.username !== session.username) {
+        return new Error(Class.ERRORS.INVALID_CREDENTIALS);
+      }
+
+      return bcrypt.compareAsync(session.password, user.password);
+    })
+    .then(function compareResult(res) {
+      if (!res) {
+        return new Error(Class.ERRORS.INVALID_CREDENTIALS);
+      }
+
+      request.server.app.cache.set(session.userId, session, 0,
+                                   function (err) {
+                                     if (err) {
+                                       logger.error(err);
+                                     }
+                                   });
+      return session;
+    });
   });
 };
 

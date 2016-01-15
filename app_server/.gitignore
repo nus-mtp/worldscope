@@ -29,3 +29,4 @@ build/Release
 node_modules
 doc
 report
+.tern-project

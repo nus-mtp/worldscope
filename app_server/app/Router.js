@@ -70,13 +70,14 @@ server.register(require('hapi-auth-cookie'), function (err) {
 
       Authenticator.validateAccount(request, session)
       .then(function (account) {
-        if (account == null || account instanceof Error) {
+        if (!account || account instanceof Error) {
           return callback(account, false);
         }
 
         return callback(null, true, account);
       })
       .catch(function (err) {
+        logger.error(err);
         return callback(err, false);
       });
     }

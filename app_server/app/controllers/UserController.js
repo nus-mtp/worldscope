@@ -45,7 +45,16 @@ Class.getListOfUsers = function (request, reply) {
 };
 
 Class.getUserById = function (request, reply) {
-  reply('Hello ' + request.params.id + '!');
+  Service.getUserById(request.params.id)
+  .then(function (user) {
+    if (!user || user instanceof Error) {
+      reply(Boom.badRequest('Unable to get user with id '+ request.params.id));
+      return;
+    }
+
+    user = clearUserPrivateInfo(user);
+    reply(user);
+  });
 };
 
 Class.login = function (request, reply) {
@@ -72,8 +81,8 @@ Class.login = function (request, reply) {
       }
 
       request.cookieAuth.set(account);
+      user = clearUserPrivateInfo(user);
 
-      delete user.password;
       return reply(user);
     });
   }).catch(function fail(err) {
@@ -85,10 +94,21 @@ Class.logout = function (request, reply) {
   reply('Logged out!');
 };
 
+function clearUserPrivateInfo(user) {
+  if (user.password) {
+    delete user.password;
+  }
+  if (user.accessToken) {
+    delete user.accessToken;
+  }
+
+  return user;
+}
+
 /* Validator for routes */
 var singleUserValidator = {
   params: {
-    id: Joi.number().min(0)
+    id: Joi.string().guid()
   }
 };
 
