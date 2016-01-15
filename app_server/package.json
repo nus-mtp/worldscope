@@ -57,7 +57,7 @@
     "grunt-contrib-copy": "^0.8.2",
     "grunt-contrib-uglify": "^0.9.2",
     "grunt-sass": "^1.0.0",
-    "jquery": "^2.1.4",
+    "jquery": "^2.2.0",
     "lab": "^5.18.1",
     "materialize-css": "^0.97.5"
   }
