@@ -9,6 +9,7 @@ var Boom = require('boom');
 var Utility = rfr('app/util/Utility');
 var Authenticator = rfr('app/policies/Authenticator');
 var SocialMediaAdapter = rfr('app/adapters/social_media/SocialMediaAdapter');
+var Service = rfr('app/services/Service');
 
 var logger = Utility.createLogger(__filename);
 
@@ -66,7 +67,7 @@ Class.login = function (request, reply) {
   return Authenticator.authenticateUser(this.defaultPlatform, credentials)
   .then(function afterAuthentication(user) {
     if (!user || user instanceof Error) {
-      return reply(Boom.unauthorized('Failed to authenticate user ' + user));
+      return reply(Boom.badRequest('Failed to authenticate user ' + user));
     }
 
     var account = {
@@ -77,7 +78,7 @@ Class.login = function (request, reply) {
 
     request.server.app.cache.set(account.userId, account, 0, function (err) {
       if (err) {
-        return reply(Boom.badImplementation(err.message));
+        logger.error(err);
       }
 
       request.cookieAuth.set(account);
@@ -86,7 +87,7 @@ Class.login = function (request, reply) {
       return reply(user);
     });
   }).catch(function fail(err) {
-    return reply(Boom.unauthorized('Failed to authenticate user: ' + err));
+    return reply(Boom.badRequest('Failed to authenticate user: ' + err));
   });
 };
 

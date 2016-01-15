@@ -2,14 +2,31 @@ var rfr = require('rfr');
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var Code = require('code');
-var Hapi = require('hapi');
 
+var Storage = rfr('app/models/Storage.js');
 var Router = rfr('app/Router.js');
 var Facebook = rfr('app/adapters/social_media/Facebook');
+var TestUtils = rfr('test/TestUtils');
+var Service = rfr('app/services/Service');
 
 var testAccount = {userId: 1, username: 'bob', password: 'abc'};
 
+var bob = {
+  username: 'Bob',
+  alias: 'Bob the Builder',
+  email: 'bob@bubblegum.com',
+  password: 'generated',
+  accessToken: 'xyzabc',
+  platformType: 'facebook',
+  platformId: '1238943948',
+  description: 'bam bam bam'
+};
+
 lab.experiment('UserController Tests', function () {
+  lab.beforeEach(function (done) {
+    TestUtils.resetDatabase(done);
+  });
+
   lab.test('Get list of users', function (done) {
     Router.inject({url: '/api/users', credentials: testAccount},
       function (res) {
@@ -19,17 +36,22 @@ lab.experiment('UserController Tests', function () {
   });
 
   lab.test('Valid id', function (done) {
-    Router.inject({url: '/api/users/213', credentials: testAccount},
-      function (res) {
-        Code.expect(res.result).to.equal('Hello 213!');
-        done();
-      });
+    Service.createNewUser(bob).then(function (result) {
+      return Service.getUserById(result.userId);
+    }).then(function(user) {
+      Router.inject({url: '/api/users/' + user.userId,
+                    credentials: testAccount},
+                    function (res) {
+                      Code.expect(res.result.username).to.equal(bob.username);
+                      done();
+                    });
+    });
   });
 
   lab.test('Get list of users', function (done) {
     Router.inject({url: '/api/users/asd', credentials: testAccount},
       function (res) {
-        var errorMsg = 'child "id" fails because ["id" must be a number]';
+        var errorMsg = 'child "id" fails because ["id" must be a valid GUID]';
         Code.expect(res.result.statusCode).to.equal(400);
         Code.expect(res.result.message).to.equal(errorMsg);
         done();
@@ -52,6 +74,12 @@ lab.experiment('UserController Tests', function () {
 });
 
 lab.experiment('UserController log in tests', function () {
+  var facebookServer = TestUtils.mockFacebookServer();
+
+  lab.beforeEach(function (done) {
+    TestUtils.resetDatabase(done);
+  });
+
   lab.test('Login no credentials', function (done) {
     Router.inject({method: 'POST', url: '/api/users/login'}, function (res) {
       Code.expect(res.statusCode).to.equal(400);
@@ -71,7 +99,7 @@ lab.experiment('UserController log in tests', function () {
     Router.inject({method: 'POST', url: '/api/users/login',
                    payload: {appId: 'blahblah',
                              accessToken: 'xyz'}}, function (res) {
-      Code.expect(res.statusCode).to.equal(401);
+      Code.expect(res.statusCode).to.equal(400);
       done();
     });
   });
@@ -97,27 +125,12 @@ lab.experiment('UserController log in tests', function () {
     Router.inject({method: 'POST', url: '/api/users/login',
                    payload: {appId: '123456789',
                              accessToken: 'xyz'}}, function (res) {
-      Code.expect(res.statusCode).to.equal(401);
+      Code.expect(res.statusCode).to.equal(400);
       done();
     });
   });
 
   lab.test('Valid login', function (done) {
-    // User a Hapi server instance to mock Facebook's service
-    var facebookServer = new Hapi.Server();
-    facebookServer.connection({port: 8888});
-    facebookServer.route({
-      method: 'GET',
-      path: '/v2.5/me',
-      handler: function (request, reply) {
-        if (request.query.access_token == 'xyz') {
-          reply({name: 'Bob The Builder', 'id': '18292522986296117'});
-        } else {
-          reply('Unauthorized').code(401);
-        }
-      }
-    });
-
     facebookServer.start(function (err) {
       Code.expect(err).to.not.be.null();
 
@@ -129,7 +142,6 @@ lab.experiment('UserController log in tests', function () {
         var expected = {
           alias: 'Bob The Builder',
           username: '18292522986296117@facebook',
-          accessToken: 'xyz',
           platformType: 'facebook',
           platformId: '18292522986296117'
         };
@@ -141,20 +153,20 @@ lab.experiment('UserController log in tests', function () {
         Code.expect(body.username).to.equal(expected.username);
         Code.expect(body.platformType).to.equal(expected.platformType);
         Code.expect(body.platformId).to.equal(expected.platformId);
-        Code.expect(body.accessToken).to.equal(expected.accessToken);
 
         Facebook.FACEBOOK_API_URL = 'https://graph.facebook.com';
         facebookServer.stop(function () {});
 
         // API request with logged in cookie should now be authorized
         Router.inject({method: 'GET', url: '/',
-                       headers: {'Cookie': res.headers['Set-Cookie']}},
+                       headers: {
+                         'Cookie': res.headers['set-cookie'][0].split(';')[0]
+                       }},
                       function (res2) {
-                        Code.expect(res.statusCode).to.equal(200);
+                        Code.expect(res2.statusCode).to.equal(200);
                         done();
                       });
       });
     });
-
   });
 });

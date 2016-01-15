@@ -106,7 +106,7 @@ Class.getUserByEmail = function(email) {
 Class.getUserById = function(userId) {
   return this.models.User.findById(userId).then(function(res) {
     if (res === null) {
-      logger.info('No such user');
+      logger.info('No such user: %s', userId);
       return false;
     } else {
       return res;
@@ -130,7 +130,7 @@ Class.getUserByPlatformId = function(platformType, platformId) {
     }
   }).then(function(res) {
     if (res === null) {
-      logger.info('No such user');
+      logger.info('No such user at %s with id %s', platformType, platformId);
       return false;
     } else {
       return res;

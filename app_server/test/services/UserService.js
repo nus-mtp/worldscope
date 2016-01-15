@@ -85,6 +85,24 @@ lab.experiment('UserService tests', function () {
     });
   });
 
+  lab.test('getUserById valid arguments', function(done) {
+    UserService.createNewUser(bob).then(function (result) {
+      return UserService.getUserById(result.userId);
+    }).then(function(user) {
+      Code.expect(user.username).to.equal(bob.username);
+      Code.expect(user.password).to.equal(bob.password);
+      done();
+    });
+  });
+
+  lab.test('getUserById invalid arguments', function(done) {
+    return UserService.getUserById('123xyz')
+    .then(function(user) {
+      Code.expect(user).to.be.null();
+      done();
+    });
+  });
+
   lab.test('updateParticulars invalid userId', function(done) {
     UserService.createNewUser(bob).then(function (result) {
       return UserService.updateParticulars('invalidUserId',
