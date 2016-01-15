@@ -1,3 +1,2 @@
-app_server/public/js/dist/
-app_server/public/css/*.css
-app_server/public/css/*.map
+app_server/public/js/
+app_server/public/css/
