@@ -5,7 +5,7 @@
 var rfr = require('rfr');
 var util = require('util');
 var Promise = require('bluebird');
-var bcrypt = Promise.promisifyAll(require('bcrypt'));
+var bcrypt = Promise.promisifyAll(require('bcryptjs'));
 
 var SocialMediaAdapter = rfr('app/adapters/social_media/SocialMediaAdapter');
 var Service = rfr('app/services/Service');
