@@ -54,7 +54,7 @@ function Storage() {
       if (err.parent.code == 'ER_NO_SUCH_TABLE') {
         logger.info('Building table');
       } else {
-        logger.error('An error occurred while synchronizing table');
+        logger.error('An error occurred while synchronizing table: %j', err);
       }
     });
 }
@@ -72,7 +72,7 @@ Class.createUser = function(particulars) {
     .then(function(user) {
       return user;
     }).catch(function(err) {
-      logger.error('Error in creating user');
+      logger.error('Error in creating user: %j', err);
       return false;
     });
 };
@@ -94,7 +94,7 @@ Class.getUserByEmail = function(email) {
       return res;
     }
   }).catch(function(err) {
-    logger.error('Error in retrieving user');
+    logger.error('Error in retrieving user: %j', err);
     return false;
   });
 };
@@ -112,7 +112,7 @@ Class.getUserById = function(userId) {
       return res;
     }
   }).catch(function(err) {
-    logger.error('Error in retrieving user');
+    logger.error('Error in retrieving user: %j', err);
     return false;
   });
 };
@@ -136,7 +136,7 @@ Class.getUserByPlatformId = function(platformType, platformId) {
       return res;
     }
   }).catch(function(err) {
-    logger.error('Error in retrieving user');
+    logger.error('Error in retrieving user: %j', err);
     return false;
   });
 };
@@ -160,7 +160,7 @@ Class.getUserByUsernamePassword = function(username, password) {
       return res;
     }
   }).catch(function(err) {
-    logger.error('Error in retrieving user');
+    logger.error('Error in retrieving user: %j', err);
     return false;
   });
 };
@@ -179,7 +179,7 @@ Class.deleteUserById = function(userId) {
       return true;
     })
     .catch(function(err) {
-      logger.error('Error in deleting user');
+      logger.error('Error in deleting user: %j', err);
       return false;
     });
 };
@@ -208,7 +208,7 @@ Class.getListOfUsers = function() {
   return this.models.User.findAll({
     order: [['username', 'ASC']]
   }).catch(function(err) {
-    logger.error('Error in fetching list of users');
+    logger.error('Error in fetching list of users: %j', err);
     return false;
   });
 };

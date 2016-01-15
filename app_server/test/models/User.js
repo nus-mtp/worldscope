@@ -114,6 +114,16 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
+  lab.test('Get User by invalid platform parameters', function (done) {
+    Storage.createUser(user).then(function(user) {
+      Storage.getUserByPlatformId('twitter',
+          'asdfadf-asdfasdf-asdfasdfaf-dfddf').then(function(data) {
+            expect(data).to.be.false();
+            done();
+          });
+    });
+  });
+
   lab.test('Get User by username and password', function (done) {
     Storage.createUser(user).then(function(user) {
       Storage.getUserByUsernamePassword('Jane Tan', 'secretpass')
@@ -124,15 +134,26 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
-  lab.test('Get User by invalid platform parameters', function (done) {
+  lab.test('Get User by invalid username and password', function (done) {
     Storage.createUser(user).then(function(user) {
-      Storage.getUserByPlatformId('twitter',
-          'asdfadf-asdfasdf-asdfasdfaf-dfddf').then(function(data) {
-            expect(data).to.be.false();
-            done();
-          });
+      Storage.getUserByUsernamePassword('wrong username', 'secretpass')
+        .then(function(data) {
+          expect(data).to.be.false();
+          done();
+        });
     });
   });
+
+  lab.test('Get User by with same username but different password',
+      function (done) {
+        Storage.createUser(user).then(function(user) {
+          Storage.getUserByUsernamePassword('Jane Tan', 'differentpass')
+            .then(function(data) {
+              expect(data).to.be.false();
+              done();
+            });
+        });
+      });
 
   lab.test('Get Non-Existing User', function (done) {
     Storage.getUserById('19f9bd98-ffff-aaaa-bbbb-3109f617667d')
