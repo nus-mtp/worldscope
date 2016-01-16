@@ -3,7 +3,7 @@
  * @module Stream
  */
 
-module.exports = function(sequelize, DataTypes){
+module.exports = function(sequelize, DataTypes) {
   var Stream = sequelize.define('Stream', {
     streamId: {
       type: DataTypes.UUID,
@@ -19,7 +19,10 @@ module.exports = function(sequelize, DataTypes){
     },
     title: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
     },
     roomId: {
       type: DataTypes.STRING,
@@ -53,6 +56,14 @@ module.exports = function(sequelize, DataTypes){
     setterMethods: {
       createdAt: function(newDate) {
         this.setDataValue('createdAt', newDate);
+      }
+    },
+    classMethods: {
+      associate: function(models) {
+        Stream.belongsTo(models.User, {
+          onDelete: 'CASCADE',
+          foreignKey: 'owner'
+        });
       }
     }
   });

@@ -4,9 +4,13 @@
  * @module Storage
  */
 var rfr = require('rfr');
-var Utility = rfr('app/util/Utility');
-var logger = Utility.createLogger(__filename);
+var Promise = require('bluebird');
 var _ = require('underscore');
+
+var config = rfr('config/DatabaseConfig');
+var Utility = rfr('app/util/Utility');
+
+var logger = Utility.createLogger(__filename);
 
 /**
  * Initialises the database connection and load the models written in
@@ -14,12 +18,11 @@ var _ = require('underscore');
  * @constructor
  */
 function Storage() {
-  var config = rfr('config/DatabaseConfig');
-  this.models = {};
-  this.Sequelize = require('sequelize');
+  var models = {};
+  var Sequelize = require('sequelize');
 
   // initialize database connection
-  this.sequelize = new this.Sequelize(
+  var sequelize = new Sequelize(
       config.name,
       config.username,
       config.password, {
@@ -33,20 +36,28 @@ function Storage() {
         }
       });
 
-  // load models
   var modelArr = [
-    'User'
+    'User',
+    'Stream'
   ];
 
   // importing models
   for (var i = 0; i < modelArr.length; i++) {
     var modelName = modelArr[i];
-    this.models[modelName] = this.sequelize.import(__dirname + '/' + modelName);
+    models[modelName] = sequelize.import(__dirname + '/' + modelName);
     logger.info(modelName + ' model imported');
   }
 
+  // associate the models
+  modelArr.forEach(function(modelName) {
+    var srcModel = models[modelName];
+    if ('associate' in srcModel) {
+      srcModel.associate(models);
+    }
+  });
+
   // create the tables
-  this.sequelize
+  sequelize
     .sync()
     .then(function(res) {
       logger.info('Table synchronized');
@@ -57,6 +68,10 @@ function Storage() {
         logger.error('An error occurred while synchronizing table: %j', err);
       }
     });
+
+  this.Sequelize = Sequelize;
+  this.sequelize = sequelize;
+  this.models = models;
 }
 
 var Class = Storage.prototype;
@@ -214,20 +229,53 @@ Class.getListOfUsers = function() {
 };
 
 /**
+ * @param  {string} userId - userid of the user who created stream
+ * @param  {object} streamAttributes
+ * @param  {string} streamAttributes.streamKey
+ * @param  {string} streamAttributes.roomId
+ * @return {Promise<Sequelize.object>}
+ */
+Class.createStream = function(userId, streamAttributes) {
+  var userPromise = this.models.User.findById(userId);
+  var streamPromise = this.models.Stream.create(streamAttributes);
+  var that = this;
+
+  return Promise.join(userPromise, streamPromise,
+    function(user, stream) {
+      return user.addStream(stream).then(function() {
+        return that.getStreamById(stream.streamId);
+      });
+    });
+};
+
+/**
+ * Return a stream given streamId
+ * @param  {string} id - stream's id
+ * @return {Promise<Sequelize.object> | null}
+ */
+Class.getStreamById = function(streamId) {
+  return this.models.Stream.findOne({
+    where: {
+      streamId: streamId
+    }
+  });
+};
+
+/**
  * Check if the fields to be changed match the fields available in object
  * @private
  */
 function isFieldsMatched(user, options, fn) {
   var fieldsToChange = options.fields;
   var index = fieldsToChange.indexOf('updatedAt');
+  var objFields = Object.keys(user.dataValues);
 
-  if (index > -1) {
-    fieldsToChange.splice(index, 1);
+  if (index === 0) { //only change updatedAt time
+    return fn();
   }
 
-  if (user.changed() === false ||
-      !_.isEqual(user.changed().sort(), fieldsToChange.sort())) {
-    return fn('Invalid parameters');
+  if (_(fieldsToChange).difference(objFields).length !== 0) {
+    throw new Error('Invalid parameters');
   } else {
     return fn();
   }
