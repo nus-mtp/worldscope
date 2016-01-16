@@ -16,6 +16,6 @@ const Stream = module.exports = function (data) {
 Stream.list = () =>
     m.request({
       method: 'GET',
-      url: 'js/modules/mockdata/streams.json',
+      url: 'src/js/modules/mockdata/streams.json',
       type: Stream
     });

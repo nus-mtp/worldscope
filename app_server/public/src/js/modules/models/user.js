@@ -12,14 +12,14 @@ const User = module.exports = function (data) {
 User.get = () =>
     m.request({
       method: 'GET',
-      url: 'js/modules/mockdata/user.json',
+      url: 'src/js/modules/mockdata/user.json',
       type: User
     });
 
 User.list = () =>
     m.request({
       method: 'GET',
-      url: 'js/modules/mockdata/users.json',
+      url: 'src/js/modules/mockdata/users.json',
       type: User
     });
 

@@ -36,10 +36,10 @@
     "good-console": "^5.1.0",
     "good-file": "^5.1.0",
     "hapi": "^10.0.1",
-    "inert": "^3.2.0",
     "hapi-auth-cookie": "^3.1.0",
+    "inert": "^3.2.0",
     "joi": "^6.9.1",
-    "mithril": "^0.2.0",
+    "mithril": "^0.2.2-rc.1",
     "mysql": "~2.9.0",
     "rfr": "^1.2.2",
     "sequelize": "~3.12.1",
@@ -57,8 +57,8 @@
     "grunt-contrib-copy": "^0.8.2",
     "grunt-contrib-uglify": "^0.9.2",
     "grunt-sass": "^1.0.0",
-    "jquery": "^2.1.4",
+    "jquery": "^2.2.0",
     "lab": "^5.18.1",
-    "materialize-css": "^0.97.1"
+    "materialize-css": "^0.97.5"
   }
 }
