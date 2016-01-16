@@ -4,8 +4,6 @@
  */
 var path = require('path');
 var winston = require('winston');
-
-
 var crypto = require('crypto');
 
 var randomValueBase64 =
@@ -45,7 +43,7 @@ exports.createLogger = function (filename) {
         timestamp: true,
         colorize: true,
         label: getModuleName(filename),
-        level: process.env.NODE_ENV == 'development' ? 'debug' : 'info'
+        level: process.env.NODE_ENV === 'development' ? 'debug' : 'info'
       }),
       new (winston.transports.File)({
         timestamp: true,

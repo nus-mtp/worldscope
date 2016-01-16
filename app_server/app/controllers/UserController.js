@@ -96,12 +96,8 @@ Class.logout = function (request, reply) {
 };
 
 function clearUserPrivateInfo(user) {
-  if (user.password) {
-    delete user.password;
-  }
-  if (user.accessToken) {
-    delete user.accessToken;
-  }
+  delete user.password;
+  delete user.accessToken;
 
   return user;
 }

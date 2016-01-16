@@ -18,7 +18,7 @@ exports.resetDatabase = function (done) {
     logger.info('Database for tests synchronised');
     return done();
   }).catch(function(err) {
-    if (err.parent && err.parent.code == 'ER_NO_SUCH_TABLE') {
+    if (err.parent && err.parent.code === 'ER_NO_SUCH_TABLE') {
       logger.info('Building table');
     } else {
       logger.error('Database Connection refused');
@@ -33,7 +33,7 @@ exports.mockFacebookServer = function () {
     method: 'GET',
     path: '/v2.5/me',
     handler: function (request, reply) {
-      if (request.query.access_token == 'xyz') {
+      if (request.query.access_token === 'xyz') {
         reply({name: 'Bob The Builder', 'id': '18292522986296117'});
       } else {
         reply('Unauthorized').code(401);
@@ -42,4 +42,15 @@ exports.mockFacebookServer = function () {
   });
 
   return facebookServer;
+};
+
+/**
+ * Returns a new object that has properties copied from obj 
+ * @param {Object} obj
+ * @param {Array} properties
+ */
+exports.copyObj = function (obj, properties) {
+  return Object.keys(obj)
+  .filter(function (key) { return properties.indexOf(key) >= 0; })
+  .reduce(function (prev, prop) { prev[prop] = obj[prop]; return prev; }, {});
 };

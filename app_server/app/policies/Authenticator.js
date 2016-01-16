@@ -20,7 +20,7 @@ var Class = Authenticator.prototype;
 
 Class.ERRORS = {
   RETRIEVE_PROFILE: 'Error retrieving user\'s social media profile',
-  INVALID_CREDENTIALS: 'username or password is invalid',
+  INVALID_CREDENTIALS: 'Username or password is invalid',
   INVALID_SESSION: 'Session cookie is invalid'
 };
 

@@ -57,9 +57,8 @@ server.register({
 
 /* Configure Authentication plugin */
 server.register(require('hapi-auth-cookie'), function (err) {
-  var cache = server.cache({segment: 'sessions',
-                            expiresIn: 3 * 24 * 60 * 60 * 1000});
-  server.app.cache = cache;
+  server.app.cache = server.cache({segment: 'sessions',
+                                   expiresIn: 3 * 24 * 60 * 60 * 1000});
 
   server.auth.strategy('session', 'cookie', {
     password: ServerConfig.cookiePassword,

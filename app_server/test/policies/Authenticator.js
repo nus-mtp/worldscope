@@ -77,8 +77,8 @@ lab.experiment('Authenticator Tests', function () {
       Facebook.FACEBOOK_API_URL = 'http://localhost:8888';
 
       Router.inject({method: 'POST', url: '/api/users/login',
-                    payload: {appId: '123456789',
-                              accessToken: 'xyz'}}, function (res) {
+                     payload: {appId: '123456789',
+                               accessToken: 'xyz'}}, function (res) {
         Code.expect(res.statusCode).to.equal(200);
 
         Facebook.FACEBOOK_API_URL = 'https://graph.facebook.com';
@@ -87,7 +87,6 @@ lab.experiment('Authenticator Tests', function () {
         var body = JSON.parse(res.payload);
         Router.app.cache.drop(body.userId);
 
-        // API request with logged in cookie should now be authorized
         Router.inject({method: 'GET', url: '/',
                        headers: {
                          'Cookie': res.headers['set-cookie'][0].split(';')[0]

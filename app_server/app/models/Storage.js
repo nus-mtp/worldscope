@@ -51,7 +51,7 @@ function Storage() {
     .then(function(res) {
       logger.info('Table synchronized');
     }, function(err) {
-      if (err.parent.code == 'ER_NO_SUCH_TABLE') {
+      if (err.parent.code === 'ER_NO_SUCH_TABLE') {
         logger.info('Building table');
       } else {
         logger.error('An error occurred while synchronizing table: %j', err);
