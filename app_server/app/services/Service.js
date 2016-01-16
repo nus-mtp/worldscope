@@ -2,6 +2,7 @@ var rfr = require('rfr');
 
 var Utility = rfr('app/util/Utility');
 var UserService = rfr('app/services/UserService');
+var StreamService = rfr('app/services/UserService');
 
 var logger = Utility.createLogger(__filename);
 
@@ -30,6 +31,16 @@ Class.updateUserParticulars = function (userId, particulars) {
   logger.debug('Updating user particulars %s %j', userId, particulars);
   return UserService.updateParticulars(userId, particulars);
 };
+///////////////////////
+
+/////// STREAM APIs ///////
+Class.createNewStream = function (userId, streamDetails) {
+  logger.debug('Creating new stream: %j', streamDetails);
+  //return stub
+  var stream = {appInstance: 'a-hash-of-userId-and-time', streamId: '123-123'};
+  return stream;
+};
+
 ///////////////////////
 
 module.exports = new Service();
