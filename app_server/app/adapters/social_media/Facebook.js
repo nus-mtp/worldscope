@@ -19,9 +19,7 @@ var logger = Utility.createLogger(__filename);
  * @return {Facebook}
  */
 function Facebook(options) {
-  var FACEBOOK_API_URL = 'https://graph.facebook.com';
-
-  Platform.call(this, FACEBOOK_API_URL);
+  Platform.call(this, Facebook.FACEBOOK_API_URL);
 
   if (!options.accessToken) {
     var errorMsg = 'Facebook platform requires an access token';
@@ -39,6 +37,8 @@ function Facebook(options) {
 }
 util.inherits(Facebook, Platform);
 var Class = Facebook.prototype;
+
+Facebook.FACEBOOK_API_URL = 'https://graph.facebook.com';
 
 /**
  * Get a user's profile from facebook

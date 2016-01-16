@@ -21,6 +21,11 @@ Class.getUserByPlatform = function (platformType, platformId) {
   return UserService.getUserByPlatform(platformType, platformId);
 };
 
+Class.getUserById = function (id) {
+  logger.debug('Getting user by id %s', id);
+  return UserService.getUserById(id);
+};
+
 Class.updateUserParticulars = function (userId, particulars) {
   logger.debug('Updating user particulars %s %j', userId, particulars);
   return UserService.updateParticulars(userId, particulars);

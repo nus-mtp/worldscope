@@ -4,9 +4,11 @@
  */
 var rfr = require('rfr');
 var Hapi = require('hapi');
+var Promise = require('bluebird');
 
 var Utility = rfr('app/util/Utility');
 var ServerConfig = rfr('config/ServerConfig');
+var Authenticator = rfr('app/policies/Authenticator');
 
 var logger = Utility.createLogger(__filename);
 
@@ -42,16 +44,6 @@ server.register({
   }
 });
 
-/* Configure Authentication plugin */
-server.register(require('hapi-auth-cookie'), function (err) {
-  server.auth.strategy('session', 'cookie', {
-    password: ServerConfig.cookiePassword,
-    cookie: 'sid-worldscope',
-    redirectTo: '/api/users/login',
-    isSecure: false
-  });
-});
-
 /* Register controllers */
 server.register({
   register: rfr('app/controllers/UserController.js')
@@ -61,6 +53,38 @@ server.register({
   if (err) {
     logger.error('Unable to register UserController: %j', err);
   }
+});
+
+/* Configure Authentication plugin */
+server.register(require('hapi-auth-cookie'), function (err) {
+  server.app.cache = server.cache({segment: 'sessions',
+                                   expiresIn: 3 * 24 * 60 * 60 * 1000});
+
+  server.auth.strategy('session', 'cookie', {
+    password: ServerConfig.cookiePassword,
+    cookie: Authenticator.SID,
+    isSecure: false,
+    validateFunc: function (request, session, callback) {
+      logger.debug('Validating user: ' + JSON.stringify(session));
+
+      Authenticator.validateAccount(request, session)
+      .then(function (account) {
+        if (!account || account instanceof Error) {
+          return callback(account, false);
+        }
+
+        return callback(null, true, account);
+      })
+      .catch(function (err) {
+        logger.error(err);
+        return callback(err, false);
+      });
+    }
+  });
+});
+
+server.auth.default({
+  strategy: 'session'
 });
 
 /* Register static file handler */

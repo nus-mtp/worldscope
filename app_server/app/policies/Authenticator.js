@@ -5,7 +5,7 @@
 var rfr = require('rfr');
 var util = require('util');
 var Promise = require('bluebird');
-var bcrypt = Promise.promisifyAll(require('bcrypt'));
+var bcrypt = Promise.promisifyAll(require('bcryptjs'));
 
 var SocialMediaAdapter = rfr('app/adapters/social_media/SocialMediaAdapter');
 var Service = rfr('app/services/Service');
@@ -14,11 +14,14 @@ var Utility = rfr('app/util/Utility');
 var logger = Utility.createLogger(__filename);
 
 function Authenticator() {
+  this.SID = 'sid-worldscope';
 }
 var Class = Authenticator.prototype;
 
 Class.ERRORS = {
   RETRIEVE_PROFILE: 'Error retrieving user\'s social media profile',
+  INVALID_CREDENTIALS: 'Username or password is invalid',
+  INVALID_SESSION: 'Session cookie is invalid'
 };
 
 /**
@@ -79,7 +82,6 @@ Class.generateNewUser = function (platformType, profile, credentials) {
       username: util.format('%s@%s', profile.id, platformType),
       password: hash,
       alias: profile.name,
-      email: '',
       accessToken: credentials.accessToken
     };
 
@@ -107,6 +109,67 @@ Class.changeUserPassword = function (user) {
     }
 
     throw new Error('Unable to update password for user ' + user);
+  });
+};
+
+Class.validateAccount = function (request, session) {
+  return Promise.resolve(session.userId)
+  .then(function getAccountFromCache(userId) {
+    if (!userId) {
+      throw new Error(Class.ERRORS.INVALID_SESSION);
+    }
+
+    return new Promise(function (resolve, reject) {
+      request.server.app.cache.get(userId, function (err, cached) {
+        if (err) {
+          logger.error(err);
+          return resolve(null);
+        }
+
+        if (!cached) {
+          return resolve(null);
+        }
+
+        return resolve(cached);
+      });
+    });
+  }).then(function receiveAccountFromCache(cached) {
+    if (!cached) {
+      return null;
+    }
+
+    if (session.username === cached.username &&
+        session.password === cached.password) {
+      return cached;
+    } else {
+      return new Error(Class.ERRORS.INVALID_CREDENTIALS);
+    }
+  }).then(function getAccountFromDatabase(account) {
+    if (account) {
+      return account;
+    }
+
+    return Service.getUserById(session.userId)
+    .then(function receiveUser(user) {
+      if (!user || user.username !== session.username) {
+        return new Error(Class.ERRORS.INVALID_CREDENTIALS);
+      }
+
+      return bcrypt.compareAsync(session.password, user.password);
+    })
+    .then(function compareResult(res) {
+      if (!res) {
+        return new Error(Class.ERRORS.INVALID_CREDENTIALS);
+      }
+
+      request.server.app.cache.set(session.userId, session, 0,
+                                   function (err) {
+                                     if (err) {
+                                       logger.error(err);
+                                     }
+                                   });
+      return session;
+    });
   });
 };
 

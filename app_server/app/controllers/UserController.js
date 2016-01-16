@@ -9,6 +9,7 @@ var Boom = require('boom');
 var Utility = rfr('app/util/Utility');
 var Authenticator = rfr('app/policies/Authenticator');
 var SocialMediaAdapter = rfr('app/adapters/social_media/SocialMediaAdapter');
+var Service = rfr('app/services/Service');
 
 var logger = Utility.createLogger(__filename);
 
@@ -21,18 +22,22 @@ var Class = UserController.prototype;
 
 Class.registerRoutes = function () {
   this.server.route({method: 'GET', path: '/',
-                    handler: this.getListOfUsers});
+                     handler: this.getListOfUsers});
 
   this.server.route({method: 'GET', path: '/{id}',
-                    config: {validate: singleUserValidator},
-                    handler: this.getUserById});
+                     config: {validate: singleUserValidator},
+                     handler: this.getUserById});
 
   this.server.route({method: 'POST', path: '/login',
-                    config: {validate: loginPayloadValidator},
-                    handler: this.login});
+                     config: {
+                       auth: false,
+                       validate: loginPayloadValidator
+                     },
+                     handler: this.login});
 
   this.server.route({method: 'POST', path: '/logout',
-                    handler: this.logout});
+                     config: {auth: false},
+                     handler: this.logout});
 };
 
 /* Routes handlers */
@@ -41,7 +46,16 @@ Class.getListOfUsers = function (request, reply) {
 };
 
 Class.getUserById = function (request, reply) {
-  reply('Hello ' + request.params.id + '!');
+  Service.getUserById(request.params.id)
+  .then(function (user) {
+    if (!user || user instanceof Error) {
+      reply(Boom.badRequest('Unable to get user with id '+ request.params.id));
+      return;
+    }
+
+    user = clearUserPrivateInfo(user);
+    reply(user);
+  });
 };
 
 Class.login = function (request, reply) {
@@ -53,15 +67,27 @@ Class.login = function (request, reply) {
   return Authenticator.authenticateUser(this.defaultPlatform, credentials)
   .then(function afterAuthentication(user) {
     if (!user || user instanceof Error) {
-      return reply(Boom.unauthorized('Failed to authenticate user ' + user));
+      return reply(Boom.badRequest('Failed to authenticate user ' + user));
     }
 
-    request.auth.session.set({userId: user.userId,
-                              username: user.username,
-                              password: user.password});
-    return reply(user);
+    var account = {
+      userId: user.userId,
+      username: user.username,
+      password: user.password
+    };
+
+    request.server.app.cache.set(account.userId, account, 0, function (err) {
+      if (err) {
+        logger.error(err);
+      }
+
+      request.cookieAuth.set(account);
+      user = clearUserPrivateInfo(user);
+
+      return reply(user);
+    });
   }).catch(function fail(err) {
-    return reply(Boom.unauthorized('Failed to authenticate user: ' + err));
+    return reply(Boom.badRequest('Failed to authenticate user: ' + err));
   });
 };
 
@@ -69,10 +95,17 @@ Class.logout = function (request, reply) {
   reply('Logged out!');
 };
 
+function clearUserPrivateInfo(user) {
+  delete user.password;
+  delete user.accessToken;
+
+  return user;
+}
+
 /* Validator for routes */
 var singleUserValidator = {
   params: {
-    id: Joi.number().min(0)
+    id: Joi.string().guid()
   }
 };
 

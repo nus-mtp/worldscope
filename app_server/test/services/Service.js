@@ -6,6 +6,7 @@ var expect = Code.expect;
 
 var Storage = rfr('app/models/Storage');
 var Service = rfr('app/services/Service');
+var TestUtils = rfr('test/TestUtils');
 
 lab.experiment('Service tests', function () {
   var bob = {
@@ -20,14 +21,7 @@ lab.experiment('Service tests', function () {
   };
 
   lab.beforeEach(function (done) {
-    Storage.sequelize
-      .sync({force: true})
-      .then(function() {
-        done();
-      })
-      .catch(function(err) {
-        console.log('Database Connection refused');
-      });
+    TestUtils.resetDatabase(done);
   });
 
   lab.test('createNewUser missing particulars returns null', function(done) {
@@ -78,6 +72,24 @@ lab.experiment('Service tests', function () {
     }).then(function(user) {
       Code.expect(user.username).to.equal(bob.username);
       Code.expect(user.password).to.equal(bob.password);
+      done();
+    });
+  });
+
+  lab.test('getUserById valid arguments', function(done) {
+    Service.createNewUser(bob).then(function (result) {
+      return Service.getUserById(result.userId);
+    }).then(function(user) {
+      Code.expect(user.username).to.equal(bob.username);
+      Code.expect(user.password).to.equal(bob.password);
+      done();
+    });
+  });
+
+  lab.test('getUserById invalid arguments', function(done) {
+    return Service.getUserById('123xyz')
+    .then(function(user) {
+      Code.expect(user).to.be.null();
       done();
     });
   });

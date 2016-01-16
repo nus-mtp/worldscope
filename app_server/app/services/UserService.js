@@ -36,6 +36,19 @@ Class.getUserByPlatform = function (platformType, platformId) {
   });
 };
 
+Class.getUserById = function (id) {
+  logger.debug('Getting user by id: %s', id);
+
+  return Storage.getUserById(id)
+  .then(function receiveResult(result) {
+    if (result) {
+      return result.dataValues;
+    }
+
+    return null;
+  });
+};
+
 Class.updateParticulars = function (userId, particulars) {
   return Storage.updateParticulars(userId, particulars)
   .then(function receiveUser(user) {
