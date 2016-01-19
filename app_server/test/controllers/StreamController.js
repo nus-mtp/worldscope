@@ -20,7 +20,7 @@ lab.experiment('StreamController Tests', function () {
 
   lab.test('Get list of streams', function (done) {
     Router.inject('/api/streams', function (res) {
-      Code.expect(res.result).to.equal('Hello Thien!');
+      Code.expect(res.result).to.equal([]);
       done();
     });
   });

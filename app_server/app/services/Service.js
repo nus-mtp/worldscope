@@ -41,6 +41,19 @@ Class.createNewStream = function (userId, streamDetails) {
   return stream;
 };
 
+Class.getStreamById = function (streamId) {
+  logger.debug('Getting stream by id: %j', streamDetails);
+  //return stub
+  var stream = {appInstance: 'a-hash-of-userId-and-time', streamId: '123-123'};
+  return stream;
+};
+
+Class.getListOfStreams = function () {
+  logger.debug('Getting list of streams');
+  //return stub
+  return [];
+};
+
 ///////////////////////
 
 module.exports = new Service();

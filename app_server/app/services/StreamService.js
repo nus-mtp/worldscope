@@ -23,4 +23,30 @@ Class.createNewStream = function (userId, streamAttributes) {
   });
 };
 
+Class.getStreamById = function (streamId) {
+  logger.debug('Getting stream by Id: %j', streamId);
+
+  return Storage.createStream(userId, streamAttributes)
+    .then(function receiveResult(result) {
+      if (result) {
+        return result.dataValues;
+      }
+
+    return null;
+  });
+};
+
+Class.getListOfStreams = function (userId, streamAttributes) {
+  logger.debug('Creating new stream: %j', streamAttributes);
+
+  return Storage.createStream(userId, streamAttributes)
+    .then(function receiveResult(result) {
+      if (result) {
+        return result.dataValues;
+      }
+
+    return null;
+  });
+};
+
 module.exports = new StreamService();

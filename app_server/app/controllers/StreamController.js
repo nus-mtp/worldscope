@@ -33,14 +33,6 @@ Class.registerRoutes = function () {
 };
 
 /* Routes handlers */
-Class.getListOfStreams = function (request, reply) {
-  reply('Hello Thien!');
-};
-
-Class.getStreamById = function (request, reply) {
-  reply('Hello ' + request.params.id + '!');
-};
-
 Class.createStream = function (request, reply) {
 
   var userId = request.auth.credentials.userId;
@@ -56,11 +48,34 @@ Class.createStream = function (request, reply) {
       appInstance: hash
     };
     return newStream;
-  }).then(function createNewStream(generatedStream) {
-    return Service.createNewStream(generatedStream);
+  }).then(function createNewStream(newStream) {
+    return Service.createNewStream(newStream);
   }).then(function returnStream(stream) {
     var streamLink = stream.appInstance + stream.streamId;
     return reply(streamLink);
+  });
+};
+
+Class.getListOfStreams = function (request, reply) {
+  Service.getListOfStreams().then(function(listStreams) {
+    if(!listStreams || listStreams instanceof Error) {
+      reply(Boom.badRequest('Unable to get streams');
+      return;
+    }
+
+    reply(listStreams);
+  })
+};
+
+Class.getStreamById = function (request, reply) {
+  Service.getStreamById(request.params.id).then(function(stream) {
+    if (!stream || stream instanceof Error) {
+      reply(Boom.badRequest('Unable to get stream with id ' +
+                            request.params.id));
+      return;
+    }
+
+    reply(stream);
   });
 };
 
@@ -71,6 +86,7 @@ var singleStreamValidator = {
   }
 };
 
+// ADD more validators
 var streamCreatePayloadValidator = {
   payload: {
     title: Joi.string().required().max(50),
