@@ -239,13 +239,6 @@ Class.createStream = function(userId, streamAttributes) {
   var userPromise = this.models.User.findById(userId);
   var streamPromise = this.models.Stream.create(streamAttributes);
 
-/*  return Promise.join(userPromise, streamPromise,
-      function(user, stream) {
-        return user.addStream(stream).then(function() {
-          return stream;
-        });
-      });*/
-
   return Promise.join(userPromise, streamPromise,
       function(user, stream) {
         return user.addStream(stream).then(function() {
