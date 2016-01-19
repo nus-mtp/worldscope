@@ -116,6 +116,13 @@ module.exports = function(sequelize, DataTypes) {
       location: function(newLocation) {
         this.setDataValue('location', newLocation);
       }
+    },
+    classMethods: {
+      associate: function(models) {
+        User.hasMany(models.Stream, {
+          foreignKey: 'owner'
+        });
+      }
     }
   });
   return User;
