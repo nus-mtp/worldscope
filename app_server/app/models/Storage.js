@@ -262,6 +262,32 @@ Class.getStreamById = function(streamId) {
 };
 
 /**
+ * Return a list of streams
+ * @return {Promise<List<Sequelize.object>>} - a list of streams
+ */
+Class.getListOfStreams = function() {
+  return this.models.Stream.findAll({
+    order: [['createdAt', 'DESC'], ['title', 'ASC']]
+  });
+};
+
+/**
+ * @param  {string}
+ * @param  {object} newAttributes
+ * @param  {string} newAttributes.username
+ * @param  {string} newAttributes.password
+ * @return {Promise<Sequelize.object>} on success
+           {Error} on fail
+ */
+Class.updateStreamAttributes = function(streamId, newAttributes) {
+  return this.getStreamById(streamId).then(function(stream) {
+    return stream.update(newAttributes, {
+      fields: Object.keys(newAttributes)
+    });
+  });
+};
+
+/**
  * Check if the fields to be changed match the fields available in object
  * @private
  */
