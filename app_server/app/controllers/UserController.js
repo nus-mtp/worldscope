@@ -89,9 +89,8 @@ Class.login = function (request, reply) {
       }
 
       request.cookieAuth.set(account);
-      user = clearUserPrivateInfo(user);
 
-      return reply(user);
+      return reply(clearUserPrivateInfo(user));
     });
   }).catch(function fail(err) {
     return reply(Boom.badRequest('Failed to authenticate user: ' + err));
@@ -100,19 +99,6 @@ Class.login = function (request, reply) {
 
 Class.logout = function (request, reply) {
   request.cookieAuth.clear();
-
-  if (request.auth.credentials) {
-    var credentials = request.auth.credentials;
-    request.server.app.cache.drop(credentials.userId,
-                                  (err) => logger.error(err));
-    Service.updateUserParticulars(credentials.userId, {password: ''})
-    .then((updatedUser) => {
-      if (!updatedUser) {
-        logger.error('Failed to clear password: %j', updatedUser);
-      }
-    });
-  }
-
   return reply('Logged out');
 };
 

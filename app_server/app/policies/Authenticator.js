@@ -21,7 +21,8 @@ var Class = Authenticator.prototype;
 Class.ERRORS = {
   RETRIEVE_PROFILE: 'Error retrieving user\'s social media profile',
   INVALID_CREDENTIALS: 'Username or password is invalid',
-  INVALID_SESSION: 'Session cookie is invalid'
+  INVALID_SESSION: 'Session cookie is invalid',
+  UNKNOWN_SCOPE: 'Unknown scope'
 };
 
 Class.SCOPE = {
@@ -60,7 +61,7 @@ Class.authenticateUser = function (platformType, credentials) {
       return this.generateNewUser(platformType, profile, credentials);
     }
 
-    return this.changeUserPassword(user);
+    return this.updateUser(user, credentials);
   }).catch(function (err) {
     logger.debug(err);
     return err;
@@ -76,46 +77,24 @@ Class.authenticateUser = function (platformType, credentials) {
  * @return {Promise} of new user
  */
 Class.generateNewUser = function (platformType, profile, credentials) {
-  var generatedPassword = Utility.randomValueBase64(20);
+  var newUser = {
+    platformType: platformType,
+    platformId: profile.id,
+    username: util.format('%s@%s', profile.id, platformType),
+    password: Utility.randomValueBase64(20),
+    alias: profile.name,
+    accessToken: credentials.accessToken
+  };
 
-  return bcrypt.genSaltAsync(10)
-  .then(function generateHash(salt) {
-    return bcrypt.hashAsync(generatedPassword, salt);
-  }).then(function generateUser(hash) {
-    var newUser = {
-      platformType: platformType,
-      platformId: profile.id,
-      username: util.format('%s@%s', profile.id, platformType),
-      password: hash,
-      alias: profile.name,
-      accessToken: credentials.accessToken
-    };
-
-    return newUser;
-  }).then(function createNewUser(generatedUser) {
-    return Service.createNewUser(generatedUser);
-  }).then(function returnUser(user) {
-    user.password = generatedPassword;
-    return user;
-  });
+  return Service.createNewUser(newUser);
 };
 
-Class.changeUserPassword = function (user) {
-  var generatedPassword = Utility.randomValueBase64(20);
+Class.updateUser = function (user, credentials) {
+  var updatedFields = {
+    accessToken: credentials.accessToken
+  };
 
-  return bcrypt.genSaltAsync(10)
-  .then(function generateHash(salt) {
-    return bcrypt.hashAsync(generatedPassword, salt);
-  }).then(function updateUser(hash) {
-    return Service.updateUserParticulars(user.userId, {password: hash});
-  }).then(function afterUpdateUser(updatedUser) {
-    if (updatedUser) {
-      user.password = generatedPassword;
-      return user;
-    }
-
-    throw new Error('Unable to update password for user ' + user);
-  });
+  return Service.updateUserParticulars(user.userId, updatedFields);
 };
 
 Class.validateAccount = function (request, session) {
@@ -161,11 +140,25 @@ Class.validateAccount = function (request, session) {
         return new Error(Class.ERRORS.INVALID_CREDENTIALS);
       }
 
-      return bcrypt.compareAsync(session.password, user.password);
+      if (session.scope === Class.SCOPE.USER) {
+        if (user.password !== session.password) {
+          return new Error(Class.ERRORS.INVALID_CREDENTIALS);
+        }
+      } else if (session.scope === Class.SCOPE.ADMIN) {
+        return bcrypt.compareAsync(session.password, user.password);
+      } else {
+        return new Error(Class.ERRORS.UNKNOWN_SCOPE);
+      }
+
+      return true;
     })
     .then(function compareResult(res) {
       if (!res) {
         return new Error(Class.ERRORS.INVALID_CREDENTIALS);
+      }
+
+      if (res instanceof Error) {
+        return res;
       }
 
       request.server.app.cache.set(session.userId, session, 0,
