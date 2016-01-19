@@ -5,6 +5,7 @@
  */
 var rfr = require('rfr');
 var Promise = require('bluebird');
+var Sequelize = require('sequelize');
 var _ = require('underscore');
 
 var config = rfr('config/DatabaseConfig');
@@ -12,14 +13,18 @@ var Utility = rfr('app/util/Utility');
 
 var logger = Utility.createLogger(__filename);
 
+var modelNames = [
+  'User',
+  'Stream'
+];
+
 /**
  * Initialises the database connection and load the models written in
- * modelArr. Model files have to be stored in the models directory
+ * modelNames. Model files have to be stored in the models directory
  * @constructor
  */
 function Storage() {
   var models = {};
-  var Sequelize = require('sequelize');
 
   // initialize database connection
   var sequelize = new Sequelize(
@@ -36,20 +41,15 @@ function Storage() {
         }
       });
 
-  var modelArr = [
-    'User',
-    'Stream'
-  ];
-
   // importing models
-  for (var i = 0; i < modelArr.length; i++) {
-    var modelName = modelArr[i];
+  for (var i = 0; i < modelNames.length; i++) {
+    var modelName = modelNames[i];
     models[modelName] = sequelize.import(__dirname + '/' + modelName);
     logger.info(modelName + ' model imported');
   }
 
   // associate the models
-  modelArr.forEach(function(modelName) {
+  modelNames.forEach(function(modelName) {
     var srcModel = models[modelName];
     if ('associate' in srcModel) {
       srcModel.associate(models);
@@ -238,14 +238,21 @@ Class.getListOfUsers = function() {
 Class.createStream = function(userId, streamAttributes) {
   var userPromise = this.models.User.findById(userId);
   var streamPromise = this.models.Stream.create(streamAttributes);
-  var that = this;
+
+/*  return Promise.join(userPromise, streamPromise,
+      function(user, stream) {
+        return user.addStream(stream).then(function() {
+          return stream;
+        });
+      });*/
 
   return Promise.join(userPromise, streamPromise,
-    function(user, stream) {
-      return user.addStream(stream).then(function() {
-        return that.getStreamById(stream.streamId);
-      });
-    });
+      function(user, stream) {
+        return user.addStream(stream).then(function() {
+          return this.getStreamById(stream.streamId);
+        }.bind(this));
+      }.bind(this));
+
 };
 
 /**
