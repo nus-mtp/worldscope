@@ -22,10 +22,16 @@ var Class = UserController.prototype;
 
 Class.registerRoutes = function () {
   this.server.route({method: 'GET', path: '/',
+                     config: {
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
                      handler: this.getListOfUsers});
 
   this.server.route({method: 'GET', path: '/{id}',
-                     config: {validate: singleUserValidator},
+                     config: {
+                       validate: singleUserValidator,
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
                      handler: this.getUserById});
 
   this.server.route({method: 'POST', path: '/login',
@@ -73,7 +79,8 @@ Class.login = function (request, reply) {
     var account = {
       userId: user.userId,
       username: user.username,
-      password: user.password
+      password: user.password,
+      scope: Authenticator.SCOPE.USER
     };
 
     request.server.app.cache.set(account.userId, account, 0, function (err) {

@@ -4,7 +4,10 @@ var lab = exports.lab = Lab.script();
 var Code = require('code');
 
 var Router = rfr('app/Router.js');
-var testAccount = {userId: 1, username: 'bob', password: 'abc'};
+var Authenticator = rfr('app/policies/Authenticator');
+
+var testAccount = {userId: 1, username: 'bob', password: 'abc',
+                   scope: Authenticator.SCOPE.USER};
 
 lab.experiment('Router Tests', function () {
   lab.test('Root request', function (done) {

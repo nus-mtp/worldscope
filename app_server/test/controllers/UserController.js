@@ -9,8 +9,10 @@ var Router = rfr('app/Router.js');
 var Facebook = rfr('app/adapters/social_media/Facebook');
 var TestUtils = rfr('test/TestUtils');
 var Service = rfr('app/services/Service');
+var Authenticator = rfr('app/policies/Authenticator');
 
-var testAccount = {userId: 1, username: 'bob', password: 'abc'};
+var testAccount = {userId: 1, username: 'bob', password: 'abc',
+                   scope: Authenticator.SCOPE.USER};
 
 var bob = {
   username: 'Bob',

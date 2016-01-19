@@ -24,6 +24,12 @@ Class.ERRORS = {
   INVALID_SESSION: 'Session cookie is invalid'
 };
 
+Class.SCOPE = {
+  USER: 'user',
+  ADMIN: 'admin',
+  ALL: ['user', 'admin']
+};
+
 /**
  * Authenticate a user through a social media platform
  * @param platformType the name of the social media platform
