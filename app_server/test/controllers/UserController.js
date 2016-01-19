@@ -26,7 +26,7 @@ var bob = {
 };
 
 lab.experiment('UserController Tests', function () {
-  lab.beforeEach(function (done) {
+  lab.beforeEach({timeout: 10000}, function (done) {
     TestUtils.resetDatabase(done);
   });
 
