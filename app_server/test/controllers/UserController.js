@@ -60,8 +60,8 @@ lab.experiment('UserController Tests', function () {
   });
 
   lab.test('Valid logout', function (done) {
-    Router.inject({method: 'POST', url: '/api/users/logout'}, function (res) {
-      Code.expect(res.result).to.equal('Logged out!');
+    Router.inject({method: 'GET', url: '/api/users/logout'}, function (res) {
+      Code.expect(res.result).to.equal('Logged out');
       done();
     });
   });

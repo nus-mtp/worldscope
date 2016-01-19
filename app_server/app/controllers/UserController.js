@@ -35,7 +35,7 @@ Class.registerRoutes = function () {
                      },
                      handler: this.login});
 
-  this.server.route({method: 'POST', path: '/logout',
+  this.server.route({method: 'GET', path: '/logout',
                      config: {auth: false},
                      handler: this.logout});
 };
@@ -92,7 +92,21 @@ Class.login = function (request, reply) {
 };
 
 Class.logout = function (request, reply) {
-  reply('Logged out!');
+  request.cookieAuth.clear();
+
+  if (request.auth.credentials) {
+    var credentials = request.auth.credentials;
+    request.server.app.cache.drop(credentials.userId,
+                                  (err) => logger.error(err));
+    Service.updateUserParticulars(credentials.userId, {password: ''})
+    .then((updatedUser) => {
+      if (!updatedUser) {
+        logger.error('Failed to clear password: %j', updatedUser);
+      }
+    });
+  }
+
+  return reply('Logged out');
 };
 
 function clearUserPrivateInfo(user) {
