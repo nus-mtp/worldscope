@@ -58,7 +58,7 @@ Class.updateParticulars = function (userId, particulars) {
       return null;
     }
 
-    return user;
+    return user.dataValues;
   }).catch(function fail(err) {
     logger.error('Unable to update user particulars %s %j: %j',
                  userId, particulars, err);

@@ -34,7 +34,7 @@ lab.experiment('SocialMediaAdapter tests', function () {
     done();
   });
 
-  lab.test('getUser when given wrong accessToken', function (done) {
+  lab.test('getUser when given wrong accessToken', {timeout: 5000}, (done) => {
     var facebook = new Facebook({appId: '123456789', accessToken: 'xyz'});
     facebook.getUser().then(function (result) {
       Code.expect('id' in result).to.be.false();

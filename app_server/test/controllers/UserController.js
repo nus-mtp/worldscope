@@ -9,8 +9,10 @@ var Router = rfr('app/Router.js');
 var Facebook = rfr('app/adapters/social_media/Facebook');
 var TestUtils = rfr('test/TestUtils');
 var Service = rfr('app/services/Service');
+var Authenticator = rfr('app/policies/Authenticator');
 
-var testAccount = {userId: 1, username: 'bob', password: 'abc'};
+var testAccount = {userId: 1, username: 'bob', password: 'abc',
+                   scope: Authenticator.SCOPE.USER};
 
 var bob = {
   username: 'Bob',
@@ -24,7 +26,7 @@ var bob = {
 };
 
 lab.experiment('UserController Tests', function () {
-  lab.beforeEach(function (done) {
+  lab.beforeEach({timeout: 10000}, function (done) {
     TestUtils.resetDatabase(done);
   });
 
@@ -60,8 +62,8 @@ lab.experiment('UserController Tests', function () {
   });
 
   lab.test('Valid logout', function (done) {
-    Router.inject({method: 'POST', url: '/api/users/logout'}, function (res) {
-      Code.expect(res.result).to.equal('Logged out!');
+    Router.inject({method: 'GET', url: '/api/users/logout'}, function (res) {
+      Code.expect(res.result).to.equal('Logged out');
       done();
     });
   });

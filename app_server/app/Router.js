@@ -15,13 +15,6 @@ var logger = Utility.createLogger(__filename);
 /* Configure Hapi server connection */
 var server = new Hapi.Server();
 server.connection({port: 3000});
-server.route({
-  method: 'GET',
-  path: '/',
-  handler: function (request, reply) {
-    reply('Welcome to WorldScope');
-  }
-});
 
 /* Configure Good process monitor */
 var goodOptions = {
@@ -41,17 +34,6 @@ server.register({
 }, function (err) {
   if (err) {
     logger.error('Unable to register good process monitor: %j', err);
-  }
-});
-
-/* Register controllers */
-server.register({
-  register: rfr('app/controllers/UserController.js')
-}, {
-  routes: {prefix: '/api/users'}
-}, function (err) {
-  if (err) {
-    logger.error('Unable to register UserController: %j', err);
   }
 });
 
@@ -84,7 +66,30 @@ server.register(require('hapi-auth-cookie'), function (err) {
 });
 
 server.auth.default({
-  strategy: 'session'
+  strategy: 'session',
+  scope: Authenticator.SCOPE.ADMIN
+});
+
+/* Register controllers */
+server.register({
+  register: rfr('app/controllers/UserController.js')
+}, {
+  routes: {prefix: '/api/users'}
+}, function (err) {
+  if (err) {
+    logger.error('Unable to register UserController: %j', err);
+  }
+});
+
+server.route({
+  method: 'GET',
+  path: '/',
+  handler: function (request, reply) {
+    reply('Welcome to WorldScope');
+  },
+  config: {
+    auth: {scope: Authenticator.SCOPE.ALL}
+  }
 });
 
 /* Register static file handler */

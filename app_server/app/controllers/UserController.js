@@ -22,10 +22,16 @@ var Class = UserController.prototype;
 
 Class.registerRoutes = function () {
   this.server.route({method: 'GET', path: '/',
+                     config: {
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
                      handler: this.getListOfUsers});
 
   this.server.route({method: 'GET', path: '/{id}',
-                     config: {validate: singleUserValidator},
+                     config: {
+                       validate: singleUserValidator,
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
                      handler: this.getUserById});
 
   this.server.route({method: 'POST', path: '/login',
@@ -35,7 +41,7 @@ Class.registerRoutes = function () {
                      },
                      handler: this.login});
 
-  this.server.route({method: 'POST', path: '/logout',
+  this.server.route({method: 'GET', path: '/logout',
                      config: {auth: false},
                      handler: this.logout});
 };
@@ -73,7 +79,8 @@ Class.login = function (request, reply) {
     var account = {
       userId: user.userId,
       username: user.username,
-      password: user.password
+      password: user.password,
+      scope: Authenticator.SCOPE.USER
     };
 
     request.server.app.cache.set(account.userId, account, 0, function (err) {
@@ -82,9 +89,8 @@ Class.login = function (request, reply) {
       }
 
       request.cookieAuth.set(account);
-      user = clearUserPrivateInfo(user);
 
-      return reply(user);
+      return reply(clearUserPrivateInfo(user));
     });
   }).catch(function fail(err) {
     return reply(Boom.badRequest('Failed to authenticate user: ' + err));
@@ -92,7 +98,8 @@ Class.login = function (request, reply) {
 };
 
 Class.logout = function (request, reply) {
-  reply('Logged out!');
+  request.cookieAuth.clear();
+  return reply('Logged out');
 };
 
 function clearUserPrivateInfo(user) {

@@ -6,10 +6,12 @@ var rfr = require('rfr');
 var util = require('util');
 var Promise = require('bluebird');
 var bcrypt = Promise.promisifyAll(require('bcryptjs'));
+var crypto = require('crypto');
 
 var SocialMediaAdapter = rfr('app/adapters/social_media/SocialMediaAdapter');
 var Service = rfr('app/services/Service');
 var Utility = rfr('app/util/Utility');
+var ServerConfig = rfr('config/ServerConfig');
 
 var logger = Utility.createLogger(__filename);
 
@@ -21,7 +23,19 @@ var Class = Authenticator.prototype;
 Class.ERRORS = {
   RETRIEVE_PROFILE: 'Error retrieving user\'s social media profile',
   INVALID_CREDENTIALS: 'Username or password is invalid',
-  INVALID_SESSION: 'Session cookie is invalid'
+  INVALID_SESSION: 'Session cookie is invalid',
+  UNKNOWN_SCOPE: 'Unknown scope'
+};
+
+Class.SCOPE = {
+  USER: 'user',
+  ADMIN: 'admin',
+  ALL: ['user', 'admin']
+};
+
+Class.CRYPTO = {
+  METHOD: 'aes-256-ctr',
+  ENCODING: 'base64'
 };
 
 /**
@@ -54,8 +68,21 @@ Class.authenticateUser = function (platformType, credentials) {
       return this.generateNewUser(platformType, profile, credentials);
     }
 
-    return this.changeUserPassword(user);
-  }).catch(function (err) {
+    return this.updateUser(user, credentials);
+  })
+  .then(function generateUserToken(resultUser) {
+    var cipher = crypto.createCipher(Class.CRYPTO.METHOD,
+                                     ServerConfig.tokenPassword);
+    var rawToken = util.format('%s;%s;%s', resultUser.password,
+                               resultUser.userId, resultUser.accessToken);
+
+    var encrypted = cipher.update(rawToken, 'utf8', Class.CRYPTO.ENCODING);
+    encrypted += cipher.final(Class.CRYPTO.ENCODING);
+    resultUser.password = encrypted;
+
+    return resultUser;
+  })
+  .catch(function (err) {
     logger.debug(err);
     return err;
   });
@@ -70,46 +97,34 @@ Class.authenticateUser = function (platformType, credentials) {
  * @return {Promise} of new user
  */
 Class.generateNewUser = function (platformType, profile, credentials) {
-  var generatedPassword = Utility.randomValueBase64(20);
+  var newUser = {
+    platformType: platformType,
+    platformId: profile.id,
+    username: util.format('%s@%s', profile.id, platformType),
+    password: Utility.randomValueBase64(20),
+    alias: profile.name,
+    accessToken: credentials.accessToken
+  };
 
-  return bcrypt.genSaltAsync(10)
-  .then(function generateHash(salt) {
-    return bcrypt.hashAsync(generatedPassword, salt);
-  }).then(function generateUser(hash) {
-    var newUser = {
-      platformType: platformType,
-      platformId: profile.id,
-      username: util.format('%s@%s', profile.id, platformType),
-      password: hash,
-      alias: profile.name,
-      accessToken: credentials.accessToken
-    };
-
-    return newUser;
-  }).then(function createNewUser(generatedUser) {
-    return Service.createNewUser(generatedUser);
-  }).then(function returnUser(user) {
-    user.password = generatedPassword;
-    return user;
-  });
+  return Service.createNewUser(newUser);
 };
 
-Class.changeUserPassword = function (user) {
-  var generatedPassword = Utility.randomValueBase64(20);
+Class.updateUser = function (user, credentials) {
+  var updatedFields = {
+    accessToken: credentials.accessToken
+  };
 
-  return bcrypt.genSaltAsync(10)
-  .then(function generateHash(salt) {
-    return bcrypt.hashAsync(generatedPassword, salt);
-  }).then(function updateUser(hash) {
-    return Service.updateUserParticulars(user.userId, {password: hash});
-  }).then(function afterUpdateUser(updatedUser) {
-    if (updatedUser) {
-      user.password = generatedPassword;
-      return user;
-    }
+  return Service.updateUserParticulars(user.userId, updatedFields);
+};
 
-    throw new Error('Unable to update password for user ' + user);
-  });
+Class.verifyUserToken = function (user, token) {
+  var decipher = crypto.createDecipher(Class.CRYPTO.METHOD,
+                                       ServerConfig.tokenPassword);
+  var rawToken = decipher.update(token, Class.CRYPTO.ENCODING, 'utf8');
+  rawToken += decipher.final('utf8');
+
+  var parsedToken = rawToken.split(';');
+  return user.password === parsedToken[0] && user.userId === parsedToken[1];
 };
 
 Class.validateAccount = function (request, session) {
@@ -140,13 +155,13 @@ Class.validateAccount = function (request, session) {
 
     if (session.username === cached.username &&
         session.password === cached.password) {
-      return cached;
+      return true;
     } else {
-      return new Error(Class.ERRORS.INVALID_CREDENTIALS);
+      return false;
     }
-  }).then(function getAccountFromDatabase(account) {
-    if (account) {
-      return account;
+  }).then(function getAccountFromDatabase(cacheValidateResult) {
+    if (cacheValidateResult) {
+      return session;
     }
 
     return Service.getUserById(session.userId)
@@ -155,11 +170,23 @@ Class.validateAccount = function (request, session) {
         return new Error(Class.ERRORS.INVALID_CREDENTIALS);
       }
 
-      return bcrypt.compareAsync(session.password, user.password);
+      if (session.scope === Class.SCOPE.USER) {
+        return Class.verifyUserToken(user, session.password);
+      } else if (session.scope === Class.SCOPE.ADMIN) {
+        return bcrypt.compareAsync(session.password, user.password);
+      } else {
+        return new Error(Class.ERRORS.UNKNOWN_SCOPE);
+      }
+
+      return true;
     })
     .then(function compareResult(res) {
       if (!res) {
         return new Error(Class.ERRORS.INVALID_CREDENTIALS);
+      }
+
+      if (res instanceof Error) {
+        return res;
       }
 
       request.server.app.cache.set(session.userId, session, 0,
