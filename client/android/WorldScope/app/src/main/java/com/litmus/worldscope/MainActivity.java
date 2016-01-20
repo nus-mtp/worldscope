@@ -61,15 +61,15 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener((new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Redirect to RecordActivity
-                redirectToRecordActivity();
+                // Redirect to StreamActivity
+                redirectToStreamActivity();
             }
         }));
 
     }
 
-    private void redirectToRecordActivity() {
-        Intent intent = new Intent(this, RecordActivity.class);
+    private void redirectToStreamActivity() {
+        Intent intent = new Intent(this, StreamActivity.class);
         startActivity(intent);
     }
 

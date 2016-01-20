@@ -6,7 +6,7 @@
 
     <string name="title_activity_main">MainActivity</string>
 
-    <string name="title_activity_record">RecordActivity</string>
+    <string name="title_activity_stream">StreamActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
 
