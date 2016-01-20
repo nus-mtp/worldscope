@@ -6,10 +6,12 @@ var rfr = require('rfr');
 var util = require('util');
 var Promise = require('bluebird');
 var bcrypt = Promise.promisifyAll(require('bcryptjs'));
+var crypto = require('crypto');
 
 var SocialMediaAdapter = rfr('app/adapters/social_media/SocialMediaAdapter');
 var Service = rfr('app/services/Service');
 var Utility = rfr('app/util/Utility');
+var ServerConfig = rfr('config/ServerConfig');
 
 var logger = Utility.createLogger(__filename);
 
@@ -29,6 +31,11 @@ Class.SCOPE = {
   USER: 'user',
   ADMIN: 'admin',
   ALL: ['user', 'admin']
+};
+
+Class.CRYPTO = {
+  METHOD: 'aes-256-ctr',
+  ENCODING: 'base64'
 };
 
 /**
@@ -62,7 +69,20 @@ Class.authenticateUser = function (platformType, credentials) {
     }
 
     return this.updateUser(user, credentials);
-  }).catch(function (err) {
+  })
+  .then(function generateUserToken(resultUser) {
+    var cipher = crypto.createCipher(Class.CRYPTO.METHOD,
+                                     ServerConfig.tokenPassword);
+    var rawToken = util.format('%s;%s;%s', resultUser.password,
+                               resultUser.userId, resultUser.accessToken);
+
+    var encrypted = cipher.update(rawToken, 'utf8', Class.CRYPTO.ENCODING);
+    encrypted += cipher.final(Class.CRYPTO.ENCODING);
+    resultUser.password = encrypted;
+
+    return resultUser;
+  })
+  .catch(function (err) {
     logger.debug(err);
     return err;
   });
@@ -97,6 +117,16 @@ Class.updateUser = function (user, credentials) {
   return Service.updateUserParticulars(user.userId, updatedFields);
 };
 
+Class.verifyUserToken = function (user, token) {
+  var decipher = crypto.createDecipher(Class.CRYPTO.METHOD,
+                                       ServerConfig.tokenPassword);
+  var rawToken = decipher.update(token, Class.CRYPTO.ENCODING, 'utf8');
+  rawToken += decipher.final('utf8');
+
+  var parsedToken = rawToken.split(';');
+  return user.password === parsedToken[0] && user.userId === parsedToken[1];
+};
+
 Class.validateAccount = function (request, session) {
   return Promise.resolve(session.userId)
   .then(function getAccountFromCache(userId) {
@@ -125,13 +155,13 @@ Class.validateAccount = function (request, session) {
 
     if (session.username === cached.username &&
         session.password === cached.password) {
-      return cached;
+      return true;
     } else {
-      return new Error(Class.ERRORS.INVALID_CREDENTIALS);
+      return false;
     }
-  }).then(function getAccountFromDatabase(account) {
-    if (account) {
-      return account;
+  }).then(function getAccountFromDatabase(cacheValidateResult) {
+    if (cacheValidateResult) {
+      return session;
     }
 
     return Service.getUserById(session.userId)
@@ -141,9 +171,7 @@ Class.validateAccount = function (request, session) {
       }
 
       if (session.scope === Class.SCOPE.USER) {
-        if (user.password !== session.password) {
-          return new Error(Class.ERRORS.INVALID_CREDENTIALS);
-        }
+        return Class.verifyUserToken(user, session.password);
       } else if (session.scope === Class.SCOPE.ADMIN) {
         return bcrypt.compareAsync(session.password, user.password);
       } else {
