@@ -33,9 +33,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class RecordActivity extends AppCompatActivity {
+public class StreamActivity extends AppCompatActivity {
 
-    final static String CLASS_LABEL = "RecordActivity";
+    final static String CLASS_LABEL = "StreamActivity";
     final static String LOG_TAG = CLASS_LABEL;
     final Context mContext = this;
     //Change this to stream RMTP
@@ -99,7 +99,7 @@ public class RecordActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_record);
+        setContentView(R.layout.activity_stream);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         initializeLayout();
     }

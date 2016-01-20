@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    tools:context="com.litmus.worldscope.FacebookLoginActivity">
+
+    <fragment
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:name="layout.FacebookLoginFragment"
+        android:id="@+id/fragment"
+        tools:layout="@layout/fragment_facebook_login"
+        android:layout_marginBottom="104dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="WorldScope"
+        android:id="@+id/textView4"
+        android:textColor="#555555"
+        android:textStyle="bold"
+        android:textSize="32dp"
+        android:layout_above="@+id/fragment"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="96dp" />
+
+</RelativeLayout>

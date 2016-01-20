@@ -26,9 +26,11 @@ dependencies {
     compile group: 'org.bytedeco', name: 'javacv', version: '1.0'
     compile group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '2.4.9-0.9', classifier: 'android-arm'
     compile group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '2.3-0.9', classifier: 'android-arm'
-    compile 'com.android.support:appcompat-v7:23.1.0'
-    compile 'com.android.support:design:23.1.0'
-    compile 'com.android.support:support-v4:23.1.0'
     //Exoplayer
+    //Facebook
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:design:23.1.1'
+    compile 'com.android.support:support-v4:23.1.1'
     compile 'com.google.android.exoplayer:exoplayer:r1.5.1'
+    compile 'com.facebook.android:facebook-android-sdk:4.+'
 }
