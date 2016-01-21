@@ -86,7 +86,7 @@ var singleStreamValidator = {
   }
 };
 
-// ADD more validators
+// TODO: more validators
 var streamCreatePayloadValidator = {
   payload: {
     title: Joi.string().required().max(50),
