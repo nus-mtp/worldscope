@@ -6,9 +6,6 @@ var Storage = rfr('app/models/Storage');
 
 var logger = Utility.createLogger(__filename);
 
-var streamBaseUrl = 'rtmp://multimedia.worldscope.tk:1935/live';
-var viewBaseUrl = 'http://worldscope.tk:1935/live';
-
 function StreamService() {
 }
 
@@ -16,7 +13,7 @@ var Class = StreamService.prototype;
 
 Class.ERRORS = {
   INVALID_USER: 'User account is invalid',
-  INVALID_FIELDS: 'Missing or invalid parameters'
+  INVALID_FIELDS: 'Parameters is missing or invalid'
 };
 
 Class.createNewStream = function (userId, streamAttributes) {
@@ -30,7 +27,7 @@ Class.createNewStream = function (userId, streamAttributes) {
 
     return null;
   }).catch(function(err) {
-    logger.error('Error in stream creation: %j', err);
+    logger.error('Error in stream creation ', err);
     if (err.name === 'SequelizeValidationError') {
       return Promise.resolve(Class.ERRORS.INVALID_FIELDS);
     } else if (err.name === 'TypeError') {
@@ -44,7 +41,7 @@ Class.createNewStream = function (userId, streamAttributes) {
 Class.getStreamById = function (streamId) {
   logger.debug('Getting stream by Id: %j', streamId);
 
-  return Storage.createStream(userId, streamAttributes)
+  return Storage.getStreamById(streamId)
     .then(function receiveResult(result) {
       if (result) {
         return formatViewObject(result);
@@ -66,13 +63,14 @@ Class.getListOfStreams = function () {
  * @return {Stream}
  */
 var formatStreamObject = function (stream) {
-  var streamValues = stream.dataValues;
-  var streamLink = util.format('%s/%s/%s', streamBaseUrl,
-                               streamValues.appInstance,
-                               streamValues.streamId);
-  streamValues.streamLink = streamLink;
 
-  return streamValues;
+  return new Promise(function(resolve) {
+    var streamLink = util.format('%s/%s/%s', Utility.streamBaseUrl,
+                                 stream.appInstance,
+                                 stream.streamId);
+    stream.streamLink = streamLink;
+    resolve(stream);
+  });
 };
 
 /**
@@ -81,13 +79,13 @@ var formatStreamObject = function (stream) {
  * @return {Stream}
  */
 var formatViewObject = function (stream) {
-  var streamValues = stream.dataValues;
-  var viewLink = util.format('%s/%s/%s.manifest.mpd', viewBaseUrl,
-                             streamValues.appInstance,
-                             streamValues.streamId);
-  streamValues.viewLink = viewLink;
-
-  return streamValues;
+  return new Promise(function(resolve) {
+    var viewLink = util.format('%s/%s/%s.manifest.mpd', Utility.viewBaseUrl,
+                               streamValues.appInstance,
+                               streamValues.streamId);
+    streamValues.viewLink = viewLink;
+    resolve(stream);
+  });
 };
 
 module.exports = new StreamService();

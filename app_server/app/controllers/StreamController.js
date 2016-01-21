@@ -6,7 +6,8 @@ var rfr = require('rfr');
 var Joi = require('joi');
 var Boom = require('boom');
 var Promise = require('bluebird');
-var bcrypt = Promise.promisifyAll(require('bcrypt'));
+var crypto = require('crypto');
+var hash = crypto.createHash('sha256');
 
 var Utility = rfr('app/util/Utility');
 var Service = rfr('app/services/Service');
@@ -45,27 +46,25 @@ Class.registerRoutes = function () {
 
 /* Routes handlers */
 Class.createStream = function (request, reply) {
+  logger.debug('Creating stream');
 
   var userId = request.auth.credentials.userId;
   var currTime = Date.now();
 
-  return bcrypt.genSaltAsync(10).then(function generateHash(salt) {
-    return bcrypt.hashAsync(userId + currTime, salt);
-  }).then(function generateStream(hash) {
+  return Promise.method(function generateStream() {
     var newStream = {
       title: request.payload.title,
       description: request.payload.description,
       createdAt: currTime,
-      appInstance: hash
+      appInstance: hash.update(userId + currTime).digest('hex')
     };
     return newStream;
-  }).then(function createNewStream(newStream) {
-    return Service.createNewStream(newStream);
+  })().then(function createNewStream(newStream) {
+    reply(Service.createNewStream(userId, newStream));
   });
 };
 
 Class.getListOfStreams = function (request, reply) {
-  console.log('here');
   Service.getListOfStreams().then(function(listStreams) {
     if(!listStreams || listStreams instanceof Error) {
       reply(Boom.badRequest('Unable to get streams'));
