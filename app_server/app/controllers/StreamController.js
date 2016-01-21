@@ -8,7 +8,9 @@ var Boom = require('boom');
 var Promise = require('bluebird');
 var bcrypt = Promise.promisifyAll(require('bcrypt'));
 
+var Utility = rfr('app/util/Utility');
 var Service = rfr('app/services/Service');
+var Authenticator = rfr('app/policies/Authenticator');
 
 var logger = Utility.createLogger(__filename);
 
@@ -21,14 +23,23 @@ var Class = StreamController.prototype;
 
 Class.registerRoutes = function () {
   this.server.route({method: 'GET', path: '/',
+                     config: {
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
                      handler: this.getListOfStreams});
 
   this.server.route({method: 'GET', path: '/{id}',
-                     config: {validate: singleStreamValidator},
+                     config: {
+                       validate: singleStreamValidator,
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
                      handler: this.getStreamById});
 
   this.server.route({method: 'POST', path: '/',
-                     config: {validate: streamCreatePayloadValidator},
+                     config: {
+                       validate: streamCreatePayloadValidator,
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
                      handler: this.createStream});
 };
 
@@ -50,16 +61,14 @@ Class.createStream = function (request, reply) {
     return newStream;
   }).then(function createNewStream(newStream) {
     return Service.createNewStream(newStream);
-  }).then(function returnStream(stream) {
-    var streamLink = stream.appInstance + stream.streamId;
-    return reply(streamLink);
   });
 };
 
 Class.getListOfStreams = function (request, reply) {
+  console.log('here');
   Service.getListOfStreams().then(function(listStreams) {
     if(!listStreams || listStreams instanceof Error) {
-      reply(Boom.badRequest('Unable to get streams');
+      reply(Boom.badRequest('Unable to get streams'));
       return;
     }
 

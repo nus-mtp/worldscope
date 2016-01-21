@@ -244,7 +244,10 @@ Class.createStream = function(userId, streamAttributes) {
         return user.addStream(stream).then(function() {
           return this.getStreamById(stream.streamId);
         }.bind(this));
-      }.bind(this));
+      }.bind(this))
+  .catch(function (err) {
+    return Promise.reject(err);
+  });
 
 };
 
