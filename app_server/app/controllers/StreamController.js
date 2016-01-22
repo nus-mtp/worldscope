@@ -9,6 +9,7 @@ var Promise = require('bluebird');
 var crypto = require('crypto');
 var hash = crypto.createHash('sha256');
 
+var CustomError = rfr('app/util/Error');
 var Utility = rfr('app/util/Utility');
 var Service = rfr('app/services/Service');
 var Authenticator = rfr('app/policies/Authenticator');
@@ -62,10 +63,15 @@ Class.createStream = function (request, reply) {
   })().then(function createNewStream(newStream) {
     return Service.createNewStream(userId, newStream);
   }).then(function(result) {
+    if (result instanceof CustomError.NotFoundError) {
+      logger.error('Stream could not be created');
+      reply(Boom.unauthorized(result.message));
+    }
+
     reply(result);
   }).catch(function(err) {
     logger.error(err);
-    reply(Boom.unauthorized('userId not found'));
+    reply(Boom.unauthorized('User not found'));
   });
 };
 

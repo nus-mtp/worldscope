@@ -50,7 +50,7 @@ lab.experiment('StreamController Tests', function () {
       testAccount.userId = userId;
       Router.inject({method: 'POST', url: '/api/streams',
                      credentials: testAccount,
-                     payload: streamInfo}, function (res) {
+                     payload: streamPayload}, function (res) {
 
         var urlParts = res.result.streamLink.split("/");
         Code.expect(urlParts[urlParts.length-1]).to.have.length(36);
@@ -61,13 +61,46 @@ lab.experiment('StreamController Tests', function () {
     });
   });
 
-  lab.test('Create stream invalid userId', function (done) {
+  lab.test('Create stream missing userId', function (done) {
+    delete testAccount.userId;
     Router.inject({method: 'POST', url: '/api/streams',
                    credentials: testAccount,
                    payload: streamPayload}, function (res) {
       Code.expect(res.result.statusCode).to.equal(401);
       Code.expect(res.result.error).to.equal('Unauthorized');
       done();
+    });
+  });
+
+  lab.test('Create stream invalid userId', function (done) {
+    testAccount.userId = 'non-existing-user'
+    Router.inject({method: 'POST', url: '/api/streams',
+                   credentials: testAccount,
+                   payload: streamPayload}, function (res) {
+      Code.expect(res.result.statusCode).to.equal(401);
+      Code.expect(res.result.error).to.equal('Unauthorized');
+      Code.expect(res.result.message).to.equal('User not found');
+      done();
+    });
+  });
+
+  lab.test('Create stream empty title', function (done) {
+    var streamPayload = {
+      title: '',
+      description: 'this is the description of the stream'
+    };
+    Service.createNewUser(bob).then(function (user) {
+      return user.userId;
+    }).then(function(userId) {
+      testAccount.userId = userId;
+
+      Router.inject({method: 'POST', url: '/api/streams',
+                     credentials: testAccount,
+                     payload: streamPayload}, function (res) {
+        Code.expect(res.result.statusCode).to.equal(400);
+        Code.expect(res.result.error).to.equal('Bad Request');
+        done();
+      });
     });
   });
 

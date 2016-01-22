@@ -21,7 +21,7 @@ exports.NotFoundError = function(message, extra) {
 }
 
 var UnknownError =
-exports.UnknownError = function(message, extra) {
+exports.UnknownError = function() {
   Error.captureStackTrace(this, this.constructor);
   this.name = 'UnknownError';
 }

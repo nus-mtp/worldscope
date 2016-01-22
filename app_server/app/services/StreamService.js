@@ -25,11 +25,13 @@ Class.createNewStream = function (userId, streamAttributes) {
   }).catch(function(err) {
     logger.error('Error in stream creation ', err);
     if (err.name === 'SequelizeValidationError') {
-      return Promise.resolve(new CustomError.InvalidFieldError(err.errors[0].message, err.errors[0].path));
+      return Promise.resolve(new CustomError
+        .InvalidFieldError(err.errors[0].message, err.errors[0].path));
     } else if (err.name === 'TypeError') {
-      return Promise.resolve(new CustomError.NotFoundError('User not found', ''));
+      return Promise.resolve(new CustomError
+        .NotFoundError('User not found', ''));
     } else {
-      return Promise.resolve(new CustomError.UnknownError);
+      return Promise.resolve(new CustomError.UnknownError());
     }
   });
 };
