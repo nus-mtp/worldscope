@@ -4,6 +4,7 @@ var lab = exports.lab = Lab.script();
 var Code = require('code');
 
 var Authenticator = rfr('app/policies/Authenticator');
+var Utility = rfr('app/util/Utility')
 var Service = rfr('app/services/Service');
 var TestUtils = rfr('test/TestUtils');
 var Router = rfr('app/Router.js');
@@ -22,7 +23,7 @@ var bob = {
   description: 'bam bam bam'
 };
 
-var streamInfo = {
+var streamPayload = {
   title: 'this is the title',
   description: 'this is the description of the stream'
 };
@@ -42,14 +43,7 @@ lab.experiment('StreamController Tests', function () {
     });
   });*/
 
-/*  lab.test('Valid streamId', function (done) {
-    Router.inject('/api/streams/213', function (res) {
-      Code.expect(res.result).to.equal('Hello 213!');
-      done();
-    });
-  });
-*/
-  lab.test('Valid create stream', function (done) {
+  lab.test('Create stream valid', function (done) {
     Service.createNewUser(bob).then(function (user) {
       return user.userId;
     }).then(function(userId) {
@@ -57,18 +51,59 @@ lab.experiment('StreamController Tests', function () {
       Router.inject({method: 'POST', url: '/api/streams',
                      credentials: testAccount,
                      payload: streamInfo}, function (res) {
-        Code.expect(res.result.title).to.equal('this is the title');
 
+        var urlParts = res.result.streamLink.split("/");
+        Code.expect(urlParts[urlParts.length-1]).to.have.length(36);
+        Code.expect(urlParts[urlParts.length-2]).to.have.length(64);
+        Code.expect(res.result.title).to.equal('this is the title');
         done();
       });
     });
   });
 
+  lab.test('Create stream invalid userId', function (done) {
+    Router.inject({method: 'POST', url: '/api/streams',
+                   credentials: testAccount,
+                   payload: streamPayload}, function (res) {
+      Code.expect(res.result.statusCode).to.equal(401);
+      Code.expect(res.result.error).to.equal('Unauthorized');
+      done();
+    });
+  });
+
+
+/*  lab.test('Get by streamId valid', function (done) {
+    var streamInfo = {
+      title: 'this is the title',
+      description: 'this is the description of the stream',
+      appInstance: 'generated'
+    };
+
+    Service.createNewUser(bob).then(function (user) {
+      return user.userId;
+    }).then(function(userId) {
+      return Service.createNewStream(userId, streamInfo);
+    }).then(function(stream) {
+      Router.inject({method: 'GET', url: '/api/streams/' + stream.streamId,
+                     credentials: testAccount}, function (res) {
+
+        Code.expect(res.result.appInstance).to.equal('generated');
+        Code.expect(res.result.title).to.equal('this is the title');
+        done();
+      });
+    });
+  });
+
+  lab.test('Get by streamId invalid', function (done) {
+    Router.inject({method: 'GET', url:'/api/streams/213',
+                  credentials: testAccount}, function (res) {
+      Code.expect(res.result.statusCode).to.equal(404);
+      done();
+    });
+  });
+*/
 });
 
-/*
- urlParts = res.streamLink.split("/");
-        Code.expect(resParts[0]).to.equal(Utility.streamBaseUrl);
-        Code.expect(resParts[1]).to.have.length(64);
-        Code.expect(resParts[2]).to.have.length(36);*/
+// when createNewStream() with misssing streamInfo, it will go through the then loop.
 
+// so reject or resolve??

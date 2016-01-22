@@ -60,31 +60,38 @@ Class.createStream = function (request, reply) {
     };
     return newStream;
   })().then(function createNewStream(newStream) {
-    reply(Service.createNewStream(userId, newStream));
+    return Service.createNewStream(userId, newStream);
+  }).then(function(result) {
+    reply(result);
+  }).catch(function(err) {
+    logger.error(err);
+    reply(Boom.unauthorized('userId not found'));
+  });
+};
+
+Class.getStreamById = function (request, reply) {
+  Service.getStreamById(request.params.id).then(function(stream) {
+    if (!stream || stream instanceof Error) {
+      logger.error('Stream not found');
+      reply(Boom.notFound('missing'));
+      return;
+    }
+
+    reply(stream);
+  }).catch(function(err) {
+    reply(Boom.notFound('missing'));
   });
 };
 
 Class.getListOfStreams = function (request, reply) {
   Service.getListOfStreams().then(function(listStreams) {
     if(!listStreams || listStreams instanceof Error) {
-      reply(Boom.badRequest('Unable to get streams'));
+      reply(Boom.unauthorized('Stream not found'));
       return;
     }
 
     reply(listStreams);
   })
-};
-
-Class.getStreamById = function (request, reply) {
-  Service.getStreamById(request.params.id).then(function(stream) {
-    if (!stream || stream instanceof Error) {
-      reply(Boom.badRequest('Unable to get stream with id ' +
-                            request.params.id));
-      return;
-    }
-
-    reply(stream);
-  });
 };
 
 /* Validator for routes */

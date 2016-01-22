@@ -1,6 +1,7 @@
 var rfr = require('rfr');
 var util = require('util');
 
+var CustomError = rfr('app/util/Error');
 var Utility = rfr('app/util/Utility');
 var Storage = rfr('app/models/Storage');
 
@@ -10,11 +11,6 @@ function StreamService() {
 }
 
 var Class = StreamService.prototype;
-
-Class.ERRORS = {
-  INVALID_USER: 'User account is invalid',
-  INVALID_FIELDS: 'Parameters is missing or invalid'
-};
 
 Class.createNewStream = function (userId, streamAttributes) {
   logger.debug('Creating new stream: %j', streamAttributes);
@@ -29,11 +25,11 @@ Class.createNewStream = function (userId, streamAttributes) {
   }).catch(function(err) {
     logger.error('Error in stream creation ', err);
     if (err.name === 'SequelizeValidationError') {
-      return Promise.resolve(Class.ERRORS.INVALID_FIELDS);
+      return Promise.resolve(new CustomError.InvalidFieldError(err.errors[0].message, err.errors[0].path));
     } else if (err.name === 'TypeError') {
-      return Promise.resolve(Class.ERRORS.INVALID_USER);
+      return Promise.resolve(new CustomError.NotFoundError('User not found', ''));
     } else {
-      return Promise.reject(err);
+      return Promise.resolve(new CustomError.UnknownError);
     }
   });
 };
@@ -45,9 +41,10 @@ Class.getStreamById = function (streamId) {
     .then(function receiveResult(result) {
       if (result) {
         return formatViewObject(result);
+      } else {
+        return Promise.resolve(Class.ERRORS.NOT_FOUND);
       }
 
-    return null;
   });
 };
 
@@ -80,10 +77,10 @@ var formatStreamObject = function (stream) {
  */
 var formatViewObject = function (stream) {
   return new Promise(function(resolve) {
-    var viewLink = util.format('%s/%s/%s.manifest.mpd', Utility.viewBaseUrl,
-                               streamValues.appInstance,
-                               streamValues.streamId);
-    streamValues.viewLink = viewLink;
+    var viewLink = util.format('%s/%s/%s/manifest.mpd', Utility.viewBaseUrl,
+                               stream.appInstance,
+                               stream.streamId);
+    stream.viewLink = viewLink;
     resolve(stream);
   });
 };

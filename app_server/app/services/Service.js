@@ -40,10 +40,8 @@ Class.createNewStream = function (userId, streamDetails) {
 };
 
 Class.getStreamById = function (streamId) {
-  logger.debug('Getting stream by id: %j', streamDetails);
-  //return stub
-  var stream = {appInstance: 'a-hash-of-userId-and-time', streamId: '123-123'};
-  return stream;
+  logger.debug('Getting stream by id: %j', streamId);
+  return StreamService.getStreamById(streamId);
 };
 
 Class.getListOfStreams = function () {

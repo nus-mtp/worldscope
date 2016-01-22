@@ -6,7 +6,7 @@ var expect = Code.expect;
 
 var Storage = rfr('app/models/Storage');
 var Service = rfr('app/services/Service');
-var StreamService = rfr('app/services/StreamService');
+var CustomError = rfr('app/util/Error');
 var TestUtils = rfr('test/TestUtils');
 
 /*lab.experiment('Service tests for User', function () {
@@ -160,7 +160,8 @@ lab.experiment('Service tests for Streams', function () {
 
   lab.test('createNewStream undefined userId', function(done) {
     Service.createNewStream(bob.userId, testStream).then(function (result) {
-      Code.expect(result).to.be.equal(StreamService.ERRORS.INVALID_USER);
+      Code.expect(result).to.be.an.instanceof(CustomError.NotFoundError);
+      Code.expect(result.message).to.be.equal('User not found');
       done();
     });
   });
@@ -172,18 +173,59 @@ lab.experiment('Service tests for Streams', function () {
     };
 
     Service.createNewStream(bob.userId, testStream).then(function (result) {
-      Code.expect(result).to.be.equal(StreamService.ERRORS.INVALID_FIELDS);
+      Code.expect(result).to.be.an.instanceof(CustomError.InvalidFieldError);
       done();
     });
   });
 
-  lab.test('createNewUser invalid fields returns null', function(done) {
+  lab.test('createNewstream empty title', function(done) {
+    var testStream = {
+      title: '',
+      description: 'arbitrary description',
+      appInstance: '123-123-123-123'
+    };
+
     Service.createNewUser(bob).then(function (user) {
-      return Service.createNewStream(user.userId, {something: 'abc'})
+      return Service.createNewStream(user.userId, testStream)
     }).then(function(result) {
-      Code.expect(result).to.be.equal(StreamService.ERRORS.INVALID_FIELDS);
+      Code.expect(result).to.be.an.instanceof(CustomError.InvalidFieldError);
+      Code.expect(result.extra).to.be.equal('title');
       done();
     });
   });
+
+/*  lab.test('getStreamById valid', function(done) {
+    Service.createNewUser(bob).then(function (user) {
+      return Service.createNewStream(user.userId, testStream)
+    }).then(function(result) {
+      return Service.getStreamById(result.streamId);
+    }).then(function(result) {
+      Code.expect(result.title).to.be.equal(testStream.title);
+      Code.expect(result.description).to.be.equal(testStream.description);
+      done();
+    });
+  });
+
+  lab.test('getStreamById empty id', function(done) {
+    Service.createNewUser(bob).then(function (user) {
+      return Service.createNewStream(user.userId, testStream)
+    }).then(function(result) {
+      return Service.getStreamById('');
+    }).then(function(result) {
+      Code.expect(result).to.be.equal(StreamService.ERRORS.NOT_FOUND);
+      done();
+    });
+  });
+
+  lab.test('getStreamById invalid id', function(done) {
+    Service.createNewUser(bob).then(function (user) {
+      return Service.createNewStream(user.userId, testStream)
+    }).then(function(result) {
+      return Service.getStreamById('asd-234234');
+    }).then(function(result) {
+      Code.expect(result).to.be.equal(StreamService.ERRORS.NOT_FOUND);
+      done();
+    });
+  });*/
 
 });
