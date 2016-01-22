@@ -26,6 +26,7 @@ var Class = StreamController.prototype;
 Class.registerRoutes = function () {
   this.server.route({method: 'GET', path: '/',
                      config: {
+                       validate: streamListParamsValidator,
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.getListOfStreams});
@@ -76,20 +77,23 @@ Class.createStream = function (request, reply) {
 };
 
 Class.getStreamById = function (request, reply) {
-  Service.getStreamById(request.params.id).then(function(stream) {
-    if (!stream || stream instanceof Error) {
-      logger.error('Stream not found');
-      reply(Boom.notFound('missing'));
+  logger.debug('Getting stream by Id');
+
+  Service.getStreamById(request.params.id).then(function(result) {
+    if (result instanceof Error) {
+      logger.error(result.message);
+      reply(Boom.notFound(result.message));
       return;
     }
 
-    reply(stream);
-  }).catch(function(err) {
-    reply(Boom.notFound('missing'));
+    reply(result);
   });
 };
 
+// TODO
 Class.getListOfStreams = function (request, reply) {
+  logger.debug('Getting list of streams');
+
   Service.getListOfStreams().then(function(listStreams) {
     if(!listStreams || listStreams instanceof Error) {
       reply(Boom.unauthorized('Stream not found'));
@@ -107,11 +111,18 @@ var singleStreamValidator = {
   }
 };
 
-// TODO: more validators
 var streamCreatePayloadValidator = {
   payload: {
     title: Joi.string().required().max(50),
     description: Joi.string()
+  }
+};
+
+var streamListParamsValidator = {
+  params: {
+    state: Joi.any().optional().valid('', 'live', 'done', 'all'),
+    sort: Joi.any().optional().valid('time', 'viewers', 'title'),
+    order: Joi.any().optional().valid('desc', 'asc')
   }
 };
 

@@ -34,15 +34,6 @@ lab.experiment('StreamController Tests', function () {
     TestUtils.resetDatabase(done);
   });
 
-/*  lab.test('Get list of streams', function (done) {
-    Router.inject({method: 'GET', url: '/api/streams',
-                   credentials: testAccount}, function (res) {
-      //console.log(res);
-      Code.expect(res.result).to.equal([]);
-      done();
-    });
-  });*/
-
   lab.test('Create stream valid', function (done) {
     Service.createNewUser(bob).then(function (user) {
       return user.userId;
@@ -55,7 +46,7 @@ lab.experiment('StreamController Tests', function () {
         var urlParts = res.result.streamLink.split("/");
         Code.expect(urlParts[urlParts.length-1]).to.have.length(36);
         Code.expect(urlParts[urlParts.length-2]).to.have.length(64);
-        Code.expect(res.result.title).to.equal('this is the title');
+        Code.expect(res.result.title).to.equal(streamPayload.title);
         done();
       });
     });
@@ -104,8 +95,7 @@ lab.experiment('StreamController Tests', function () {
     });
   });
 
-
-/*  lab.test('Get by streamId valid', function (done) {
+  lab.test('Get by streamId valid', function (done) {
     var streamInfo = {
       title: 'this is the title',
       description: 'this is the description of the stream',
@@ -120,8 +110,8 @@ lab.experiment('StreamController Tests', function () {
       Router.inject({method: 'GET', url: '/api/streams/' + stream.streamId,
                      credentials: testAccount}, function (res) {
 
-        Code.expect(res.result.appInstance).to.equal('generated');
-        Code.expect(res.result.title).to.equal('this is the title');
+        Code.expect(res.result.appInstance).to.equal(streamInfo.appInstance);
+        Code.expect(res.result.title).to.equal(streamInfo.title);
         done();
       });
     });
@@ -131,12 +121,18 @@ lab.experiment('StreamController Tests', function () {
     Router.inject({method: 'GET', url:'/api/streams/213',
                   credentials: testAccount}, function (res) {
       Code.expect(res.result.statusCode).to.equal(404);
+      Code.expect(res.result.message).to.equal('Stream not found');
       done();
     });
   });
-*/
+
+/*  lab.test('Get list of streams', function (done) {
+    Router.inject({method: 'GET', url: '/api/streams/',
+                   credentials: testAccount}, function (res) {
+      console.log(res.result);
+      Code.expect(res.result).to.equal([]);
+      done();
+    });
+  });*/
+
 });
-
-// when createNewStream() with misssing streamInfo, it will go through the then loop.
-
-// so reject or resolve??

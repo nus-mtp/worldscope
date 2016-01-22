@@ -125,7 +125,6 @@ var TestUtils = rfr('test/TestUtils');
   });
 });*/
 
-
 lab.experiment('Service tests for Streams', function () {
   var testStream = {
     title: 'this is a title from stream service',
@@ -194,7 +193,7 @@ lab.experiment('Service tests for Streams', function () {
     });
   });
 
-/*  lab.test('getStreamById valid', function(done) {
+  lab.test('getStreamById valid', function(done) {
     Service.createNewUser(bob).then(function (user) {
       return Service.createNewStream(user.userId, testStream)
     }).then(function(result) {
@@ -206,26 +205,28 @@ lab.experiment('Service tests for Streams', function () {
     });
   });
 
-  lab.test('getStreamById empty id', function(done) {
+  lab.test('getStreamById empty Id', function(done) {
     Service.createNewUser(bob).then(function (user) {
       return Service.createNewStream(user.userId, testStream)
     }).then(function(result) {
       return Service.getStreamById('');
     }).then(function(result) {
-      Code.expect(result).to.be.equal(StreamService.ERRORS.NOT_FOUND);
+      Code.expect(result).to.be.an.instanceof(CustomError.NotFoundError);
+      Code.expect(result.message).to.be.equal('Stream not found');
       done();
     });
   });
 
-  lab.test('getStreamById invalid id', function(done) {
+  lab.test('getStreamById invalid Id', function(done) {
     Service.createNewUser(bob).then(function (user) {
       return Service.createNewStream(user.userId, testStream)
     }).then(function(result) {
       return Service.getStreamById('asd-234234');
     }).then(function(result) {
-      Code.expect(result).to.be.equal(StreamService.ERRORS.NOT_FOUND);
+      Code.expect(result).to.be.an.instanceof(CustomError.NotFoundError);
+      Code.expect(result.message).to.be.equal('Stream not found');
       done();
     });
-  });*/
+  });
 
 });

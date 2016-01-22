@@ -29,7 +29,7 @@ Class.createNewStream = function (userId, streamAttributes) {
         .InvalidFieldError(err.errors[0].message, err.errors[0].path));
     } else if (err.name === 'TypeError') {
       return Promise.resolve(new CustomError
-        .NotFoundError('User not found', ''));
+        .NotFoundError('User not found'));
     } else {
       return Promise.resolve(new CustomError.UnknownError());
     }
@@ -44,16 +44,18 @@ Class.getStreamById = function (streamId) {
       if (result) {
         return formatViewObject(result);
       } else {
-        return Promise.resolve(Class.ERRORS.NOT_FOUND);
+        return Promise.resolve(new CustomError
+        .NotFoundError('Stream not found'));
       }
 
   });
 };
 
+// TODO
 Class.getListOfStreams = function () {
   logger.debug('Getting list of streams');
 
-  return 'test string';
+  return Promise.resolve('test string');
 };
 
 /**

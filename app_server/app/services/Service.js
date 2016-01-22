@@ -44,10 +44,10 @@ Class.getStreamById = function (streamId) {
   return StreamService.getStreamById(streamId);
 };
 
+//TODO
 Class.getListOfStreams = function () {
   logger.debug('Getting list of streams');
-  //return stub
-  return [];
+  return StreamService.getListOfStreams();
 };
 
 ///////////////////////
