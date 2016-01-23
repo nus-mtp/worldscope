@@ -140,6 +140,30 @@ Class.verifyUserToken = function (user, token) {
   return user.password === parsedToken[0] && user.userId === parsedToken[1];
 };
 
+/**
+ * Authenticate an admin through username and password
+ * @param credentials the user's credentials in that platform
+ * @return {Promise} of the admin credentials for worldscope
+ *                   or null if failed to authenticate admin
+ */
+Class.authenticateAdmin = function (credentials) {
+  logger.info('Authenticating admin with %j', credentials);
+
+  var adminPromise = Service.getAdminByUsername(credentials.username);
+  var checkPassword = adminPromise.then(function checkPassword(admin) {
+    if (admin) {
+      return bcrypt.compareAsync(credentials.password, admin.password);
+    }
+
+    return false;
+  });
+
+  return Promise.join(adminPromise, checkPassword,
+      function returnAuthenticationResult(admin, isAuthenticated) {
+        return isAuthenticated ? admin : null;
+      });
+};
+
 Class.validateAccount = function (server, session) {
   return Promise.resolve(session.userId)
   .then(function getAccountFromCache(userId) {
