@@ -265,13 +265,42 @@ Class.getStreamById = function(streamId) {
 };
 
 /**
- * Return a list of streams
+ * Return a list of streams sorted with options.
+ * @param  {object} filters
+ * @param  {string} filters.sort
+ * @param  {string} filters.state
+ * @param  {object} filters.order
  * @return {Promise<List<Sequelize.object>>} - a list of streams
  */
-Class.getListOfStreams = function() {
-  return this.models.Stream.findAll({
-    order: [['createdAt', 'DESC'], ['title', 'ASC']]
-  });
+Class.getListOfStreams = function(filters) {
+  // TODO: viewers and state
+
+  function mapParams(value) {
+    var filterMap = {
+      'desc': 'DESC',
+      'asc': 'ASC',
+      'time': 'createdAt',
+      'title': 'title'
+    };
+    return filterMap[value];
+  }
+
+  for (var key in filters) {
+    if (filters.hasOwnProperty(key)) {
+      var value = filters[key];
+      filters[key] = mapParams(value);
+    }
+  }
+
+  if(filters.sort !== 'createdAt') {
+    return this.models.Stream.findAll({
+      order: [[filters.sort, filters.order], ['createdAt', 'DESC']]
+    });
+  } else {
+    return this.models.Stream.findAll({
+      order: [[filters.sort, filters.order]]
+    });
+  }
 };
 
 /**
