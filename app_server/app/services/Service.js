@@ -3,6 +3,7 @@ var rfr = require('rfr');
 var Utility = rfr('app/util/Utility');
 var UserService = rfr('app/services/UserService');
 var StreamService = rfr('app/services/StreamService');
+var AdminService = rfr('app/services/AdminService');
 
 var logger = Utility.createLogger(__filename);
 
@@ -48,7 +49,18 @@ Class.getListOfStreams = function (filters) {
   logger.debug('Getting list of streams with filters: %j', filters);
   return StreamService.getListOfStreams(filters);
 };
+///////////////////////
 
+/////// ADMIN APIs ///////
+Class.createNewAdmin = function (particulars) {
+  logger.debug('Creating new admin: %j', particulars);
+  return AdminService.createNewAdmin(particulars);
+};
+
+Class.getAdminByUsername = function (username) {
+  logger.debug('Getting admin by username: %s', username);
+  return AdminService.getAdminByUsername(username);
+};
 ///////////////////////
 
 module.exports = new Service();
