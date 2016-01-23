@@ -37,6 +37,21 @@ Class.registerRoutes = function () {
     },
     handler: this.createAdmin
   });
+
+  this.server.route({
+    method: 'POST', path: '/login',
+    config: {
+      auth: false,
+      validate: loginPayloadValidator
+    },
+    handler: this.login
+  });
+
+  this.server.route({
+    method: 'GET', path: '/logout',
+    config: {auth: false},
+    handler: this.logout
+  });
 };
 
 /* Routes handlers */
@@ -65,6 +80,56 @@ Class.createAdmin = function (request, reply) {
     admin.password = request.payload.password;
     reply(admin).created();
   });
+};
+
+Class.login = function (request, reply) {
+  var credentials = {
+    username: request.payload.username,
+    password: request.payload.password
+  };
+
+  return Authenticator.authenticateAdmin(credentials)
+  .then(function afterAuthentication(admin) {
+    if (!admin || admin instanceof Error) {
+      return reply(Boom.unauthorized(
+          'Failed to authenticate admin ' + credentials.username
+      ));
+    }
+
+    var account = {
+      userId: admin.userId,
+      username: admin.username,
+      password: admin.password,
+      scope: Authenticator.SCOPE.ADMIN
+    };
+
+    request.server.app.cache.set(account.userId, account, 0, function (err) {
+      if (err) {
+        logger.error(err);
+      }
+
+      request.cookieAuth.set(account);
+
+      // rewrite with unencrypted password
+      admin.password = credentials.password;
+      return reply(admin);
+    });
+  }).catch(function fail(err) {
+    return reply(Boom.badRequest('Failed to authenticate admin: ' + err));
+  });
+};
+
+Class.logout = function (request, reply) {
+  request.cookieAuth.clear();
+  return reply('Logged out');
+};
+
+/* Validator for routes */
+var loginPayloadValidator = {
+  payload: {
+    username: Joi.string().required(),
+    password: Joi.string().required()
+  }
 };
 
 /* Helpers for everything above */
