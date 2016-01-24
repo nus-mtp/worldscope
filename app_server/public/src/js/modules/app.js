@@ -27,7 +27,7 @@ const blank = mixinPage(nav, {
 
 const routes = {
   locked: {
-    '/login': blank
+    '/login': require('./pages/login')
   },
   app: {
     '/metrics': {controller: () => m.route('/metrics/overview')},
