@@ -24,7 +24,8 @@ Class.createNewStream = function (userId, streamAttributes) {
     return null;
   }).catch(function(err) {
     logger.error('Error in stream creation ', err);
-    if (err.name === 'SequelizeValidationError') {
+    if (err.name === 'SequelizeValidationError' ||
+        err.message === 'Validation error') {
       return Promise.resolve(new CustomError
         .InvalidFieldError(err.errors[0].message, err.errors[0].path));
     } else if (err.name === 'TypeError') {
@@ -39,23 +40,28 @@ Class.createNewStream = function (userId, streamAttributes) {
 Class.getStreamById = function (streamId) {
   logger.debug('Getting stream by Id: %j', streamId);
 
-  return Storage.getStreamById(streamId)
-    .then(function receiveResult(result) {
-      if (result) {
-        return formatViewObject(result);
-      } else {
-        return Promise.resolve(new CustomError
+  return Storage.getStreamById(streamId).then(function receiveResult(result) {
+    if (result) {
+      return formatViewObject(result);
+    } else {
+      return Promise.resolve(new CustomError
         .NotFoundError('Stream not found'));
-      }
-
+    }
   });
 };
 
 // TODO
-Class.getListOfStreams = function () {
-  logger.debug('Getting list of streams');
+Class.getListOfStreams = function(filters) {
+  logger.debug('Getting list of streams with filters: %j', filters);
 
-  return Promise.resolve('test string');
+  return Storage.getListOfStreams(filters).then(function receiveResult(result) {
+    if (result) {
+      return result.map(formatViewObject);
+    } else {
+      return Promise.resolve(new CustomError
+        .NotFoundError('Stream not found'));
+    }
+  });
 };
 
 /**
@@ -64,13 +70,15 @@ Class.getListOfStreams = function () {
  * @return {Stream}
  */
 var formatStreamObject = function (stream) {
+  logger.debug('Format stream object');
 
   return new Promise(function(resolve) {
+    var formattedStream = stream.dataValues;
     var streamLink = util.format('%s/%s/%s', Utility.streamBaseUrl,
                                  stream.appInstance,
                                  stream.streamId);
-    stream.streamLink = streamLink;
-    resolve(stream);
+    formattedStream.streamLink = streamLink;
+    resolve(formattedStream);
   });
 };
 
@@ -80,13 +88,15 @@ var formatStreamObject = function (stream) {
  * @return {Stream}
  */
 var formatViewObject = function (stream) {
-  return new Promise(function(resolve) {
-    var viewLink = util.format('%s/%s/%s/manifest.mpd', Utility.viewBaseUrl,
-                               stream.appInstance,
-                               stream.streamId);
-    stream.viewLink = viewLink;
-    resolve(stream);
-  });
+  logger.debug('Format view object');
+
+  var formattedStream = stream.dataValues;
+  var viewLink = util.format('%s/%s/%s/manifest.mpd', Utility.viewBaseUrl,
+                             stream.appInstance,
+                             stream.streamId);
+  formattedStream.viewLink = viewLink;
+  return formattedStream;
+
 };
 
 module.exports = new StreamService();

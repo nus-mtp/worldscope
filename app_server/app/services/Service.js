@@ -44,10 +44,9 @@ Class.getStreamById = function (streamId) {
   return StreamService.getStreamById(streamId);
 };
 
-//TODO
-Class.getListOfStreams = function () {
-  logger.debug('Getting list of streams');
-  return StreamService.getListOfStreams();
+Class.getListOfStreams = function (filters) {
+  logger.debug('Getting list of streams with filters: %j', filters);
+  return StreamService.getListOfStreams(filters);
 };
 
 ///////////////////////
