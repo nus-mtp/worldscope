@@ -14,7 +14,8 @@
         <script>
             var socket = io('http://localhost:3000');
 
-            socket.emit('identify', {username: 'thien', password: '1234'});
+            var cookie = 'Fe26.2**04296be8c6bf17ec43128d315b71f9b1c0913c6cb283b1a4b156022e58820eca*O1plRiRLxDq9NHW0cJWEsw*m5PUH-Dwrb7Tv27V1AqUhRjRuLiX5gsdG3wF1C1xP5lJLJHYeMfUZY_tIaNWHroVMcQO8IEsDtVl0P8E9cZlH-vAmZU9_nodraCtLz8_Ui3w_YfjyHQfPokCDoMBQdV87FTE1FOl0gplKBOyokdboGtd5gbfjFJBBxKEByOeUvuWjQGvvJI3eJEQFgY-LYl6usbcY8l2r6jLVk31tuCIjc21EJYeeUgAkVh3VdKbDOjr6tFsK0EM3qeUcXF4pLGbSvi-xqEOmQrdsdTPr-H8ZbSJPzFdgxniiZT1xU58T9w_M9RuD-AInj2nALtld6mWP8q6ZrK8EKN3SQWKQv5bPDQzoAP7e3_jvdnXgQ4DHxzXU_6advw9-Az9FGMUn7NX68_5XnYOhCVMPaRQdIlnz5rWRM4b_Gjelw9TmauoEVBrJUNOw8PRvNUjjzBLvLY-48_FIyp0_C_bRT83vCXQg5IyB-pk0Pg3MPPmABtoU8TZqlcBiJgNreEYRjOfDxaZBLS0dh_y5c3TWpDAUWbgGKIdsgHtWTumJRaEXoLfiizXv-7Tg7a_kERo-9RNPQDrxe7StCGR_ZAVQcGXzMUsPGhAmlzdib2LEjjD-hK7bg4j1zI_vtCZAYPBABdyBzv3**46698d87f69d02a7ee9269f3a88732c3845160499a58cd93cae2e01c9a03eabb*XqpMMMwwMNSNG3B3nrox-VQjQytEoMfQuIhHIm13WzU';
+            socket.emit('identify', cookie);
 
             socket.on('identify', function (data) {
                 if (data == 'OK') {

@@ -147,7 +147,8 @@ server.register(require('inert'), function(err) {
           path: 'prototype',
           listing: true
         }
-      }
+      },
+      config: {auth: {scope: Authenticator.SCOPE.ALL}}
     });
   }
 });

@@ -199,11 +199,11 @@ Class.validateAccount = function (server, session) {
       }
 
       server.app.cache.set(session.userId, session, 0,
-                                   function (err) {
-                                     if (err) {
-                                       logger.error(err);
-                                     }
-                                   });
+                           function (err) {
+                             if (err) {
+                               logger.error(err);
+                             }
+                           });
       return session;
     });
   });
