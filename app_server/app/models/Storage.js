@@ -280,7 +280,10 @@ Class.getListOfStreams = function(filters) {
       'desc': 'DESC',
       'asc': 'ASC',
       'time': 'createdAt',
-      'title': 'title'
+      'title': 'title',
+      'all': {$or: [{'live': true}, {'live': false}]},
+      'live': true,
+      'done': false
     };
     return filterMap[value];
   }
@@ -291,13 +294,19 @@ Class.getListOfStreams = function(filters) {
       filters[key] = mapParams(value);
     }
   }
-
+  console.log(filters);
   if(filters.sort !== 'createdAt') {
     return this.models.Stream.findAll({
+      where: {
+        live: filters.state
+      },
       order: [[filters.sort, filters.order], ['createdAt', 'DESC']]
     });
   } else {
     return this.models.Stream.findAll({
+      where: {
+        live: filters.state
+      },
       order: [[filters.sort, filters.order]]
     });
   }

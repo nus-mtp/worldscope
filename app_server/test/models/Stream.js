@@ -54,7 +54,7 @@ lab.experiment('Stream Model Tests', function () {
     TestUtils.resetDatabase(done);
   });
 
-  lab.test('Create Stream', function(done) {
+/*  lab.test('Create Stream', function(done) {
     Storage.createUser(userDetails).then(function(user) {
       return user.userId;
     }).then(function(userId) {
@@ -98,10 +98,10 @@ lab.experiment('Stream Model Tests', function () {
       done();
     });
   });
-
+*/
   lab.test('Get list of streams sorted by time', function(done) {
     var filters = {
-      state: '',
+      state: 'all',
       sort: 'time',
       order: 'desc'
     };
@@ -133,7 +133,7 @@ lab.experiment('Stream Model Tests', function () {
 
   lab.test('Get list of streams sorted by time asc', function(done) {
     var filters = {
-      state: '',
+      state: 'all',
       sort: 'time',
       order: 'asc'
     };
@@ -165,7 +165,7 @@ lab.experiment('Stream Model Tests', function () {
 
   lab.test('Get list of streams sorted by title asc', function(done) {
     var filters = {
-      state: '',
+      state: 'all',
       sort: 'title',
       order: 'asc'
     };
@@ -190,6 +190,38 @@ lab.experiment('Stream Model Tests', function () {
           expect(res[0].title).to.equal(streamDetails.title);
           expect(res[1].title).to.equal(streamDetails3.title);
           expect(res[2].title).to.equal(streamDetails2.title);
+          done();
+        });
+      });
+  });
+
+  lab.test('Get list of live streams', function(done) {
+    var filters = {
+      state: 'live',
+      sort: 'time',
+      order: 'desc'
+    };
+
+    var userPromise = Storage.createUser(userDetails);
+    var userPromise2 = Storage.createUser(userDetails2);
+
+    var streamPromise = userPromise.then(function(user) {
+      return Storage.createStream(user.userId, streamDetails3)
+        .then(function(stream) {
+          return Storage.createStream(user.userId, streamDetails2);
+        });
+    });
+
+    var streamPromise2 = userPromise2.then(function(user2) {
+      return Storage.createStream(user2.userId, streamDetails);
+    });
+
+    return Promise.join(streamPromise, streamPromise2,
+      function() {
+        Storage.getListOfStreams(filters).then(function(res) {
+          expect(res).to.have.length(2);
+          expect(res[0].title).to.equal(streamDetails2.title);
+          expect(res[1].title).to.equal(streamDetails.title);
           done();
         });
       });
