@@ -58,15 +58,19 @@ App.routes = {
 };
 
 // TODO: Separate into Authentication module
-App.goToHome = function () {
-  let isLoggedIn = window.localStorage.getItem('ws-user');
-  if (isLoggedIn) {
+App.isLoggedIn = () => window.localStorage.getItem('ws-user');
+
+App.updateRoutes = function () {
+  if (App.isLoggedIn()) {
     m.route(document.body, '/metrics', App.routes.app);
   } else {
     m.route(document.body, '/login', App.routes.locked);
   }
+};
+App.goToHome = function () {
+  App.updateRoutes();
   m.route('/');
 };
 
-App.goToHome();
+App.updateRoutes();
 

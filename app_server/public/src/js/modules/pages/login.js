@@ -2,6 +2,7 @@ const m = require('mithril');
 
 const mz = require('../utils/mzInit');
 
+const App = require('../app');
 const AdminModel = require('../models/admin');
 
 const Login = module.exports = {
@@ -14,7 +15,8 @@ const Login = module.exports = {
     ctrl.login = function (e) {
       e.preventDefault();
       AdminModel.login(ctrl.admin).then(function (admin) {
-        // TODO: do something on success
+        window.localStorage.setItem('ws-user', admin.userId);
+        App.goToHome();
       }, function (err) {
         ctrl.loginError(err);
       });
