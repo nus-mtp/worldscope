@@ -54,7 +54,7 @@ lab.experiment('Stream Model Tests', function () {
     TestUtils.resetDatabase(done);
   });
 
-/*  lab.test('Create Stream', function(done) {
+  lab.test('Create Stream', function(done) {
     Storage.createUser(userDetails).then(function(user) {
       return user.userId;
     }).then(function(userId) {
@@ -98,7 +98,7 @@ lab.experiment('Stream Model Tests', function () {
       done();
     });
   });
-*/
+
   lab.test('Get list of streams sorted by time', function(done) {
     var filters = {
       state: 'all',
@@ -222,6 +222,37 @@ lab.experiment('Stream Model Tests', function () {
           expect(res).to.have.length(2);
           expect(res[0].title).to.equal(streamDetails2.title);
           expect(res[1].title).to.equal(streamDetails.title);
+          done();
+        });
+      });
+  });
+
+  lab.test('Get list of streams invalid filters', function(done) {
+    var filters = {
+      state: 'live',
+      sort: 'abc',
+      order: 'desc'
+    };
+
+    var userPromise = Storage.createUser(userDetails);
+    var userPromise2 = Storage.createUser(userDetails2);
+
+    var streamPromise = userPromise.then(function(user) {
+      return Storage.createStream(user.userId, streamDetails3)
+        .then(function(stream) {
+          return Storage.createStream(user.userId, streamDetails2);
+        });
+    });
+
+    var streamPromise2 = userPromise2.then(function(user2) {
+      return Storage.createStream(user2.userId, streamDetails);
+    });
+
+    return Promise.join(streamPromise, streamPromise2,
+      function() {
+        Storage.getListOfStreams(filters).catch(function(err) {
+          expect(err).to.be.an.instanceof(Error);
+          expect(err.message).to.equal("Cannot read property 'model' of undefined");
           done();
         });
       });

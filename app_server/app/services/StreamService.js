@@ -50,7 +50,6 @@ Class.getStreamById = function (streamId) {
   });
 };
 
-// TODO
 Class.getListOfStreams = function(filters) {
   logger.debug('Getting list of streams with filters: %j', filters);
 
@@ -61,6 +60,10 @@ Class.getListOfStreams = function(filters) {
       return Promise.resolve(new CustomError
         .NotFoundError('Stream not found'));
     }
+  }).catch(function(err) {
+    logger.error('not supposed to enter here, reject at joi validate');
+    logger.error(err);
+    return null;
   });
 };
 

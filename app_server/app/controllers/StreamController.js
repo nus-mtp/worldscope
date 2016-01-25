@@ -94,14 +94,22 @@ Class.getStreamById = function (request, reply) {
 Class.getListOfStreams = function (request, reply) {
   logger.debug('Getting list of streams');
 
-  Service.getListOfStreams().then(function(listStreams) {
+  var filters = {
+    state: request.query.state ? request.query.state : 'all',
+    sort: request.query.sort ? request.query.sort : 'time',
+    order: request.query.order ? request.query.order : 'desc'
+  };
+
+  //console.log(filters);
+
+  Service.getListOfStreams(filters).then(function(listStreams) {
     if(!listStreams || listStreams instanceof Error) {
       reply(Boom.unauthorized('Stream not found'));
       return;
     }
 
     reply(listStreams);
-  })
+  });
 };
 
 /* Validator for routes */
@@ -120,9 +128,9 @@ var streamCreatePayloadValidator = {
 
 var streamListParamsValidator = {
   params: {
-    state: Joi.any().optional().valid('', 'live', 'done', 'all'),
-    sort: Joi.any().optional().valid('time', 'viewers', 'title'),
-    order: Joi.any().optional().valid('desc', 'asc')
+    state: Joi.any().valid('live', 'done', 'all'),
+    sort: Joi.any().valid('time', 'viewers', 'title'),
+    order: Joi.any().valid('desc', 'asc')
   }
 };
 

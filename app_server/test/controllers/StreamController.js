@@ -2,9 +2,10 @@ var rfr = require('rfr');
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var Code = require('code');
+var util = require('util');
 
 var Authenticator = rfr('app/policies/Authenticator');
-var Utility = rfr('app/util/Utility')
+var Utility = rfr('app/util/Utility');
 var Service = rfr('app/services/Service');
 var TestUtils = rfr('test/TestUtils');
 var Router = rfr('app/Router.js');
@@ -43,9 +44,10 @@ lab.experiment('StreamController Tests', function () {
                      credentials: testAccount,
                      payload: streamPayload}, function (res) {
 
-        var urlParts = res.result.streamLink.split("/");
-        Code.expect(urlParts[urlParts.length-1]).to.have.length(36);
-        Code.expect(urlParts[urlParts.length-2]).to.have.length(64);
+        Code.expect(res.result.streamLink).to.equal(
+          util.format('%s/%s/%s', Utility.streamBaseUrl,
+                                  res.result.appInstance,
+                                  res.result.streamId));
         Code.expect(res.result.title).to.equal(streamPayload.title);
         done();
       });
@@ -64,7 +66,7 @@ lab.experiment('StreamController Tests', function () {
   });
 
   lab.test('Create stream invalid userId', function (done) {
-    testAccount.userId = 'non-existing-user'
+    testAccount.userId = 'non-existing-user';
     Router.inject({method: 'POST', url: '/api/streams',
                    credentials: testAccount,
                    payload: streamPayload}, function (res) {
@@ -95,7 +97,7 @@ lab.experiment('StreamController Tests', function () {
     });
   });
 
-  lab.test('Get by streamId valid', function (done) {
+  lab.test('Get stream by streamId valid', function (done) {
     var streamInfo = {
       title: 'this is the title',
       description: 'this is the description of the stream',
@@ -110,14 +112,17 @@ lab.experiment('StreamController Tests', function () {
       Router.inject({method: 'GET', url: '/api/streams/' + stream.streamId,
                      credentials: testAccount}, function (res) {
 
-        Code.expect(res.result.appInstance).to.equal(streamInfo.appInstance);
+        Code.expect(res.result.viewLink).to.equal(
+          util.format('%s/%s/%s/manifest.mpd', Utility.viewBaseUrl,
+                                               streamInfo.appInstance,
+                                               res.result.streamId));
         Code.expect(res.result.title).to.equal(streamInfo.title);
         done();
       });
     });
   });
 
-  lab.test('Get by streamId invalid', function (done) {
+  lab.test('Get stream by streamId invalid', function (done) {
     Router.inject({method: 'GET', url:'/api/streams/213',
                   credentials: testAccount}, function (res) {
       Code.expect(res.result.statusCode).to.equal(404);
@@ -126,11 +131,50 @@ lab.experiment('StreamController Tests', function () {
     });
   });
 
-/*  lab.test('Get list of streams', function (done) {
-    Router.inject({method: 'GET', url: '/api/streams/',
+  lab.test('Get list of streams valid empty', function (done) {
+    Router.inject({method: 'GET', url: '/api/streams?order=desc',
                    credentials: testAccount}, function (res) {
-      console.log(res.result);
-      Code.expect(res.result).to.equal([]);
+      Code.expect(res.result).to.have.length(0);
+      done();
+    });
+  });
+
+  lab.test('Get list of streams valid sort by title asc', function (done) {
+
+    var streamInfo = {
+      title: 'this is the title',
+      description: 'this is the description of the stream',
+      appInstance: 'generated'
+    };
+
+    var streamInfo2 = {
+      title: 'abc def is the title',
+      description: 'this is the description of the stream',
+      appInstance: 'generated2'
+    };
+
+    Service.createNewUser(bob).then(function (user) {
+      testAccount.userId = user.userId;
+      return user.userId;
+    }).then(function(userId) {
+      return Service.createNewStream(userId, streamInfo);
+    }).then(function(stream) {
+      return Service.createNewStream(stream.owner, streamInfo2);
+    }).then(function() {
+      Router.inject({method: 'GET', url: '/api/streams?sort=title&order=desc',
+                     credentials: testAccount}, function (res) {
+        Code.expect(res.result).to.have.length(2);
+        Code.expect(res.result[0].title).to.equal(streamInfo.title);
+        Code.expect(res.result[1].title).to.equal(streamInfo2.title);
+        done();
+      });
+    });
+  });
+
+/*  lab.test('Get list of streams invalid query params', function (done) {
+    Router.inject({method: 'GET', url: '/api/streams?order=lol',
+                   credentials: testAccount}, function (res) {
+      Code.expect(res.result.statusCode).to.equal(400);
       done();
     });
   });*/

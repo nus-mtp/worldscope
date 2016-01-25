@@ -273,7 +273,7 @@ Class.getStreamById = function(streamId) {
  * @return {Promise<List<Sequelize.object>>} - a list of streams
  */
 Class.getListOfStreams = function(filters) {
-  // TODO: viewers and state
+  // TODO: viewers
 
   function mapParams(value) {
     var filterMap = {
@@ -294,7 +294,7 @@ Class.getListOfStreams = function(filters) {
       filters[key] = mapParams(value);
     }
   }
-  console.log(filters);
+
   if(filters.sort !== 'createdAt') {
     return this.models.Stream.findAll({
       where: {
