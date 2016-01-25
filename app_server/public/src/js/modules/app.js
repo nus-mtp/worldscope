@@ -25,7 +25,9 @@ const blank = mixinPage(nav, {
   view: () => m('div', 'TODO')
 });
 
-const routes = {
+const App = module.exports = {};
+
+App.routes = {
   locked: {
     '/login': require('./pages/login')
   },
@@ -56,9 +58,15 @@ const routes = {
 };
 
 // TODO: Separate into Authentication module
-const isLoggedIn = true;
-if (!isLoggedIn) {
-  m.route(document.body, '/login', routes.locked);
-} else {
-  m.route(document.body, '/metrics', routes.app);
-}
+App.goToHome = function () {
+  let isLoggedIn = window.localStorage.getItem('ws-user');
+  if (isLoggedIn) {
+    m.route(document.body, '/metrics', App.routes.app);
+  } else {
+    m.route(document.body, '/login', App.routes.locked);
+  }
+  m.route('/');
+};
+
+App.goToHome();
+
