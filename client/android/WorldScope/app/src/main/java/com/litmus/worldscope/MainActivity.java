@@ -1,28 +1,51 @@
 package com.litmus.worldscope;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.support.design.widget.TabLayout;
+import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.util.Log;
+import android.view.View;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
+
+import org.json.JSONException;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener {
+
+    private final String TAG = "MainActivity";
+
+    private final String WELCOME_MSG = "Welcome to WorldScope, %s";
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -39,15 +62,50 @@ public class MainActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
 
+    private WorldScopeUser loginUser;
+
+    private Context context;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        context = this;
+
+        // Get user information
+        loginUser = getIntent().getParcelableExtra("loginUser");
+        Log.d(TAG, "" + loginUser.toString());
+
+        Toast toast = Toast.makeText(context, String.format(WELCOME_MSG, loginUser.getAlias()), Toast.LENGTH_LONG);
+        toast.show();
+
+        // Set title of toolbar to WorldScope
         setSupportActionBar(toolbar);
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
+        try {
+            getSupportActionBar().setTitle(R.string.app_name);
+        } catch(NullPointerException e){
+            e.printStackTrace();
+        }
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                redirectToStreamActivity();
+            }
+        });
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+
+        //Set up the tabs
+
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
@@ -57,49 +115,52 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener((new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Redirect to StreamActivity
-                redirectToStreamActivity();
-            }
-        }));
-
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
     }
 
-    private void redirectToStreamActivity() {
-        Intent intent = new Intent(this, StreamActivity.class);
-        startActivity(intent);
-    }
-
-    private void redirectToViewActivity() {
-        Intent intent = new Intent(this, ViewActivity.class);
-        startActivity(intent);
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        // Load user information into Drawer after it is loaded
+        loadUserInfoIntoDrawer();
         return true;
     }
 
+    @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.nav_profile) {
+            // Handle the camera action
+        } else if (id == R.id.nav_followers) {
+
+        } else if (id == R.id.nav_setting) {
+
+        } else if (id == R.id.nav_streams) {
+
+        } else if (id == R.id.nav_help) {
+
+        } else if (id == R.id.nav_logout) {
+            Log.d(TAG, "Logging out");
+            logoutFromAppServer();
         }
 
-        return super.onOptionsItemSelected(item);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
-
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -115,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            return StreamRefreshListFragment.newInstance(position + 1);
         }
 
         @Override
@@ -132,53 +193,124 @@ public class MainActivity extends AppCompatActivity {
                 case 1:
                     return "Latest";
                 case 2:
-                    return "Friends";
+                    return "Followers";
             }
             return null;
         }
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
+    // Redirects to view activity
 
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
+    private void redirectToViewActivity() {
+        Intent intent = new Intent(this, ViewActivity.class);
+        startActivity(intent);
+    }
 
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
 
-        public PlaceholderFragment() {
+    // Redirects to stream activity
+
+    private void redirectToStreamActivity() {
+        Intent intent = new Intent(this, StreamActivity.class);
+        startActivity(intent);
+    }
+
+
+    // Query Facebook graph API for profile picture and loads Alias and picture into Drawer
+
+    private void loadUserInfoIntoDrawer() {
+        TextView alias = (TextView) findViewById(R.id.drawerAlias);
+        final ImageView facebookProfilePicture = (ImageView) findViewById(R.id.drawerFacebookProfilePicture);
+
+        // Set alias into drawer
+        alias.setText(loginUser.getAlias());
+
+        Bundle facebookGraphParams = new Bundle();
+        facebookGraphParams.putInt("height", 400);
+        facebookGraphParams.putInt("width", 400);
+        facebookGraphParams.putBoolean("redirect", false);
+        /* make the API call */
+        new GraphRequest(
+                AccessToken.getCurrentAccessToken(),
+                "/"+ loginUser.getPlatformId() +"/picture",
+                facebookGraphParams,
+                HttpMethod.GET,
+                new GraphRequest.Callback() {
+                    public void onCompleted(GraphResponse response) {
+                        /* handle the result */
+                        try {
+                            String facebookProfilePictureUrl = response.getJSONObject().getJSONObject("data").get("url").toString();
+                            Log.d(TAG, "" + facebookProfilePictureUrl);
+                            Picasso.with(facebookProfilePicture.getContext())
+                                    .load(facebookProfilePictureUrl)
+                                    .transform(new CircleTransform())
+                                    .into(facebookProfilePicture);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }
+        ).executeAsync();
+
+    }
+
+    private void logoutFromAppServer() {
+        Call<WorldScopeUser> call = WorldScopeRestAPI.buildWorldScopeAPIService().logoutUser();
+        call.enqueue(new Callback<WorldScopeUser>() {
+            @Override
+            public void onResponse(Response<WorldScopeUser> response) {
+                if (response.isSuccess()) {
+                    Log.d(TAG, "Success!");
+                    Log.d(TAG, "" + response.body().toString());
+
+                    // Redirect to FacebookLoginActivty
+                    Intent intent = new Intent(context, FacebookLoginActivity.class);
+                    startActivity(intent);
+                } else {
+                    Log.d(TAG, "Failure!");
+                    Log.d(TAG, "" + response.code());
+                    Log.d(TAG, "" + response.body().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d(TAG, "Failure: " + t.getMessage());
+            }
+        });
+    }
+
+    public class CircleTransform implements Transformation {
+        @Override
+        public Bitmap transform(Bitmap source) {
+            int size = Math.min(source.getWidth(), source.getHeight());
+
+            int x = (source.getWidth() - size) / 2;
+            int y = (source.getHeight() - size) / 2;
+
+            Bitmap squaredBitmap = Bitmap.createBitmap(source, x, y, size, size);
+            if (squaredBitmap != source) {
+                source.recycle();
+            }
+
+            Bitmap bitmap = Bitmap.createBitmap(size, size, source.getConfig());
+
+            Canvas canvas = new Canvas(bitmap);
+            Paint paint = new Paint();
+            BitmapShader shader = new BitmapShader(squaredBitmap, BitmapShader.TileMode.CLAMP, BitmapShader.TileMode.CLAMP);
+            paint.setShader(shader);
+            paint.setAntiAlias(true);
+
+            float r = size / 2f;
+            canvas.drawCircle(r, r, r, paint);
+
+            squaredBitmap.recycle();
+            return bitmap;
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
-            LinearLayout viewButton = (LinearLayout) rootView.findViewById(R.id.view_fragment);
-            viewButton.setOnClickListener((new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //Redirect to ViewActivity
-                    ((MainActivity)getActivity()).redirectToViewActivity();
-                }
-            }));
-
-            return rootView;
+        public String key() {
+            return "circle";
         }
     }
 }
