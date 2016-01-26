@@ -39,7 +39,8 @@ public class FacebookLoginFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private CallbackManager callbackManager;
     private Context context;
-
+    private LoginManager loginManager;
+    private LoginButton loginButton;
     public FacebookLoginFragment() {
         // Required empty public constructor
     }
@@ -57,6 +58,15 @@ public class FacebookLoginFragment extends Fragment {
         return fragment;
     }
 
+    public void logoutFromFacebook() {
+        if(loginManager == null) {
+            loginManager = LoginManager.getInstance();
+        }
+
+        Log.d(TAG, "Logging out of Facebook: " + loginManager);
+        loginManager.logOut();
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +81,7 @@ public class FacebookLoginFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_facebook_login, container, false);
 
         // Get login button from XML and set permissions
-        LoginButton loginButton = (LoginButton) view.findViewById(R.id.facebook_login_button);
+        loginButton = (LoginButton) view.findViewById(R.id.facebook_login_button);
         loginButton.setReadPermissions(PUBLIC_PROFILE_PERMISSION, USER_FRIENDS_PERMISSION);
 
         // Set Fragment of loginButton because loginButton is implemented in Fragment
@@ -100,7 +110,7 @@ public class FacebookLoginFragment extends Fragment {
 
         // Register callbacks into Facebook Login button and Login manager
         loginButton.registerCallback(callbackManager, facebookCallback);
-        LoginManager loginManager = LoginManager.getInstance();
+        loginManager = LoginManager.getInstance();
         loginManager.registerCallback(callbackManager, facebookCallback);
 
         // Attempt to check if user is logged in or not

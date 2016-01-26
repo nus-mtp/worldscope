@@ -1,27 +1,80 @@
 package com.litmus.worldscope;
 
+import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 
 import layout.FacebookLoginFragment;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class FacebookLoginActivity extends FragmentActivity implements FacebookLoginFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "FacebookLoginActivity";
+    private static final String APP_SERVER_AUTH_FAILED_MSG = "Authentication with WorldScope's server has failed, please check that you have internet connections and try again.";
+    private static Context context;
+    private FacebookLoginFragment facebookLoginFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_facebook_login);
+        context = this;
+
     }
 
     @Override
     public void onFacebookLoginSuccess(AccessToken accessToken) {
-        //TODO: Redirect to MainActivity
-        Log.d(TAG, "Login Sucess!");
+        // Successful login -> Redirect to main activity
+        Log.d(TAG, "Login Success!");
         Log.d(TAG, "AccessToken: " + accessToken.getToken());
+        Call<WorldScopeUser> call = WorldScopeRestAPI.buildWorldScopeAPIService().loginUser(new WorldScopeAPIService.LoginUserRequest(accessToken.getToken()));
+        call.enqueue(new Callback<WorldScopeUser>() {
+            @Override
+            public void onResponse(Response<WorldScopeUser> response) {
+                if (response.isSuccess()) {
+                    Log.d(TAG, "Success!");
+                    Log.d(TAG, "" + response.body().toString());
+
+                    // Redirect to MainActivty
+                    Intent intent = new Intent(context, MainActivity.class);
+                    intent.putExtra("loginUser", response.body());
+                    startActivity(intent);
+                } else {
+                    Log.d(TAG, "Failure!");
+                    Log.d(TAG, "" + response.code());
+                    Log.d(TAG, "" + response.body().toString());
+                    // Logout of Facebook
+                    logoutOfFacebook();
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d(TAG, "Failure: " + t.getMessage());
+                // Logout of Facebook
+                logoutOfFacebook();
+            }
+        });
+
+    }
+
+    // Called to logout of Facebook when attempt to authenticate with App server fails
+    private void logoutOfFacebook() {
+        if(facebookLoginFragment == null) {
+            // Get FacebookLoginFragment if missing
+            facebookLoginFragment = (FacebookLoginFragment) getSupportFragmentManager().findFragmentById(R.id.facebookLoginButtonFragment);
+        }
+
+        Toast toast = Toast.makeText(context, APP_SERVER_AUTH_FAILED_MSG, Toast.LENGTH_LONG);
+        toast.show();
+        facebookLoginFragment.logoutFromFacebook();
+
     }
 }
