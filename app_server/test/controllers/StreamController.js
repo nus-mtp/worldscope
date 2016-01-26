@@ -34,7 +34,7 @@ lab.experiment('StreamController Tests', function () {
   lab.beforeEach({timeout: 10000}, function (done) {
     TestUtils.resetDatabase(done);
   });
-/*
+
   lab.test('Create stream valid', function (done) {
     Service.createNewUser(bob).then(function (user) {
       return user.userId;
@@ -94,7 +94,7 @@ lab.experiment('StreamController Tests', function () {
       done();
     });
   });
-*/
+
   lab.test('Create stream invalid userId', function (done) {
     testAccount.userId = 'non-existing-user';
     Router.inject({method: 'POST', url: '/api/streams',

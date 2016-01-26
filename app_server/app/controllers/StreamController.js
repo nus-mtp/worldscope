@@ -103,7 +103,7 @@ Class.getListOfStreams = function (request, reply) {
 
   Service.getListOfStreams(filters).then(function(listStreams) {
     if (!listStreams || listStreams instanceof Error) {
-      reply(Boom.unauthorized('Stream not found'));
+      reply(Boom.notFound('Stream not found'));
       return;
     }
 
