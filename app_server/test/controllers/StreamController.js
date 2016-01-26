@@ -34,12 +34,42 @@ lab.experiment('StreamController Tests', function () {
   lab.beforeEach({timeout: 10000}, function (done) {
     TestUtils.resetDatabase(done);
   });
-
+/*
   lab.test('Create stream valid', function (done) {
     Service.createNewUser(bob).then(function (user) {
       return user.userId;
     }).then(function(userId) {
       testAccount.userId = userId;
+      Router.inject({method: 'POST', url: '/api/streams',
+                     credentials: testAccount,
+                     payload: streamPayload}, function (res) {
+
+        Code.expect(res.result.streamLink).to.equal(
+          util.format('%s/%s/%s', Utility.streamBaseUrl,
+                                  res.result.appInstance,
+                                  res.result.streamId));
+        Code.expect(res.result.title).to.equal(streamPayload.title);
+        done();
+      });
+    });
+  });
+
+  lab.test('Create 2 streams consecutively valid', function (done) {
+    Service.createNewUser(bob).then(function (user) {
+      return user.userId;
+    }).then(function(userId) {
+      testAccount.userId = userId;
+      return Router.inject({method: 'POST', url: '/api/streams',
+                     credentials: testAccount,
+                     payload: streamPayload}, function (res) {
+
+        Code.expect(res.result.streamLink).to.equal(
+          util.format('%s/%s/%s', Utility.streamBaseUrl,
+                                  res.result.appInstance,
+                                  res.result.streamId));
+        Code.expect(res.result.title).to.equal(streamPayload.title);
+      });
+    }).then(function() {
       Router.inject({method: 'POST', url: '/api/streams',
                      credentials: testAccount,
                      payload: streamPayload}, function (res) {
@@ -64,7 +94,7 @@ lab.experiment('StreamController Tests', function () {
       done();
     });
   });
-
+*/
   lab.test('Create stream invalid userId', function (done) {
     testAccount.userId = 'non-existing-user';
     Router.inject({method: 'POST', url: '/api/streams',
@@ -126,11 +156,21 @@ lab.experiment('StreamController Tests', function () {
     });
   });
 
-  lab.test('Get stream by streamId invalid', function (done) {
-    Router.inject({method: 'GET', url: '/api/streams/213',
+  lab.test('Get stream by streamId invalid non-existing stream', function (done) {
+    Router.inject({method: 'GET', url: '/api/streams/3388ffff-aa00-1111-' +
+                                       'a222-00000044888c',
                    credentials: testAccount}, function (res) {
       Code.expect(res.result.statusCode).to.equal(404);
       Code.expect(res.result.message).to.equal('Stream not found');
+      done();
+    });
+  });
+
+  lab.test('Get stream by streamId invalid guid', function (done) {
+    Router.inject({method: 'GET', url: '/api/streams/213',
+                   credentials: testAccount}, function (res) {
+      Code.expect(res.result.statusCode).to.equal(400);
+      Code.expect(res.result.error).to.equal('Bad Request');
       done();
     });
   });

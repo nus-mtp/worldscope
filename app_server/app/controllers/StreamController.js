@@ -7,7 +7,6 @@ var Joi = require('joi');
 var Boom = require('boom');
 var Promise = require('bluebird');
 var crypto = require('crypto');
-var hash = crypto.createHash('sha256');
 
 var CustomError = rfr('app/util/Error');
 var Utility = rfr('app/util/Utility');
@@ -58,8 +57,10 @@ Class.createStream = function (request, reply) {
       title: request.payload.title,
       description: request.payload.description,
       createdAt: currTime,
-      appInstance: hash.update(userId + currTime).digest('hex')
+      appInstance: crypto.createHash('sha256').update(userId + currTime)
+                         .digest('hex')
     };
+
     return newStream;
   })().then(function createNewStream(newStream) {
     return Service.createNewStream(userId, newStream);
@@ -67,6 +68,7 @@ Class.createStream = function (request, reply) {
     if (result instanceof CustomError.NotFoundError) {
       logger.error('Stream could not be created');
       reply(Boom.unauthorized(result.message));
+      return;
     }
 
     reply(result);
@@ -94,9 +96,9 @@ Class.getListOfStreams = function (request, reply) {
   logger.debug('Getting list of streams');
 
   var filters = {
-    state: request.query.state ? request.query.state : 'live',
-    sort: request.query.sort ? request.query.sort : 'time',
-    order: request.query.order ? request.query.order : 'desc'
+    state: request.query.state,
+    sort: request.query.sort,
+    order: request.query.order
   };
 
   Service.getListOfStreams(filters).then(function(listStreams) {
@@ -112,7 +114,7 @@ Class.getListOfStreams = function (request, reply) {
 /* Validator for routes */
 var singleStreamValidator = {
   params: {
-    id: Joi.string().required()
+    id: Joi.string().guid().required()
   }
 };
 
@@ -125,9 +127,9 @@ var streamCreatePayloadValidator = {
 
 var streamListParamsValidator = {
   query: {
-    state: Joi.any().valid('live', 'done', 'all'),
-    sort: Joi.any().valid('time', 'viewers', 'title'),
-    order: Joi.any().valid('desc', 'asc')
+    state: Joi.any().valid('live', 'done', 'all').default('live'),
+    sort: Joi.any().valid('time', 'viewers', 'title').default('time'),
+    order: Joi.any().valid('desc', 'asc').default('desc')
   }
 };
 
