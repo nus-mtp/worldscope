@@ -22,6 +22,7 @@ var Class = AdminController.prototype;
 var ROOT_ADMIN_USERNAME = 'root';
 
 Class.registerRoutes = function () {
+  /*
   this.server.route({
     method: 'POST', path: '/rootAdmin',
     config: {
@@ -29,6 +30,7 @@ Class.registerRoutes = function () {
     },
     handler: this.createRootAdmin
   });
+  */
 
   this.server.route({
     method: 'POST', path: '/',
@@ -55,6 +57,7 @@ Class.registerRoutes = function () {
 };
 
 /* Routes handlers */
+/*
 Class.createRootAdmin = function (request, reply) {
   var generatedPassword = Utility.randomValueBase64(20);
   request.payload = {
@@ -63,6 +66,7 @@ Class.createRootAdmin = function (request, reply) {
   };
   Class.createAdmin(request, reply);
 };
+*/
 
 Class.createAdmin = function (request, reply) {
   var credentials = {
