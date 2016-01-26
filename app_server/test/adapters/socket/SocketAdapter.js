@@ -79,14 +79,15 @@ lab.experiment('socket.io connection and identify', function () {
     });
   });
 
-  lab.test('valid cookie valid credentials', {timeout: 10000}, (done) => {
-    var client = io.connect('http://localhost:3000', options);
+  lab.test('valid cookie valid credentials', (done) => {
     Service.createNewUser(bob).then((user) => {
       var account = TestUtils.copyObj(Authenticator.generateUserToken(user),
                                       ['userId', 'username', 'password']);
       account.scope = Authenticator.SCOPE.USER;
       return Iron.sealAsync(account, ServerConfig.cookiePassword, Iron.defaults)
       .then((sealed) => {
+        var client = io.connect('http://localhost:3000', options);
+
         client.once('connect', () => {
           client.once('identify', (msg) => {
             Code.expect(msg).to.equal('OK');
