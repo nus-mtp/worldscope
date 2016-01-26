@@ -102,6 +102,9 @@ server.register(require('inert'), function(err) {
   server.route({
     method: 'GET',
     path: '/admin/{param*}',
+    config: {
+      auth: false
+    },
     handler: {
       directory: {
         path: 'public',
