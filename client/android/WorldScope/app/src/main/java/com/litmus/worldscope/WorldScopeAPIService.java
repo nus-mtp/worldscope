@@ -9,8 +9,11 @@ public class WorldScopeAPIService {
 
     // Server address
     public static final String WorldScopeURL = "http://54.179.170.132:3000";
+
+    // WorldScope App Id
     private static final String appId = "123456789";
 
+    // API interface requird by Retrofit to make the calls
     public interface WorldScopeAPIInterface {
         @POST("/api/users/login")
         Call<WorldScopeUser> loginUser(@Body LoginUserRequest body);

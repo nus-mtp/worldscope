@@ -23,10 +23,14 @@ public class WorldScopeRestAPI {
 
     public static WorldScopeAPIService.WorldScopeAPIInterface buildWorldScopeAPIService() {
 
+        // Create an instance of the GsonBuilder to pass JSON results
         GsonBuilder  gsonBuilder = new GsonBuilder();
         gsonBuilder.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE);
+
+        // TODO: Consider putting a switch here
         gsonBuilder.registerTypeAdapter(WorldScopeUser.class, new WorldScopeJsonDeserializer<WorldScopeUser>());
 
+        // Create an instance of RetrofitBuilder to build the API for use
         Retrofit retrofit = getRetrofitBuilderInstance()
                 .baseUrl(WorldScopeAPIService.WorldScopeURL)
                 .addConverterFactory(GsonConverterFactory.create())

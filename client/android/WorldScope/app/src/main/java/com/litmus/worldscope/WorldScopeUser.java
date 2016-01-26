@@ -4,10 +4,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
+ * Implementation of WorldScope User with information detailed in API
+ * Implements Parcelable to easily pass WorldScopeUser object in intents
  * Created by kylel on 21/1/2016.
  */
 public class WorldScopeUser implements Parcelable {
-
 
     private String userId;
     private String platformType;

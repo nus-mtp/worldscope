@@ -34,6 +34,8 @@ public class FacebookLoginActivity extends FragmentActivity implements FacebookL
         // Successful login -> Redirect to main activity
         Log.d(TAG, "Login Success!");
         Log.d(TAG, "AccessToken: " + accessToken.getToken());
+
+        // Instantiate and make a call to login user into WorldScope servers
         Call<WorldScopeUser> call = WorldScopeRestAPI.buildWorldScopeAPIService().loginUser(new WorldScopeAPIService.LoginUserRequest(accessToken.getToken()));
         call.enqueue(new Callback<WorldScopeUser>() {
             @Override
@@ -42,14 +44,12 @@ public class FacebookLoginActivity extends FragmentActivity implements FacebookL
                     Log.d(TAG, "Success!");
                     Log.d(TAG, "" + response.body().toString());
 
-                    // Redirect to MainActivty
+                    // Redirect to MainActivty if successful
                     Intent intent = new Intent(context, MainActivity.class);
                     intent.putExtra("loginUser", response.body());
                     startActivity(intent);
                 } else {
-                    Log.d(TAG, "Failure!");
-                    Log.d(TAG, "" + response.code());
-                    Log.d(TAG, "" + response.body().toString());
+                    Log.d(TAG, "Failure" + response.code() + ": " + response.body().toString());
                     // Logout of Facebook
                     logoutOfFacebook();
                 }
@@ -72,6 +72,7 @@ public class FacebookLoginActivity extends FragmentActivity implements FacebookL
             facebookLoginFragment = (FacebookLoginFragment) getSupportFragmentManager().findFragmentById(R.id.facebookLoginButtonFragment);
         }
 
+        // Toast to inform user
         Toast toast = Toast.makeText(context, APP_SERVER_AUTH_FAILED_MSG, Toast.LENGTH_LONG);
         toast.show();
         facebookLoginFragment.logoutFromFacebook();

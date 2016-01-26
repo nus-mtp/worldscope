@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity
 
     private final String TAG = "MainActivity";
 
+    // Welcome message shown in Toast
     private final String WELCOME_MSG = "Welcome to WorldScope, %s";
 
     /**
@@ -66,29 +67,26 @@ public class MainActivity extends AppCompatActivity
 
     private Context context;
 
+    private Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-
         context = this;
 
-        // Get user information
+        //Set the title of the toolbar
+        setToolbarTitle();
+
+        // Get user information from intent coming from FacebookLoginActivity
         loginUser = getIntent().getParcelableExtra("loginUser");
         Log.d(TAG, "" + loginUser.toString());
 
+        // Show welcome message
         Toast toast = Toast.makeText(context, String.format(WELCOME_MSG, loginUser.getAlias()), Toast.LENGTH_LONG);
         toast.show();
 
-        // Set title of toolbar to WorldScope
-        setSupportActionBar(toolbar);
-        try {
-            getSupportActionBar().setTitle(R.string.app_name);
-        } catch(NullPointerException e){
-            e.printStackTrace();
-        }
-
+        // Set FAB to redirect to StreamActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,30 +95,16 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
-
+        // Set up the drawer fragment and the menu inside
+        setUpDrawerFragment();
 
         //Set up the tabs
-
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(mViewPager);
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        setUpTabsFragment();
     }
 
     @Override
     public void onBackPressed() {
+        // Close the drawer on hardware back key pressed
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -162,40 +146,41 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    // Set up the ViewPager and TabLayout to form the Tabs Fragment in the activity
+    private void setUpTabsFragment() {
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
+        // Set up the ViewPager with the sections adapter.
+        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return StreamRefreshListFragment.newInstance(position + 1);
-        }
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(mViewPager);
 
-        @Override
-        public int getCount() {
-            // Show 3 total pages.
-            return 3;
-        }
+    }
 
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return "Popular";
-                case 1:
-                    return "Latest";
-                case 2:
-                    return "Followers";
-            }
-            return null;
+    // Set up the drawer fragment and state listeners
+
+    private void setUpDrawerFragment() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    // Set the title of toolbar
+
+    private void setToolbarTitle() {
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        try {
+            getSupportActionBar().setTitle(R.string.app_name);
+        } catch(NullPointerException e){
+            e.printStackTrace();
         }
     }
 
@@ -240,6 +225,8 @@ public class MainActivity extends AppCompatActivity
                         try {
                             String facebookProfilePictureUrl = response.getJSONObject().getJSONObject("data").get("url").toString();
                             Log.d(TAG, "" + facebookProfilePictureUrl);
+
+                            // Set the image to the imageView and trim it to a circle
                             Picasso.with(facebookProfilePicture.getContext())
                                     .load(facebookProfilePictureUrl)
                                     .transform(new CircleTransform())
@@ -254,6 +241,8 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    // Log out from WorldScope App server
+    // TODO: Check JSON formatting of API request's result
     private void logoutFromAppServer() {
         Call<WorldScopeUser> call = WorldScopeRestAPI.buildWorldScopeAPIService().logoutUser();
         call.enqueue(new Callback<WorldScopeUser>() {
@@ -280,6 +269,8 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    // Class used to passed into Picasso for cropping pictures into circles
+    // TODO: Might require refactoring if said functionality is required elsewhere, i.e. list of streams
     public class CircleTransform implements Transformation {
         @Override
         public Bitmap transform(Bitmap source) {
@@ -313,4 +304,43 @@ public class MainActivity extends AppCompatActivity
             return "circle";
         }
     }
+
+
+    /**
+     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
+     * one of the sections/tabs/pages.
+     */
+    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            // getItem is called to instantiate the fragment for the given page.
+            // Return a PlaceholderFragment (defined as a static inner class below).
+            return StreamRefreshListFragment.newInstance(position + 1);
+        }
+
+        @Override
+        public int getCount() {
+            // Show 3 total pages.
+            return 3;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return "Popular";
+                case 1:
+                    return "Latest";
+                case 2:
+                    return "Followers";
+            }
+            return null;
+        }
+    }
+
 }
