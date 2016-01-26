@@ -116,6 +116,10 @@ lab.experiment('StreamController Tests', function () {
           util.format('%s/%s/%s/manifest.mpd', Utility.viewBaseUrl,
                                                streamInfo.appInstance,
                                                res.result.streamId));
+        Code.expect(res.result.thumbnailLink).to.equal(
+          util.format(Utility.thumbnailTemplateUrl,
+                      res.result.appInstance,
+                      res.result.streamId));
         Code.expect(res.result.title).to.equal(streamInfo.title);
         done();
       });

@@ -76,10 +76,10 @@ var formatStreamObject = function (stream) {
 
   return new Promise(function(resolve) {
     var formattedStream = stream.dataValues;
-    var streamLink = util.format('%s/%s/%s', Utility.streamBaseUrl,
+    formattedStream.streamLink =
+      util.format('%s/%s/%s', Utility.streamBaseUrl,
                                  stream.appInstance,
                                  stream.streamId);
-    formattedStream.streamLink = streamLink;
     resolve(formattedStream);
   });
 };
@@ -97,6 +97,11 @@ var formatViewObject = function (stream) {
                              stream.appInstance,
                              stream.streamId);
   formattedStream.viewLink = viewLink;
+  formattedStream.thumbnailLink =
+    util.format(Utility.thumbnailTemplateUrl,
+                stream.appInstance,
+                stream.streamId);
+
   return formattedStream;
 
 };
