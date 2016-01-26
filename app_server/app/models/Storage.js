@@ -295,7 +295,7 @@ Class.getListOfStreams = function(filters) {
     }
   }
 
-  if(filters.sort !== 'createdAt') {
+  if (filters.sort !== 'createdAt') {
     return this.models.Stream.findAll({
       where: {
         live: filters.state

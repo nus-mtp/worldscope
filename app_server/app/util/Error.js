@@ -10,7 +10,7 @@ exports.InvalidFieldError = function(message, extra) {
   this.name = 'InvalidFieldError';
   this.message = message;
   this.extra = extra;
-}
+};
 
 var NotFoundError =
 exports.NotFoundError = function(message, extra) {
@@ -18,13 +18,13 @@ exports.NotFoundError = function(message, extra) {
   this.name = 'NotFoundError';
   this.message = message;
   this.extra = extra;
-}
+};
 
 var UnknownError =
 exports.UnknownError = function() {
   Error.captureStackTrace(this, this.constructor);
   this.name = 'UnknownError';
-}
+};
 
 util.inherits(InvalidFieldError, Error);
 util.inherits(NotFoundError, Error);

@@ -123,16 +123,16 @@ lab.experiment('StreamController Tests', function () {
   });
 
   lab.test('Get stream by streamId invalid', function (done) {
-    Router.inject({method: 'GET', url:'/api/streams/213',
-                  credentials: testAccount}, function (res) {
+    Router.inject({method: 'GET', url: '/api/streams/213',
+                   credentials: testAccount}, function (res) {
       Code.expect(res.result.statusCode).to.equal(404);
       Code.expect(res.result.message).to.equal('Stream not found');
       done();
     });
   });
 
-  lab.test('Get list of streams valid empty', function (done) {
-    Router.inject({method: 'GET', url: '/api/streams?order=desc',
+  lab.test('Get list of streams valid default params empty', function (done) {
+    Router.inject({method: 'GET', url: '/api/streams',
                    credentials: testAccount}, function (res) {
       Code.expect(res.result).to.have.length(0);
       done();
@@ -171,12 +171,13 @@ lab.experiment('StreamController Tests', function () {
     });
   });
 
-/*  lab.test('Get list of streams invalid query params', function (done) {
+  lab.test('Get list of streams invalid query params', function (done) {
     Router.inject({method: 'GET', url: '/api/streams?order=lol',
                    credentials: testAccount}, function (res) {
       Code.expect(res.result.statusCode).to.equal(400);
+      Code.expect(res.result.error).to.equal('Bad Request');
       done();
     });
-  });*/
+  });
 
 });

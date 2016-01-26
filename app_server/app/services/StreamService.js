@@ -21,20 +21,20 @@ Class.createNewStream = function (userId, streamAttributes) {
         return formatStreamObject(result);
       }
 
-    return null;
-  }).catch(function(err) {
-    logger.error('Error in stream creation ', err);
-    if (err.name === 'SequelizeValidationError' ||
-        err.message === 'Validation error') {
-      return Promise.resolve(new CustomError
-        .InvalidFieldError(err.errors[0].message, err.errors[0].path));
-    } else if (err.name === 'TypeError') {
-      return Promise.resolve(new CustomError
-        .NotFoundError('User not found'));
-    } else {
-      return Promise.resolve(new CustomError.UnknownError());
-    }
-  });
+      return null;
+    }).catch(function(err) {
+      logger.error('Error in stream creation ', err);
+      if (err.name === 'SequelizeValidationError' ||
+          err.message === 'Validation error') {
+        return Promise.resolve(new CustomError
+          .InvalidFieldError(err.errors[0].message, err.errors[0].path));
+      } else if (err.name === 'TypeError') {
+        return Promise.resolve(new CustomError
+          .NotFoundError('User not found'));
+      } else {
+        return Promise.resolve(new CustomError.UnknownError());
+      }
+    });
 };
 
 Class.getStreamById = function (streamId) {
@@ -61,7 +61,6 @@ Class.getListOfStreams = function(filters) {
         .NotFoundError('Stream not found'));
     }
   }).catch(function(err) {
-    logger.error('not supposed to enter here, reject at joi validate');
     logger.error(err);
     return null;
   });

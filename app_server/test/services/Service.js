@@ -9,7 +9,7 @@ var Service = rfr('app/services/Service');
 var CustomError = rfr('app/util/Error');
 var TestUtils = rfr('test/TestUtils');
 
-/*lab.experiment('Service tests for User', function () {
+lab.experiment('Service tests for User', function () {
   var bob = {
     username: 'Bob',
     alias: 'Bob the Builder',
@@ -123,7 +123,7 @@ var TestUtils = rfr('test/TestUtils');
       done();
     });
   });
-});*/
+});
 
 lab.experiment('Service tests for Streams', function () {
   var testStream = {
@@ -264,6 +264,19 @@ lab.experiment('Service tests for Streams', function () {
     });
   });
 
+  lab.test('getListOfStreams valid no streams', function(done) {
+    var filters = {
+      state: 'all',
+      sort: 'title',
+      order: 'asc'
+    };
+
+    Service.getListOfStreams(filters).then(function(result) {
+      Code.expect(result).to.have.length(0);
+      done();
+    });
+  });
+
   lab.test('getListOfStreams valid sorted by title', function(done) {
     var filters = {
       state: 'all',
@@ -307,19 +320,6 @@ lab.experiment('Service tests for Streams', function () {
       Code.expect(result).to.have.length(2);
       Code.expect(result[0].title).to.be.equal(testStream2.title);
       Code.expect(result[1].title).to.be.equal(testStream.title);
-      done();
-    });
-  });
-
-  lab.test('getListOfStreams valid no streams', function(done) {
-    var filters = {
-      state: 'all',
-      sort: 'title',
-      order: 'asc'
-    };
-
-    Service.getListOfStreams(filters).then(function(result) {
-      Code.expect(result).to.have.length(0);
       done();
     });
   });

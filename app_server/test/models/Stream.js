@@ -252,7 +252,8 @@ lab.experiment('Stream Model Tests', function () {
       function() {
         Storage.getListOfStreams(filters).catch(function(err) {
           expect(err).to.be.an.instanceof(Error);
-          expect(err.message).to.equal("Cannot read property 'model' of undefined");
+          expect(err.message).to.
+            equal("Cannot read property 'model' of undefined");
           done();
         });
       });
