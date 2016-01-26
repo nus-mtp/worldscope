@@ -42,7 +42,7 @@ Class.init = function init(server) {
         .bind(socketAdapter)
         .then((result) => {
           if (!result || result instanceof Error) {
-            socket.emit('identify', 'ERR');
+            return socket.emit('identify', 'ERR');
           }
 
           try {
@@ -55,7 +55,6 @@ Class.init = function init(server) {
         });
       })
       .catch((err) => {
-        logger.error(err);
         socket.emit('identify', 'ERR');
       });
     });

@@ -3,7 +3,7 @@ var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var Code = require('code');
 
-var Router = rfr('app/Router.js');
+var Router = rfr('app/Router');
 var Authenticator = rfr('app/policies/Authenticator');
 var TestUtils = rfr('test/TestUtils');
 

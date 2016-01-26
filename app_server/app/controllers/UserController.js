@@ -99,7 +99,7 @@ Class.login = function (request, reply) {
 
 Class.logout = function (request, reply) {
   request.cookieAuth.clear();
-  return reply('Logged out');
+  return reply({status: 'OK'});
 };
 
 function clearUserPrivateInfo(user) {

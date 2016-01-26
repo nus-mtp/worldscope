@@ -69,7 +69,7 @@ lab.experiment('Service tests for User', function () {
   lab.test('getUserByPlatform valid arguments', function(done) {
     Service.createNewUser(bob).then(function (result) {
       return Service.getUserByPlatform(result.platformType,
-                                           result.platformId);
+                                       result.platformId);
     }).then(function(user) {
       Code.expect(user.username).to.equal(bob.username);
       Code.expect(user.password).to.equal(bob.password);

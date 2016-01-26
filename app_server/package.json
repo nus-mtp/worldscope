@@ -61,6 +61,7 @@
     "grunt-sass": "^1.0.0",
     "jquery": "^2.2.0",
     "lab": "^5.18.1",
-    "materialize-css": "^0.97.5"
+    "materialize-css": "^0.97.5",
+    "socket.io-client": "^1.4.4"
   }
 }

@@ -70,22 +70,26 @@ Class.authenticateUser = function (platformType, credentials) {
 
     return this.updateUser(user, credentials);
   })
-  .then(function generateUserToken(resultUser) {
-    var cipher = crypto.createCipher(Class.CRYPTO.METHOD,
-                                     ServerConfig.tokenPassword);
-    var rawToken = util.format('%s;%s;%s', resultUser.password,
-                               resultUser.userId, resultUser.accessToken);
-
-    var encrypted = cipher.update(rawToken, 'utf8', Class.CRYPTO.ENCODING);
-    encrypted += cipher.final(Class.CRYPTO.ENCODING);
-    resultUser.password = encrypted;
-
-    return resultUser;
+  .then((resultUser) => {
+    return this.generateUserToken(resultUser);
   })
   .catch(function (err) {
     logger.debug(err);
     return err;
   });
+};
+
+Class.generateUserToken = function (user) {
+  var cipher = crypto.createCipher(Class.CRYPTO.METHOD,
+                                   ServerConfig.tokenPassword);
+  var rawToken = util.format('%s;%s;%s', user.password,
+                              user.userId, user.accessToken);
+
+  var encrypted = cipher.update(rawToken, 'utf8', Class.CRYPTO.ENCODING);
+  encrypted += cipher.final(Class.CRYPTO.ENCODING);
+  user.password = encrypted;
+
+  return user;
 };
 
 /**
