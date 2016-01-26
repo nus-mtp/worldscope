@@ -4,4 +4,14 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="appbar_padding_top">8dp</dimen>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="nav_header_vertical_spacing">16dp</dimen>
+    <dimen name="nav_header_height">180dp</dimen>
+
+    <!-- Dimensions of Facebook profile picture displayed. -->
+    <dimen name="facebook_profile_picture_size">72dp</dimen>
+
+    <!-- Dimensions of thumbnails preview. -->
+    <dimen name="stream_preview_height">72dp</dimen>
+    <dimen name="stream_preview_width">96dp</dimen>
 </resources>

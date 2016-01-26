@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+
+    <!-- Colors for theme -->
+    <color name="colorPrimary">#EB8A3A</color>
+    <color name="colorPrimaryDark">#A24D06</color>
+    <color name="colorAccent">#238D8D</color>
 
     <color name="black_overlay">#66000000</color>
 
     <!-- Colors for button bar -->
     <color name="stream_button_black_background">#EEEEEE</color>
+    <color name="white_text">#FFFFFF</color>
 
 </resources>
