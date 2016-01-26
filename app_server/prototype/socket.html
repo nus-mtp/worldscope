@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Socket testing prototype</title>
+    </head>
+    <body>
+        <ul id="output"></ul>
+        <form action="">
+            <input type='text' id='input' autocomplete='off'>
+            <button>Send</button>
+        </form>
+        <script src='http://localhost:3000/socket.io/socket.io.js'></script>
+        <script>
+            var socket = io('http://localhost:3000');
+
+            var cookie = 'Fe26.2**9dc88a0e2b62c367cbdca3a60b1085d99d25a54cc2137066b96b0cfad84059b8*ibiXootDrTyKhTV4t9joXQ*5NBck16D4e0MDMuck20f3jeP69xWnIKSM0likT8LS2It6Tur3RmcHjJS7I2CmXyxdp0cYrAianeFJI84pSmv5EbrWqxmsUmNP2O-AHWKHnEqyinTuASO2DNZHiCrA_TjBJhO2RALvTIkqPpX0H-TzayXt51c5cTVCxtWwwbi4utDoor1jcOJiAYnG_rnCMXpVM-90FbB0IlHpNgAjqZsBqW9TzKBU0EjeoDW2coJs9bGbdzIai_C4F1ib5TLK7oqcNCE2Eh-ID5vN5jP3vQqRO1f74xxBqPOWl4Ni2V5r7Dc6WQbh6xvSM7m6xatrI4AJjj7ulN9FXghWuyY4FgIuyyfHfigukGhz1ti9bpKznoWh1C8j_wGQgUm2nW_u4q61KjnKDNs_ANoV5RucI8v9LMg6_8RK5-Gm73u_1YHT_ezpORuUbMVU-ySWthm9zS7oFXl33kFTRhMlKpOIeQVS-OrB6xImWR0m0NlnKwnGWw1Sf1K8PQNCzlcYmWuiECJdRz1KzQHWwYNdzbw0J0W-e8Zr-ZUw5MoG56r0njehs3mbIUv8nLYJ7vzG90MM2S8MTo02qGhQ6Kaz-bHSypFsV1JkypzNybRPsMzFKb5Xt0Z0ALOu_ijkt9h5sEwMS9U**c3129a84d8895183ac050fc3b3cf80d08407e8285da6586a9e09fba838e22dbd*WL3lUz-aUTo7T8wtpz_6LlgCe3T2ihsDYsy9IawO5A4';
+            socket.emit('identify', cookie);
+
+            socket.on('identify', function (data) {
+                if (data == 'OK') {
+                    alert('Connected');
+                } else if (data == 'ERR') {
+                    alert('Failed to connect');
+                } else {
+                    alert('Unknown response: ' + data);
+                }
+            });
+
+            var form = document.querySelector('form');
+            var input = document.querySelector('#input');
+            var output = document.querySelector('#output');
+
+            form.onsubmit = function () {
+                socket.emit('comment', input.value);
+                return false;
+            };
+
+            socket.on('comment', function (comment) {
+                console.log(comment);
+                var li = document.createElement('li');
+                li.innerHTML = comment;
+                output.appendChild(li);
+            });
+        </script>
+
+    </body>
+</html>
+

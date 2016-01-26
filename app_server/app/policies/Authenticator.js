@@ -70,22 +70,35 @@ Class.authenticateUser = function (platformType, credentials) {
 
     return this.updateUser(user, credentials);
   })
-  .then(function generateUserToken(resultUser) {
-    var cipher = crypto.createCipher(Class.CRYPTO.METHOD,
-                                     ServerConfig.tokenPassword);
-    var rawToken = util.format('%s;%s;%s', resultUser.password,
-                               resultUser.userId, resultUser.accessToken);
-
-    var encrypted = cipher.update(rawToken, 'utf8', Class.CRYPTO.ENCODING);
-    encrypted += cipher.final(Class.CRYPTO.ENCODING);
-    resultUser.password = encrypted;
-
-    return resultUser;
+  .then((resultUser) => {
+    return this.generateUserToken(resultUser);
   })
   .catch(function (err) {
     logger.debug(err);
     return err;
   });
+};
+
+Class.generateUserToken = function (user) {
+  var cipher = crypto.createCipher(Class.CRYPTO.METHOD,
+                                   ServerConfig.tokenPassword);
+  var rawToken = util.format('%s;%s;%s', user.password,
+                              user.userId, user.accessToken);
+
+  var encrypted = cipher.update(rawToken, 'utf8', Class.CRYPTO.ENCODING);
+  encrypted += cipher.final(Class.CRYPTO.ENCODING);
+  user.password = encrypted;
+
+  return user;
+};
+
+/**
+ * Check if a user exists in database using the user's credentials
+ * @param credentials {object} user's credentials
+ * @return {bool} true if user exists
+ */
+Class.validateUser = function (credentials) {
+  return Promise.resolve(true);
 };
 
 /**
@@ -127,7 +140,7 @@ Class.verifyUserToken = function (user, token) {
   return user.password === parsedToken[0] && user.userId === parsedToken[1];
 };
 
-Class.validateAccount = function (request, session) {
+Class.validateAccount = function (server, session) {
   return Promise.resolve(session.userId)
   .then(function getAccountFromCache(userId) {
     if (!userId) {
@@ -135,7 +148,7 @@ Class.validateAccount = function (request, session) {
     }
 
     return new Promise(function (resolve, reject) {
-      request.server.app.cache.get(userId, function (err, cached) {
+      server.app.cache.get(userId, function (err, cached) {
         if (err) {
           logger.error(err);
           return resolve(null);
@@ -189,12 +202,12 @@ Class.validateAccount = function (request, session) {
         return res;
       }
 
-      request.server.app.cache.set(session.userId, session, 0,
-                                   function (err) {
-                                     if (err) {
-                                       logger.error(err);
-                                     }
-                                   });
+      server.app.cache.set(session.userId, session, 0,
+                           function (err) {
+                             if (err) {
+                               logger.error(err);
+                             }
+                           });
       return session;
     });
   });

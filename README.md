@@ -15,6 +15,10 @@ See [Application Server Overview](app_server/README.md)
 ## Client
 ### Android Client
 
+# Contributing
+
+See [Contributing Guide](CONTRIBUTING.md)
+
 # Team
 
 ## Core Developers

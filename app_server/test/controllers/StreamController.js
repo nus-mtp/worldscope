@@ -55,32 +55,36 @@ lab.experiment('StreamController Tests', function () {
   });
 
   lab.test('Create 2 streams consecutively valid', function (done) {
+    function injectionHandler1(res) {
+      Code.expect(res.result.streamLink).to.equal(
+        util.format('%s/%s/%s', Utility.streamBaseUrl,
+                                res.result.appInstance,
+                                res.result.streamId));
+      Code.expect(res.result.title).to.equal(streamPayload.title);
+
+      Router.inject({method: 'POST', url: '/api/streams',
+                    credentials: testAccount,
+                    payload: streamPayload},
+                    injectionHandler2);
+    }
+
+    function injectionHandler2(res) {
+      Code.expect(res.result.streamLink).to.equal(
+        util.format('%s/%s/%s', Utility.streamBaseUrl,
+                                res.result.appInstance,
+                                res.result.streamId));
+      Code.expect(res.result.title).to.equal(streamPayload.title);
+      done();
+    }
+
     Service.createNewUser(bob).then(function (user) {
       return user.userId;
     }).then(function(userId) {
       testAccount.userId = userId;
       return Router.inject({method: 'POST', url: '/api/streams',
-                     credentials: testAccount,
-                     payload: streamPayload}, function (res) {
-
-        Code.expect(res.result.streamLink).to.equal(
-          util.format('%s/%s/%s', Utility.streamBaseUrl,
-                                  res.result.appInstance,
-                                  res.result.streamId));
-        Code.expect(res.result.title).to.equal(streamPayload.title);
-      });
-    }).then(function() {
-      Router.inject({method: 'POST', url: '/api/streams',
-                     credentials: testAccount,
-                     payload: streamPayload}, function (res) {
-
-        Code.expect(res.result.streamLink).to.equal(
-          util.format('%s/%s/%s', Utility.streamBaseUrl,
-                                  res.result.appInstance,
-                                  res.result.streamId));
-        Code.expect(res.result.title).to.equal(streamPayload.title);
-        done();
-      });
+                            credentials: testAccount,
+                            payload: streamPayload},
+                            injectionHandler1);
     });
   });
 
@@ -223,5 +227,4 @@ lab.experiment('StreamController Tests', function () {
       done();
     });
   });
-
 });

@@ -3,6 +3,7 @@
  * @module app/Router
  */
 var rfr = require('rfr');
+var process = require('process');
 var Hapi = require('hapi');
 var Promise = require('bluebird');
 
@@ -49,7 +50,7 @@ server.register(require('hapi-auth-cookie'), function (err) {
     validateFunc: function (request, session, callback) {
       logger.debug('Validating user: ' + JSON.stringify(session));
 
-      Authenticator.validateAccount(request, session)
+      Authenticator.validateAccount(server, session)
       .then(function (account) {
         if (!account || account instanceof Error) {
           return callback(account, false);
@@ -78,6 +79,7 @@ server.register({
 }, function (err) {
   if (err) {
     logger.error('Unable to register UserController: %j', err);
+    throw err;
   }
 });
 
@@ -103,6 +105,17 @@ server.route({
   }
 });
 
+server.register({
+  register: rfr('app/controllers/CommentController.js')
+}, {
+  routes: {prefix: '/api/comments'}
+}, function (err) {
+  if (err) {
+    logger.error('Unable to register CommentController: %j', err);
+    throw err;
+  }
+});
+
 /* Register static file handler */
 server.register(require('inert'), function(err) {
   if (err) {
@@ -124,7 +137,25 @@ server.register(require('inert'), function(err) {
       }
     }
   });
+
+  if (process.env.NODE_ENV == 'development') {
+    server.route({
+      method: 'GET',
+      path: '/prototype/{param*}',
+      handler: {
+        directory: {
+          path: 'prototype',
+          listing: true
+        }
+      },
+      config: {auth: {scope: Authenticator.SCOPE.ALL}}
+    });
+  }
 });
+
+/* Register SocketAdapter */
+var socketAdapter = rfr('app/adapters/socket/SocketAdapter');
+socketAdapter.init(server);
 
 server.start(function () {
   logger.info('Server running at: ' + server.info.uri);
