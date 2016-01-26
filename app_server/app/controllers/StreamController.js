@@ -56,7 +56,6 @@ Class.createStream = function (request, reply) {
     var newStream = {
       title: request.payload.title,
       description: request.payload.description,
-      createdAt: currTime,
       appInstance: crypto.createHash('sha256').update(userId + currTime)
                          .digest('hex')
     };
