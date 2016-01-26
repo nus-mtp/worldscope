@@ -51,7 +51,7 @@ Class.authenticateUser = function (platformType, credentials) {
   var profilePromise =
     Promise.method(function getSocialMediaAdapter() {
       return new SocialMediaAdapter(platformType, credentials);
-    })().then(function (adapter) { return adapter.getUser(); });
+    })().then((adapter) => adapter.getUser());
 
   var userPromise = profilePromise.then(function receiveProfile(profile) {
     if (!profile || profile instanceof Error || !('id' in profile)) {
@@ -62,17 +62,14 @@ Class.authenticateUser = function (platformType, credentials) {
     return Service.getUserByPlatform(platformType, profile.id);
   });
 
-  return Promise.all([profilePromise, userPromise]).bind(this)
-  .spread(function (profile, user) {
+  return Promise.join(profilePromise, userPromise, function (profile, user) {
     if (!user || user instanceof Error) {
-      return this.generateNewUser(platformType, profile, credentials);
+      return Class.generateNewUser(platformType, profile, credentials);
     }
 
-    return this.updateUser(user, credentials);
+    return Class.updateUser(user, credentials);
   })
-  .then((resultUser) => {
-    return this.generateUserToken(resultUser);
-  })
+  .then((resultUser) => Class.generateUserToken(resultUser))
   .catch(function (err) {
     logger.debug(err);
     return err;
@@ -178,11 +175,7 @@ Class.validateAccount = function (server, session) {
           return resolve(null);
         }
 
-        if (!cached) {
-          return resolve(null);
-        }
-
-        return resolve(cached);
+        return resolve(cached || null);
       });
     });
   }).then(function receiveAccountFromCache(cached) {
@@ -190,12 +183,8 @@ Class.validateAccount = function (server, session) {
       return null;
     }
 
-    if (session.username === cached.username &&
-        session.password === cached.password) {
-      return true;
-    } else {
-      return false;
-    }
+    return session.username === cached.username &&
+           session.password === cached.password;
   }).then(function getAccountFromDatabase(cacheValidateResult) {
     if (cacheValidateResult) {
       return session;
@@ -214,8 +203,6 @@ Class.validateAccount = function (server, session) {
       } else {
         return new Error(Class.ERRORS.UNKNOWN_SCOPE);
       }
-
-      return true;
     })
     .then(function compareResult(res) {
       if (!res) {
