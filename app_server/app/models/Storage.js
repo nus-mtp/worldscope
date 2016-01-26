@@ -244,7 +244,10 @@ Class.createStream = function(userId, streamAttributes) {
         return user.addStream(stream).then(function() {
           return this.getStreamById(stream.streamId);
         }.bind(this));
-      }.bind(this));
+      }.bind(this))
+  .catch(function (err) {
+    return Promise.reject(err);
+  });
 
 };
 
@@ -262,13 +265,51 @@ Class.getStreamById = function(streamId) {
 };
 
 /**
- * Return a list of streams
+ * Return a list of streams sorted with options.
+ * @param  {object} filters
+ * @param  {string} filters.sort
+ * @param  {string} filters.state
+ * @param  {object} filters.order
  * @return {Promise<List<Sequelize.object>>} - a list of streams
  */
-Class.getListOfStreams = function() {
-  return this.models.Stream.findAll({
-    order: [['createdAt', 'DESC'], ['title', 'ASC']]
-  });
+Class.getListOfStreams = function(filters) {
+  // TODO: viewers
+
+  function mapParams(value) {
+    var filterMap = {
+      'desc': 'DESC',
+      'asc': 'ASC',
+      'time': 'createdAt',
+      'title': 'title',
+      'all': {$or: [{'live': true}, {'live': false}]},
+      'live': true,
+      'done': false
+    };
+    return filterMap[value];
+  }
+
+  for (var key in filters) {
+    if (filters.hasOwnProperty(key)) {
+      var value = filters[key];
+      filters[key] = mapParams(value);
+    }
+  }
+
+  if (filters.sort !== 'createdAt') {
+    return this.models.Stream.findAll({
+      where: {
+        live: filters.state
+      },
+      order: [[filters.sort, filters.order], ['createdAt', 'DESC']]
+    });
+  } else {
+    return this.models.Stream.findAll({
+      where: {
+        live: filters.state
+      },
+      order: [[filters.sort, filters.order]]
+    });
+  }
 };
 
 /**

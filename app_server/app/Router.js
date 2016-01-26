@@ -81,6 +81,17 @@ server.register({
   }
 });
 
+/* Register controllers */
+server.register({
+  register: rfr('app/controllers/StreamController.js')
+}, {
+  routes: {prefix: '/api/streams'}
+}, function (err) {
+  if (err) {
+    logger.error('Unable to register StreamController: %j', err);
+  }
+});
+
 server.route({
   method: 'GET',
   path: '/',

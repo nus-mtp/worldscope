@@ -6,6 +6,13 @@ var path = require('path');
 var winston = require('winston');
 var crypto = require('crypto');
 
+exports.streamBaseUrl = 'rtmp://multimedia.worldscope.tk:1935/live';
+exports.viewBaseUrl = 'http://worldscope.tk:1935/live';
+exports.thumbnailTemplateUrl = 'http://worldscope.tk:8086/' +
+                               'transcoderthumbnail?application=live/%s&' +
+                               'streamname=%s&format=jpeg&' +
+                               'size=640x380';
+
 var randomValueBase64 =
 /**
   * Generate a random string of base64 values, replacing + and / by 0

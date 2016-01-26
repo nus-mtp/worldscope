@@ -25,8 +25,7 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     roomId: {
-      type: DataTypes.STRING,
-      allowNull: false
+      type: DataTypes.STRING
     },
     totalStickers: {
       type: DataTypes.INTEGER,
