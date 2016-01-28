@@ -2,7 +2,6 @@ var rfr = require('rfr');
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var expect = require('code').expect;
-var _ = require('underscore');
 
 var Storage = rfr('app/models/Storage.js');
 var Router = rfr('app/Router.js');
@@ -97,17 +96,17 @@ lab.experiment('AdminController Routes tests', function () {
       payload: admin
     }, function checkCreation (res) {
       expect(res.statusCode).to.equal(201);
-      var body = TestUtils.copyObj(JSON.parse(res.payload),
-          Object.keys(admin));
-      expect(_.isEqual(admin, body)).to.be.true();
+      expect(TestUtils.isEqualOnProperties(
+          admin, JSON.parse(res.payload)
+      )).to.be.true();
 
       Router.inject({
         method: 'POST', url: '/api/admins/login', payload: admin
       }, function checkLoggedIn (res) {
         expect(res.statusCode).to.equal(200);
-        var body = TestUtils.copyObj(JSON.parse(res.payload),
-            Object.keys(admin));
-        expect(_.isEqual(admin, body)).to.be.true();
+        expect(TestUtils.isEqualOnProperties(
+            admin, JSON.parse(res.payload)
+        )).to.be.true();
 
         Router.inject({
           method: 'POST', url: '/api/admins',
