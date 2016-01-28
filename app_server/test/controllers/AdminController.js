@@ -72,4 +72,22 @@ lab.experiment('AdminController Routes tests', function () {
 
     done();
   });
+
+  lab.test('Login without params', function (done) {
+    Router.inject({
+      method: 'POST', url: '/api/admins/login'
+    }, function (res) {
+      expect(res.statusCode).to.equal(400);
+      done();
+    });
+  });
+
+  lab.test('Login with invalid credentials', function (done) {
+    Router.inject({
+      method: 'POST', url: '/api/admins/login', payload: admin
+    }, function (res) {
+      expect(res.statusCode).to.equal(401);
+      done();
+    });
+  });
 });
