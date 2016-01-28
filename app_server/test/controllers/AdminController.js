@@ -90,4 +90,44 @@ lab.experiment('AdminController Routes tests', function () {
       done();
     });
   });
+
+  lab.test('Create admin, login, and access authorized route', function (done) {
+    Router.inject({
+      method: 'POST', url: '/api/admins', credentials: testAccount,
+      payload: admin
+    }, function checkCreation (res) {
+      expect(res.statusCode).to.equal(201);
+      var body = TestUtils.copyObj(JSON.parse(res.payload),
+          Object.keys(admin));
+      expect(_.isEqual(admin, body)).to.be.true();
+
+      Router.inject({
+        method: 'POST', url: '/api/admins/login', payload: admin
+      }, function checkLoggedIn (res) {
+        expect(res.statusCode).to.equal(200);
+        var body = TestUtils.copyObj(JSON.parse(res.payload),
+            Object.keys(admin));
+        expect(_.isEqual(admin, body)).to.be.true();
+
+        Router.inject({
+          method: 'POST', url: '/api/admins',
+          headers: {'Cookie': res.headers['set-cookie'][0].split(';')[0]}
+        }, function checkValidCredentials (res) {
+          // 401 if invalid credentials
+          expect(res.statusCode).to.equal(400);
+          done();
+        });
+      });
+    });
+  });
+
+  lab.test('Logout', function (done) {
+    Router.inject({
+      method: 'GET', url: '/api/admins/logout'
+    }, function (res) {
+      expect(res.statusCode).to.equal(200);
+      expect(res.result).to.equal('Logged out');
+      done();
+    });
+  });
 });
