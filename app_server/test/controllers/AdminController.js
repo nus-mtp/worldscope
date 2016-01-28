@@ -34,3 +34,26 @@ lab.experiment('AdminController Function Tests', function () {
     });
   });
 });
+
+lab.experiment('AdminController Routes tests', function () {
+  lab.beforeEach(function (done) {
+    TestUtils.resetDatabase(done);
+  });
+
+  lab.test('Unauthorized to public routes', function (done) {
+    var routes = {
+      POST: [
+        '/api/admins'
+      ]
+    };
+
+    var checkUnauthorized = function (method, url) {
+      Router.inject({method: method, url: url}, function (res) {
+        expect(res.statusCode).to.equal(401);
+      });
+    };
+
+    routes.POST.map((url) => checkUnauthorized('POST', url));
+    done();
+  });
+});
