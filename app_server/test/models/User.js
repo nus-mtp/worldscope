@@ -109,6 +109,26 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
+  lab.test('Get User by username', function (done) {
+    Storage.createUser(user).then(function(user) {
+      Storage.getUserByUsername('Jane Tan')
+        .then(function(data) {
+          expect(data.username).to.equal('Jane Tan');
+          done();
+        });
+    });
+  });
+
+  lab.test('Get User by invalid username', function (done) {
+    Storage.createUser(user).then(function(user) {
+      Storage.getUserByUsername('wrong username')
+        .then(function(data) {
+          expect(data).to.be.false();
+          done();
+        });
+    });
+  });
+
   lab.test('Get User by username and password', function (done) {
     Storage.createUser(user).then(function(user) {
       Storage.getUserByUsernamePassword('Jane Tan', 'secretpass')

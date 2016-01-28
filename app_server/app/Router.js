@@ -94,6 +94,16 @@ server.register({
   }
 });
 
+server.register({
+  register: rfr('app/controllers/AdminController.js')
+}, {
+  routes: {prefix: '/api/admins'}
+}, function (err) {
+  if (err) {
+    logger.error('Unable to register AdminController: %j', err);
+  }
+});
+
 server.route({
   method: 'GET',
   path: '/',

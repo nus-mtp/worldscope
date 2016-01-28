@@ -1,5 +1,6 @@
 var rfr = require('rfr');
 var Hapi = require('hapi');
+var _ = require('underscore');
 
 var Utility = rfr('app/util/Utility');
 var Storage = rfr('app/models/Storage.js');
@@ -53,4 +54,14 @@ exports.copyObj = function (obj, properties) {
   return Object.keys(obj)
   .filter(function (key) { return properties.indexOf(key) >= 0; })
   .reduce(function (prev, prop) { prev[prop] = obj[prop]; return prev; }, {});
+};
+
+/**
+ * Returns true if properties in obj are equal to their counterparts in newObj
+ * Ignores properties only in newObj
+ * @param {Object} obj
+ * @param {Object} newObj
+ */
+exports.isEqualOnProperties = function (obj, newObj) {
+  return _.isEqual(obj, exports.copyObj(newObj, Object.keys(obj)));
 };
