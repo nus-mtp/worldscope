@@ -35,7 +35,8 @@ Class.registerRoutes = function () {
   this.server.route({
     method: 'POST', path: '/',
     config: {
-      auth: {scope: Authenticator.SCOPE.ADMIN}
+      auth: {scope: Authenticator.SCOPE.ADMIN},
+      validate: accountPayloadValidator
     },
     handler: this.createAdmin
   });
@@ -44,7 +45,7 @@ Class.registerRoutes = function () {
     method: 'POST', path: '/login',
     config: {
       auth: false,
-      validate: loginPayloadValidator
+      validate: accountPayloadValidator
     },
     handler: this.login
   });
@@ -129,7 +130,7 @@ Class.logout = function (request, reply) {
 };
 
 /* Validator for routes */
-var loginPayloadValidator = {
+var accountPayloadValidator = {
   payload: {
     username: Joi.string().required(),
     password: Joi.string().required()
