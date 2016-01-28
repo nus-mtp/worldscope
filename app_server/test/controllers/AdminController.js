@@ -56,4 +56,20 @@ lab.experiment('AdminController Routes tests', function () {
     routes.POST.map((url) => checkUnauthorized('POST', url));
     done();
   });
+
+  lab.test('Create admin without params or credentials', function (done) {
+    Router.inject({
+      method: 'POST', url: '/api/admins'
+    }, function (res) {
+      expect(res.statusCode).to.equal(401);
+    });
+
+    Router.inject({
+      method: 'POST', url: '/api/admins', credentials: testAccount
+    }, function (res) {
+      expect(res.statusCode).to.equal(400);
+    });
+
+    done();
+  });
 });
