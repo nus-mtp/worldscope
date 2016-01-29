@@ -5,7 +5,6 @@
     tools:context="layout.FacebookLoginFragment">
 
     <com.facebook.login.widget.LoginButton
-        xmlns:facebook="http://schemas.android.com/apk/res-auto"
         android:id="@+id/facebook_login_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -15,7 +14,6 @@
         android:paddingRight="4dp"
         android:paddingBottom="16dp"
         android:textSize="14sp"
-        facebook:com_facebook_login_text="@string/continue_with_facebook"
         android:longClickable="false"
         android:layout_gravity="center" />
 

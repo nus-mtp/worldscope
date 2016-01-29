@@ -5,11 +5,16 @@
     android:layout_height="fill_parent"
     tools:context="com.litmus.worldscope.FacebookLoginActivity">
 
+    <pl.droidsonroids.gif.GifImageView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@drawable/welcome"/>
+
     <fragment
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:name="layout.FacebookLoginFragment"
-        android:id="@+id/fragment"
+        android:id="@+id/facebookLoginButtonFragment"
         tools:layout="@layout/fragment_facebook_login"
         android:layout_marginBottom="104dp"
         android:layout_alignParentBottom="true"
@@ -21,11 +26,26 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="WorldScope"
         android:id="@+id/textView4"
-        android:textColor="#555555"
+        android:textColor="#ffffff"
         android:textStyle="bold"
         android:textSize="32dp"
-        android:layout_above="@+id/fragment"
+        android:layout_above="@+id/facebookLoginButtonFragment"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="96dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="By logging in you agree to WorldScope&apos;s Privacy Policy and Terms of Use."
+        android:id="@+id/textView6"
+        android:textColor="#eeeeee"
+        android:textSize="14dp"
+        android:layout_marginTop="62dp"
+        android:layout_below="@+id/textView4"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:textAlignment="center" />
 
 </RelativeLayout>
