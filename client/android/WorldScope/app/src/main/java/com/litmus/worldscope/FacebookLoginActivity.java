@@ -2,19 +2,20 @@ package com.litmus.worldscope;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
 
 import layout.FacebookLoginFragment;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class FacebookLoginActivity extends FragmentActivity implements FacebookLoginFragment.OnFragmentInteractionListener {
+public class FacebookLoginActivity extends AppCompatActivity implements FacebookLoginFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "FacebookLoginActivity";
     private static final String APP_SERVER_AUTH_FAILED_MSG = "Authentication with WorldScope's server has failed, please check that you have internet connections and try again.";
