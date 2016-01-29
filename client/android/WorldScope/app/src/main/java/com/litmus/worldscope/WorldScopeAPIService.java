@@ -1,5 +1,7 @@
 package com.litmus.worldscope;
 
+import com.litmus.worldscope.model.WorldScopeUser;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;

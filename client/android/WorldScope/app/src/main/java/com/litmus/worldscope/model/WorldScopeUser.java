@@ -1,4 +1,4 @@
-package com.litmus.worldscope;
+package com.litmus.worldscope.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

@@ -8,6 +8,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
+import com.litmus.worldscope.model.WorldScopeUser;
 
 import layout.FacebookLoginFragment;
 
