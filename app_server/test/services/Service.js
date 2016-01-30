@@ -21,6 +21,17 @@ lab.experiment('Service tests for User', function () {
     description: 'bam bam bam'
   };
 
+  var alice = {
+    username: 'Alice',
+    alias: 'Alice in the wonderland',
+    email: 'alice@apple.com',
+    password: 'generated',
+    accessToken: 'anaccesstoken',
+    platformType: 'facebook',
+    platformId: '45454545454',
+    description: 'nil'
+  };
+
   lab.beforeEach(function (done) {
     TestUtils.resetDatabase(done);
   });
@@ -92,6 +103,48 @@ lab.experiment('Service tests for User', function () {
     .then(function(user) {
       Code.expect(user).to.be.null();
       done();
+    });
+  });
+
+  lab.test('getListOfUsers valid empty', function(done) {
+    var filters = {
+      order: 'desc'
+    };
+
+    Service.getListOfUsers(filters).then(function(result) {
+      Code.expect(result).to.have.length(0);
+      done();
+    });
+  });
+
+  lab.test('getListOfUsers valid desc', function(done) {
+    var filters = {
+      order: 'desc'
+    };
+
+    Service.createNewUser(bob).then(function (result) {
+      return Service.createNewUser(alice);
+    }).then(function(user) {
+      return Service.getListOfUsers(filters).then(function(result) {
+        Code.expect(result[0].username).to.equal(bob.username);
+        Code.expect(result[1].username).to.equal(alice.username);
+        done();
+      });
+    });
+  });
+
+  lab.test('getListOfUsers invalid order param', function(done) {
+    var filters = {
+      order: '<script>try a javascript hack</script>'
+    };
+
+    Service.createNewUser(bob).then(function (result) {
+      return Service.createNewUser(alice);
+    }).then(function(user) {
+      return Service.getListOfUsers(filters).then(function(result) {
+        Code.expect(result).to.be.null();
+        done();
+      });
     });
   });
 

@@ -49,6 +49,20 @@ Class.getUserById = function (id) {
   });
 };
 
+Class.getListOfUsers = function (filters) {
+  logger.debug('Getting list of users with filters: %j', filters);
+
+  return Storage.getListOfUsers(filters)
+  .then(function receiveResult(result) {
+    if (result) {
+      return result.map(clearUserPrivateInfo);
+    }
+
+    logger.error('Unable to retrieve list of users');
+    return null;
+  });
+};
+
 Class.updateParticulars = function (userId, particulars) {
   return Storage.updateParticulars(userId, particulars)
   .then(function receiveUser(user) {
@@ -65,5 +79,14 @@ Class.updateParticulars = function (userId, particulars) {
     return null;
   });
 };
+
+function clearUserPrivateInfo(rawUser) {
+  var user = rawUser.dataValues;
+
+  delete user.password;
+  delete user.accessToken;
+
+  return user;
+}
 
 module.exports = new UserService();

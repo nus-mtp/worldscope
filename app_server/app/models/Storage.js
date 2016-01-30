@@ -145,7 +145,7 @@ Class.getUserByPlatformId = function(platformType, platformId) {
     }
   }).then(function(res) {
     if (res === null) {
-      logger.info('No such user at %s with id %s', platformType, platformId);
+      logger.info('No such user at %s with platform id %s', platformType, platformId);
       return false;
     } else {
       return res;
@@ -241,9 +241,12 @@ Class.updateParticulars = function(userId, newParticulars) {
  * @return {Promise<List<Sequelize.object>>} - a list of users
  *         {False} on fail
  */
-Class.getListOfUsers = function() {
+Class.getListOfUsers = function(originalFilters) {
+
+  var filters = mapParams(originalFilters);
+
   return this.models.User.findAll({
-    order: [['username', 'ASC']]
+    order: [['username', filters.order]]
   }).catch(function(err) {
     logger.error('Error in fetching list of users: %j', err);
     return false;
@@ -294,28 +297,10 @@ Class.getStreamById = function(streamId) {
  * @param  {object} filters.order
  * @return {Promise<List<Sequelize.object>>} - a list of streams
  */
-Class.getListOfStreams = function(filters) {
+Class.getListOfStreams = function(originalFilters) {
   // TODO: viewers
 
-  function mapParams(value) {
-    var filterMap = {
-      'desc': 'DESC',
-      'asc': 'ASC',
-      'time': 'createdAt',
-      'title': 'title',
-      'all': {$or: [{'live': true}, {'live': false}]},
-      'live': true,
-      'done': false
-    };
-    return filterMap[value];
-  }
-
-  for (var key in filters) {
-    if (filters.hasOwnProperty(key)) {
-      var value = filters[key];
-      filters[key] = mapParams(value);
-    }
-  }
+  var filters = mapParams(originalFilters);
 
   if (filters.sort !== 'createdAt') {
     return this.models.Stream.findAll({
@@ -368,6 +353,32 @@ function isFieldsMatched(user, options, fn) {
   } else {
     return fn();
   }
+}
+
+/**
+ * Map the database query parameters
+ * @private
+ */
+function mapParams(filters) {
+
+  var filterMap = {
+    'desc': 'DESC',
+    'asc': 'ASC',
+    'time': 'createdAt',
+    'title': 'title',
+    'all': {$or: [{'live': true}, {'live': false}]},
+    'live': true,
+    'done': false
+  };
+
+  for (var key in filters) {
+    if (filters.hasOwnProperty(key)) {
+      var value = filters[key];
+      filters[key] = filterMap[value];
+    }
+  }
+
+  return filters;
 }
 
 module.exports = new Storage();

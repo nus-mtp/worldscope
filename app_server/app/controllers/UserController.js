@@ -23,6 +23,7 @@ var Class = UserController.prototype;
 Class.registerRoutes = function () {
   this.server.route({method: 'GET', path: '/',
                      config: {
+                       validate: userListParamsValidator,
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.getListOfUsers});
@@ -47,10 +48,6 @@ Class.registerRoutes = function () {
 };
 
 /* Routes handlers */
-Class.getListOfUsers = function (request, reply) {
-  reply('Hello Sharmine!');
-};
-
 Class.getUserById = function (request, reply) {
   Service.getUserById(request.params.id)
   .then(function (user) {
@@ -61,6 +58,21 @@ Class.getUserById = function (request, reply) {
 
     user = clearUserPrivateInfo(user);
     reply(user);
+  });
+};
+
+Class.getListOfUsers = function (request, reply) {
+  var filters = {
+    order: request.query.order
+  };
+
+  Service.getListOfUsers(filters).then(function (users) {
+    if (!users || users instanceof Error) {
+      reply(Boom.badRequest('Unable to get list of users'));
+      return;
+    }
+
+    reply(users);
   });
 };
 
@@ -113,6 +125,12 @@ function clearUserPrivateInfo(user) {
 var singleUserValidator = {
   params: {
     id: Joi.string().guid()
+  }
+};
+
+var userListParamsValidator = {
+  query: {
+    order: Joi.any().valid('desc', 'asc').default('asc')
   }
 };
 

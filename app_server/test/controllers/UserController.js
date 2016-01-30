@@ -25,17 +25,41 @@ var bob = {
   description: 'bam bam bam'
 };
 
+var alice = {
+  username: 'Alice',
+  alias: 'Alice in the wonderland',
+  email: 'alice@apple.com',
+  password: 'generated',
+  accessToken: 'anaccesstoken',
+  platformType: 'facebook',
+  platformId: '45454545454',
+  description: 'nil'
+};
+
 lab.experiment('UserController Tests', function () {
   lab.beforeEach({timeout: 10000}, function (done) {
     TestUtils.resetDatabase(done);
   });
 
-  lab.test('Get list of users', function (done) {
+  lab.test('Get list of users valid empty', function (done) {
     Router.inject({url: '/api/users', credentials: testAccount},
       function (res) {
-        Code.expect(res.result).to.equal('Hello Sharmine!');
+        Code.expect(res.result).to.have.length(0);
         done();
       });
+  });
+
+  lab.test('Get list of users valid default', function (done) {
+    Service.createNewUser(bob).then(function (result) {
+      return Service.createNewUser(alice);
+    }).then(function() {
+      return Router.inject({url: '/api/users', credentials: testAccount},
+      function (res) {
+        Code.expect(res.result[0].username).to.equal(alice.username);
+        Code.expect(res.result[1].username).to.equal(bob.username);
+        done();
+      });
+    });
   });
 
   lab.test('Valid id', function (done) {

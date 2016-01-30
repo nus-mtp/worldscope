@@ -28,10 +28,16 @@ Class.getUserById = function (id) {
   return UserService.getUserById(id);
 };
 
+Class.getListOfUsers = function (filters) {
+  logger.debug('Getting list of user');
+  return UserService.getListOfUsers(filters);
+};
+
 Class.updateUserParticulars = function (userId, particulars) {
   logger.debug('Updating user particulars %s %j', userId, particulars);
   return UserService.updateParticulars(userId, particulars);
 };
+
 ///////////////////////
 
 /////// STREAM APIs ///////

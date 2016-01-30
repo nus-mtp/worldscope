@@ -272,10 +272,8 @@ lab.experiment('User Model Tests', function () {
       {username: 'Jane', password: 'asdf', email: 'jane@gmail.com'},
       {username: 'Alan', password: 'asdf', email: 'alan@gmail.com'},
       {username: 'John', password: 'asdf', email: 'john@gmail.com'}
-    ])
-    .then(function() {
-      Storage.getListOfUsers()
-      .then(function(users) {
+    ]).then(function() {
+      Storage.getListOfUsers({order: 'asc'}).then(function(users) {
         expect(users[0].username).to.equal('Alan');
         expect(users[1].username).to.equal('Jane');
         expect(users[2].username).to.equal('John');

@@ -78,8 +78,8 @@ var formatStreamObject = function (stream) {
     var formattedStream = stream.dataValues;
     formattedStream.streamLink =
       util.format('%s/%s/%s', Utility.streamBaseUrl,
-                                 stream.appInstance,
-                                 stream.streamId);
+                              stream.appInstance,
+                              stream.streamId);
     resolve(formattedStream);
   });
 };
