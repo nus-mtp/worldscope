@@ -9,7 +9,7 @@ var Service = rfr('app/services/Service');
 var CustomError = rfr('app/util/Error');
 var TestUtils = rfr('test/TestUtils');
 
-/*lab.experiment('Service tests for User', function () {
+lab.experiment('Service tests for User', function () {
   var bob = {
     username: 'Bob',
     alias: 'Bob the Builder',
@@ -177,7 +177,7 @@ var TestUtils = rfr('test/TestUtils');
     });
   });
 });
-*/
+
 lab.experiment('Service tests for Streams', function () {
   var testStream = {
     title: 'this is a title from stream service',
@@ -215,13 +215,14 @@ lab.experiment('Service tests for Streams', function () {
   lab.beforeEach({timeout: 10000}, function (done) {
     TestUtils.resetDatabase(done);
   });
-/*
+
   lab.test('createNewStream valid', function(done) {
     Service.createNewUser(bob).then(function (user) {
       return Service.createNewStream(user.userId, testStream);
     }).then(function(result) {
       Code.expect(result.title).to.be.equal(testStream.title);
       Code.expect(result.description).to.be.equal(testStream.description);
+      Code.expect(result.streamer.username).to.be.equal(bob.username);
       done();
     });
   });
@@ -280,7 +281,7 @@ lab.experiment('Service tests for Streams', function () {
       done();
     });
   });
-*/
+
   lab.test('getStreamById valid', function(done) {
     Service.createNewUser(bob).then(function (user) {
       return Service.createNewStream(user.userId, testStream);
@@ -289,6 +290,7 @@ lab.experiment('Service tests for Streams', function () {
     }).then(function(result) {
       Code.expect(result.title).to.be.equal(testStream.title);
       Code.expect(result.description).to.be.equal(testStream.description);
+      Code.expect(result.streamer.username).to.be.equal(bob.username);
       done();
     });
   });
@@ -316,7 +318,7 @@ lab.experiment('Service tests for Streams', function () {
       done();
     });
   });
-/*
+
   lab.test('getListOfStreams valid no streams', function(done) {
     var filters = {
       state: 'all',
@@ -348,8 +350,11 @@ lab.experiment('Service tests for Streams', function () {
     }).then(function(result) {
       Code.expect(result).to.have.length(3);
       Code.expect(result[0].title).to.be.equal(testStream2.title);
+      Code.expect(result[0].streamer.username).to.be.equal(bob.username);
       Code.expect(result[1].title).to.be.equal(testStream3.title);
+      Code.expect(result[1].streamer.username).to.be.equal(bob.username);
       Code.expect(result[2].title).to.be.equal(testStream.title);
+      Code.expect(result[2].streamer.username).to.be.equal(bob.username);
       done();
     });
   });
@@ -372,8 +377,10 @@ lab.experiment('Service tests for Streams', function () {
     }).then(function(result) {
       Code.expect(result).to.have.length(2);
       Code.expect(result[0].title).to.be.equal(testStream2.title);
+      Code.expect(result[0].streamer.username).to.be.equal(bob.username);
       Code.expect(result[1].title).to.be.equal(testStream.title);
+      Code.expect(result[1].streamer.username).to.be.equal(bob.username);
       done();
     });
-  });*/
+  });
 });

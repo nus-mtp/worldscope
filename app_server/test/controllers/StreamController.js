@@ -49,6 +49,7 @@ lab.experiment('StreamController Tests', function () {
                                   res.result.appInstance,
                                   res.result.streamId));
         Code.expect(res.result.title).to.equal(streamPayload.title);
+        Code.expect(res.result.streamer.username).to.equal(bob.username);
         done();
       });
     });
@@ -61,6 +62,7 @@ lab.experiment('StreamController Tests', function () {
                                 res.result.appInstance,
                                 res.result.streamId));
       Code.expect(res.result.title).to.equal(streamPayload.title);
+      Code.expect(res.result.streamer.username).to.equal(bob.username);
 
       Router.inject({method: 'POST', url: '/api/streams',
                     credentials: testAccount,
@@ -74,6 +76,7 @@ lab.experiment('StreamController Tests', function () {
                                 res.result.appInstance,
                                 res.result.streamId));
       Code.expect(res.result.title).to.equal(streamPayload.title);
+      Code.expect(res.result.streamer.username).to.equal(bob.username);
       done();
     }
 
@@ -155,6 +158,7 @@ lab.experiment('StreamController Tests', function () {
                       res.result.appInstance,
                       res.result.streamId));
         Code.expect(res.result.title).to.equal(streamInfo.title);
+        Code.expect(res.result.streamer.username).to.equal(bob.username);
         done();
       });
     });
@@ -213,7 +217,9 @@ lab.experiment('StreamController Tests', function () {
                      credentials: testAccount}, function (res) {
         Code.expect(res.result).to.have.length(2);
         Code.expect(res.result[0].title).to.equal(streamInfo.title);
+        Code.expect(res.result[0].streamer.username).to.equal(bob.username);
         Code.expect(res.result[1].title).to.equal(streamInfo2.title);
+        Code.expect(res.result[1].streamer.username).to.equal(bob.username);
         done();
       });
     });
