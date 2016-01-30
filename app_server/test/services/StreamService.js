@@ -9,7 +9,7 @@ var Service = rfr('app/services/Service');
 var CustomError = rfr('app/util/Error');
 var TestUtils = rfr('test/TestUtils');
 
-lab.experiment('Service tests for Streams', function () {
+lab.experiment({timeout: 10000}, 'StreamService Tests', function () {
   var testStream = {
     title: 'this is a title from stream service',
     description: 'arbitrary description',

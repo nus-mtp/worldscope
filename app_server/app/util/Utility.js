@@ -5,6 +5,7 @@
 var path = require('path');
 var winston = require('winston');
 var crypto = require('crypto');
+var util = require('util');
 
 exports.streamBaseUrl = 'rtmp://multimedia.worldscope.tk:1935/live';
 exports.viewBaseUrl = 'http://worldscope.tk:1935/live';
@@ -59,4 +60,61 @@ exports.createLogger = function (filename) {
       })
     ]
   });
+};
+
+var clearUserProfile =
+/**
+ * Clears user's sensitive credentials
+ * @param  {Object} a user object
+ * @return {Object} user without sensitive credentials
+ */
+exports.clearUserProfile = function (user) {
+  delete user.password;
+  delete user.accessToken;
+
+  return user;
+};
+
+var formatStreamObject =
+/**
+ * Formats to be streamed stream object
+ * @param  {Sequelize<Stream>} stream
+ * @return {Stream}
+ */
+exports.formatStreamObject = function (stream) {
+
+  return new Promise(function(resolve) {
+    var formattedStream = stream.dataValues;
+    formattedStream.streamLink =
+      util.format('%s/%s/%s', exports.streamBaseUrl,
+                              stream.appInstance,
+                              stream.streamId);
+    formattedStream.streamer = clearUserProfile(formattedStream.streamer.dataValues);
+
+    resolve(formattedStream);
+  });
+};
+
+var formatViewObject =
+/**
+ * Formats to be viewed stream object
+ * @param  {Sequelize<Stream>} stream
+ * @return {Stream}
+ */
+exports.formatViewObject = function (stream) {
+
+  var formattedStream = stream.dataValues;
+  var viewLink = util.format('%s/%s/%s/manifest.mpd', exports.viewBaseUrl,
+                             stream.appInstance,
+                             stream.streamId);
+  formattedStream.viewLink = viewLink;
+  formattedStream.thumbnailLink =
+    util.format(exports.thumbnailTemplateUrl,
+                stream.appInstance,
+                stream.streamId);
+
+  formattedStream.streamer = clearUserProfile(formattedStream.streamer.dataValues);
+
+  return formattedStream;
+
 };

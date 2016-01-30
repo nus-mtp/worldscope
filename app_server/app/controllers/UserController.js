@@ -56,7 +56,7 @@ Class.getUserById = function (request, reply) {
       return;
     }
 
-    user = clearUserPrivateInfo(user);
+    user = Utility.clearUserProfile(user);
     reply(user);
   });
 };
@@ -102,7 +102,7 @@ Class.login = function (request, reply) {
 
       request.cookieAuth.set(account);
 
-      return reply(clearUserPrivateInfo(user));
+      return reply(Utility.clearUserProfile(user));
     });
   }).catch(function fail(err) {
     return reply(Boom.badRequest('Failed to authenticate user: ' + err));
@@ -113,13 +113,6 @@ Class.logout = function (request, reply) {
   request.cookieAuth.clear();
   return reply({status: 'OK'});
 };
-
-function clearUserPrivateInfo(user) {
-  delete user.password;
-  delete user.accessToken;
-
-  return user;
-}
 
 /* Validator for routes */
 var singleUserValidator = {
