@@ -89,7 +89,8 @@ exports.formatStreamObject = function (stream) {
       util.format('%s/%s/%s', exports.streamBaseUrl,
                               stream.appInstance,
                               stream.streamId);
-    formattedStream.streamer = clearUserProfile(formattedStream.streamer.dataValues);
+    formattedStream.streamer = clearUserProfile(formattedStream.streamer
+                                                               .dataValues);
 
     resolve(formattedStream);
   });
@@ -113,7 +114,8 @@ exports.formatViewObject = function (stream) {
                 stream.appInstance,
                 stream.streamId);
 
-  formattedStream.streamer = clearUserProfile(formattedStream.streamer.dataValues);
+  formattedStream.streamer = clearUserProfile(formattedStream.streamer
+                                                             .dataValues);
 
   return formattedStream;
 

@@ -72,7 +72,7 @@ Class.getListOfUsers = function (request, reply) {
       return;
     }
 
-    reply(users);
+    reply(users.map(Utility.clearUserProfile));
   });
 };
 

@@ -145,7 +145,8 @@ Class.getUserByPlatformId = function(platformType, platformId) {
     }
   }).then(function(res) {
     if (res === null) {
-      logger.info('No such user at %s with platform id %s', platformType, platformId);
+      logger.info('No such user at %s with platform id %s',
+                  platformType, platformId);
       return false;
     } else {
       return res;
@@ -284,8 +285,8 @@ Class.createStream = function(userId, streamAttributes) {
 Class.getStreamById = function(streamId) {
   return this.models.Stream.findOne({
     include: [{
-        model: this.models.User,
-        as: 'streamer'
+      model: this.models.User,
+      as: 'streamer'
     }],
     where: {
       streamId: streamId
@@ -309,8 +310,8 @@ Class.getListOfStreams = function(originalFilters) {
   if (filters.sort !== 'createdAt') {
     return this.models.Stream.findAll({
       include: [{
-          model: this.models.User,
-          as: 'streamer'
+        model: this.models.User,
+        as: 'streamer'
       }],
       where: {
         live: filters.state
@@ -320,8 +321,8 @@ Class.getListOfStreams = function(originalFilters) {
   } else {
     return this.models.Stream.findAll({
       include: [{
-          model: this.models.User,
-          as: 'streamer'
+        model: this.models.User,
+        as: 'streamer'
       }],
       where: {
         live: filters.state

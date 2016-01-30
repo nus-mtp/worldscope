@@ -164,15 +164,16 @@ lab.experiment('StreamController Tests', function () {
     });
   });
 
-  lab.test('Get stream by streamId invalid non-existing stream', function (done) {
-    Router.inject({method: 'GET', url: '/api/streams/3388ffff-aa00-1111-' +
-                                       'a222-00000044888c',
-                   credentials: testAccount}, function (res) {
-      Code.expect(res.result.statusCode).to.equal(404);
-      Code.expect(res.result.message).to.equal('Stream not found');
-      done();
+  lab.test('Get stream by streamId invalid non-existing stream',
+    function (done) {
+      Router.inject({method: 'GET', url: '/api/streams/3388ffff-aa00-1111-' +
+                                         'a222-00000044888c',
+                     credentials: testAccount}, function (res) {
+        Code.expect(res.result.statusCode).to.equal(404);
+        Code.expect(res.result.message).to.equal('Stream not found');
+        done();
+      });
     });
-  });
 
   lab.test('Get stream by streamId invalid guid', function (done) {
     Router.inject({method: 'GET', url: '/api/streams/213',

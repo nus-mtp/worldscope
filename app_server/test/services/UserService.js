@@ -125,7 +125,6 @@ lab.experiment('UserService Tests', function () {
       return Service.createNewUser(alice);
     }).then(function(user) {
       return Service.getListOfUsers(filters).then(function(result) {
-        console.log(result);
         Code.expect(result[0].username).to.equal(bob.username);
         Code.expect(result[1].username).to.equal(alice.username);
         done();
