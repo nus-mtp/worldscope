@@ -44,4 +44,20 @@ public class WorldScopeStream {
     public void setCreatedAt(Date createdAt) {this.createdAt = createdAt;}
     public void setDeletedAt(Date deletedAt) {this.deletedAt = deletedAt;}
     public void setOwner(WorldScopeUser owner) {this.owner = owner;}
+
+    @Override
+    public String toString() {
+        return "streamId: " + getStreamId() + "\n"
+                + "appInstance: " + getAppInstance() + "\n"
+                + "title: " + getTitle() + "\n"
+                + "roomId: " + getRoomId() + "\n"
+                + "totalStickers: " + getTotalStickers() + "\n"
+                + "totalViewers: " + getTotalViewers() + "\n"
+                + "live: " + getLive() + "\n"
+                + "duration: " + getDuration() + "\n"
+                + "description: " + getDescription() + "\n"
+                + "createdAt: " + getCreatedAt() + "\n"
+                + "deletedAt: " + getDeletedAt() + "\n"
+                + "owner: " + getOwner();
+    }
 }

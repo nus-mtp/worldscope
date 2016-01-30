@@ -13,4 +13,11 @@ public class WorldScopeViewStream extends WorldScopeStream{
     public void setViewLink(String viewLink) {this.viewLink = viewLink;}
     public void setThumbnailLink(String thumbnailLink) {this.thumbnailLink = thumbnailLink;}
 
+    @Override
+    public String toString() {
+        return this.toString() + "\n"
+                + "viewLink: " + this.getViewLink()
+                + "thumbnailLink: " + this.getThumbnailLink();
+    }
+
 }
