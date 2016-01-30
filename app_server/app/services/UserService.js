@@ -55,7 +55,7 @@ Class.getListOfUsers = function (filters) {
   return Storage.getListOfUsers(filters)
   .then(function receiveResult(result) {
     if (result) {
-      return result.map(function(res){ return res.dataValues; });
+      return result.map(function(res) { return res.dataValues; });
     }
 
     logger.error('Unable to retrieve list of users');
