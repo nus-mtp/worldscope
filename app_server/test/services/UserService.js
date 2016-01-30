@@ -178,7 +178,7 @@ lab.experiment('Service tests for User', function () {
   });
 });
 
-lab.experiment('Service tests for Streams', function () {
+/*lab.experiment('Service tests for Streams', function () {
   var testStream = {
     title: 'this is a title from stream service',
     description: 'arbitrary description',
@@ -382,5 +382,5 @@ lab.experiment('Service tests for Streams', function () {
       Code.expect(result[1].streamer.username).to.be.equal(bob.username);
       done();
     });
-  });
-});
+  });*/
+
