@@ -58,6 +58,8 @@ public class WorldScopeUser implements Parcelable {
                 + this.getUpdatedAt() + " " + this.getDeletedAt() + " " + this.getuserName();
     }
 
+    public WorldScopeUser() {
+    }
 
     protected WorldScopeUser(Parcel in) {
         userId = in.readString();
