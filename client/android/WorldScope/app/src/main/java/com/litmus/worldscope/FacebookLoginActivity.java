@@ -38,7 +38,7 @@ public class FacebookLoginActivity extends AppCompatActivity implements Facebook
         Log.d(TAG, "AccessToken: " + accessToken.getToken());
 
         // Instantiate and make a call to login user into WorldScope servers
-        Call<WorldScopeUser> call = WorldScopeRestAPI.buildWorldScopeAPIService().loginUser(new WorldScopeAPIService.LoginUserRequest(accessToken.getToken()));
+        Call<WorldScopeUser> call = new WorldScopeRestAPI(context).buildWorldScopeAPIService().loginUser(new WorldScopeAPIService.LoginUserRequest(accessToken.getToken()));
         call.enqueue(new Callback<WorldScopeUser>() {
             @Override
             public void onResponse(Response<WorldScopeUser> response) {

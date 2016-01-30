@@ -19,13 +19,18 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class StreamRefreshListFragment extends Fragment {
 
-    private final String TAG = "StreamRefreshListFragment";
+    private final String TAG = "StreamRefreshList";
 
     /**
      * The fragment argument representing the section number for this
@@ -85,6 +90,29 @@ public class StreamRefreshListFragment extends Fragment {
     }
 
     private void putFakeData() {
+
+        // Make a dummy call to backend
+        Call<List<WorldScopeViewStream>> call = new WorldScopeRestAPI(getActivity()).buildWorldScopeAPIService().getStreams(null, null, null);
+        call.enqueue(new Callback<List<WorldScopeViewStream>>() {
+            @Override
+            public void onResponse(Response<List<WorldScopeViewStream>> response) {
+                Log.d(TAG, "GOT RESPONSE");
+
+                if (response.isSuccess()) {
+                    Log.d(TAG, "RESPONSE SUCCESS");
+                    Log.d(TAG, response.body().toString());
+                } else {
+                    Log.d(TAG, "RESPONSE FAIL");
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d(TAG, "NO RESPONSE");
+            }
+        });
+
+
         WorldScopeUser dummyUser = new WorldScopeUser();
         dummyUser.setAlias("Ash Ketchum");
 

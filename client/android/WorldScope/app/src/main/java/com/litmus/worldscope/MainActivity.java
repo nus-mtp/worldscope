@@ -258,7 +258,8 @@ public class MainActivity extends AppCompatActivity
     // Log out from WorldScope App server
     // TODO: Check JSON formatting of API request's result
     private void logoutFromAppServer() {
-        Call<WorldScopeUser> call = WorldScopeRestAPI.buildWorldScopeAPIService().logoutUser();
+        Call<WorldScopeUser> call = new WorldScopeRestAPI(context
+        ).buildWorldScopeAPIService().logoutUser();
         call.enqueue(new Callback<WorldScopeUser>() {
             @Override
             public void onResponse(Response<WorldScopeUser> response) {
