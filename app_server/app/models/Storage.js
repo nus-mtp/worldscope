@@ -283,6 +283,10 @@ Class.createStream = function(userId, streamAttributes) {
  */
 Class.getStreamById = function(streamId) {
   return this.models.Stream.findOne({
+    include: [{
+        model: this.models.User,
+        as: 'streamer'
+    }],
     where: {
       streamId: streamId
     }
@@ -304,6 +308,10 @@ Class.getListOfStreams = function(originalFilters) {
 
   if (filters.sort !== 'createdAt') {
     return this.models.Stream.findAll({
+      include: [{
+          model: this.models.User,
+          as: 'streamer'
+      }],
       where: {
         live: filters.state
       },
@@ -311,6 +319,10 @@ Class.getListOfStreams = function(originalFilters) {
     });
   } else {
     return this.models.Stream.findAll({
+      include: [{
+          model: this.models.User,
+          as: 'streamer'
+      }],
       where: {
         live: filters.state
       },

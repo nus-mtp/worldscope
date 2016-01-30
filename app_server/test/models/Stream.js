@@ -82,6 +82,7 @@ lab.experiment('Stream Model Tests', function () {
       return Storage.getStreamById(stream.streamId);
     }).then(function(res) {
       expect(res.title).to.equal('I am going to dance');
+      expect(res.streamer.username).to.equal(userDetails.username);
       done();
     });
   });
@@ -123,9 +124,12 @@ lab.experiment('Stream Model Tests', function () {
     return Promise.join(streamPromise, streamPromise2,
       function() {
         Storage.getListOfStreams(filters).then(function(res) {
-          expect(res[0].title).to.equal('zzz hello, look at me! More recent!');
-          expect(res[1].title).to.equal('I am going to dance');
-          expect(res[2].title).to.equal('this is an ended stream');
+          expect(res[0].title).to.equal(streamDetails2.title);
+          expect(res[0].streamer.username).to.equal(userDetails.username);
+          expect(res[1].title).to.equal(streamDetails.title);
+          expect(res[1].streamer.username).to.equal(userDetails2.username);
+          expect(res[2].title).to.equal(streamDetails3.title);
+          expect(res[2].streamer.username).to.equal(userDetails.username);
           done();
         });
       });
@@ -156,8 +160,12 @@ lab.experiment('Stream Model Tests', function () {
       function() {
         Storage.getListOfStreams(filters).then(function(res) {
           expect(res[0].title).to.equal(streamDetails3.title);
+          expect(res[0].streamer.username).to.equal(userDetails.username);
           expect(res[1].title).to.equal(streamDetails.title);
+          expect(res[1].streamer.username).to.equal(userDetails2.username);
           expect(res[2].title).to.equal(streamDetails2.title);
+          expect(res[2].streamer.username).to.equal(userDetails.username);
+
           done();
         });
       });
@@ -188,8 +196,11 @@ lab.experiment('Stream Model Tests', function () {
       function() {
         Storage.getListOfStreams(filters).then(function(res) {
           expect(res[0].title).to.equal(streamDetails.title);
+          expect(res[0].streamer.username).to.equal(userDetails2.username);
           expect(res[1].title).to.equal(streamDetails3.title);
+          expect(res[1].streamer.username).to.equal(userDetails.username);
           expect(res[2].title).to.equal(streamDetails2.title);
+          expect(res[2].streamer.username).to.equal(userDetails.username);
           done();
         });
       });
@@ -221,7 +232,9 @@ lab.experiment('Stream Model Tests', function () {
         Storage.getListOfStreams(filters).then(function(res) {
           expect(res).to.have.length(2);
           expect(res[0].title).to.equal(streamDetails2.title);
+          expect(res[0].streamer.username).to.equal(userDetails.username);
           expect(res[1].title).to.equal(streamDetails.title);
+          expect(res[1].streamer.username).to.equal(userDetails2.username);
           done();
         });
       });

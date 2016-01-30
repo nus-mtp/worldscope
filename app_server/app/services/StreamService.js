@@ -80,6 +80,11 @@ var formatStreamObject = function (stream) {
       util.format('%s/%s/%s', Utility.streamBaseUrl,
                               stream.appInstance,
                               stream.streamId);
+    //see if can be shifted out
+    formattedStream.streamer = formattedStream.streamer.dataValues;
+    delete formattedStream.streamer.accessToken;
+    delete formattedStream.streamer.password;
+
     resolve(formattedStream);
   });
 };
@@ -101,6 +106,11 @@ var formatViewObject = function (stream) {
     util.format(Utility.thumbnailTemplateUrl,
                 stream.appInstance,
                 stream.streamId);
+
+  //see if can be shifted out
+  formattedStream.streamer = formattedStream.streamer.dataValues;
+  delete formattedStream.streamer.accessToken;
+  delete formattedStream.streamer.password;
 
   return formattedStream;
 
