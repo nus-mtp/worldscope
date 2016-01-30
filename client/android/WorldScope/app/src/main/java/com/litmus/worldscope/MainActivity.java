@@ -185,6 +185,19 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    // Redirects to Facebook Login activity
+
+    private void redirectToFacebookLoginActivity(boolean isAttemptLogout) {
+        Intent intent = new Intent(this, FacebookLoginActivity.class);
+
+        if(isAttemptLogout) {
+            intent.putExtra("isAttemptLogout", true);
+        }
+
+        startActivity(intent);
+    }
+
+
     // Redirects to view activity
 
     private void redirectToViewActivity() {
@@ -253,19 +266,20 @@ public class MainActivity extends AppCompatActivity
                     Log.d(TAG, "Success!");
                     Log.d(TAG, "" + response.body().toString());
 
-                    // Redirect to FacebookLoginActivty
-                    Intent intent = new Intent(context, FacebookLoginActivity.class);
-                    startActivity(intent);
+                    redirectToFacebookLoginActivity(true);
                 } else {
                     Log.d(TAG, "Failure!");
                     Log.d(TAG, "" + response.code());
                     Log.d(TAG, "" + response.body().toString());
+
+                    redirectToFacebookLoginActivity(true);
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
-                Log.d(TAG, "Failure: " + t.getMessage());
+
+                redirectToFacebookLoginActivity(true);
             }
         });
     }

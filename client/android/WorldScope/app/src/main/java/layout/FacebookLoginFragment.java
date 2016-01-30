@@ -35,6 +35,7 @@ public class FacebookLoginFragment extends Fragment {
     private final String PUBLIC_PROFILE_PERMISSION = "public_profile";
     private final String USER_FRIENDS_PERMISSION = "user_friends";
     private final String ERROR_IMPLEMENT_ON_FRAGMENT_INTERACTION_LISTENER = " must implement OnFragmentInteractionListener";
+    private final String EXTRA_IS_ATTEMPT_LOGOUT = "isAttemptLogout";
 
     private OnFragmentInteractionListener mListener;
     private CallbackManager callbackManager;
@@ -113,8 +114,12 @@ public class FacebookLoginFragment extends Fragment {
         loginManager = LoginManager.getInstance();
         loginManager.registerCallback(callbackManager, facebookCallback);
 
-        // Attempt to check if user is logged in or not
-        loginManager.logInWithReadPermissions(this, Arrays.asList(PUBLIC_PROFILE_PERMISSION, USER_FRIENDS_PERMISSION));
+        // If user did not previously logout, check if login. Else, logout of facebook
+        if(!getActivity().getIntent().getBooleanExtra(EXTRA_IS_ATTEMPT_LOGOUT , false)) {
+            loginManager.logInWithReadPermissions(this, Arrays.asList(PUBLIC_PROFILE_PERMISSION, USER_FRIENDS_PERMISSION));
+        } else {
+            logoutFromFacebook();
+        }
 
         return view;
     }
