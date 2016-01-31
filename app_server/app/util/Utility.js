@@ -5,6 +5,7 @@
 var path = require('path');
 var winston = require('winston');
 var crypto = require('crypto');
+var util = require('util');
 
 exports.streamBaseUrl = 'rtmp://multimedia.worldscope.tk:1935/live';
 exports.viewBaseUrl = 'http://worldscope.tk:1935/live';
@@ -18,7 +19,7 @@ var randomValueBase64 =
   * Generate a random string of base64 values, replacing + and / by 0
   * @param {integer} length of the generated string
   */
-exports.randomValueBase64 = function (len) {
+exports.randomValueBase64 = function(len) {
   return crypto.randomBytes(Math.ceil(len * 3 / 4))
   .toString('base64')
   .slice(0, len)
@@ -43,7 +44,7 @@ var createLogger =
  * @param {string} filename path to the current module file
  * @return {Object} a winston logger instance
  */
-exports.createLogger = function (filename) {
+exports.createLogger = function(filename) {
   return new winston.Logger({
     transports: [
       new winston.transports.Console({
@@ -59,4 +60,63 @@ exports.createLogger = function (filename) {
       })
     ]
   });
+};
+
+var clearUserProfile =
+/**
+ * Clears user's sensitive credentials
+ * @param  {Object} a user object
+ * @return {Object} user without sensitive credentials
+ */
+exports.clearUserProfile = function(user) {
+  delete user.password;
+  delete user.accessToken;
+
+  return user;
+};
+
+var formatStreamObject =
+/**
+ * Formats to be streamed stream object
+ * @param  {Sequelize<Stream>} stream
+ * @return {Stream}
+ */
+exports.formatStreamObject = function(stream) {
+
+  return new Promise(function(resolve) {
+    var formattedStream = stream.dataValues;
+    formattedStream.streamLink =
+      util.format('%s/%s/%s', exports.streamBaseUrl,
+                              stream.appInstance,
+                              stream.streamId);
+    formattedStream.streamer = clearUserProfile(formattedStream.streamer
+                                                               .dataValues);
+
+    resolve(formattedStream);
+  });
+};
+
+var formatViewObject =
+/**
+ * Formats to be viewed stream object
+ * @param  {Sequelize<Stream>} stream
+ * @return {Stream}
+ */
+exports.formatViewObject = function(stream) {
+
+  var formattedStream = stream.dataValues;
+  var viewLink = util.format('%s/%s/%s/manifest.mpd', exports.viewBaseUrl,
+                             stream.appInstance,
+                             stream.streamId);
+  formattedStream.viewLink = viewLink;
+  formattedStream.thumbnailLink =
+    util.format(exports.thumbnailTemplateUrl,
+                stream.appInstance,
+                stream.streamId);
+
+  formattedStream.streamer = clearUserProfile(formattedStream.streamer
+                                                             .dataValues);
+
+  return formattedStream;
+
 };

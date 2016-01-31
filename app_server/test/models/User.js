@@ -10,7 +10,7 @@ var logger = Utility.createLogger(__filename);
 var Storage = rfr('app/models/Storage.js');
 var TestUtils = rfr('test/TestUtils');
 
-lab.experiment('User Model Tests', function () {
+lab.experiment('User Model Tests', function() {
 
   var user = {
     username: 'Jane Tan',
@@ -28,14 +28,14 @@ lab.experiment('User Model Tests', function () {
     TestUtils.resetDatabase(done);
   });
 
-  lab.test('Create User', function (done) {
+  lab.test('Create User', function(done) {
     Storage.createUser(user).then(function(user) {
       expect(user.username).to.equal('Jane Tan');
       done();
     });
   });
 
-  lab.test('Create User with missing username parameters', function (done) {
+  lab.test('Create User with missing username parameters', function(done) {
     var baduser = {
       email: 'jane@gmail.com',
       password: 'secretpass'
@@ -47,7 +47,7 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
-  lab.test('Create User with duplicate emails', function (done) {
+  lab.test('Create User with duplicate emails', function(done) {
     Storage.createUser(user).then(function() {
       Storage.createUser(user).then(function(res) {
         expect(res).to.be.false();
@@ -56,7 +56,7 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
-  lab.test('Create Admin account', function (done) {
+  lab.test('Create Admin account', function(done) {
     var admin = {
       username: 'admin1',
       email: 'admin@gmail.com',
@@ -71,7 +71,7 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
-  lab.test('Get User by Id', function (done) {
+  lab.test('Get User by Id', function(done) {
     Storage.createUser(user).then(function(user) {
       Storage.getUserById(user.userId).then(function(data) {
         expect(data.username).to.equal('Jane Tan');
@@ -80,7 +80,7 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
-  lab.test('Get User by Email', function (done) {
+  lab.test('Get User by Email', function(done) {
     Storage.createUser(user).then(function(user) {
       Storage.getUserByEmail('jane@gmail.com').then(function(data) {
         expect(data.username).to.equal('Jane Tan');
@@ -89,7 +89,7 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
-  lab.test('Get User by platformId', function (done) {
+  lab.test('Get User by platformId', function(done) {
     Storage.createUser(user).then(function(user) {
       Storage.getUserByPlatformId('facebook',
           'asdfadf-asdfasdf-asdfasdfaf-dfddf').then(function(data) {
@@ -99,7 +99,7 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
-  lab.test('Get User by invalid platform parameters', function (done) {
+  lab.test('Get User by invalid platform parameters', function(done) {
     Storage.createUser(user).then(function(user) {
       Storage.getUserByPlatformId('twitter',
           'asdfadf-asdfasdf-asdfasdfaf-dfddf').then(function(data) {
@@ -109,7 +109,7 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
-  lab.test('Get User by username', function (done) {
+  lab.test('Get User by username', function(done) {
     Storage.createUser(user).then(function(user) {
       Storage.getUserByUsername('Jane Tan')
         .then(function(data) {
@@ -119,7 +119,7 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
-  lab.test('Get User by invalid username', function (done) {
+  lab.test('Get User by invalid username', function(done) {
     Storage.createUser(user).then(function(user) {
       Storage.getUserByUsername('wrong username')
         .then(function(data) {
@@ -129,7 +129,7 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
-  lab.test('Get User by username and password', function (done) {
+  lab.test('Get User by username and password', function(done) {
     Storage.createUser(user).then(function(user) {
       Storage.getUserByUsernamePassword('Jane Tan', 'secretpass')
         .then(function(data) {
@@ -139,7 +139,7 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
-  lab.test('Get User by invalid username and password', function (done) {
+  lab.test('Get User by invalid username and password', function(done) {
     Storage.createUser(user).then(function(user) {
       Storage.getUserByUsernamePassword('wrong username', 'secretpass')
         .then(function(data) {
@@ -150,7 +150,7 @@ lab.experiment('User Model Tests', function () {
   });
 
   lab.test('Get User by with same username but different password',
-      function (done) {
+      function(done) {
         Storage.createUser(user).then(function(user) {
           Storage.getUserByUsernamePassword('Jane Tan', 'differentpass')
             .then(function(data) {
@@ -160,7 +160,7 @@ lab.experiment('User Model Tests', function () {
         });
       });
 
-  lab.test('Get Non-Existing User', function (done) {
+  lab.test('Get Non-Existing User', function(done) {
     Storage.getUserById('19f9bd98-ffff-aaaa-bbbb-3109f617667d')
       .then(function(res) {
         expect(res).to.be.false();
@@ -168,7 +168,7 @@ lab.experiment('User Model Tests', function () {
       });
   });
 
-  lab.test('Delete Non-Existing User', function (done) {
+  lab.test('Delete Non-Existing User', function(done) {
     Storage.deleteUserById('19f9bd98-ffff-aaaa-bbbb-3109f617667d')
       .then(function(res) {
         expect(res).to.be.false();
@@ -176,7 +176,7 @@ lab.experiment('User Model Tests', function () {
       });
   });
 
-  lab.test('Delete User', function (done) {
+  lab.test('Delete User', function(done) {
     Storage.createUser(user).then(function(user) {
       Storage.deleteUserById(user.userId).then(function(res) {
         expect(res).to.be.true();
@@ -185,7 +185,7 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
-  lab.test('Update particulars', function (done) {
+  lab.test('Update particulars', function(done) {
     var newParticulars = {
       password: 'anewpassword',
       accessToken: 'averynewtoken',
@@ -208,7 +208,7 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
-  lab.test('Update particulars with one invalid parameter', function (done) {
+  lab.test('Update particulars with one invalid parameter', function(done) {
     var newParticulars = {
       newColAlias: 23
     };
@@ -222,7 +222,7 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
-  lab.test('Update particulars with one valid/invalid param', function (done) {
+  lab.test('Update particulars with one valid/invalid param', function(done) {
     var newParticulars = {
       newColAlias: 23,
       description: 'simple'
@@ -237,7 +237,7 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
-  lab.test('Update particulars with invalid email', function (done) {
+  lab.test('Update particulars with invalid email', function(done) {
     var newParticulars = {
       newEmail: 'newemail',
       description: 'simple'
@@ -252,7 +252,7 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
-  lab.test('Update particulars with invalid userId', function (done) {
+  lab.test('Update particulars with invalid userId', function(done) {
     var newParticulars = {
       newEmail: 'newemail',
       description: 'simple'
@@ -267,20 +267,16 @@ lab.experiment('User Model Tests', function () {
     });
   });
 
-  lab.test('Get a list of users', function (done) {
+  lab.test('Get a list of users', function(done) {
     Storage.models.User.bulkCreate([
       {username: 'Jane', password: 'asdf', email: 'jane@gmail.com'},
       {username: 'Alan', password: 'asdf', email: 'alan@gmail.com'},
       {username: 'John', password: 'asdf', email: 'john@gmail.com'}
-    ])
-    .then(function() {
-      Storage.getListOfUsers()
-      .then(function(users) {
-        expect(users[0].username).to.equal('Alan');
-        expect(users[1].username).to.equal('Jane');
-        expect(users[2].username).to.equal('John');
-        done();
-      });
+    ]).then(() => Storage.getListOfUsers({order: 'asc'})).then(function(users) {
+      expect(users[0].username).to.equal('Alan');
+      expect(users[1].username).to.equal('Jane');
+      expect(users[2].username).to.equal('John');
+      done();
     });
   });
 

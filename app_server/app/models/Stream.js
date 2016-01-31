@@ -60,6 +60,7 @@ module.exports = function(sequelize, DataTypes) {
     classMethods: {
       associate: function(models) {
         Stream.belongsTo(models.User, {
+          as: 'streamer',
           onDelete: 'CASCADE',
           foreignKey: 'owner'
         });

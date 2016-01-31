@@ -22,7 +22,7 @@ function StreamController(server, options) {
 
 var Class = StreamController.prototype;
 
-Class.registerRoutes = function () {
+Class.registerRoutes = function() {
   this.server.route({method: 'GET', path: '/',
                      config: {
                        validate: streamListParamsValidator,
@@ -46,7 +46,7 @@ Class.registerRoutes = function () {
 };
 
 /* Routes handlers */
-Class.createStream = function (request, reply) {
+Class.createStream = function(request, reply) {
   logger.debug('Creating stream');
 
   var userId = request.auth.credentials.userId;
@@ -77,7 +77,7 @@ Class.createStream = function (request, reply) {
   });
 };
 
-Class.getStreamById = function (request, reply) {
+Class.getStreamById = function(request, reply) {
   logger.debug('Getting stream by Id');
 
   Service.getStreamById(request.params.id).then(function(result) {
@@ -91,7 +91,7 @@ Class.getStreamById = function (request, reply) {
   });
 };
 
-Class.getListOfStreams = function (request, reply) {
+Class.getListOfStreams = function(request, reply) {
   logger.debug('Getting list of streams');
 
   var filters = {
@@ -132,7 +132,7 @@ var streamListParamsValidator = {
   }
 };
 
-exports.register = function (server, options, next) {
+exports.register = function(server, options, next) {
   var streamController = new StreamController(server, options);
   server.bind(streamController);
   streamController.registerRoutes();
