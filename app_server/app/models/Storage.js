@@ -242,9 +242,9 @@ Class.updateParticulars = function(userId, newParticulars) {
  * @return {Promise<List<Sequelize.object>>} - a list of users
  *         {False} on fail
  */
-Class.getListOfUsers = function(originalFilters) {
+Class.getListOfUsers = function(filters) {
 
-  var filters = mapParams(originalFilters);
+  filters = mapParams(filters);
 
   return this.models.User.findAll({
     order: [['username', filters.order]]
@@ -271,7 +271,7 @@ Class.createStream = function(userId, streamAttributes) {
           return this.getStreamById(stream.streamId);
         }.bind(this));
       }.bind(this))
-  .catch(function (err) {
+  .catch(function(err) {
     return Promise.reject(err);
   });
 

@@ -20,7 +20,7 @@ function UserController(server, options) {
 }
 var Class = UserController.prototype;
 
-Class.registerRoutes = function () {
+Class.registerRoutes = function() {
   this.server.route({method: 'GET', path: '/',
                      config: {
                        validate: userListParamsValidator,
@@ -48,9 +48,9 @@ Class.registerRoutes = function () {
 };
 
 /* Routes handlers */
-Class.getUserById = function (request, reply) {
+Class.getUserById = function(request, reply) {
   Service.getUserById(request.params.id)
-  .then(function (user) {
+  .then(function(user) {
     if (!user || user instanceof Error) {
       reply(Boom.badRequest('Unable to get user with id '+ request.params.id));
       return;
@@ -61,12 +61,12 @@ Class.getUserById = function (request, reply) {
   });
 };
 
-Class.getListOfUsers = function (request, reply) {
+Class.getListOfUsers = function(request, reply) {
   var filters = {
     order: request.query.order
   };
 
-  Service.getListOfUsers(filters).then(function (users) {
+  Service.getListOfUsers(filters).then(function(users) {
     if (!users || users instanceof Error) {
       reply(Boom.badRequest('Unable to get list of users'));
       return;
@@ -76,7 +76,7 @@ Class.getListOfUsers = function (request, reply) {
   });
 };
 
-Class.login = function (request, reply) {
+Class.login = function(request, reply) {
   var credentials = {
     accessToken: request.payload.accessToken,
     appId: request.payload.appId
@@ -95,7 +95,7 @@ Class.login = function (request, reply) {
       scope: Authenticator.SCOPE.USER
     };
 
-    request.server.app.cache.set(account.userId, account, 0, function (err) {
+    request.server.app.cache.set(account.userId, account, 0, function(err) {
       if (err) {
         logger.error(err);
       }
@@ -109,7 +109,7 @@ Class.login = function (request, reply) {
   });
 };
 
-Class.logout = function (request, reply) {
+Class.logout = function(request, reply) {
   request.cookieAuth.clear();
   return reply({status: 'OK'});
 };
@@ -134,7 +134,7 @@ var loginPayloadValidator = {
   }
 };
 
-exports.register = function (server, options, next) {
+exports.register = function(server, options, next) {
   var userController = new UserController(server, options);
   server.bind(userController);
   userController.registerRoutes();

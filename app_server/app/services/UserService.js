@@ -10,7 +10,7 @@ function UserService() {
 
 var Class = UserService.prototype;
 
-Class.createNewUser = function (particulars) {
+Class.createNewUser = function(particulars) {
   logger.debug('Creating new user: %j', particulars);
 
   return Storage.createUser(particulars)
@@ -23,7 +23,7 @@ Class.createNewUser = function (particulars) {
   });
 };
 
-Class.getUserByPlatform = function (platformType, platformId) {
+Class.getUserByPlatform = function(platformType, platformId) {
   logger.debug('Getting user by platform: %s %s', platformType, platformId);
 
   return Storage.getUserByPlatformId(platformType, platformId)
@@ -36,7 +36,7 @@ Class.getUserByPlatform = function (platformType, platformId) {
   });
 };
 
-Class.getUserById = function (id) {
+Class.getUserById = function(id) {
   logger.debug('Getting user by id: %s', id);
 
   return Storage.getUserById(id)
@@ -49,13 +49,13 @@ Class.getUserById = function (id) {
   });
 };
 
-Class.getListOfUsers = function (filters) {
+Class.getListOfUsers = function(filters) {
   logger.debug('Getting list of users with filters: %j', filters);
 
   return Storage.getListOfUsers(filters)
   .then(function receiveResult(result) {
     if (result) {
-      return result.map(function(res) { return res.dataValues; });
+      return result.map((res) => res.dataValues);
     }
 
     logger.error('Unable to retrieve list of users');
@@ -63,7 +63,7 @@ Class.getListOfUsers = function (filters) {
   });
 };
 
-Class.updateParticulars = function (userId, particulars) {
+Class.updateParticulars = function(userId, particulars) {
   return Storage.updateParticulars(userId, particulars)
   .then(function receiveUser(user) {
     if (!user || user instanceof Error) {

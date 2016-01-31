@@ -11,7 +11,7 @@ function StreamService() {
 
 var Class = StreamService.prototype;
 
-Class.createNewStream = function (userId, streamAttributes) {
+Class.createNewStream = function(userId, streamAttributes) {
   logger.debug('Creating new stream: %j', streamAttributes);
 
   return Storage.createStream(userId, streamAttributes)
@@ -36,7 +36,7 @@ Class.createNewStream = function (userId, streamAttributes) {
     });
 };
 
-Class.getStreamById = function (streamId) {
+Class.getStreamById = function(streamId) {
   logger.debug('Getting stream by Id: %j', streamId);
 
   return Storage.getStreamById(streamId).then(function receiveResult(result) {

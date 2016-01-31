@@ -19,7 +19,7 @@ var randomValueBase64 =
   * Generate a random string of base64 values, replacing + and / by 0
   * @param {integer} length of the generated string
   */
-exports.randomValueBase64 = function (len) {
+exports.randomValueBase64 = function(len) {
   return crypto.randomBytes(Math.ceil(len * 3 / 4))
   .toString('base64')
   .slice(0, len)
@@ -44,7 +44,7 @@ var createLogger =
  * @param {string} filename path to the current module file
  * @return {Object} a winston logger instance
  */
-exports.createLogger = function (filename) {
+exports.createLogger = function(filename) {
   return new winston.Logger({
     transports: [
       new winston.transports.Console({
@@ -68,7 +68,7 @@ var clearUserProfile =
  * @param  {Object} a user object
  * @return {Object} user without sensitive credentials
  */
-exports.clearUserProfile = function (user) {
+exports.clearUserProfile = function(user) {
   delete user.password;
   delete user.accessToken;
 
@@ -81,7 +81,7 @@ var formatStreamObject =
  * @param  {Sequelize<Stream>} stream
  * @return {Stream}
  */
-exports.formatStreamObject = function (stream) {
+exports.formatStreamObject = function(stream) {
 
   return new Promise(function(resolve) {
     var formattedStream = stream.dataValues;
@@ -102,7 +102,7 @@ var formatViewObject =
  * @param  {Sequelize<Stream>} stream
  * @return {Stream}
  */
-exports.formatViewObject = function (stream) {
+exports.formatViewObject = function(stream) {
 
   var formattedStream = stream.dataValues;
   var viewLink = util.format('%s/%s/%s/manifest.mpd', exports.viewBaseUrl,
