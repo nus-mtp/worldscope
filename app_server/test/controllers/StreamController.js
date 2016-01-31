@@ -119,6 +119,7 @@ lab.experiment('StreamController Tests', function() {
       title: '',
       description: 'this is the description of the stream'
     };
+
     Service.createNewUser(bob).then(function(user) {
       return user.userId;
     }).then(function(userId) {

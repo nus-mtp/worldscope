@@ -50,16 +50,15 @@ lab.experiment('UserController Tests', function () {
   });
 
   lab.test('Get list of users valid default', function (done) {
-    Service.createNewUser(bob).then(function (result) {
-      return Service.createNewUser(alice);
-    }).then(function() {
-      return Router.inject({url: '/api/users', credentials: testAccount},
-      function (res) {
-        Code.expect(res.result[0].username).to.equal(alice.username);
-        Code.expect(res.result[1].username).to.equal(bob.username);
-        done();
+    Service.createNewUser(bob).then(() => Service.createNewUser(alice))
+      .then(function() {
+        return Router.inject({url: '/api/users', credentials: testAccount},
+        function (res) {
+          Code.expect(res.result[0].username).to.equal(alice.username);
+          Code.expect(res.result[1].username).to.equal(bob.username);
+          done();
+        });
       });
-    });
   });
 
   lab.test('Valid id', function (done) {
