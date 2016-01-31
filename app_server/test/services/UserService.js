@@ -121,15 +121,14 @@ lab.experiment('UserService Tests', function () {
       order: 'desc'
     };
 
-    Service.createNewUser(bob).then(function (result) {
-      return Service.createNewUser(alice);
-    }).then(function(user) {
-      return Service.getListOfUsers(filters).then(function(result) {
-        Code.expect(result[0].username).to.equal(bob.username);
-        Code.expect(result[1].username).to.equal(alice.username);
-        done();
+    Service.createNewUser(bob).then(() => Service.createNewUser(alice))
+      .then(function(user) {
+        return Service.getListOfUsers(filters).then(function(result) {
+          Code.expect(result[0].username).to.equal(bob.username);
+          Code.expect(result[1].username).to.equal(alice.username);
+          done();
+        });
       });
-    });
   });
 
   lab.test('getListOfUsers invalid order param', function(done) {
@@ -137,14 +136,13 @@ lab.experiment('UserService Tests', function () {
       order: '<script>try a javascript hack</script>'
     };
 
-    Service.createNewUser(bob).then(function (result) {
-      return Service.createNewUser(alice);
-    }).then(function(user) {
-      return Service.getListOfUsers(filters).then(function(result) {
-        Code.expect(result).to.be.null();
-        done();
+    Service.createNewUser(bob).then(() => Service.createNewUser(alice))
+      .then(function(user) {
+        return Service.getListOfUsers(filters).then(function(result) {
+          Code.expect(result).to.be.null();
+          done();
+        });
       });
-    });
   });
 
   lab.test('updateUserParticulars invalid userId', function(done) {

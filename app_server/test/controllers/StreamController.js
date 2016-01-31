@@ -29,20 +29,20 @@ var streamPayload = {
   description: 'this is the description of the stream'
 };
 
-lab.experiment('StreamController Tests', function () {
+lab.experiment('StreamController Tests', function() {
 
-  lab.beforeEach({timeout: 10000}, function (done) {
+  lab.beforeEach({timeout: 10000}, function(done) {
     TestUtils.resetDatabase(done);
   });
 
-  lab.test('Create stream valid', function (done) {
-    Service.createNewUser(bob).then(function (user) {
+  lab.test('Create stream valid', function(done) {
+    Service.createNewUser(bob).then(function(user) {
       return user.userId;
     }).then(function(userId) {
       testAccount.userId = userId;
       Router.inject({method: 'POST', url: '/api/streams',
                      credentials: testAccount,
-                     payload: streamPayload}, function (res) {
+                     payload: streamPayload}, function(res) {
 
         Code.expect(res.result.streamLink).to.equal(
           util.format('%s/%s/%s', Utility.streamBaseUrl,
@@ -55,7 +55,7 @@ lab.experiment('StreamController Tests', function () {
     });
   });
 
-  lab.test('Create 2 streams consecutively valid', function (done) {
+  lab.test('Create 2 streams consecutively valid', function(done) {
     function injectionHandler1(res) {
       Code.expect(res.result.streamLink).to.equal(
         util.format('%s/%s/%s', Utility.streamBaseUrl,
@@ -80,7 +80,7 @@ lab.experiment('StreamController Tests', function () {
       done();
     }
 
-    Service.createNewUser(bob).then(function (user) {
+    Service.createNewUser(bob).then(function(user) {
       return user.userId;
     }).then(function(userId) {
       testAccount.userId = userId;
@@ -91,22 +91,22 @@ lab.experiment('StreamController Tests', function () {
     });
   });
 
-  lab.test('Create stream missing userId', function (done) {
+  lab.test('Create stream missing userId', function(done) {
     delete testAccount.userId;
     Router.inject({method: 'POST', url: '/api/streams',
                    credentials: testAccount,
-                   payload: streamPayload}, function (res) {
+                   payload: streamPayload}, function(res) {
       Code.expect(res.result.statusCode).to.equal(401);
       Code.expect(res.result.error).to.equal('Unauthorized');
       done();
     });
   });
 
-  lab.test('Create stream invalid userId', function (done) {
+  lab.test('Create stream invalid userId', function(done) {
     testAccount.userId = 'non-existing-user';
     Router.inject({method: 'POST', url: '/api/streams',
                    credentials: testAccount,
-                   payload: streamPayload}, function (res) {
+                   payload: streamPayload}, function(res) {
       Code.expect(res.result.statusCode).to.equal(401);
       Code.expect(res.result.error).to.equal('Unauthorized');
       Code.expect(res.result.message).to.equal('User not found');
@@ -114,19 +114,19 @@ lab.experiment('StreamController Tests', function () {
     });
   });
 
-  lab.test('Create stream empty title', function (done) {
+  lab.test('Create stream empty title', function(done) {
     var streamPayload = {
       title: '',
       description: 'this is the description of the stream'
     };
-    Service.createNewUser(bob).then(function (user) {
+    Service.createNewUser(bob).then(function(user) {
       return user.userId;
     }).then(function(userId) {
       testAccount.userId = userId;
 
       Router.inject({method: 'POST', url: '/api/streams',
                      credentials: testAccount,
-                     payload: streamPayload}, function (res) {
+                     payload: streamPayload}, function(res) {
         Code.expect(res.result.statusCode).to.equal(400);
         Code.expect(res.result.error).to.equal('Bad Request');
         done();
@@ -134,20 +134,20 @@ lab.experiment('StreamController Tests', function () {
     });
   });
 
-  lab.test('Get stream by streamId valid', function (done) {
+  lab.test('Get stream by streamId valid', function(done) {
     var streamInfo = {
       title: 'this is the title',
       description: 'this is the description of the stream',
       appInstance: 'generated'
     };
 
-    Service.createNewUser(bob).then(function (user) {
+    Service.createNewUser(bob).then(function(user) {
       return user.userId;
     }).then(function(userId) {
       return Service.createNewStream(userId, streamInfo);
     }).then(function(stream) {
       Router.inject({method: 'GET', url: '/api/streams/' + stream.streamId,
-                     credentials: testAccount}, function (res) {
+                     credentials: testAccount}, function(res) {
 
         Code.expect(res.result.viewLink).to.equal(
           util.format('%s/%s/%s/manifest.mpd', Utility.viewBaseUrl,
@@ -165,34 +165,34 @@ lab.experiment('StreamController Tests', function () {
   });
 
   lab.test('Get stream by streamId invalid non-existing stream',
-    function (done) {
+    function(done) {
       Router.inject({method: 'GET', url: '/api/streams/3388ffff-aa00-1111-' +
                                          'a222-00000044888c',
-                     credentials: testAccount}, function (res) {
+                     credentials: testAccount}, function(res) {
         Code.expect(res.result.statusCode).to.equal(404);
         Code.expect(res.result.message).to.equal('Stream not found');
         done();
       });
     });
 
-  lab.test('Get stream by streamId invalid guid', function (done) {
+  lab.test('Get stream by streamId invalid guid', function(done) {
     Router.inject({method: 'GET', url: '/api/streams/213',
-                   credentials: testAccount}, function (res) {
+                   credentials: testAccount}, function(res) {
       Code.expect(res.result.statusCode).to.equal(400);
       Code.expect(res.result.error).to.equal('Bad Request');
       done();
     });
   });
 
-  lab.test('Get list of streams valid default params empty', function (done) {
+  lab.test('Get list of streams valid default params empty', function(done) {
     Router.inject({method: 'GET', url: '/api/streams',
-                   credentials: testAccount}, function (res) {
+                   credentials: testAccount}, function(res) {
       Code.expect(res.result).to.have.length(0);
       done();
     });
   });
 
-  lab.test('Get list of streams valid sort by title asc', function (done) {
+  lab.test('Get list of streams valid sort by title asc', function(done) {
 
     var streamInfo = {
       title: 'this is the title',
@@ -206,7 +206,7 @@ lab.experiment('StreamController Tests', function () {
       appInstance: 'generated2'
     };
 
-    Service.createNewUser(bob).then(function (user) {
+    Service.createNewUser(bob).then(function(user) {
       testAccount.userId = user.userId;
       return user.userId;
     }).then(function(userId) {
@@ -215,7 +215,7 @@ lab.experiment('StreamController Tests', function () {
       return Service.createNewStream(stream.owner, streamInfo2);
     }).then(function() {
       Router.inject({method: 'GET', url: '/api/streams?sort=title&order=desc',
-                     credentials: testAccount}, function (res) {
+                     credentials: testAccount}, function(res) {
         Code.expect(res.result).to.have.length(2);
         Code.expect(res.result[0].title).to.equal(streamInfo.title);
         Code.expect(res.result[0].streamer.username).to.equal(bob.username);
@@ -226,9 +226,9 @@ lab.experiment('StreamController Tests', function () {
     });
   });
 
-  lab.test('Get list of streams invalid query params', function (done) {
+  lab.test('Get list of streams invalid query params', function(done) {
     Router.inject({method: 'GET', url: '/api/streams?order=lol',
-                   credentials: testAccount}, function (res) {
+                   credentials: testAccount}, function(res) {
       Code.expect(res.result.statusCode).to.equal(400);
       Code.expect(res.result.error).to.equal('Bad Request');
       done();

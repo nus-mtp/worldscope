@@ -9,7 +9,7 @@ var Service = rfr('app/services/Service');
 var CustomError = rfr('app/util/Error');
 var TestUtils = rfr('test/TestUtils');
 
-lab.experiment('StreamService Tests', function () {
+lab.experiment('StreamService Tests', function() {
   var testStream = {
     title: 'this is a title from stream service',
     description: 'arbitrary description',
@@ -43,12 +43,12 @@ lab.experiment('StreamService Tests', function () {
     description: 'bam bam bam'
   };
 
-  lab.beforeEach({timeout: 10000}, function (done) {
+  lab.beforeEach({timeout: 10000}, function(done) {
     TestUtils.resetDatabase(done);
   });
 
   lab.test('createNewStream valid', function(done) {
-    Service.createNewUser(bob).then(function (user) {
+    Service.createNewUser(bob).then(function(user) {
       return Service.createNewStream(user.userId, testStream);
     }).then(function(result) {
       Code.expect(result.title).to.be.equal(testStream.title);
@@ -59,7 +59,7 @@ lab.experiment('StreamService Tests', function () {
   });
 
   lab.test('createNewStream undefined userId', function(done) {
-    Service.createNewStream(bob.userId, testStream).then(function (result) {
+    Service.createNewStream(bob.userId, testStream).then(function(result) {
       Code.expect(result).to.be.an.instanceof(CustomError.NotFoundError);
       Code.expect(result.message).to.be.equal('User not found');
       done();
@@ -72,7 +72,7 @@ lab.experiment('StreamService Tests', function () {
       description: 'arbitrary description'
     };
 
-    Service.createNewStream(bob.userId, testStream).then(function (result) {
+    Service.createNewStream(bob.userId, testStream).then(function(result) {
       Code.expect(result).to.be.an.instanceof(CustomError.InvalidFieldError);
       done();
     });
@@ -85,7 +85,7 @@ lab.experiment('StreamService Tests', function () {
       appInstance: '123-123-123-123'
     };
 
-    Service.createNewUser(bob).then(function (user) {
+    Service.createNewUser(bob).then(function(user) {
       return Service.createNewStream(user.userId, testStream);
     }).then(function(result) {
       Code.expect(result).to.be.an.instanceof(CustomError.InvalidFieldError);
@@ -101,7 +101,7 @@ lab.experiment('StreamService Tests', function () {
       appInstance: '123-123-123-123'
     };
 
-    Service.createNewUser(bob).then(function (user) {
+    Service.createNewUser(bob).then(function(user) {
       return Service.createNewStream(user.userId, testStream);
     }).then(function(stream) {
       return Service.createNewStream(stream.owner, dupStream);
@@ -114,7 +114,7 @@ lab.experiment('StreamService Tests', function () {
   });
 
   lab.test('getStreamById valid', function(done) {
-    Service.createNewUser(bob).then(function (user) {
+    Service.createNewUser(bob).then(function(user) {
       return Service.createNewStream(user.userId, testStream);
     }).then(function(result) {
       return Service.getStreamById(result.streamId);
@@ -127,7 +127,7 @@ lab.experiment('StreamService Tests', function () {
   });
 
   lab.test('getStreamById empty Id', function(done) {
-    Service.createNewUser(bob).then(function (user) {
+    Service.createNewUser(bob).then(function(user) {
       return Service.createNewStream(user.userId, testStream);
     }).then(function(result) {
       return Service.getStreamById('');
@@ -139,7 +139,7 @@ lab.experiment('StreamService Tests', function () {
   });
 
   lab.test('getStreamById invalid Id', function(done) {
-    Service.createNewUser(bob).then(function (user) {
+    Service.createNewUser(bob).then(function(user) {
       return Service.createNewStream(user.userId, testStream);
     }).then(function(result) {
       return Service.getStreamById('asd-234234');
@@ -170,7 +170,7 @@ lab.experiment('StreamService Tests', function () {
       order: 'asc'
     };
 
-    Service.createNewUser(bob).then(function (user) {
+    Service.createNewUser(bob).then(function(user) {
       return Service.createNewStream(user.userId, testStream);
     }).then(function(stream) {
       return Service.createNewStream(stream.owner, testStream2);
@@ -197,7 +197,7 @@ lab.experiment('StreamService Tests', function () {
       order: 'desc'
     };
 
-    Service.createNewUser(bob).then(function (user) {
+    Service.createNewUser(bob).then(function(user) {
       return Service.createNewStream(user.userId, testStream);
     }).then(function(stream) {
       return Service.createNewStream(stream.owner, testStream2);

@@ -11,7 +11,7 @@ var logger = Utility.createLogger(__filename);
 var Storage = rfr('app/models/Storage.js');
 var TestUtils = rfr('test/TestUtils');
 
-lab.experiment('Stream Model Tests', function () {
+lab.experiment('Stream Model Tests', function() {
 
   var streamDetails = {
     title: 'I am going to dance',
@@ -272,7 +272,7 @@ lab.experiment('Stream Model Tests', function () {
       });
   });
 
-  lab.test('Update stream details', function (done) {
+  lab.test('Update stream details', function(done) {
 
     var newStreamAttributes = {
       title: 'a new title',
