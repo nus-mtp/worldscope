@@ -1,7 +1,6 @@
 /**
  * @module SocketAdapter
  */
-
 var rfr = require('rfr');
 var Promise = require('bluebird');
 var Iron = Promise.promisifyAll(require('iron'));
@@ -9,7 +8,6 @@ var Iron = Promise.promisifyAll(require('iron'));
 var Utility = rfr('app/util/Utility');
 var Client = rfr('app/adapters/socket/Client');
 var RoomsManager = rfr('app/adapters/socket/RoomsManager');
-var Authenticator = rfr('app/policies/Authenticator');
 var ServerConfig = rfr('config/ServerConfig.js');
 
 var logger = Utility.createLogger(__filename);
@@ -38,10 +36,11 @@ Class.init = function init(server) {
           return;
         }
 
-        return Authenticator.validateAccount(server, credentials)
+        return server.app.authenticator.validateAccount(server, credentials)
         .bind(socketAdapter)
         .then((result) => {
           if (!result || result instanceof Error) {
+            logger.error(result);
             return socket.emit('identify', 'ERR');
           }
 
@@ -55,14 +54,34 @@ Class.init = function init(server) {
         });
       })
       .catch((err) => {
+        logger.error(err);
         socket.emit('identify', 'ERR');
       });
     });
   });
 };
 
-Class.createNewRoom = function (room) {
+/**
+ * @param roomName {string}
+ */
+Class.createNewRoom = function (roomName) {
+  return this.roomsManager.createNewRoom(roomName);
+};
 
+/**
+ * @param userId {string}
+ * @param roomName {string}
+ */
+Class.addClientToRoom = function (userId, roomName) {
+  return this.roomsManager.addClientToRoom(userId, roomName);
+};
+
+/**
+ * @param userId {string}
+ * @param roomName {string}
+ */
+Class.removeClientFromRoom = function (userId, roomName) {
+  return this.roomsManager.removeClientFromRoom(userId, roomName);
 };
 
 var socketAdapter = new SocketAdapter();

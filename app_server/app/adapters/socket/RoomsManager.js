@@ -2,6 +2,7 @@
  * @module RoomsManager
  * Manage commenting and sending sticker functionalities
  */
+'use strict';
 
 var rfr = require('rfr');
 
@@ -33,7 +34,7 @@ var Class = RoomsManager.prototype;
  */
 Class.addClient = function addClient(client) {
   this.clients[client.getUserId()] = client;
-  this.addClientToRoom(client, DEFAULT_ROOM);
+  this.addClientToRoom(client.getUserId(), DEFAULT_ROOM);
   this.handleClientEvents(client);
 };
 
@@ -42,14 +43,56 @@ Class.addClient = function addClient(client) {
  * @param client {Client}
  * @param roomName {string}
  */
-Class.addClientToRoom = function addClientToRoom(client, roomName) {
+Class.addClientToRoom = function addClientToRoom(userId, roomName) {
   if (!(roomName in this.rooms)) {
-    var err = `Room ${roomName} does not exist`;
+    let err = `Room ${roomName} does not exist`;
     logger.error(err);
-    throw new Error(err);
+    return new Error(err);
+  }
+  if (!(userId in this.clients)) {
+    let err = `Client ${userId} does not exist`;
+    logger.error(err);
+    return new Error(err);
   }
 
-  this.rooms[roomName].addClient(client);
+  logger.info(`Adding ${userId} to room ${roomName}`);
+  this.rooms[roomName].addClient(this.clients[userId]);
+  return true;
+};
+
+/**
+ * Add a client to a socket.io room
+ * @param client {Client}
+ * @param roomName {string}
+ */
+Class.removeClientFromRoom = function removeClientFromRoom(userId, roomName) {
+  if (!(roomName in this.rooms)) {
+    let err = `Room ${roomName} does not exist`;
+    logger.error(err);
+    return new Error(err);
+  }
+  if (!(userId in this.clients)) {
+    let err = `Client ${userId} does not exist`;
+    logger.error(err);
+    return new Error(err);
+  }
+
+  logger.info(`Removing ${userId} from room ${roomName}`);
+  this.rooms[roomName].removeClient(this.clients[userId]);
+  return true;
+};
+
+Class.createNewRoom = function createNewRoom(roomName) {
+  if (this.rooms[roomName]) {
+    let errorMsg = `Room ${roomName} already exists`;
+    logger.error(errorMsg);
+    return new Error(errorMsg);
+  }
+
+  logger.info(`Creating room ${roomName}`);
+  var newRoom = new Room(roomName, Room.ROOM_TYPES.STREAM);
+  this.rooms[roomName] = newRoom;
+  return newRoom;
 };
 
 /*

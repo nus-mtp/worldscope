@@ -2,6 +2,7 @@
  * @module Client
  * Abstraction for a client connecting over websocket
  */
+'use strict';
 
 var rfr = require('rfr');
 var EventEmitter = require('events').EventEmitter;
@@ -16,7 +17,7 @@ function Client(socket, credentials) {
 
   this.socket = socket;
   this.credentials = credentials;
-  this.rooms = [];
+  this.rooms = {};
 
   this.handleSocketEvents(socket);
 }
@@ -40,9 +41,30 @@ Class.getCredentials = function getCredentials() {
  */
 Class.joinRoom = function joinRoom(room) {
   this.socket.join(room.getName());
-  this.rooms.push(room);
+  this.rooms[room.getName()] = room;
 };
 
+/**
+ * Leave a socket.io room represented by a Room instance
+ * @param room {Room}
+ */
+Class.leaveRoom = function leaveRoom(room) {
+  if (!(room.getName() in this.rooms)) {
+    let err = `Client ${this.getUserId()} is not in ${room.getName()}`;
+    logger.error(err);
+    return new Error(err);
+  }
+
+  this.socket.leave(room.getName());
+  delete this.rooms[room.getName()];
+};
+
+/**
+ * Broadcasts @msg under the message name @event. Current implementation
+ * broadcasts to all rooms for testing.
+ * @param event {string}
+ * @param msg {string}
+ */
 Class.broadcastToRoom = function broadcastToRoom(event, msg) {
   if (this.rooms.length == 0) {
     var err = util.format('@%s: no room to broadcast message to',

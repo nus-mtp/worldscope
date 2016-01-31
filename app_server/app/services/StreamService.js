@@ -1,8 +1,14 @@
+/**
+ * @module StreamService
+ */
+'use strict';
+
 var rfr = require('rfr');
 
 var CustomError = rfr('app/util/Error');
 var Utility = rfr('app/util/Utility');
 var Storage = rfr('app/models/Storage');
+var SocketAdapter = rfr('app/adapters/socket/SocketAdapter');
 
 var logger = Utility.createLogger(__filename);
 
@@ -17,6 +23,7 @@ Class.createNewStream = function(userId, streamAttributes) {
   return Storage.createStream(userId, streamAttributes)
     .then(function receiveResult(result) {
       if (result) {
+        initializeChatRoomForStream(userId, streamAttributes);
         return Utility.formatStreamObject(result);
       }
 
@@ -64,5 +71,24 @@ Class.getListOfStreams = function(filters) {
     return null;
   });
 };
+
+/**
+ * Creates a new chat room for a new stream and add the streamer to that room
+ * @param userId {string}
+ * @param streamAttributes {object}
+ */
+function initializeChatRoomForStream(userId, streamAttributes) {
+  let room = SocketAdapter.createNewRoom(streamAttributes.appInstance);
+  if (!room || room instanceof Error) {
+    logger.error(`Unable to create new chat room ${room}`
+                 `for stream ${streamAttributes.title}`);
+  }
+
+  let status = SocketAdapter.addClientToRoom(userId, room.getName());
+  if (!status || status instanceof Error) {
+    logger.error(`Unable to create new chat room ${room}`
+                 `for stream ${streamAttributes.title}`);
+  }
+}
 
 module.exports = new StreamService();

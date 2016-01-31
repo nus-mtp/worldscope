@@ -2,6 +2,7 @@
  * @module Room
  * Abtraction of a chat room
  */
+'use strict';
 
 var rfr = require('rfr');
 
@@ -23,7 +24,7 @@ function Room(name, type) {
   this.__name = name;
   this.__type = type;
   this.__clients = {};
-};
+}
 
 var Class = Room.prototype;
 Room.ROOM_TYPES = Class.ROOM_TYPES = {
@@ -37,11 +38,24 @@ Class.getType = function() { return this.__type; };
 
 Class.getClients = function() { return this.__clients; };
 
-Class.getClient = function(userId) { return this.__clients[userId] };
+Class.getClient = function(userId) { return this.__clients[userId]; };
 
 Class.addClient = function(client) {
   this.__clients[client.getUserId()] = client;
   client.joinRoom(this);
+  logger.info(`${client.getUserId()} added to ${this.getName()}`);
+};
+
+Class.removeClient = function(client) {
+  if (!(client.getUserId() in this.__clients)) {
+    let err = `Client ${client.getUserId()} doesn't exist in ${this.getName()}`;
+    logger.error(err);
+    return new Error(err);
+  }
+
+  delete this.__clients[client.getUserId()];
+  client.leaveRoom(this);
+  logger.info(`${client.getUserId()} removed from ${this.getName()}`);
 };
 
 module.exports = Room;
