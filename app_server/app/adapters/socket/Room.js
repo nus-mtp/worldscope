@@ -1,0 +1,47 @@
+/**
+ * @module Room
+ * Abtraction of a chat room
+ */
+
+var rfr = require('rfr');
+
+var Utility = rfr('app/util/Utility');
+
+var logger = Utility.createLogger(__filename);
+
+function Room(name, type) {
+  if (!name) {
+    logger.error('Room name is invalid');
+    throw new Error('Room name must be provided');
+  }
+
+  if (!type) {
+    logger.error('Room type is invalid');
+    throw new Error('Room type must be provided');
+  }
+
+  this.__name = name;
+  this.__type = type;
+  this.__clients = {};
+};
+
+var Class = Room.prototype;
+Room.ROOM_TYPES = Class.ROOM_TYPES = {
+  STREAM: 'stream',
+  GENERAL: 'general'
+};
+
+Class.getName = function() { return this.__name; };
+
+Class.getType = function() { return this.__type; };
+
+Class.getClients = function() { return this.__clients; };
+
+Class.getClient = function(userId) { return this.__clients[userId] };
+
+Class.addClient = function(client) {
+  this.__clients[client.getUserId()] = client;
+  client.joinRoom(this);
+};
+
+module.exports = Room;

@@ -8,7 +8,7 @@ var Iron = Promise.promisifyAll(require('iron'));
 
 var Utility = rfr('app/util/Utility');
 var Client = rfr('app/adapters/socket/Client');
-var ChatRoom = rfr('app/adapters/socket/ChatRoom');
+var RoomsManager = rfr('app/adapters/socket/RoomsManager');
 var Authenticator = rfr('app/policies/Authenticator');
 var ServerConfig = rfr('config/ServerConfig.js');
 
@@ -22,7 +22,7 @@ var Class = SocketAdapter.prototype;
 Class.init = function init(server) {
   this.io = require('socket.io')(server.listener);
 
-  this.chatRoom = new ChatRoom(server, this.io);
+  this.roomsManager = new RoomsManager(server, this.io);
 
   this.io.on('connection', (socket) => {
     logger.info('New websocket connection from: ' +
@@ -46,7 +46,7 @@ Class.init = function init(server) {
           }
 
           try {
-            this.chatRoom.addClient(new Client(socket, credentials));
+            this.roomsManager.addClient(new Client(socket, credentials));
             socket.emit('identify', 'OK');
           } catch (err) {
             logger.error(err);
@@ -59,6 +59,10 @@ Class.init = function init(server) {
       });
     });
   });
+};
+
+Class.createNewRoom = function (room) {
+
 };
 
 var socketAdapter = new SocketAdapter();
