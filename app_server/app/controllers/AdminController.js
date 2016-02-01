@@ -35,7 +35,7 @@ Class.registerRoutes = function() {
   this.server.route({
     method: 'POST', path: '/',
     config: {
-      auth: {scope: Authenticator.SCOPE.ADMIN},
+      auth: {scope: Authenticator.SCOPE.ADMIN.ADMINS},
       validate: accountPayloadValidator
     },
     handler: this.createAdmin
@@ -63,7 +63,14 @@ Class.createRootAdmin = function(request, reply) {
   var generatedPassword = Utility.randomValueBase64(20);
   request.payload = {
     username: ROOT_ADMIN_USERNAME,
-    password: generatedPassword
+    password: generatedPassword,
+    permissions: [
+      Authenticator.SCOPE.ADMIN.METRICS,
+      Authenticator.SCOPE.ADMIN.STREAMS,
+      Authenticator.SCOPE.ADMIN.USERS,
+      Authenticator.SCOPE.ADMIN.ADMINS,
+      Authenticator.SCOPE.ADMIN.SETTINGS
+    ]
   };
   Class.createAdmin(request, reply);
 };
@@ -72,7 +79,11 @@ Class.createRootAdmin = function(request, reply) {
 Class.createAdmin = function(request, reply) {
   var credentials = {
     username: request.payload.username,
-    password: encrypt(request.payload.password)
+    password: encrypt(request.payload.password),
+    permissions: (function () {
+      request.payload.permissions.push(Authenticator.SCOPE.ADMIN.DEFAULT);
+      return wrapPermissionsForDB(request.payload.permissions);
+    }())
   };
 
   Service.createNewAdmin(credentials)
@@ -83,6 +94,7 @@ Class.createAdmin = function(request, reply) {
 
     // overwrite with unencrypted password
     admin.password = request.payload.password;
+    admin.permissions = unwrapPermissionsFromDB(admin.permissions);
     reply(admin).created();
   });
 };
@@ -105,7 +117,7 @@ Class.login = function(request, reply) {
       userId: admin.userId,
       username: admin.username,
       password: admin.password,
-      scope: Authenticator.SCOPE.ADMIN
+      scope: unwrapPermissionsFromDB(admin.permissions)
     };
 
     return updateCache(request, account, function() {
@@ -129,7 +141,8 @@ Class.logout = function(request, reply) {
 var accountPayloadValidator = {
   payload: {
     username: Joi.string().required(),
-    password: Joi.string().required()
+    password: Joi.string().required(),
+    permissions: Joi.array().items(Joi.string()).default([])
   }
 };
 
@@ -148,6 +161,9 @@ var updateCache = function(request, account, callback) {
     return callback();
   });
 };
+
+var wrapPermissionsForDB = (permissionsArr) => permissionsArr.join(';');
+var unwrapPermissionsFromDB = (permissions) => permissions.split(';');
 
 exports.register = function(server, options, next) {
   var adminController = new AdminController(server, options);
