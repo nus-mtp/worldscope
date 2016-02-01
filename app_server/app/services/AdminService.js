@@ -36,4 +36,18 @@ Class.getAdminByUsername = function(username) {
   });
 };
 
+Class.getListOfAdmins = function(filters) {
+  logger.debug('Getting list of admins with filters: %j', filters);
+
+  return Storage.getListOfAdmins(filters)
+      .then(function receiveResult(result) {
+        if (result) {
+          return result.map((res) => res.dataValues);
+        }
+
+        logger.error('Unable to retrieve list of admins');
+        return null;
+      });
+};
+
 module.exports = new AdminService();

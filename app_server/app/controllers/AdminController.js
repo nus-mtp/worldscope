@@ -33,6 +33,14 @@ Class.registerRoutes = function() {
   */
 
   this.server.route({
+    method: 'GET', path: '/',
+    config: {
+      auth: {scope: Authenticator.SCOPE.ADMIN.ADMINS}
+    },
+    handler: this.getListOfAdmins
+  });
+
+  this.server.route({
     method: 'POST', path: '/',
     config: {
       auth: {scope: Authenticator.SCOPE.ADMIN.ADMINS},
@@ -59,6 +67,20 @@ Class.registerRoutes = function() {
 
 /* Routes handlers */
 /*
+Class.getListOfAdmins = function(request, reply) {
+  var filters = {
+    order: request.query.order || 'asc'
+  };
+
+  Service.getListOfAdmins(filters).then(function(admins) {
+    if (!admins || admins instanceof Error) {
+      return reply(Boom.badRequest('Unable to get list of admins'));
+    }
+
+    return reply(admins);
+  });
+};
+
 Class.createRootAdmin = function(request, reply) {
   var generatedPassword = Utility.randomValueBase64(20);
   request.payload = {
