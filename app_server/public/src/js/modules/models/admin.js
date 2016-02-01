@@ -1,11 +1,11 @@
 const m = require('mithril');
 
 const Admin = module.exports = function (data = {}) {
-  this.id = m.prop(data.adminId);
-  this.username = m.prop(data.username);
-  this.password = m.prop(data.password);
-  this.email = m.prop(data.email);
-  this.permissions = m.prop(data.permissions);
+  this.id = m.prop(data.userId || '');
+  this.username = m.prop(data.username || '');
+  this.password = m.prop(data.password || '');
+  this.email = m.prop(data.email || '');
+  this.permissions = m.prop(data.permissions || []);
 };
 
 Admin.login = (admin) =>
