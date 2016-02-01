@@ -21,7 +21,7 @@ var Class = AdminController.prototype;
 
 var ROOT_ADMIN_USERNAME = 'root';
 
-Class.registerRoutes = function () {
+Class.registerRoutes = function() {
   /*
   this.server.route({
     method: 'POST', path: '/rootAdmin',
@@ -59,7 +59,7 @@ Class.registerRoutes = function () {
 
 /* Routes handlers */
 /*
-Class.createRootAdmin = function (request, reply) {
+Class.createRootAdmin = function(request, reply) {
   var generatedPassword = Utility.randomValueBase64(20);
   request.payload = {
     username: ROOT_ADMIN_USERNAME,
@@ -69,14 +69,14 @@ Class.createRootAdmin = function (request, reply) {
 };
 */
 
-Class.createAdmin = function (request, reply) {
+Class.createAdmin = function(request, reply) {
   var credentials = {
     username: request.payload.username,
     password: encrypt(request.payload.password)
   };
 
   Service.createNewAdmin(credentials)
-  .then(function (admin) {
+  .then(function(admin) {
     if (!admin || admin instanceof Error) {
       return reply(Boom.badRequest('Unable to create admin ' + credentials));
     }
@@ -87,7 +87,7 @@ Class.createAdmin = function (request, reply) {
   });
 };
 
-Class.login = function (request, reply) {
+Class.login = function(request, reply) {
   var credentials = {
     username: request.payload.username,
     password: request.payload.password
@@ -124,7 +124,7 @@ Class.login = function (request, reply) {
   });
 };
 
-Class.logout = function (request, reply) {
+Class.logout = function(request, reply) {
   request.cookieAuth.clear();
   return reply('Logged out');
 };
@@ -138,12 +138,12 @@ var accountPayloadValidator = {
 };
 
 /* Helpers for everything above */
-var encrypt = function (password) {
+var encrypt = function(password) {
   var salt = bcrypt.genSaltSync(10);
   return bcrypt.hashSync(password, salt);
 };
 
-exports.register = function (server, options, next) {
+exports.register = function(server, options, next) {
   var adminController = new AdminController(server, options);
   server.bind(adminController);
   adminController.registerRoutes();
