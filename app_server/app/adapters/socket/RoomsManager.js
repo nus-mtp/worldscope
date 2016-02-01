@@ -21,20 +21,33 @@ function RoomsManager(server, io) {
   this.rooms = {};
   this.rooms[DEFAULT_ROOM] = new Room(DEFAULT_ROOM,
                                       Room.ROOM_TYPES.GENERAL);
-  this.clients = {};
+  this.users = {};
 
   this.requestInjector = new RequestInjector(server);
 }
 
 var Class = RoomsManager.prototype;
 
+Class.getUser = function(userId) {
+  return this.users[userId];
+};
+
+Class.createUser = function(userId) {
+  return this.users[userId] = [];
+};
+
 /**
  * Add a client to the chat room system
  * @param {Client} client
  */
 Class.addClient = function addClient(client) {
-  this.clients[client.getUserId()] = client;
-  this.addClientToRoom(client.getUserId(), DEFAULT_ROOM);
+  let userId = client.getUserId();
+  let user = this.getUser(userId);
+  if (!user) {
+    user = this.createUser(userId);
+  }
+  user.push(client);
+  this.addClientToRoom(client, DEFAULT_ROOM);
   this.handleClientEvents(client);
 };
 
@@ -43,42 +56,17 @@ Class.addClient = function addClient(client) {
  * @param client {Client}
  * @param roomName {string}
  */
-Class.addClientToRoom = function addClientToRoom(userId, roomName) {
-  if (!(roomName in this.rooms)) {
+Class.addClientToRoom = function addClientToRoom(client, roomName) {
+  let room = this.getRoom(roomName);
+
+  if (!room) {
     let err = `Room ${roomName} does not exist`;
     logger.error(err);
     return new Error(err);
   }
-  if (!(userId in this.clients)) {
-    let err = `Client ${userId} does not exist`;
-    logger.error(err);
-    return new Error(err);
-  }
 
-  logger.info(`Adding ${userId} to room ${roomName}`);
-  this.rooms[roomName].addClient(this.clients[userId]);
-  return true;
-};
-
-/**
- * Add a client to a socket.io room
- * @param client {Client}
- * @param roomName {string}
- */
-Class.removeClientFromRoom = function removeClientFromRoom(userId, roomName) {
-  if (!(roomName in this.rooms)) {
-    let err = `Room ${roomName} does not exist`;
-    logger.error(err);
-    return new Error(err);
-  }
-  if (!(userId in this.clients)) {
-    let err = `Client ${userId} does not exist`;
-    logger.error(err);
-    return new Error(err);
-  }
-
-  logger.info(`Removing ${userId} from room ${roomName}`);
-  this.rooms[roomName].removeClient(this.clients[userId]);
+  logger.info(`Adding ${client.getSocketId()} to room ${roomName}`);
+  room.addClient(client);
   return true;
 };
 
@@ -93,6 +81,13 @@ Class.createNewRoom = function createNewRoom(roomName) {
   var newRoom = new Room(roomName, Room.ROOM_TYPES.STREAM);
   this.rooms[roomName] = newRoom;
   return newRoom;
+};
+
+Class.getRoom = function(roomName) {
+  if (!(roomName in this.rooms)) {
+    return null;
+  }
+  return this.rooms[roomName];
 };
 
 /*

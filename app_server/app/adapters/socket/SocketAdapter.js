@@ -13,6 +13,7 @@ var ServerConfig = rfr('config/ServerConfig.js');
 var logger = Utility.createLogger(__filename);
 
 function SocketAdapter() {
+  this.isInitialized = false;
 }
 
 var Class = SocketAdapter.prototype;
@@ -59,6 +60,8 @@ Class.init = function init(server) {
       });
     });
   });
+  
+  this.isInitialized = true;
 };
 
 /**
@@ -66,22 +69,6 @@ Class.init = function init(server) {
  */
 Class.createNewRoom = function (roomName) {
   return this.roomsManager.createNewRoom(roomName);
-};
-
-/**
- * @param userId {string}
- * @param roomName {string}
- */
-Class.addClientToRoom = function (userId, roomName) {
-  return this.roomsManager.addClientToRoom(userId, roomName);
-};
-
-/**
- * @param userId {string}
- * @param roomName {string}
- */
-Class.removeClientFromRoom = function (userId, roomName) {
-  return this.roomsManager.removeClientFromRoom(userId, roomName);
 };
 
 var socketAdapter = new SocketAdapter();

@@ -44,16 +44,6 @@ lab.experiment('StreamService Tests', function() {
     description: 'bam bam bam'
   };
 
-  lab.before(function(done) {
-    StreamService.detachedFromSocketAdapter = true;
-    done();
-  });
-
-  lab.after(function(done) {
-    StreamService.detachedFromSocketAdapter = false;
-    done();
-  });
-
   lab.beforeEach({timeout: 10000}, function(done) {
     TestUtils.resetDatabase(done);
   });
