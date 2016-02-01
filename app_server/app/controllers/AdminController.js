@@ -33,6 +33,14 @@ Class.registerRoutes = function() {
   */
 
   this.server.route({
+    method: 'GET', path: '/{username}',
+    config: {
+      auth: {scope: Authenticator.SCOPE.ADMIN.ADMINS}
+    },
+    handler: this.getAdminByUsername
+  });
+
+  this.server.route({
     method: 'GET', path: '/',
     config: {
       auth: {scope: Authenticator.SCOPE.ADMIN.ADMINS}
@@ -66,7 +74,20 @@ Class.registerRoutes = function() {
 };
 
 /* Routes handlers */
-/*
+Class.getAdminByUsername = function(request, reply) {
+  Service.getAdminByUsername(request.params.username)
+  .then(function(admin) {
+    if (!admin || admin instanceof Error) {
+      return reply(Boom.badRequest(
+          'Unable to get user with id ' + request.params.username
+      ));
+    }
+
+    admin.permissions = unwrapPermissionsFromDB(admin.permissions);
+    return reply(Utility.clearUserProfile(admin));
+  });
+};
+
 Class.getListOfAdmins = function(request, reply) {
   var filters = {
     order: request.query.order || 'asc'
@@ -81,6 +102,7 @@ Class.getListOfAdmins = function(request, reply) {
   });
 };
 
+/*
 Class.createRootAdmin = function(request, reply) {
   var generatedPassword = Utility.randomValueBase64(20);
   request.payload = {
