@@ -13,6 +13,7 @@ var SocketAdapter = rfr('app/adapters/socket/SocketAdapter');
 var logger = Utility.createLogger(__filename);
 
 function StreamService() {
+  this.detachedFromSocketAdapter = false;
 }
 
 var Class = StreamService.prototype;
@@ -21,9 +22,9 @@ Class.createNewStream = function(userId, streamAttributes) {
   logger.debug('Creating new stream: %j', streamAttributes);
 
   return Storage.createStream(userId, streamAttributes)
-    .then(function receiveResult(result) {
+    .then((result) => {
       if (result) {
-        initializeChatRoomForStream(userId, streamAttributes);
+        this.initializeChatRoomForStream(userId, streamAttributes);
         return Utility.formatStreamObject(result);
       }
 
@@ -77,7 +78,11 @@ Class.getListOfStreams = function(filters) {
  * @param userId {string}
  * @param streamAttributes {object}
  */
-function initializeChatRoomForStream(userId, streamAttributes) {
+Class.initializeChatRoomForStream = function(userId, streamAttributes) {
+  if (this.detachedFromSocketAdapter) {
+    return;
+  }
+
   let room = SocketAdapter.createNewRoom(streamAttributes.appInstance);
   if (!room || room instanceof Error) {
     logger.error(`Unable to create new chat room ${room}`

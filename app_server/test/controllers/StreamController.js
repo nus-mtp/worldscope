@@ -7,6 +7,7 @@ var util = require('util');
 var Authenticator = rfr('app/policies/Authenticator');
 var Utility = rfr('app/util/Utility');
 var Service = rfr('app/services/Service');
+var StreamService = rfr('app/services/StreamService');
 var TestUtils = rfr('test/TestUtils');
 var Router = rfr('app/Router.js');
 
@@ -30,6 +31,15 @@ var streamPayload = {
 };
 
 lab.experiment('StreamController Tests', function() {
+  lab.before(function(done) {
+    StreamService.detachedFromSocketAdapter = true;
+    done();
+  });
+
+  lab.after(function(done) {
+    StreamService.detachedFromSocketAdapter = false;
+    done();
+  });
 
   lab.beforeEach({timeout: 10000}, function(done) {
     TestUtils.resetDatabase(done);

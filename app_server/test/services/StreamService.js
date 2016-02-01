@@ -6,6 +6,7 @@ var expect = Code.expect;
 
 var Storage = rfr('app/models/Storage');
 var Service = rfr('app/services/Service');
+var StreamService = rfr('app/services/StreamService');
 var CustomError = rfr('app/util/Error');
 var TestUtils = rfr('test/TestUtils');
 
@@ -42,6 +43,16 @@ lab.experiment('StreamService Tests', function() {
     platformId: '1238943948',
     description: 'bam bam bam'
   };
+
+  lab.before(function(done) {
+    StreamService.detachedFromSocketAdapter = true;
+    done();
+  });
+
+  lab.after(function(done) {
+    StreamService.detachedFromSocketAdapter = false;
+    done();
+  });
 
   lab.beforeEach({timeout: 10000}, function(done) {
     TestUtils.resetDatabase(done);
