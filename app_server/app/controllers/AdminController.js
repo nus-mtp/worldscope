@@ -108,11 +108,7 @@ Class.login = function(request, reply) {
       scope: Authenticator.SCOPE.ADMIN
     };
 
-    request.server.app.cache.set(account.userId, account, 0, function (err) {
-      if (err) {
-        logger.error(err);
-      }
-
+    return updateCache(request, account, function() {
       request.cookieAuth.set(account);
 
       // rewrite with unencrypted password
@@ -141,6 +137,16 @@ var accountPayloadValidator = {
 var encrypt = function(password) {
   var salt = bcrypt.genSaltSync(10);
   return bcrypt.hashSync(password, salt);
+};
+
+var updateCache = function(request, account, callback) {
+  request.server.app.cache.set(account.userId, account, 0, function (err) {
+    if (err) {
+      logger.error(err);
+    }
+
+    return callback();
+  });
 };
 
 exports.register = function(server, options, next) {
