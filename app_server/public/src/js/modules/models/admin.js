@@ -17,3 +17,17 @@ Admin.login = (admin) =>
         password: admin.password()
       }
     });
+
+Admin.get = (username) =>
+    m.request({
+      method: 'GET',
+      url: '../api/admins/' + username,
+      type: Admin
+    });
+
+Admin.list = () =>
+    m.request({
+      method: 'GET',
+      url: '../api/admins',
+      type: Admin
+    });
