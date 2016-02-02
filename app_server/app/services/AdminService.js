@@ -67,4 +67,18 @@ Class.updateParticulars = function(id, particulars) {
   });
 };
 
+Class.deleteAdminById = function(id) {
+  return Storage.deleteUserById(id)
+  .then(function receiveResult(result) {
+    if (!result) {
+      logger.error('Unable to delete admin %s', id);
+    }
+
+    return result;
+  }).catch(function fail(err) {
+    logger.error('Unable to delete admin %s: %j', id, err);
+    return false;
+  });
+};
+
 module.exports = new AdminService();

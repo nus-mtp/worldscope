@@ -77,6 +77,11 @@ Class.updateAdmin = function(id, particulars) {
   logger.debug('Updating admin particulars %s %j', particulars);
   return AdminService.updateParticulars(id, particulars);
 };
+
+Class.deleteAdmin = function(id) {
+  logger.debug('Deleting admin by id: %s', id);
+  return AdminService.deleteAdminById(id);
+};
 ///////////////////////
 
 module.exports = new Service();

@@ -67,6 +67,14 @@ Class.registerRoutes = function() {
   });
 
   this.server.route({
+    method: 'DELETE', path: '/{id}',
+    config: {
+      auth: {scope: Authenticator.SCOPE.ADMIN.ADMINS}
+    },
+    handler: this.deleteAdmin
+  });
+
+  this.server.route({
     method: 'POST', path: '/login',
     config: {
       auth: false,
@@ -178,6 +186,19 @@ Class.updateAdmin = function(request, reply) {
     } else {
       return reply(Utility.clearUserProfile(admin));
     }
+  });
+};
+
+Class.deleteAdmin = function(request, reply) {
+  var id = request.params.id;
+
+  return Service.deleteAdmin(id)
+  .then(function(result) {
+    if (!result) {
+      return reply(Boom.badRequest('Unable to delete admin with id ' + id));
+    }
+
+    return reply();
   });
 };
 
