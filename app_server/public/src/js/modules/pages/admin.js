@@ -1,5 +1,7 @@
 const m = require('mithril');
 
+const mz = require('../utils/mzInit');
+
 const AdminModel = require('../models/admin');
 
 const Admin = module.exports = {
@@ -29,19 +31,21 @@ const Admin = module.exports = {
 
     let admin = ctrl.admin();
     return [
-      m('h1', 'Edit Admin'),
-      m('div.input-field col s12',
-          getLabelledInput('Username', 'username', 'text', admin.username)
-      ),
-      m('div.input-field col s12',
-          getLabelledInput('Password', 'password', 'text', admin.password)
-      ),
-      m('div.input-field col s12',
-          getLabelledInput('Email', 'email', 'text', admin.email)
-      ),
-      m('div.col s12',
-          m('button.btn', {onclick: ctrl.update}, 'Submit')
-      )
+      m('div.row', mz.text, [
+        m('h1', 'Edit Admin'),
+        m('form.col s12', {onsubmit: ctrl.update}, [
+          m('div.input-field col s12',
+              getLabelledInput('Username', 'username', 'text', admin.username)
+          ),
+          m('div.input-field col s12',
+              getLabelledInput('Password', 'password', 'password', admin.password)
+          ),
+          m('div.input-field col s12',
+              getLabelledInput('Email', 'email', 'text', admin.email)
+          ),
+          m('button.btn col s12', {type: 'submit'}, 'Edit Admin')
+        ])
+      ])
     ];
   }
 };
