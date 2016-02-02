@@ -98,8 +98,18 @@ lab.experiment('AdminController Routes tests', function() {
 
   lab.test('Unauthorized to public routes', function(done) {
     var routes = {
+      GET: [
+        '/api/admins',
+        '/api/admins/username'
+      ],
       POST: [
         '/api/admins'
+      ],
+      PUT: [
+        '/api/admins/id'
+      ],
+      DELETE: [
+        '/api/admins/id'
       ]
     };
 
@@ -109,7 +119,9 @@ lab.experiment('AdminController Routes tests', function() {
       });
     };
 
-    routes.POST.map((url) => checkUnauthorized('POST', url));
+    Object.keys(routes).forEach(
+        (method) => routes[method].forEach(
+            (url) => checkUnauthorized(method, url)));
     done();
   });
 
