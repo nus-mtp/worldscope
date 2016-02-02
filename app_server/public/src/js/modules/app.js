@@ -48,7 +48,7 @@ App.routes = {
 
     '/admins': {controller: () => m.route('/admins/all')},
     '/admins/all': navPage(require('./pages/admins')),
-    '/admins/create': blank,
+    '/admins/create': navPage(require('./pages/admin')),
     '/admins/view/:username': navPage(require('./pages/admin')),
     '/admins/delete/:username': navPage(require('./pages/admindelete')),
 

@@ -18,6 +18,20 @@ Admin.login = (admin) =>
       }
     });
 
+Admin.create = (admin) =>
+    m.request({
+      method: 'POST',
+      url: '../api/admins',
+      data: {
+        username: admin.username(),
+        password: admin.password(),
+        email: admin.email(),
+        permissions: [
+          'metrics', 'streams', 'users', 'admins', 'settings'
+        ]
+      }
+    });
+
 Admin.get = (username) =>
     m.request({
       method: 'GET',

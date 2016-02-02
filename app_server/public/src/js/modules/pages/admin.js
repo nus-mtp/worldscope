@@ -6,17 +6,35 @@ const AdminModel = require('../models/admin');
 
 const Admin = module.exports = {
   controller: function () {
-    let username = m.route.param('username') || -1;
+    let username = m.route.param('username') || '';
 
     let ctrl = this;
 
-    ctrl.admin = m.prop();
-    AdminModel.get(username).then(ctrl.admin);
+    if (username) {
+      ctrl.title = 'Edit Admin';
 
-    ctrl.update = () =>
-        AdminModel.update(ctrl.admin())
-                  .then(() => m.route('/admins'),
-                        (err) => console.log(err)); // TODO: display error
+      ctrl.admin = m.prop();
+      AdminModel.get(username).then(ctrl.admin);
+
+      ctrl.action = function (e) {
+        e.preventDefault();
+        AdminModel.update(ctrl.admin()).then(
+            () => m.route('/admins'),
+            (err) => console.log(err) // TODO: display error
+        );
+      };
+    } else {
+      ctrl.title = 'Create Admin';
+      ctrl.admin = m.prop(new AdminModel());
+
+      ctrl.action = function (e) {
+        e.preventDefault();
+        AdminModel.create(ctrl.admin()).then(
+            () => m.route('/admins'),
+            (err) => console.log(err) // TODO: display error
+        );
+      };
+    }
   },
   view: function (ctrl) {
     let getLabelledInput = function (label, id, type, prop) {
@@ -35,8 +53,8 @@ const Admin = module.exports = {
     let admin = ctrl.admin();
     return [
       m('div.row', mz.text, [
-        m('h1', 'Edit Admin'),
-        m('form.col s12', {onsubmit: ctrl.update}, [
+        m('h1', ctrl.title),
+        m('form.col s12', {onsubmit: ctrl.action}, [
           m('div.input-field col s12',
               getLabelledInput('Username', 'username', 'text', admin.username)
           ),
@@ -46,7 +64,7 @@ const Admin = module.exports = {
           m('div.input-field col s12',
               getLabelledInput('Email', 'email', 'text', admin.email)
           ),
-          m('button.btn col s12', {type: 'submit'}, 'Edit Admin')
+          m('button.btn col s12', {type: 'submit'}, ctrl.title)
         ])
       ])
     ];
