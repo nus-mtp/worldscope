@@ -28,7 +28,7 @@ var admin = {
 };
 
 var adminForDB = Object.assign({}, admin);
-adminForDB.permissions = Authenticator.SCOPE.ADMIN.DEFAULT  ;
+adminForDB.permissions = Authenticator.SCOPE.ADMIN.DEFAULT;
 
 var rootAdmin = {
   username: 'Jane',
@@ -267,17 +267,17 @@ lab.experiment('AdminController Routes tests', function() {
       payload: rootAdmin
     }, function checkCreation(res) {
       expect(res.statusCode).to.equal(201);
-      expect(TestUtils.isEqualOnProperties(
-          admin, JSON.parse(res.payload)
-      )).to.be.true();
+      var resAdmin = JSON.parse(res.payload);
+      expect(resAdmin.username).to.equal(rootAdmin.username);
+      expect(resAdmin.password).to.equal(rootAdmin.password);
 
       Router.inject({
         method: 'POST', url: '/api/admins/login', payload: rootAdmin
       }, function checkLoggedIn(res) {
         expect(res.statusCode).to.equal(200);
-        expect(TestUtils.isEqualOnProperties(
-            admin, JSON.parse(res.payload)
-        )).to.be.true();
+        var resAdmin = JSON.parse(res.payload);
+        expect(resAdmin.username).to.equal(rootAdmin.username);
+        expect(resAdmin.password).to.equal(rootAdmin.password);
 
         Router.inject({
           method: 'POST', url: '/api/admins', payload: {},
