@@ -163,6 +163,7 @@ Class.createAdmin = function(request, reply) {
 
 Class.updateAdmin = function(request, reply) {
   var id = request.params.id;
+  var password = request.payload.password;
   var particulars = request.payload;
 
   if (particulars.password) {
@@ -180,9 +181,11 @@ Class.updateAdmin = function(request, reply) {
       return reply(Boom.badRequest('Unable to update admin with id ' + id));
     }
 
+    admin.permissions = unwrapPermissionsFromDB(admin.permissions);
+
     if (particulars.password) {
       // overwrite with unencrypted password
-      admin.password = particulars.password;
+      admin.password = password;
       return reply(admin);
     } else {
       return reply(Utility.clearUserProfile(admin));
