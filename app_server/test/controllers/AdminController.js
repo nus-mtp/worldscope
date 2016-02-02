@@ -10,14 +10,25 @@ var TestUtils = rfr('test/TestUtils');
 var Service = rfr('app/services/Service');
 var Authenticator = rfr('app/policies/Authenticator');
 
+var rootAdminPermissions = [
+  Authenticator.SCOPE.ADMIN.METRICS,
+  Authenticator.SCOPE.ADMIN.STREAMS,
+  Authenticator.SCOPE.ADMIN.USERS,
+  Authenticator.SCOPE.ADMIN.ADMINS,
+  Authenticator.SCOPE.ADMIN.SETTINGS
+];
+
 var testAccount = {
-  userId: 1, username: 'bob', password: 'abc', scope: Authenticator.SCOPE.ADMIN
+  userId: 1, username: 'bob', password: 'abc', scope: rootAdminPermissions
 };
 
 var admin = {
   username: 'Bob',
   password: 'generated'
 };
+
+var rootAdmin = Object.assign({}, admin);
+rootAdmin.permissions = rootAdminPermissions;
 
 lab.experiment('AdminController Function Tests', function() {
   lab.beforeEach({timeout: 10000}, function(done) {
@@ -93,7 +104,7 @@ lab.experiment('AdminController Routes tests', function() {
   lab.test('Create admin, login, and access authorized route', function(done) {
     Router.inject({
       method: 'POST', url: '/api/admins', credentials: testAccount,
-      payload: admin
+      payload: rootAdmin
     }, function checkCreation(res) {
       expect(res.statusCode).to.equal(201);
       expect(TestUtils.isEqualOnProperties(
@@ -101,7 +112,7 @@ lab.experiment('AdminController Routes tests', function() {
       )).to.be.true();
 
       Router.inject({
-        method: 'POST', url: '/api/admins/login', payload: admin
+        method: 'POST', url: '/api/admins/login', payload: rootAdmin
       }, function checkLoggedIn(res) {
         expect(res.statusCode).to.equal(200);
         expect(TestUtils.isEqualOnProperties(
@@ -109,7 +120,7 @@ lab.experiment('AdminController Routes tests', function() {
         )).to.be.true();
 
         Router.inject({
-          method: 'POST', url: '/api/admins',
+          method: 'POST', url: '/api/admins', payload: {},
           headers: {'Cookie': res.headers['set-cookie'][0].split(';')[0]}
         }, function checkValidCredentials(res) {
           // 401 if invalid credentials
