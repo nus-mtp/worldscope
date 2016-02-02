@@ -141,6 +141,108 @@ lab.experiment('AdminController Routes tests', function() {
     done();
   });
 
+  lab.test('Get admin by username', function(done) {
+    Router.inject({
+      method: 'POST', url: '/api/admins', credentials: testAccount,
+      payload: admin
+    }, function getAdmin(res) {
+      expect(res.statusCode).to.equal(201);
+
+      Router.inject({
+        method: 'GET', url: '/api/admins/' + admin.username,
+        credentials: testAccount
+      }, function checkValid(res) {
+        expect(res.statusCode).to.equal(200);
+        expect(JSON.parse(res.payload).username).to.equal(admin.username);
+
+        done();
+      });
+    });
+  });
+
+  lab.test('Get list of admins', function(done) {
+    Router.inject({
+      method: 'POST', url: '/api/admins', credentials: testAccount,
+      payload: admin
+    }, function createAnotherAdmin(res) {
+      expect(res.statusCode).to.equal(201);
+
+      Router.inject({
+        method: 'POST', url: '/api/admins', credentials: testAccount,
+        payload: rootAdmin
+      }, function getAdmins(res) {
+        expect(res.statusCode).to.equal(201);
+
+        Router.inject({
+          method: 'GET', url: '/api/admins', credentials: testAccount
+        }, function checkAdmins(res) {
+          expect(res.statusCode).to.equal(200);
+
+          var admins = JSON.parse(res.payload);
+          expect(admins.length).to.equal(2);
+          expect(admins[0].username).to.equal(admin.username);
+          expect(admins[1].username).to.equal(rootAdmin.username);
+
+          done();
+        });
+      });
+    });
+  });
+
+  lab.test('Update admin', function(done) {
+    Router.inject({
+      method: 'POST', url: '/api/admins', credentials: testAccount,
+      payload: admin
+    }, function updateAdmin(res) {
+      expect(res.statusCode).to.equal(201);
+
+      Router.inject({
+        method: 'PUT', url: '/api/admins/' + JSON.parse(res.payload).userId,
+        credentials: testAccount, payload: rootAdmin
+      }, function getAdmins(res) {
+        expect(res.statusCode).to.equal(200);
+        expect(TestUtils.isEqualOnProperties(
+            rootAdmin, JSON.parse(res.payload)
+        )).to.be.true();
+
+        Router.inject({
+          method: 'GET', url: '/api/admins/' + rootAdmin.username,
+          credentials: testAccount
+        }, function checkAdmin(res) {
+          expect(res.statusCode).to.equal(200);
+          expect(JSON.parse(res.payload).username).to.equal(rootAdmin.username);
+
+          done();
+        });
+      });
+    });
+  });
+
+  lab.test('Delete admin', function(done) {
+    Router.inject({
+      method: 'POST', url: '/api/admins', credentials: testAccount,
+      payload: admin
+    }, function deleteAdmin(res) {
+      expect(res.statusCode).to.equal(201);
+
+      Router.inject({
+        method: 'DELETE', url: '/api/admins/' + JSON.parse(res.payload).userId,
+        credentials: testAccount
+      }, function getDeletedAdmin(res) {
+        expect(res.statusCode).to.equal(200);
+
+        Router.inject({
+          method: 'GET', url: '/api/admins/' + admin.username,
+          credentials: testAccount
+        }, function checkDeleted(res) {
+          expect(res.statusCode).to.equal(400);
+
+          done();
+        });
+      });
+    });
+  });
+
   lab.test('Login without params', function(done) {
     Router.inject({
       method: 'POST', url: '/api/admins/login'
