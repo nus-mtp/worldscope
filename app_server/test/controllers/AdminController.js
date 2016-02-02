@@ -27,8 +27,17 @@ var admin = {
   password: 'generated'
 };
 
-var rootAdmin = Object.assign({}, admin);
-rootAdmin.permissions = rootAdminPermissions;
+var adminForDB = Object.assign({}, admin);
+adminForDB.permissions = Authenticator.SCOPE.ADMIN.DEFAULT  ;
+
+var rootAdmin = {
+  username: 'Jane',
+  password: 'manual',
+  permissions: rootAdminPermissions
+};
+
+var rootAdminForDB = Object.assign({}, rootAdmin);
+rootAdminForDB.permissions = rootAdminPermissions.join(';');
 
 lab.experiment('AdminController Function Tests', function() {
   lab.beforeEach({timeout: 10000}, function(done) {
@@ -40,6 +49,43 @@ lab.experiment('AdminController Function Tests', function() {
       return Service.getAdminByUsername(result.username);
     }).then(function(user) {
       expect(user.username).to.equal(admin.username);
+      done();
+    });
+  });
+
+  lab.test('Get list of admins', function(done) {
+    Promise.all([
+      Service.createNewAdmin(adminForDB),
+      Service.createNewAdmin(rootAdminForDB)
+    ])
+    .then(() => Service.getListOfAdmins({order: 'asc'}))
+    .then(function(list) {
+      expect(list[0].username).to.equal(admin.username);
+      expect(list[1].username).to.equal(rootAdmin.username);
+      done();
+    });
+  });
+
+  lab.test('Update admin', function(done) {
+    Service.createNewAdmin(adminForDB)
+    .then(function(result) {
+      var newAdmin = Object.assign({}, adminForDB);
+      newAdmin.username = 'Bobby';
+      return Service.updateAdmin(result.userId, newAdmin);
+    })
+    .then((admin) => Service.getAdminByUsername(admin.username))
+    .then(function(result) {
+      expect(result.username).to.equal('Bobby');
+      done();
+    });
+  });
+
+  lab.test('Delete admin', function(done) {
+    Service.createNewAdmin(adminForDB)
+    .then((admin) => Service.deleteAdmin(admin.userId))
+    .then(() => Service.getAdminByUsername(adminForDB.username))
+    .then(function(result) {
+      expect(result).to.be.null();
       done();
     });
   });
