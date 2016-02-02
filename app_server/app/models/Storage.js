@@ -247,6 +247,9 @@ Class.getListOfUsers = function(filters) {
   filters = mapParams(filters);
 
   return this.models.User.findAll({
+    where: {
+      permissions: null
+    },
     order: [['username', filters.order]]
   }).catch(function(err) {
     logger.error('Error in fetching list of users: %j', err);

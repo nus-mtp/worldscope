@@ -271,8 +271,11 @@ lab.experiment('User Model Tests', function() {
     Storage.models.User.bulkCreate([
       {username: 'Jane', password: 'asdf', email: 'jane@gmail.com'},
       {username: 'Alan', password: 'asdf', email: 'alan@gmail.com'},
-      {username: 'John', password: 'asdf', email: 'john@gmail.com'}
+      {username: 'John', password: 'asdf', email: 'john@gmail.com'},
+      {username: 'Alibabadmin', password: 'asdf', email: 'alibabaad@gmail.com',
+       permissions: 'some permissions string'}
     ]).then(() => Storage.getListOfUsers({order: 'asc'})).then(function(users) {
+      expect(users).to.have.length(3);
       expect(users[0].username).to.equal('Alan');
       expect(users[1].username).to.equal('Jane');
       expect(users[2].username).to.equal('John');

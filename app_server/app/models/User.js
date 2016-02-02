@@ -54,7 +54,8 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING
     },
     permissions: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      defaultValue: null // default to null for all users
     }
   }, {
     freezeTableName: true,
