@@ -58,6 +58,15 @@ Class.registerRoutes = function() {
   });
 
   this.server.route({
+    method: 'PUT', path: '/{id}',
+    config: {
+      auth: {scope: Authenticator.SCOPE.ADMIN.ADMINS},
+      validate: updatePayloadValidator
+    },
+    handler: this.updateAdmin
+  });
+
+  this.server.route({
     method: 'POST', path: '/login',
     config: {
       auth: false,
@@ -143,6 +152,35 @@ Class.createAdmin = function(request, reply) {
   });
 };
 
+Class.updateAdmin = function(request, reply) {
+  var id = request.params.id;
+  var particulars = request.payload;
+
+  if (particulars.password) {
+    particulars.password = encrypt(particulars.password);
+  } else {
+    // no password provided, don't change
+    delete particulars.password;
+  }
+
+  particulars.permissions = wrapPermissionsForDB(particulars.permissions);
+
+  return Service.updateAdmin(id, particulars)
+  .then(function(admin) {
+    if (!admin || admin instanceof Error) {
+      return reply(Boom.badRequest('Unable to update admin with id ' + id));
+    }
+
+    if (particulars.password) {
+      // overwrite with unencrypted password
+      admin.password = particulars.password;
+      return reply(admin);
+    } else {
+      return reply(Utility.clearUserProfile(admin));
+    }
+  });
+};
+
 Class.login = function(request, reply) {
   var credentials = {
     username: request.payload.username,
@@ -196,6 +234,15 @@ var accountPayloadValidator = {
     username: Joi.string().required(),
     password: Joi.string().required(),
     permissions: Joi.array().items(validPermissions).default([])
+  }
+};
+
+var updatePayloadValidator = {
+  payload: {
+    username: Joi.string().required(),
+    password: Joi.string().optional(),
+    email: Joi.string().required(),
+    permissions: Joi.array().items(validPermissions).required()
   }
 };
 

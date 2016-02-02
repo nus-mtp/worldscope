@@ -40,14 +40,31 @@ Class.getListOfAdmins = function(filters) {
   logger.debug('Getting list of admins with filters: %j', filters);
 
   return Storage.getListOfAdmins(filters)
-      .then(function receiveResult(result) {
-        if (result) {
-          return result.map((res) => res.dataValues);
-        }
+  .then(function receiveResult(result) {
+    if (result) {
+      return result.map((res) => res.dataValues);
+    }
 
-        logger.error('Unable to retrieve list of admins');
-        return null;
-      });
+    logger.error('Unable to retrieve list of admins');
+    return null;
+  });
+};
+
+Class.updateParticulars = function(id, particulars) {
+  return Storage.updateParticulars(id, particulars)
+  .then(function receiveAdmin(admin) {
+    if (!admin || admin instanceof Error) {
+      logger.error('Unable to update admin particulars %s %j: %j',
+          id, particulars, admin);
+      return null;
+    }
+
+    return admin.dataValues;
+  }).catch(function fail(err) {
+    logger.error('Unable to update admin particulars %s %j: %j',
+        id, particulars, err);
+    return null;
+  });
 };
 
 module.exports = new AdminService();

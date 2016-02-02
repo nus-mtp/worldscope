@@ -72,6 +72,11 @@ Class.getAdminByUsername = function(username) {
   logger.debug('Getting admin by username: %s', username);
   return AdminService.getAdminByUsername(username);
 };
+
+Class.updateAdmin = function(id, particulars) {
+  logger.debug('Updating admin particulars %s %j', particulars);
+  return AdminService.updateParticulars(id, particulars);
+};
 ///////////////////////
 
 module.exports = new Service();
