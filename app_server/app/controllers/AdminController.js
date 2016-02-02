@@ -182,11 +182,20 @@ Class.logout = function(request, reply) {
 };
 
 /* Validator for routes */
+var validPermissions = Joi.string().valid([
+  Authenticator.SCOPE.ADMIN.DEFAULT,
+  Authenticator.SCOPE.ADMIN.METRICS,
+  Authenticator.SCOPE.ADMIN.STREAMS,
+  Authenticator.SCOPE.ADMIN.USERS,
+  Authenticator.SCOPE.ADMIN.ADMINS,
+  Authenticator.SCOPE.ADMIN.SETTINGS
+]);
+
 var accountPayloadValidator = {
   payload: {
     username: Joi.string().required(),
     password: Joi.string().required(),
-    permissions: Joi.array().items(Joi.string()).default([])
+    permissions: Joi.array().items(validPermissions).default([])
   }
 };
 
