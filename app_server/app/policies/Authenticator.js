@@ -29,7 +29,14 @@ Class.ERRORS = {
 
 Class.SCOPE = {
   USER: 'user',
-  ADMIN: 'admin',
+  ADMIN: {
+    DEFAULT: 'admin',
+    METRICS: 'metrics',
+    STREAMS: 'streams',
+    USERS: 'users',
+    ADMINS: 'admins',
+    SETTINGS: 'settings'
+  },
   ALL: ['user', 'admin']
 };
 
@@ -198,7 +205,7 @@ Class.validateAccount = function (server, session) {
 
       if (session.scope === Class.SCOPE.USER) {
         return Class.verifyUserToken(user, session.password);
-      } else if (session.scope === Class.SCOPE.ADMIN) {
+      } else if (session.scope === Class.SCOPE.ADMIN.DEFAULT) {
         return bcrypt.compareAsync(session.password, user.password);
       } else {
         return new Error(Class.ERRORS.UNKNOWN_SCOPE);

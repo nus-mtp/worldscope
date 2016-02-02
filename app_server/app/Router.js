@@ -68,7 +68,7 @@ server.register(require('hapi-auth-cookie'), function (err) {
 
 server.auth.default({
   strategy: 'session',
-  scope: Authenticator.SCOPE.ADMIN
+  scope: Authenticator.SCOPE.ADMIN.DEFAULT
 });
 
 /* Register controllers */

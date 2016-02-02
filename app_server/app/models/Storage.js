@@ -223,7 +223,7 @@ Class.deleteUserById = function(userId) {
 };
 
 /**
- * @param  {string}
+ * @param  {string} userId
  * @param  {object} newParticulars
  * @param  {string} newParticulars.username
  * @param  {string} newParticulars.password
@@ -248,6 +248,23 @@ Class.getListOfUsers = function(filters) {
 
   return this.models.User.findAll({
     order: [['username', filters.order]]
+  }).catch(function(err) {
+    logger.error('Error in fetching list of users: %j', err);
+    return false;
+  });
+};
+
+// TODO: Merge into getListOfUsers() after implementing filters
+/**
+ * @return {Promise<List<Sequelize.object>>} - a list of admins
+ *         {False} on fail
+ */
+Class.getListOfAdmins = function(filters) {
+  filters = mapParams(filters);
+
+  return this.models.User.findAll({
+    order: [['username', filters.order]],
+    where: {permissions: {ne: null}}
   }).catch(function(err) {
     logger.error('Error in fetching list of users: %j', err);
     return false;

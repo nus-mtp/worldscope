@@ -58,6 +58,11 @@ Class.getListOfStreams = function(filters) {
 ///////////////////////
 
 /////// ADMIN APIs ///////
+Class.getListOfAdmins = function(filters) {
+  logger.debug('Getting list of admins with filters: %j', filters);
+  return AdminService.getListOfAdmins(filters);
+};
+
 Class.createNewAdmin = function(particulars) {
   logger.debug('Creating new admin: %j', particulars);
   return AdminService.createNewAdmin(particulars);
@@ -66,6 +71,16 @@ Class.createNewAdmin = function(particulars) {
 Class.getAdminByUsername = function(username) {
   logger.debug('Getting admin by username: %s', username);
   return AdminService.getAdminByUsername(username);
+};
+
+Class.updateAdmin = function(id, particulars) {
+  logger.debug('Updating admin particulars %s %j', particulars);
+  return AdminService.updateParticulars(id, particulars);
+};
+
+Class.deleteAdmin = function(id) {
+  logger.debug('Deleting admin by id: %s', id);
+  return AdminService.deleteAdminById(id);
 };
 ///////////////////////
 
