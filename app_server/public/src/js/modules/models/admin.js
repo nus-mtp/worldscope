@@ -31,3 +31,21 @@ Admin.list = () =>
       url: '../api/admins',
       type: Admin
     });
+
+Admin.update = (admin) =>
+    m.request({
+      method: 'PUT',
+      url: '../api/admins/' + admin.id(),
+      data: (function () {
+        let payload = {
+          username: admin.username(),
+          email: admin.email(),
+          permissions: admin.permissions()
+        };
+        if (admin.password()) {
+          payload.password = admin.password;
+        }
+        return payload;
+      }()),
+      type: Admin
+    });

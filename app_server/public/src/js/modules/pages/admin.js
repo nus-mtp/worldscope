@@ -13,7 +13,10 @@ const Admin = module.exports = {
     ctrl.admin = m.prop();
     AdminModel.get(username).then(ctrl.admin);
 
-    ctrl.update = () => AdminModel.update(ctrl.admin());
+    ctrl.update = () =>
+        AdminModel.update(ctrl.admin())
+                  .then(() => m.route('/admins'),
+                        (err) => console.log(err)); // TODO: display error
   },
   view: function (ctrl) {
     let getLabelledInput = function (label, id, type, prop) {
