@@ -1,18 +1,8 @@
 package com.litmus.worldscope;
 
-import android.preference.Preference;
-import android.preference.PreferenceManager;
-
 import com.litmus.worldscope.model.WorldScopeUser;
 import com.litmus.worldscope.model.WorldScopeViewStream;
-
-import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
-
-import okhttp3.Interceptor;
-import okhttp3.Request;
-import okhttp3.Response;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -24,26 +14,31 @@ public class WorldScopeAPIService {
     // Server address
     public static final String WorldScopeURL = "http://54.179.170.132:3000";
 
+    // REST API Routes
+    private static final String loginRoute = "/api/users/login";
+    private static final String logoutRoute = "/api/users/logout";
+    private static final String streamsRoute = "/api/streams";
+
     // WorldScope App Id
     private static final String appId = "123456789";
 
     // API interface requird by Retrofit to make the calls
     public interface WorldScopeAPIInterface {
-        @POST("/api/users/login")
+        @POST(loginRoute)
         Call<WorldScopeUser> loginUser(@Body LoginUserRequest body);
 
-        @GET("/api/users/logout")
+        @GET(logoutRoute)
         Call<WorldScopeUser> logoutUser();
 
         /**
          * Method to get streams
-         * @param status - Possible values: live, done, all
+         * @param state - Possible values: live, done, all
          * @param sort - Possible values: time, viewers, title
          * @param order - Possible values: desc, asc
          * @return
          */
-        @GET("/api/streams")
-        Call<List<WorldScopeViewStream>> getStreams(@Query("status") String status, @Query("sort") String sort, @Query("order") String order);
+        @GET(streamsRoute)
+        Call<List<WorldScopeViewStream>> getStreams(@Query("state") String state, @Query("sort") String sort, @Query("order") String order);
 
     }
 

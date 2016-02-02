@@ -104,7 +104,8 @@ public class WorldScopeRestAPI {
             HashSet<String> preferences = (HashSet<String>) PreferenceManager.getDefaultSharedPreferences(context)
                     .getStringSet(cookiesSetTag, new HashSet<String>());
 
-            if(chain.request().method().equals("POST") && chain.request().url().toString().equals("http://54.179.170.132:3000/api/users/login")) {
+            if(chain.request().method().equals("POST") && chain.request().url().toString().equals(WorldScopeAPIService.WorldScopeURL + "/api/users/login")) {
+                Log.d(TAG, "Login detected, clearing cookies");
                 preferences.clear();
             }
 
@@ -125,13 +126,19 @@ public class WorldScopeRestAPI {
         public Response intercept(Chain chain) throws IOException {
             Response originalResponse = chain.proceed(chain.request());
 
-            Log.d(TAG, "Response: " + originalResponse.request().headers().toString());
-
+            Log.d(TAG, "Response: " + originalResponse.toString());
 
             if(!originalResponse.headers(setCookiesHeaderTag).isEmpty()) {
                 HashSet<String> cookies = new HashSet<>();
 
                 for(String header: originalResponse.headers(setCookiesHeaderTag)) {
+
+                    // Remove the extra "; HttpOnly; Path=/" behind cookie
+                    int cookieEndIndex = header.indexOf(";");
+                    if(cookieEndIndex > 0) {
+                        header = header.substring(0, cookieEndIndex);
+                    }
+
                     cookies.add(header);
                     Log.d(TAG, "Cookies saved: " + header);
                 }

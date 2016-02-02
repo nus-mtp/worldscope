@@ -12,13 +12,13 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.litmus.worldscope.model.WorldScopeUser;
 import com.litmus.worldscope.model.WorldScopeViewStream;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import retrofit2.Call;
@@ -32,12 +32,17 @@ public class StreamRefreshListFragment extends Fragment {
 
     private final String TAG = "StreamRefreshList";
 
+    private final String APP_SERVER_GET_STREAMS_CHECK_INTERNET_FAILED_MSG = "Failed to get streams, please check your internet connection";
+
+    private final String APP_SERVER_GET_STREAMS_SERVER_DOWN_FAILED_MSG = "Failed to get streams, please try again later";
+
     /**
      * The fragment argument representing the section number for this
      * fragment.
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
 
+    private int sectionNumber;
     private ListView listView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private WorldScopeStreamAdapter worldScopeStreamAdapter;
@@ -48,10 +53,13 @@ public class StreamRefreshListFragment extends Fragment {
      * number.
      */
     public static StreamRefreshListFragment newInstance(int sectionNumber) {
+
         StreamRefreshListFragment fragment = new StreamRefreshListFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_SECTION_NUMBER, sectionNumber);
         fragment.setArguments(args);
+        fragment.sectionNumber = sectionNumber;
+        fragment.sectionNumber = sectionNumber;
         return fragment;
     }
 
@@ -64,8 +72,13 @@ public class StreamRefreshListFragment extends Fragment {
         // Inflate the fragment with the XML layout
         View rootView = inflater.inflate(R.layout.fragment_stream_list, container, false);
 
-        // Initiate the streams array
-        streams = new ArrayList<>();
+        // Initiate the streams array if not already initialized
+        if(streams == null) {
+            streams = new ArrayList<>();
+        }
+
+        // Load streams data
+        getStreamsData();
 
         // Set the WorldScopeStreamAdapter into ListView
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
@@ -78,52 +91,52 @@ public class StreamRefreshListFragment extends Fragment {
             @Override
             public void onRefresh() {
                 // Adds one more dummy when refresh
-                putFakeData();
-                worldScopeStreamAdapter = new WorldScopeStreamAdapter(getActivity(), R.layout.fragment_stream_list_item, streams);
-                listView.setAdapter(worldScopeStreamAdapter);
-                swipeRefreshLayout.setRefreshing(false);
+                getStreamsData();
             }
         });
-        putFakeData();
 
         return rootView;
     }
 
-    private void putFakeData() {
+    private void getStreamsData() {
 
         // Make a dummy call to backend
-        Call<List<WorldScopeViewStream>> call = new WorldScopeRestAPI(getActivity()).buildWorldScopeAPIService().getStreams(null, null, null);
+        Log.d(TAG, "Getting Streams");
+        Call<List<WorldScopeViewStream>> call = new WorldScopeRestAPI(getActivity()).buildWorldScopeAPIService().getStreams("live", "time", "desc");
         call.enqueue(new Callback<List<WorldScopeViewStream>>() {
             @Override
             public void onResponse(Response<List<WorldScopeViewStream>> response) {
                 Log.d(TAG, "GOT RESPONSE");
+                Log.d(TAG, response.message());
 
                 if (response.isSuccess()) {
-                    Log.d(TAG, "RESPONSE SUCCESS");
-                    Log.d(TAG, response.body().toString());
+                    Log.d(TAG, "RESPONSE SUCCESS FOR TAB: " + sectionNumber + " with " + response.body().size() + " streams");
+
+                    streams.clear();
+
+                    for (WorldScopeViewStream stream : response.body()) {
+                        streams.add(stream);
+                    }
+                    worldScopeStreamAdapter.notifyDataSetChanged();
+
                 } else {
                     Log.d(TAG, "RESPONSE FAIL");
+                    Toast toast = Toast.makeText(getContext(), APP_SERVER_GET_STREAMS_SERVER_DOWN_FAILED_MSG, Toast.LENGTH_SHORT);
+                    toast.show();
                 }
+
+                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
             public void onFailure(Throwable t) {
                 Log.d(TAG, "NO RESPONSE");
+                t.printStackTrace();
+                swipeRefreshLayout.setRefreshing(false);
+                Toast toast = Toast.makeText(getContext(), APP_SERVER_GET_STREAMS_CHECK_INTERNET_FAILED_MSG, Toast.LENGTH_SHORT);
+                toast.show();
             }
         });
-
-
-        WorldScopeUser dummyUser = new WorldScopeUser();
-        dummyUser.setAlias("Ash Ketchum");
-
-        WorldScopeViewStream dummy = new WorldScopeViewStream();
-        dummy.setThumbnailLink("https://36.media.tumblr.com/0c71b9afd08d039c6c294578ba3c96e8/tumblr_mwhk5xPN8u1rgpyeqo1_500.png");
-        dummy.setTitle("Pikachu eating Pocky");
-        dummy.setOwner(dummyUser);
-        dummy.setCreatedAt(new Date());
-        dummy.setTotalViewers(123);
-
-        streams.add(dummy);
     }
 
     private class WorldScopeStreamAdapter extends ArrayAdapter<WorldScopeViewStream> {
@@ -178,7 +191,7 @@ public class StreamRefreshListFragment extends Fragment {
 
             // Set text data into the view
             viewHolder.titleTextView.setText(stream.getTitle());
-            viewHolder.ownerTextView.setText(stream.getOwner().getAlias());
+            //viewHolder.ownerTextView.setText(stream.getOwner().getAlias());
             viewHolder.createdAtTextView.setText(stream.getCreatedAt().toString());
             viewHolder.totalViewerTextView.setText(String.valueOf(stream.getTotalViewers()));
 

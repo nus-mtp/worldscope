@@ -15,9 +15,15 @@ public class WorldScopeStream {
     private boolean live;
     private String duration;
     private String description;
-    private Date createdAt;
-    private Date deletedAt;
-    private WorldScopeUser owner;
+    private String createdAt;
+    private String deletedAt;
+    private String owner;
+
+    /*
+        private Date createdAt;
+        private Date deletedAt;
+        private WorldScopeUser owner;
+    */
 
     public String getStreamId() {return streamId;}
     public String getAppInstance() {return appInstance;}
@@ -28,9 +34,14 @@ public class WorldScopeStream {
     public boolean getLive() {return live;}
     public String getDuration() {return duration;}
     public String getDescription() {return description;}
-    public Date getCreatedAt() {return createdAt;}
-    public Date getDeletedAt() {return deletedAt;}
-    public WorldScopeUser getOwner() {return owner;}
+    /*
+        public Date getCreatedAt() {return createdAt;}
+        public Date getDeletedAt() {return deletedAt;}
+        public WorldScopeUser getOwner() {return owner;}
+    */
+    public String getCreatedAt() {return createdAt;}
+    public String getDeletedAt() {return deletedAt;}
+    public String getOwner() {return owner;}
 
     public void setStreamId(String streamId) {this.streamId = streamId;}
     public void setAppInstance(String appInstance) {this.appInstance = appInstance;}
@@ -41,9 +52,18 @@ public class WorldScopeStream {
     public void setLive(boolean live) {this.live = live;}
     public void setDuration(String duration) {this.duration = duration;}
     public void setDescription(String description) {this.description = description;}
-    public void setCreatedAt(Date createdAt) {this.createdAt = createdAt;}
-    public void setDeletedAt(Date deletedAt) {this.deletedAt = deletedAt;}
-    public void setOwner(WorldScopeUser owner) {this.owner = owner;}
+
+    public void setCreatedAt(String createdAt) {this.createdAt = createdAt;}
+    public void setDeletedAt(String deletedAt) {this.deletedAt = deletedAt;}
+
+    /*
+        public void setCreatedAt(Date createdAt) {this.createdAt = createdAt;}
+        public void setDeletedAt(Date deletedAt) {this.deletedAt = deletedAt;}
+        public void setOwner(WorldScopeUser owner) {this.owner = owner;}
+    */
+
+    public void setOwner(String owner) {this.owner = owner;}
+
 
     @Override
     public String toString() {

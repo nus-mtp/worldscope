@@ -15,7 +15,7 @@ public class WorldScopeViewStream extends WorldScopeStream{
 
     @Override
     public String toString() {
-        return this.toString() + "\n"
+        return super.toString() + "\n"
                 + "viewLink: " + this.getViewLink()
                 + "thumbnailLink: " + this.getThumbnailLink();
     }
