@@ -141,7 +141,7 @@ Class.createAdmin = function(request, reply) {
   var credentials = {
     username: request.payload.username,
     password: encrypt(request.payload.password),
-    email: request.payload.email || '',
+    email: request.payload.email || null,
     permissions: (function () {
       request.payload.permissions.push(Authenticator.SCOPE.ADMIN.DEFAULT);
       return wrapPermissionsForDB(request.payload.permissions);
