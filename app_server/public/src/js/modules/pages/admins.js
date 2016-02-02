@@ -17,7 +17,8 @@ const Admins = module.exports = {
     let getActions = (id) =>
         m('select', {onchange: m.withAttr('value', m.route)}, [
           m('option', {disabled: true, selected: true}, 'Choose...'),
-          m('option', {value: '/admins/view/' + id}, 'View / Edit')
+          m('option', {value: '/admins/view/' + id}, 'View / Edit'),
+          m('option', {value: '/admins/delete/' + id}, 'Delete')
         ]);
 
     let parse = (admins) => admins.map(

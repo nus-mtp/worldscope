@@ -49,3 +49,9 @@ Admin.update = (admin) =>
       }()),
       type: Admin
     });
+
+Admin.delete = (admin) =>
+    m.request({
+      method: 'DELETE',
+      url: '../api/admins/' + admin.id()
+    });

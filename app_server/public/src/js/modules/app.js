@@ -50,6 +50,7 @@ App.routes = {
     '/admins/all': navPage(require('./pages/admins')),
     '/admins/create': blank,
     '/admins/view/:username': navPage(require('./pages/admin')),
+    '/admins/delete/:username': navPage(require('./pages/admindelete')),
 
     '/settings': blank
   }
