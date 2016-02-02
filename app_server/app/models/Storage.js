@@ -275,6 +275,41 @@ Class.getListOfAdmins = function(filters) {
 };
 
 /**
+ * @return {Promise<Integer>} - total number of users in database
+ *         {False} on fail
+ */
+Class.getNumberOfUsers = function() {
+
+  return this.models.User.count({
+    where: {
+      permissions: null
+    },
+  }).catch(function(err) {
+    logger.error('Error in counting users: %j', err);
+    return false;
+  });
+};
+
+
+/**
+ * @return {Promise<Integer>} - total number of admins in database
+ *         {False} on fail
+ */
+Class.getNumberOfAdmins = function() {
+
+  return this.models.User.count({
+    where: {
+      permissions: {
+        $ne: null
+      }
+    },
+  }).catch(function(err) {
+    logger.error('Error in counting admins: %j', err);
+    return false;
+  });
+};
+
+/**
  * @param  {string} userId - userid of the user who created stream
  * @param  {object} streamAttributes
  * @param  {string} streamAttributes.streamKey

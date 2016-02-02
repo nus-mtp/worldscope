@@ -283,4 +283,30 @@ lab.experiment('User Model Tests', function() {
     });
   });
 
+  lab.test('Count number of users', function(done) {
+    Storage.models.User.bulkCreate([
+      {username: 'Jane', password: 'asdf', email: 'jane@gmail.com'},
+      {username: 'Alan', password: 'asdf', email: 'alan@gmail.com'},
+      {username: 'John', password: 'asdf', email: 'john@gmail.com'},
+      {username: 'Alibabadmin', password: 'asdf', email: 'alibabaad@gmail.com',
+       permissions: 'some permissions string'}
+    ]).then(() => Storage.getNumberOfUsers()).then(function(count) {
+      expect(count).to.equal(3);
+      done();
+    });
+  });
+
+  lab.test('Count number of admins', function(done) {
+    Storage.models.User.bulkCreate([
+      {username: 'Jane', password: 'asdf', email: 'jane@gmail.com'},
+      {username: 'Alan', password: 'asdf', email: 'alan@gmail.com'},
+      {username: 'John', password: 'asdf', email: 'john@gmail.com'},
+      {username: 'Alibabadmin', password: 'asdf', email: 'alibabaad@gmail.com',
+       permissions: 'some permissions string'}
+    ]).then(() => Storage.getNumberOfAdmins()).then(function(count) {
+      expect(count).to.equal(1);
+      done();
+    });
+  });
+
 });
