@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity
     // Welcome message shown in Toast
     private final String WELCOME_MSG = "Welcome to WorldScope, %s";
 
+    private final int NUMBER_OF_TABS = 3;
+
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -153,6 +155,9 @@ public class MainActivity extends AppCompatActivity
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
+
+        // Keep all three tabs in memory
+        mViewPager.setOffscreenPageLimit(NUMBER_OF_TABS);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
