@@ -223,7 +223,7 @@ Class.deleteUserById = function(userId) {
 };
 
 /**
- * @param  {string}
+ * @param  {string} userId
  * @param  {object} newParticulars
  * @param  {string} newParticulars.username
  * @param  {string} newParticulars.password
