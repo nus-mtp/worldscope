@@ -141,6 +141,7 @@ Class.createAdmin = function(request, reply) {
   var credentials = {
     username: request.payload.username,
     password: encrypt(request.payload.password),
+    email: request.payload.email || '',
     permissions: (function () {
       request.payload.permissions.push(Authenticator.SCOPE.ADMIN.DEFAULT);
       return wrapPermissionsForDB(request.payload.permissions);
@@ -254,7 +255,8 @@ var accountPayloadValidator = {
   payload: {
     username: Joi.string().required(),
     password: Joi.string().required(),
-    permissions: Joi.array().items(validPermissions).default([])
+    email: Joi.string().optional(),
+    permissions: Joi.array().items(validPermissions).unique().default([])
   }
 };
 
@@ -262,8 +264,8 @@ var updatePayloadValidator = {
   payload: {
     username: Joi.string().required(),
     password: Joi.string().optional(),
-    email: Joi.string().required(),
-    permissions: Joi.array().items(validPermissions).required()
+    email: Joi.string().optional(),
+    permissions: Joi.array().items(validPermissions).unique().required()
   }
 };
 
