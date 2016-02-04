@@ -6,7 +6,6 @@ var expect = Code.expect;
 
 var Storage = rfr('app/models/Storage');
 var Service = rfr('app/services/Service');
-var StreamService = rfr('app/services/StreamService');
 var CustomError = rfr('app/util/Error');
 var TestUtils = rfr('test/TestUtils');
 

@@ -70,15 +70,15 @@ Class.leaveRoom = function leaveRoom(room) {
  * @param msg {string}
  */
 Class.broadcastToRoom = function broadcastToRoom(event, msg) {
-  if (this.rooms.length == 0) {
+  if (!this.rooms || this.rooms.length === 0) {
     var err = util.format('@%s: no room to broadcast message to',
                           this.getSocketId());
     logger.error(err);
     throw new Error(err);
   }
 
-  for (var i in this.rooms) {
-    var room = this.rooms[i];
+  for (var roomName in this.rooms) {
+    var room = this.rooms[roomName];
     logger.debug('%s comments in #%s: %s',
                  this.getSocketId(), room.getName(), msg);
     this.socket.to(room.getName()).emit(event, msg);

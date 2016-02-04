@@ -28,9 +28,7 @@ function RoomsManager(server, io) {
 
 var Class = RoomsManager.prototype;
 
-Class.getUser = function(userId) {
-  return this.users[userId];
-};
+Class.getUser = function(userId) { return this.users[userId]; };
 
 Class.createUser = function(userId) {
   return this.users[userId] = [];
@@ -40,7 +38,7 @@ Class.createUser = function(userId) {
  * Add a client to the chat room system
  * @param {Client} client
  */
-Class.addClient = function addClient(client) {
+Class.addClient = function(client) {
   let userId = client.getUserId();
   let user = this.getUser(userId);
   if (!user) {
@@ -56,7 +54,7 @@ Class.addClient = function addClient(client) {
  * @param client {Client}
  * @param roomName {string}
  */
-Class.addClientToRoom = function addClientToRoom(client, roomName) {
+Class.addClientToRoom = function(client, roomName) {
   let room = this.getRoom(roomName);
 
   if (!room) {
@@ -70,7 +68,7 @@ Class.addClientToRoom = function addClientToRoom(client, roomName) {
   return true;
 };
 
-Class.createNewRoom = function createNewRoom(roomName) {
+Class.createNewRoom = function(roomName) {
   if (this.rooms[roomName]) {
     let errorMsg = `Room ${roomName} already exists`;
     logger.error(errorMsg);
@@ -94,12 +92,12 @@ Class.getRoom = function(roomName) {
  * Register handler for events emitted by a Client
  * @param client {Client}
  */
-Class.handleClientEvents = function handleClientEvents(client) {
-  client.on(Client.EVENT_COMMENT, (function (comment) {
+Class.handleClientEvents = function(client) {
+  client.on(Client.EVENT_COMMENT, (comment) => {
     logger.debug('Receive %s event from %s',
                  Client.EVENT_COMMENT, client.getUserId());
     this.requestInjector.createComment(client.getCredentials(), comment);
-  }).bind(this));
+  });
 };
 
 module.exports = RoomsManager;
