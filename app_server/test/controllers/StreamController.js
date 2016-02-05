@@ -9,6 +9,7 @@ var Utility = rfr('app/util/Utility');
 var Service = rfr('app/services/Service');
 var TestUtils = rfr('test/TestUtils');
 var Router = rfr('app/Router.js');
+var SocketAdapter = rfr('app/adapters/socket/SocketAdapter');
 
 var testAccount = {userId: 1, username: 'bob', password: 'abc',
                    scope: Authenticator.SCOPE.USER};
@@ -30,7 +31,6 @@ var streamPayload = {
 };
 
 lab.experiment('StreamController Tests', function() {
-
   lab.beforeEach({timeout: 10000}, function(done) {
     TestUtils.resetDatabase(done);
   });
@@ -50,6 +50,9 @@ lab.experiment('StreamController Tests', function() {
                                   res.result.streamId));
         Code.expect(res.result.title).to.equal(streamPayload.title);
         Code.expect(res.result.streamer.username).to.equal(bob.username);
+        Code.expect(SocketAdapter.roomsManager.getRoom(res.result.appInstance))
+        .to.not.be.null();
+
         done();
       });
     });
@@ -63,6 +66,8 @@ lab.experiment('StreamController Tests', function() {
                                 res.result.streamId));
       Code.expect(res.result.title).to.equal(streamPayload.title);
       Code.expect(res.result.streamer.username).to.equal(bob.username);
+      Code.expect(SocketAdapter.roomsManager.getRoom(res.result.appInstance))
+      .to.not.be.null();
 
       Router.inject({method: 'POST', url: '/api/streams',
                     credentials: testAccount,
@@ -77,6 +82,8 @@ lab.experiment('StreamController Tests', function() {
                                 res.result.streamId));
       Code.expect(res.result.title).to.equal(streamPayload.title);
       Code.expect(res.result.streamer.username).to.equal(bob.username);
+      Code.expect(SocketAdapter.roomsManager.getRoom(res.result.appInstance))
+      .to.not.be.null();
       done();
     }
 
@@ -130,6 +137,8 @@ lab.experiment('StreamController Tests', function() {
                      payload: streamPayload}, function(res) {
         Code.expect(res.result.statusCode).to.equal(400);
         Code.expect(res.result.error).to.equal('Bad Request');
+        Code.expect(SocketAdapter.roomsManager.getRoom(res.result.appInstance))
+        .to.be.null();
         done();
       });
     });

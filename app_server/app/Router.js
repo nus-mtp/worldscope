@@ -66,6 +66,8 @@ server.register(require('hapi-auth-cookie'), function (err) {
   });
 });
 
+server.app.authenticator = Authenticator;
+
 server.auth.default({
   strategy: 'session',
   scope: Authenticator.SCOPE.ADMIN.DEFAULT
@@ -83,7 +85,6 @@ server.register({
   }
 });
 
-/* Register controllers */
 server.register({
   register: rfr('app/controllers/StreamController.js')
 }, {
@@ -91,6 +92,7 @@ server.register({
 }, function (err) {
   if (err) {
     logger.error('Unable to register StreamController: %j', err);
+    throw err;
   }
 });
 

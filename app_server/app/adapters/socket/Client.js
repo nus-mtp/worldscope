@@ -2,6 +2,7 @@
  * @module Client
  * Abstraction for a client connecting over websocket
  */
+'use strict';
 
 var rfr = require('rfr');
 var EventEmitter = require('events').EventEmitter;
@@ -16,6 +17,7 @@ function Client(socket, credentials) {
 
   this.socket = socket;
   this.credentials = credentials;
+  this.rooms = {};
 
   this.handleSocketEvents(socket);
 }
@@ -25,46 +27,70 @@ var Class = Client.prototype;
 
 Client.EVENT_COMMENT = Class.EVENT_COMMENT = 'comment';
 
-Class.getUsername = function getUsername() {
-  return this.credentials['username'];
+Class.getUserId = function getUserId() {
+  return this.credentials['userId'];
 };
 
 Class.getCredentials = function getCredentials() {
   return this.credentials;
 };
 
-Class.getSocket = function getSocket() {
-  return this.socket;
+Class.getSocketId = function getSocketId() {
+  return this.socket.id;
 };
 
-Class.getRoom = function getRoom() {
-  return this.room;
+/**
+ * Joins a socket.io room represented by a Room instance
+ * @param room {Room}
+ */
+Class.joinRoom = function joinRoom(room) {
+  this.socket.join(room.getName());
+  this.rooms[room.getName()] = room;
 };
 
-Class.joinRoom = function joinRoom(roomName) {
-  this.socket.join(roomName);
-  this.room = roomName;
+/**
+ * Leave a socket.io room represented by a Room instance
+ * @param room {Room}
+ */
+Class.leaveRoom = function leaveRoom(room) {
+  if (!(room.getName() in this.rooms)) {
+    let err = `Client ${this.getSocketId()} is not in ${room.getName()}`;
+    logger.error(err);
+    return new Error(err);
+  }
+
+  this.socket.leave(room.getName());
+  delete this.rooms[room.getName()];
 };
 
+/**
+ * Broadcasts @msg under the message name @event. Current implementation
+ * broadcasts to all rooms for testing.
+ * @param event {string}
+ * @param msg {string}
+ */
 Class.broadcastToRoom = function broadcastToRoom(event, msg) {
-  if (!this.room || this.room.length == 0) {
+  if (!this.rooms || this.rooms.length === 0) {
     var err = util.format('@%s: no room to broadcast message to',
-                          this.getUsername());
+                          this.getSocketId());
     logger.error(err);
     throw new Error(err);
   }
 
-  logger.debug('%s comments in #%s: %s',
-               this.getUsername(), this.getRoom(), msg);
-  this.socket.to(this.room).emit(event, msg);
-  this.socket.emit(event, msg);
+  for (var roomName in this.rooms) {
+    var room = this.rooms[roomName];
+    logger.debug('%s comments in #%s: %s',
+                 this.getSocketId(), room.getName(), msg);
+    this.socket.to(room.getName()).emit(event, msg);
+    this.socket.emit(event, msg);
+  }
 };
 
 Class.handleSocketEvents = function handleSocketEvents(socket) {
-  socket.on(this.EVENT_COMMENT, (function (comment) {
+  socket.on(this.EVENT_COMMENT, (comment) => {
     this.broadcastToRoom(this.EVENT_COMMENT, comment);
     this.emit(this.EVENT_COMMENT, comment);
-  }).bind(this));
+  });
 };
 
 module.exports = Client;

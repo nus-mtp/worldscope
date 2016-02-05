@@ -36,7 +36,7 @@ var alice = {
   description: 'nil'
 };
 
-lab.experiment('UserController Tests', function () {
+lab.experiment('UserController Tests', {timeout: 5000}, function () {
   lab.beforeEach({timeout: 10000}, function (done) {
     TestUtils.resetDatabase(done);
   });
