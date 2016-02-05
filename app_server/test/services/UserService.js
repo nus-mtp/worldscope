@@ -145,31 +145,37 @@ lab.experiment('UserService Tests', function () {
       });
   });
 
-  lab.test('updateUserParticulars invalid userId', function(done) {
+  lab.test('updateUser invalid userId', function(done) {
     Service.createNewUser(bob).then(function (result) {
-      return Service.updateUserParticulars('invalidUserId',
-                                           result);
+      return Service.updateUser('3388ffff-aa00-1111a222-00000044888c',
+                                {description: 'blahblah'});
     }).then(function(user) {
       Code.expect(user).to.be.null();
       done();
     });
   });
 
-  lab.test('updateUserParticulars missing particulars', function(done) {
+  lab.test('updateUser invalid missing email', function(done) {
     Service.createNewUser(bob).then(function (result) {
-      return Service.updateUserParticulars(result.userId);
+      return Service.updateUser(result.userId,
+                                {email: ''});
     }).then(function(user) {
       Code.expect(user).to.be.null();
       done();
     });
   });
 
-  lab.test('updateUserParticulars valid', function(done) {
+  lab.test('updateUser valid', function(done) {
+    var updates = {
+      email: 'newemail@lahlahland.candy',
+      alias: 'Taeng',
+      description: 'wooohoo! I am fun!'
+    };
+
     Service.createNewUser(bob).then(function (result) {
-      return Service.updateUserParticulars(result.userId,
-          {email: 'newemail@lahlahland.candy'});
+      return Service.updateUser(result.userId, updates);
     }).then(function(user) {
-      Code.expect(user.email).to.equal('newemail@lahlahland.candy');
+      Code.expect(TestUtils.isEqualOnProperties(updates, user)).to.be.true();
       done();
     });
   });

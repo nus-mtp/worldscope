@@ -35,6 +35,13 @@ Class.registerRoutes = function() {
                      },
                      handler: this.getUserById});
 
+  this.server.route({method: 'PUT', path: '/{id}',
+                     config: {
+                       validate: updateUserValidator,
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
+                     handler: this.updateUser});
+
   this.server.route({method: 'POST', path: '/login',
                      config: {
                        auth: false,
@@ -74,6 +81,24 @@ Class.getListOfUsers = function(request, reply) {
 
     reply(users.map(Utility.clearUserProfile));
   });
+};
+
+Class.updateUser = function(request, reply) {
+  var updates = {
+    alias: request.payload.alias,
+    description: request.payload.description,
+    email: request.payload.email
+  };
+
+  Service.updateUser(request.auth.credentials.userId, updates)
+    .then(function(user) {
+      if (!user || user instanceof Error) {
+        reply(Boom.badRequest('Unable to update user'));
+        return;
+      }
+
+      reply(user);
+    });
 };
 
 Class.login = function(request, reply) {
@@ -131,6 +156,14 @@ var loginPayloadValidator = {
   payload: {
     appId: Joi.string().required(),
     accessToken: Joi.string().required()
+  }
+};
+
+var updateUserValidator = {
+  payload: {
+    alias: Joi.string().optional().default(null),
+    description: Joi.string().optional().default(null),
+    email: Joi.string().optional().default(null)
   }
 };
 

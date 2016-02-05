@@ -195,7 +195,7 @@ lab.experiment('User Model Tests', function() {
     };
 
     Storage.createUser(user).then(function(user) {
-      Storage.updateParticulars(user.userId, newParticulars)
+      Storage.updateUser(user.userId, newParticulars)
         .then(function(updatedUser) {
           expect(updatedUser.alias).to.equal('anewalias');
           expect(updatedUser.password).to.equal('anewpassword');
@@ -214,7 +214,7 @@ lab.experiment('User Model Tests', function() {
     };
 
     Storage.createUser(user).then(function(user) {
-      Storage.updateParticulars(user.userId, newParticulars)
+      Storage.updateUser(user.userId, newParticulars)
         .catch(function(err) {
           expect(err).to.be.instanceof(Error);
           done();
@@ -229,7 +229,7 @@ lab.experiment('User Model Tests', function() {
     };
 
     Storage.createUser(user).then(function(user) {
-      Storage.updateParticulars(user.userId, newParticulars)
+      Storage.updateUser(user.userId, newParticulars)
         .catch(function(err, data) {
           expect(err).to.be.instanceof(Error);
           done();
@@ -244,7 +244,7 @@ lab.experiment('User Model Tests', function() {
     };
 
     Storage.createUser(user).then(function(user) {
-      Storage.updateParticulars(user.userId, newParticulars)
+      Storage.updateUser(user.userId, newParticulars)
         .catch(function(err, data) {
           expect(err).to.be.instanceof(Error);
           done();
@@ -259,7 +259,7 @@ lab.experiment('User Model Tests', function() {
     };
 
     Storage.createUser(user).then(function(user) {
-      Storage.updateParticulars('abcd-abcd', newParticulars)
+      Storage.updateUser('abcd-abcd', newParticulars)
         .catch(function(err, data) {
           expect(err).to.be.instanceof(Error);
           done();

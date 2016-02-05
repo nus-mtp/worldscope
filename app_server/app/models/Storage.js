@@ -230,7 +230,7 @@ Class.deleteUserById = function(userId) {
  * @return {Promise<Sequelize.object>} on success
            {Error} on fail
  */
-Class.updateParticulars = function(userId, newParticulars) {
+Class.updateUser = function(userId, newParticulars) {
   return this.getUserById(userId).then(function(user) {
     return user.update(newParticulars, {
       fields: Object.keys(newParticulars)

@@ -63,10 +63,11 @@ Class.getListOfUsers = function(filters) {
   });
 };
 
-Class.updateParticulars = function(userId, particulars) {
-  return Storage.updateParticulars(userId, particulars)
+Class.updateUser = function(userId, particulars) {
+  return Storage.updateUser(userId, particulars)
   .then(function receiveUser(user) {
     if (!user || user instanceof Error) {
+      console.log('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeere');
       logger.error('Unable to update user particulars %s %j: %j',
                    userId, particulars, user);
       return null;
@@ -80,13 +81,8 @@ Class.updateParticulars = function(userId, particulars) {
   });
 };
 
-function clearUserPrivateInfo(rawUser) {
-  var user = rawUser.dataValues;
-
-  delete user.password;
-  delete user.accessToken;
-
-  return user;
-}
+Class.getNumberOfUsers = function() {
+  return Storage.getNumberOfUsers();
+};
 
 module.exports = new UserService();
