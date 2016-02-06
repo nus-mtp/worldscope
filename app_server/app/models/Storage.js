@@ -279,7 +279,6 @@ Class.getListOfAdmins = function(filters) {
  *         {False} on fail
  */
 Class.getNumberOfUsers = function() {
-
   return this.models.User.count({
     where: {
       permissions: null
@@ -296,7 +295,6 @@ Class.getNumberOfUsers = function() {
  *         {False} on fail
  */
 Class.getNumberOfAdmins = function() {
-
   return this.models.User.count({
     where: {
       permissions: {
@@ -395,7 +393,7 @@ Class.getListOfStreams = function(originalFilters) {
  * @return {Promise<Sequelize.object>} on success
            {Error} on fail
  */
-Class.updateStreamAttributes = function(streamId, newAttributes) {
+Class.updateStream = function(streamId, newAttributes) {
   return this.getStreamById(streamId).then(function(stream) {
     return stream.update(newAttributes, {
       fields: Object.keys(newAttributes)

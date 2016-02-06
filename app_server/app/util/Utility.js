@@ -66,7 +66,7 @@ var formatUserObject =
 /**
  * Formats a user object
  * @param  {Object} a user object
- * @return {Object} formatted user for client
+ * @return {Object} removes private info and changes to unix time
  */
 exports.formatUserObject = function(user) {
   user = clearUserProfile(user);
