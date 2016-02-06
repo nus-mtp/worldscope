@@ -8,9 +8,19 @@ subcribers (listening and watching on their mobile phones).
 
 ## Application Server [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
 
+The application server is built with [NodeJS](http://nodejs.org/) and
+[Hapi](http://hapijs.com) framework.
+
 See [Application Server Overview](app_server/README.md)
 
 ## Media Server
+
+The Media Server subproject consists of a collection of custom plugins,
+server listeners and HTTP Providers that extend the Wowza streaming engine.
+Configuration files used to operate the streaming engine are also included.
+
+See [Media Server Overview](media_server/README.md) for a list of available
+modules.
 
 ## Client
 ### Android Client
