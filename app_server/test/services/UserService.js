@@ -172,11 +172,21 @@ lab.experiment('UserService Tests', function () {
       description: 'wooohoo! I am fun!'
     };
 
-    Service.createNewUser(bob).then(function (result) {
-      return Service.updateUser(result.userId, updates);
-    }).then(function(user) {
+    Service.createNewUser(bob).then(
+      (result) => Service.updateUser(result.userId, updates)
+    ).then(function(user) {
       Code.expect(TestUtils.isEqualOnProperties(updates, user)).to.be.true();
       done();
     });
   });
+
+  lab.test('Get number of users', function(done) {
+    Service.createNewUser(bob).then(() => Service.createNewUser(alice))
+      .then(() => Service.getNumberOfUsers())
+      .then(function(number) {
+        Code.expect(number).to.equal(2);
+        done();
+      });
+  });
+
 });
