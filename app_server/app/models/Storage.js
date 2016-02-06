@@ -10,7 +10,7 @@ var _ = require('underscore');
 
 var config = rfr('config/DatabaseConfig');
 var Utility = rfr('app/util/Utility');
-
+var CustomError = rfr('app/util/Error');
 var logger = Utility.createLogger(__filename);
 
 var modelNames = [
@@ -415,7 +415,7 @@ function isFieldsMatched(user, options, fn) {
   }
 
   if (_(fieldsToChange).difference(objFields).length !== 0) {
-    throw new Error('Invalid parameters');
+    throw new CustomError.InvalidColumnError('Column name undefined');
   } else {
     return fn();
   }

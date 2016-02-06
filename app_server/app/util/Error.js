@@ -12,6 +12,13 @@ exports.InvalidFieldError = function(message, extra) {
   this.extra = extra;
 };
 
+var InvalidColumnError =
+exports.InvalidColumnError = function(message) {
+  Error.captureStackTrace(this, this.constructor);
+  this.name = 'InvalidColumnError';
+  this.message = message;
+};
+
 var NotFoundError =
 exports.NotFoundError = function(message, extra) {
   Error.captureStackTrace(this, this.constructor);

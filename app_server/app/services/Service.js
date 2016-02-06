@@ -60,6 +60,12 @@ Class.getListOfStreams = function(filters) {
   logger.debug('Getting list of streams with filters: %j', filters);
   return StreamService.getListOfStreams(filters);
 };
+
+Class.updateStream = function(streamId, attributes) {
+  logger.debug('Updating stream %s with attributes: %j', streamId, attributes);
+  return StreamService.updateStream(streamId, attributes);
+};
+
 ///////////////////////
 
 /////// ADMIN APIs ///////

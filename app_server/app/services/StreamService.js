@@ -74,6 +74,29 @@ Class.getListOfStreams = function(filters) {
     });
 };
 
+Class.updateStream = function(streamId, updates) {
+  logger.debug('Updating stream %s with updates: %j', streamId, updates);
+
+  return Storage.updateStream(streamId, updates)
+    .then(function receiveResult(result) {
+      return Utility.formatStreamObject(result, 'stream');
+    }).catch(function(err) {
+      logger.error(err);
+
+      if (err.name === 'SequelizeValidationError') {
+        return Promise.resolve(new CustomError
+          .InvalidFieldError(err.errors[0].message, err.errors[0].path));
+      } else if (err.name === 'TypeError') {
+        return Promise.resolve(new CustomError
+          .NotFoundError('Stream not found'));
+      } else if (err.name === 'InvalidColumnError') {
+        return err;
+      } else {
+        return Promise.resolve(new CustomError.UnknownError());
+      }
+    });
+};
+
 /**
  * Creates a new chat room for a new stream and add the streamer to that room
  * @param userId {string}

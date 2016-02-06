@@ -46,7 +46,7 @@ lab.experiment('StreamService Tests', function() {
   lab.beforeEach({timeout: 10000}, function(done) {
     TestUtils.resetDatabase(done);
   });
-
+/*
   lab.test('createNewStream valid', function(done) {
     Service.createNewUser(bob).then(function(user) {
       return Service.createNewStream(user.userId, testStream);
@@ -216,6 +216,67 @@ lab.experiment('StreamService Tests', function() {
       Code.expect(result[1].streamer.username).to.be.equal(bob.username);
       done();
     });
+  });*/
+
+  lab.test('Update Stream valid', function(done) {
+    var updates = {
+      title: 'new title',
+      description: 'a description'
+    };
+
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, testStream);
+    }).then(function(stream) {
+      return Service.updateStream(stream.streamId, updates);
+    }).then(function(result) {
+      Code.expect(TestUtils.isEqualOnProperties(updates, result)).to.be.true();
+      done();
+    });
   });
+
+  lab.test('Update Stream invalid empty title', function(done) {
+    var updates = {
+      title: '',
+      description: 'a description'
+    };
+
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, testStream);
+    }).then(function(stream) {
+      return Service.updateStream(stream.streamId, updates);
+    }).then(function(result) {
+      Code.expect(result).to.be.an.instanceof(CustomError.InvalidFieldError);
+      done();
+    });
+  });
+
+  lab.test('Update Stream invalid streamId', function(done) {
+    var updates = {
+      title: 'new title',
+      description: 'a description'
+    };
+
+    Service.updateStream('3388ffff-aa00-1111a222-00000044888c', updates)
+      .then(function(result) {
+        Code.expect(result).to.be.an.instanceof(CustomError.NotFoundError);
+        done();
+      });
+  });
+
+  lab.test('Update Stream invalid fields', function(done) {
+    var updates = {
+      randomField: 'new title'
+    };
+
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, testStream);
+    }).then(function(stream) {
+      return Service.updateStream(stream.streamId, updates);
+    }).then(function(result) {
+      Code.expect(result).to.be.an.instanceof(CustomError.InvalidColumnError);
+      done();
+    });
+  });
+
 });
 
