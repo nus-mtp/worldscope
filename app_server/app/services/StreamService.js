@@ -24,7 +24,7 @@ Class.createNewStream = function(userId, streamAttributes) {
     .then((result) => {
       if (result) {
         initializeChatRoomForStream(userId, streamAttributes);
-        return Utility.formatStreamObject(result);
+        return Utility.formatStreamObject(result, 'stream');
       }
 
       return null;
@@ -48,7 +48,7 @@ Class.getStreamById = function(streamId) {
 
   return Storage.getStreamById(streamId).then(function receiveResult(result) {
     if (result) {
-      return Utility.formatViewObject(result);
+      return Utility.formatStreamObject(result, 'view');
     } else {
       return Promise.resolve(new CustomError
         .NotFoundError('Stream not found'));
@@ -59,9 +59,10 @@ Class.getStreamById = function(streamId) {
 Class.getListOfStreams = function(filters) {
   logger.debug('Getting list of streams with filters: %j', filters);
 
-  return Storage.getListOfStreams(filters).then(function receiveResult(result) {
-    if (result) {
-      return result.map(Utility.formatViewObject);
+  return Storage.getListOfStreams(filters).then(function receiveResult(results) {
+    if (results) {
+      return results.map((singleStream) =>
+        Utility.formatStreamObject(singleStream, 'view'));
     } else {
       return Promise.resolve(new CustomError
         .NotFoundError('Stream not found'));

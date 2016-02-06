@@ -75,48 +75,44 @@ exports.clearUserProfile = function(user) {
   return user;
 };
 
+
+
 var formatStreamObject =
 /**
- * Formats to be streamed stream object
+ * Formats a stream object
  * @param  {Sequelize<Stream>} stream
  * @return {Stream}
  */
-exports.formatStreamObject = function(stream) {
+exports.formatStreamObject = function(stream, option) {
+  var formattedStream = stream.dataValues;
 
-  return new Promise(function(resolve) {
-    var formattedStream = stream.dataValues;
+  // Assign view or stream link based on options
+  if (option === 'stream') {
     formattedStream.streamLink =
       util.format('%s/%s/%s', exports.streamBaseUrl,
                               stream.appInstance,
                               stream.streamId);
-    formattedStream.streamer = clearUserProfile(formattedStream.streamer
-                                                               .dataValues);
-
-    resolve(formattedStream);
-  });
-};
-
-var formatViewObject =
-/**
- * Formats to be viewed stream object
- * @param  {Sequelize<Stream>} stream
- * @return {Stream}
- */
-exports.formatViewObject = function(stream) {
-
-  var formattedStream = stream.dataValues;
-  var viewLink = util.format('%s/%s/%s/manifest.mpd', exports.viewBaseUrl,
-                             stream.appInstance,
-                             stream.streamId);
-  formattedStream.viewLink = viewLink;
-  formattedStream.thumbnailLink =
-    util.format(exports.thumbnailTemplateUrl,
-                stream.appInstance,
-                stream.streamId);
+  } else if (option === 'view') {
+    formattedStream.viewLink =
+      util.format('%s/%s/%s/manifest.mpd', exports.viewBaseUrl,
+                                           stream.appInstance,
+                                           stream.streamId);
+    formattedStream.thumbnailLink =
+      util.format(exports.thumbnailTemplateUrl,
+                  stream.appInstance,
+                  stream.streamId);
+  }
 
   formattedStream.streamer = clearUserProfile(formattedStream.streamer
                                                              .dataValues);
+  // Converts sequelize time to unix time
+  formattedStream.createdAt === null ? null
+    : formattedStream.createdAt = Date.parse(formattedStream.createdAt)/1000;
+  formattedStream.deletedAt === null ? null
+    : formattedStream.deletedAt = Date.parse(formattedStream.deletedAt)/1000;
+  formattedStream.updatedAt === null ? null
+    : formattedStream.updatedAt =Date.parse(formattedStream.updatedAt)/1000;
 
   return formattedStream;
-
 };
+

@@ -51,6 +51,7 @@ lab.experiment('StreamService Tests', function() {
     Service.createNewUser(bob).then(function(user) {
       return Service.createNewStream(user.userId, testStream);
     }).then(function(result) {
+      console.log(result);
       Code.expect(result.title).to.be.equal(testStream.title);
       Code.expect(result.description).to.be.equal(testStream.description);
       Code.expect(result.streamer.username).to.be.equal(bob.username);
