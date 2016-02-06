@@ -59,18 +59,19 @@ Class.getStreamById = function(streamId) {
 Class.getListOfStreams = function(filters) {
   logger.debug('Getting list of streams with filters: %j', filters);
 
-  return Storage.getListOfStreams(filters).then(function receiveResult(results) {
-    if (results) {
-      return results.map((singleStream) =>
-        Utility.formatStreamObject(singleStream, 'view'));
-    } else {
-      return Promise.resolve(new CustomError
-        .NotFoundError('Stream not found'));
-    }
-  }).catch(function(err) {
-    logger.error(err);
-    return null;
-  });
+  return Storage.getListOfStreams(filters)
+    .then(function receiveResult(results) {
+      if (results) {
+        return results.map((singleStream) =>
+          Utility.formatStreamObject(singleStream, 'view'));
+      } else {
+        return Promise.resolve(new CustomError
+          .NotFoundError('Stream not found'));
+      }
+    }).catch(function(err) {
+      logger.error(err);
+      return null;
+    });
 };
 
 /**

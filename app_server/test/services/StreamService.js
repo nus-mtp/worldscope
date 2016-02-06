@@ -54,7 +54,9 @@ lab.experiment('StreamService Tests', function() {
       console.log(result);
       Code.expect(result.title).to.be.equal(testStream.title);
       Code.expect(result.description).to.be.equal(testStream.description);
+      Code.expect(result.createdAt).to.match(/\d{10}/);
       Code.expect(result.streamer.username).to.be.equal(bob.username);
+      Code.expect(result.streamer.createdAt).to.match(/\d{10}/);
       done();
     });
   });

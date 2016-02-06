@@ -63,7 +63,7 @@ Class.getUserById = function(request, reply) {
       return;
     }
 
-    user = Utility.clearUserProfile(user);
+    user = Utility.formatUserObject(user);
     reply(user);
   });
 };
@@ -79,7 +79,7 @@ Class.getListOfUsers = function(request, reply) {
       return;
     }
 
-    reply(users.map(Utility.clearUserProfile));
+    reply(users.map(Utility.formatUserObject));
   });
 };
 
@@ -128,7 +128,7 @@ Class.login = function(request, reply) {
 
       request.cookieAuth.set(account);
 
-      return reply(Utility.clearUserProfile(user));
+      return reply(Utility.formatUserObject(user));
     });
   }).catch(function fail(err) {
     return reply(Boom.badRequest('Failed to authenticate user: ' + err));

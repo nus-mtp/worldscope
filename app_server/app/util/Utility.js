@@ -62,20 +62,17 @@ exports.createLogger = function(filename) {
   });
 };
 
-var clearUserProfile =
+var formatUserObject =
 /**
- * Clears user's sensitive credentials
+ * Formats a user object
  * @param  {Object} a user object
- * @return {Object} user without sensitive credentials
+ * @return {Object} formatted user for client
  */
-exports.clearUserProfile = function(user) {
-  delete user.password;
-  delete user.accessToken;
-
+exports.formatUserObject = function(user) {
+  user = clearUserProfile(user);
+  user = changeToUnixTime(user);
   return user;
 };
-
-
 
 var formatStreamObject =
 /**
@@ -103,16 +100,40 @@ exports.formatStreamObject = function(stream, option) {
                   stream.streamId);
   }
 
-  formattedStream.streamer = clearUserProfile(formattedStream.streamer
+  formattedStream.streamer = formatUserObject(formattedStream.streamer
                                                              .dataValues);
   // Converts sequelize time to unix time
-  formattedStream.createdAt === null ? null
-    : formattedStream.createdAt = Date.parse(formattedStream.createdAt)/1000;
-  formattedStream.deletedAt === null ? null
-    : formattedStream.deletedAt = Date.parse(formattedStream.deletedAt)/1000;
-  formattedStream.updatedAt === null ? null
-    : formattedStream.updatedAt =Date.parse(formattedStream.updatedAt)/1000;
+  formattedStream = changeToUnixTime(formattedStream);
 
   return formattedStream;
 };
 
+var clearUserProfile =
+/**
+ * Clears user's sensitive credentials
+ * @param  {Object} a user object
+ * @return {Object} user without sensitive credentials
+ */
+exports.clearUserProfile = function(user) {
+  delete user.password;
+  delete user.accessToken;
+
+  return user;
+};
+
+var changeToUnixTime =
+/**
+ * Changes these fields createdAt, deletedAt, updatedAt into unix time
+ * @param  {Object}
+ * @return {Object} user without sensitive credentials
+ */
+exports.changeToUnixTime = function(obj) {
+  obj.createdAt === null ? null
+    : obj.createdAt = Date.parse(obj.createdAt)/1000;
+  obj.deletedAt === null ? null
+    : obj.deletedAt = Date.parse(obj.deletedAt)/1000;
+  obj.updatedAt === null ? null
+    : obj.updatedAt =Date.parse(obj.updatedAt)/1000;
+
+  return obj;
+};
