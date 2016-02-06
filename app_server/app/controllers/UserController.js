@@ -84,6 +84,7 @@ Class.getListOfUsers = function(request, reply) {
 };
 
 Class.updateUser = function(request, reply) {
+  console.log(request.payload);
   var updates = {
     alias: request.payload.alias,
     description: request.payload.description,
@@ -161,9 +162,9 @@ var loginPayloadValidator = {
 
 var updateUserValidator = {
   payload: {
-    alias: Joi.string().optional().default(null),
-    description: Joi.string().optional().default(null),
-    email: Joi.string().optional().default(null)
+    alias: Joi.string(),
+    description: Joi.string(),
+    email: Joi.string()
   }
 };
 

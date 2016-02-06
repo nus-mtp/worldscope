@@ -116,6 +116,19 @@ lab.experiment('UserController Tests', {timeout: 5000}, function () {
     });
   });
 
+  lab.test('Update user valid no payload', function (done) {
+    Service.createNewUser(bob).then(function (user) {
+      testAccount.userId = user.userId;
+      Router.inject({method: 'PUT', url: '/api/users/' + user.userId,
+                     credentials: testAccount,
+                     payload: {}},
+        function (res) {
+          Code.expect(res.result.username).to.equal(bob.username);
+          done();
+        });
+    });
+  });
+
   lab.test('Update user invalid restricted column', function (done) {
     var updates = {
       platformId: '1234566@facebook'
@@ -153,7 +166,6 @@ lab.experiment('UserController Tests', {timeout: 5000}, function () {
         });
     });
   });
-
 
   lab.test('Valid logout', function (done) {
     Router.inject({method: 'GET', url: '/api/users/logout'}, function (res) {

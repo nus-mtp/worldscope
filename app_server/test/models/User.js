@@ -160,12 +160,13 @@ lab.experiment('User Model Tests', function() {
         });
       });
 
-  lab.test('Get Non-Existing User', function(done) {
-    Storage.getUserById('19f9bd98-ffff-aaaa-bbbb-3109f617667d')
-      .then(function(res) {
-        expect(res).to.be.false();
+  lab.test('Get User by invalid email', function(done) {
+    Storage.createUser(user).then(function(user) {
+      Storage.getUserByEmail('awrongemail@gmail.com').then(function(data) {
+        expect(data).to.be.false();
         done();
       });
+    });
   });
 
   lab.test('Delete Non-Existing User', function(done) {
