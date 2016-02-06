@@ -33,9 +33,14 @@ Class.getListOfUsers = function(filters) {
   return UserService.getListOfUsers(filters);
 };
 
-Class.updateUserParticulars = function(userId, particulars) {
+Class.updateUser = function(userId, particulars) {
   logger.debug('Updating user particulars %s %j', userId, particulars);
-  return UserService.updateParticulars(userId, particulars);
+  return UserService.updateUser(userId, particulars);
+};
+
+Class.getNumberOfUsers = function() {
+  logger.debug('Getting number of users');
+  return UserService.getNumberOfUsers();
 };
 
 ///////////////////////

@@ -160,12 +160,13 @@ lab.experiment('User Model Tests', function() {
         });
       });
 
-  lab.test('Get Non-Existing User', function(done) {
-    Storage.getUserById('19f9bd98-ffff-aaaa-bbbb-3109f617667d')
-      .then(function(res) {
-        expect(res).to.be.false();
+  lab.test('Get User by invalid email', function(done) {
+    Storage.createUser(user).then(function(user) {
+      Storage.getUserByEmail('awrongemail@gmail.com').then(function(data) {
+        expect(data).to.be.false();
         done();
       });
+    });
   });
 
   lab.test('Delete Non-Existing User', function(done) {
@@ -195,7 +196,7 @@ lab.experiment('User Model Tests', function() {
     };
 
     Storage.createUser(user).then(function(user) {
-      Storage.updateParticulars(user.userId, newParticulars)
+      Storage.updateUser(user.userId, newParticulars)
         .then(function(updatedUser) {
           expect(updatedUser.alias).to.equal('anewalias');
           expect(updatedUser.password).to.equal('anewpassword');
@@ -214,7 +215,7 @@ lab.experiment('User Model Tests', function() {
     };
 
     Storage.createUser(user).then(function(user) {
-      Storage.updateParticulars(user.userId, newParticulars)
+      Storage.updateUser(user.userId, newParticulars)
         .catch(function(err) {
           expect(err).to.be.instanceof(Error);
           done();
@@ -229,7 +230,7 @@ lab.experiment('User Model Tests', function() {
     };
 
     Storage.createUser(user).then(function(user) {
-      Storage.updateParticulars(user.userId, newParticulars)
+      Storage.updateUser(user.userId, newParticulars)
         .catch(function(err, data) {
           expect(err).to.be.instanceof(Error);
           done();
@@ -244,7 +245,7 @@ lab.experiment('User Model Tests', function() {
     };
 
     Storage.createUser(user).then(function(user) {
-      Storage.updateParticulars(user.userId, newParticulars)
+      Storage.updateUser(user.userId, newParticulars)
         .catch(function(err, data) {
           expect(err).to.be.instanceof(Error);
           done();
@@ -259,7 +260,7 @@ lab.experiment('User Model Tests', function() {
     };
 
     Storage.createUser(user).then(function(user) {
-      Storage.updateParticulars('abcd-abcd', newParticulars)
+      Storage.updateUser('abcd-abcd', newParticulars)
         .catch(function(err, data) {
           expect(err).to.be.instanceof(Error);
           done();
@@ -271,11 +272,40 @@ lab.experiment('User Model Tests', function() {
     Storage.models.User.bulkCreate([
       {username: 'Jane', password: 'asdf', email: 'jane@gmail.com'},
       {username: 'Alan', password: 'asdf', email: 'alan@gmail.com'},
-      {username: 'John', password: 'asdf', email: 'john@gmail.com'}
+      {username: 'John', password: 'asdf', email: 'john@gmail.com'},
+      {username: 'Alibabadmin', password: 'asdf', email: 'alibabaad@gmail.com',
+       permissions: 'some permissions string'}
     ]).then(() => Storage.getListOfUsers({order: 'asc'})).then(function(users) {
+      expect(users).to.have.length(3);
       expect(users[0].username).to.equal('Alan');
       expect(users[1].username).to.equal('Jane');
       expect(users[2].username).to.equal('John');
+      done();
+    });
+  });
+
+  lab.test('Count number of users', function(done) {
+    Storage.models.User.bulkCreate([
+      {username: 'Jane', password: 'asdf', email: 'jane@gmail.com'},
+      {username: 'Alan', password: 'asdf', email: 'alan@gmail.com'},
+      {username: 'John', password: 'asdf', email: 'john@gmail.com'},
+      {username: 'Alibabadmin', password: 'asdf', email: 'alibabaad@gmail.com',
+       permissions: 'some permissions string'}
+    ]).then(() => Storage.getNumberOfUsers()).then(function(count) {
+      expect(count).to.equal(3);
+      done();
+    });
+  });
+
+  lab.test('Count number of admins', function(done) {
+    Storage.models.User.bulkCreate([
+      {username: 'Jane', password: 'asdf', email: 'jane@gmail.com'},
+      {username: 'Alan', password: 'asdf', email: 'alan@gmail.com'},
+      {username: 'John', password: 'asdf', email: 'john@gmail.com'},
+      {username: 'Alibabadmin', password: 'asdf', email: 'alibabaad@gmail.com',
+       permissions: 'some permissions string'}
+    ]).then(() => Storage.getNumberOfAdmins()).then(function(count) {
+      expect(count).to.equal(1);
       done();
     });
   });

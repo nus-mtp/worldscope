@@ -131,7 +131,7 @@ Class.updateUser = function (user, credentials) {
     accessToken: credentials.accessToken
   };
 
-  return Service.updateUserParticulars(user.userId, updatedFields);
+  return Service.updateUser(user.userId, updatedFields);
 };
 
 Class.verifyUserToken = function (user, token) {

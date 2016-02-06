@@ -230,7 +230,7 @@ Class.deleteUserById = function(userId) {
  * @return {Promise<Sequelize.object>} on success
            {Error} on fail
  */
-Class.updateParticulars = function(userId, newParticulars) {
+Class.updateUser = function(userId, newParticulars) {
   return this.getUserById(userId).then(function(user) {
     return user.update(newParticulars, {
       fields: Object.keys(newParticulars)
@@ -247,6 +247,9 @@ Class.getListOfUsers = function(filters) {
   filters = mapParams(filters);
 
   return this.models.User.findAll({
+    where: {
+      permissions: null
+    },
     order: [['username', filters.order]]
   }).catch(function(err) {
     logger.error('Error in fetching list of users: %j', err);
@@ -267,6 +270,41 @@ Class.getListOfAdmins = function(filters) {
     where: {permissions: {ne: null}}
   }).catch(function(err) {
     logger.error('Error in fetching list of users: %j', err);
+    return false;
+  });
+};
+
+/**
+ * @return {Promise<Integer>} - total number of users in database
+ *         {False} on fail
+ */
+Class.getNumberOfUsers = function() {
+
+  return this.models.User.count({
+    where: {
+      permissions: null
+    },
+  }).catch(function(err) {
+    logger.error('Error in counting users: %j', err);
+    return false;
+  });
+};
+
+
+/**
+ * @return {Promise<Integer>} - total number of admins in database
+ *         {False} on fail
+ */
+Class.getNumberOfAdmins = function() {
+
+  return this.models.User.count({
+    where: {
+      permissions: {
+        $ne: null
+      }
+    },
+  }).catch(function(err) {
+    logger.error('Error in counting admins: %j', err);
     return false;
   });
 };

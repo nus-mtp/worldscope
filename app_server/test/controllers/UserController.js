@@ -61,7 +61,7 @@ lab.experiment('UserController Tests', {timeout: 5000}, function () {
       });
   });
 
-  lab.test('Valid id', function (done) {
+  lab.test('Get user by valid id', function (done) {
     Service.createNewUser(bob).then(function (result) {
       return Service.getUserById(result.userId);
     }).then(function(user) {
@@ -74,7 +74,7 @@ lab.experiment('UserController Tests', {timeout: 5000}, function () {
     });
   });
 
-  lab.test('Get user by invalid id', function (done) {
+  lab.test('Get user by invalid format id', function (done) {
     Router.inject({url: '/api/users/asd@1$', credentials: testAccount},
       function (res) {
         var errorMsg = 'child "id" fails because ["id" must be a valid GUID]';
@@ -82,6 +82,89 @@ lab.experiment('UserController Tests', {timeout: 5000}, function () {
         Code.expect(res.result.message).to.equal(errorMsg);
         done();
       });
+  });
+
+  lab.test('Get user by invalid id', function (done) {
+    var invalidId = '3388ffff-aa00-1111a222-00000044888c';
+    Router.inject({url: '/api/users/' + invalidId,
+                   credentials: testAccount},
+      function (res) {
+        var errorMsg = 'Unable to get user with id ' + invalidId;
+        Code.expect(res.result.statusCode).to.equal(400);
+        Code.expect(res.result.message).to.equal(errorMsg);
+        done();
+      });
+  });
+
+  lab.test('Update user valid', function (done) {
+    var updates = {
+      alias: 'Taeng',
+      email: 'taeng@email.com',
+      description: 'hey hey hey!'
+    };
+
+    Service.createNewUser(bob).then(function (user) {
+      testAccount.userId = user.userId;
+      Router.inject({method: 'PUT', url: '/api/users/' + user.userId,
+                     credentials: testAccount,
+                     payload: updates},
+        function (res) {
+          Code.expect(TestUtils.isEqualOnProperties(updates, res.result))
+            .to.be.true();
+          done();
+        });
+    });
+  });
+
+  lab.test('Update user valid no payload', function (done) {
+    Service.createNewUser(bob).then(function (user) {
+      testAccount.userId = user.userId;
+      Router.inject({method: 'PUT', url: '/api/users/' + user.userId,
+                     credentials: testAccount,
+                     payload: {}},
+        function (res) {
+          Code.expect(res.result.username).to.equal(bob.username);
+          done();
+        });
+    });
+  });
+
+  lab.test('Update user invalid restricted column', function (done) {
+    var updates = {
+      platformId: '1234566@facebook'
+    };
+
+    Service.createNewUser(bob).then(function (user) {
+      testAccount.userId = user.userId;
+      Router.inject({method: 'PUT', url: '/api/users/' + user.userId,
+                     credentials: testAccount,
+                     payload: updates},
+        function (res) {
+          Code.expect(res.result.statusCode).to.equal(400);
+          Code.expect(res.result.message)
+            .to.equal('"platformId" is not allowed');
+          done();
+        });
+    });
+  });
+
+  lab.test('Update user invalid email', function (done) {
+    var updates = {
+      email: 'abc'
+    };
+
+    Service.createNewUser(bob).then(function (result) {
+      return Service.getUserById(result.userId);
+    }).then(function(user) {
+      Router.inject({method: 'PUT', url: '/api/users/' + user.userId,
+                     credentials: testAccount,
+                     payload: updates},
+        function (res) {
+          Code.expect(res.result.statusCode).to.equal(400);
+          Code.expect(res.result.message).to.equal('Unable to update user');
+          done();
+        });
+    });
   });
 
   lab.test('Valid logout', function (done) {

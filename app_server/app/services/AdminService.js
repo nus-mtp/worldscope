@@ -51,7 +51,7 @@ Class.getListOfAdmins = function(filters) {
 };
 
 Class.updateParticulars = function(id, particulars) {
-  return Storage.updateParticulars(id, particulars)
+  return Storage.updateUser(id, particulars)
   .then(function receiveAdmin(admin) {
     if (!admin || admin instanceof Error) {
       logger.error('Unable to update admin particulars %s %j: %j',
