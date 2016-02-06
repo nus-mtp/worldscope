@@ -67,7 +67,6 @@ Class.updateUser = function(userId, particulars) {
   return Storage.updateUser(userId, particulars)
   .then(function receiveUser(user) {
     if (!user || user instanceof Error) {
-      console.log('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeere');
       logger.error('Unable to update user particulars %s %j: %j',
                    userId, particulars, user);
       return null;
