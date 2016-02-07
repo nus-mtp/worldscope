@@ -17,6 +17,10 @@ import com.wowza.wms.rtp.model.RTPStream;
 import com.wowza.wms.stream.IMediaStream;
 import com.wowza.wms.vhost.IVHost;
 
+/**
+ * This class handles http requests to the media server to stop a stream
+ * i.e. disconnecting all clients (viewers and publisher)
+ */
 public class HTTPProviderStreamsControl extends HTTProvider2Base {
     public static final String MODULE_NAME = "HTTPProviderStreamsControl";
 
