@@ -5,6 +5,14 @@
     android:layout_height="fill_parent"
     tools:context="com.litmus.worldscope.FacebookLoginActivity">
 
+    <WebView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/welcomeGifWebView"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true" />
+
     <fragment
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

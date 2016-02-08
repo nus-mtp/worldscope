@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
@@ -19,6 +20,7 @@ import retrofit2.Response;
 public class FacebookLoginActivity extends AppCompatActivity implements FacebookLoginFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "FacebookLoginActivity";
+    private static final String WELCOME_GIF_LINK = "file:///android_asset/welcomeGifAssets/welcome.html";
     private static final String APP_SERVER_AUTH_FAILED_MSG = "Authentication with WorldScope's server has failed, please check that you have internet connections and try again.";
     private static Context context;
     private FacebookLoginFragment facebookLoginFragment;
@@ -29,6 +31,7 @@ public class FacebookLoginActivity extends AppCompatActivity implements Facebook
         setContentView(R.layout.activity_facebook_login);
         context = this;
 
+        loadGifIntoWebView();
     }
 
     @Override
@@ -79,5 +82,10 @@ public class FacebookLoginActivity extends AppCompatActivity implements Facebook
         toast.show();
         facebookLoginFragment.logoutFromFacebook();
 
+    }
+
+    private void loadGifIntoWebView() {
+        WebView welcomeGifWebView = (WebView) findViewById(R.id.welcomeGifWebView);
+        welcomeGifWebView.loadUrl(WELCOME_GIF_LINK);
     }
 }
