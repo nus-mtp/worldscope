@@ -5,11 +5,6 @@
     android:layout_height="fill_parent"
     tools:context="com.litmus.worldscope.FacebookLoginActivity">
 
-    <pl.droidsonroids.gif.GifImageView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:background="@drawable/welcome"/>
-
     <fragment
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
