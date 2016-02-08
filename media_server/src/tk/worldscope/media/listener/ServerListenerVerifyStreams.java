@@ -53,11 +53,12 @@ public class ServerListenerVerifyStreams extends ModuleBase implements IServerNo
     @Override
     public void onServerCreate(IServer server) {
         debug = server.getProperties().getPropertyBoolean(PROP_NAME_PREFIX + "DebugLog", debug);
-        if (logger.isDebugEnabled())
+        if (logger.isDebugEnabled()) {
             debug = true;
+        }
 
         this.appServerUrl = server.getProperties()
-                .getPropertyStr(ServerListenerVerifyStreams.PROP_NAME_PREFIX + "appServerUrl", this.appServerUrl);
+                .getPropertyStr(ServerListenerVerifyStreams.PROP_NAME_PREFIX + "AppServerUrl", this.appServerUrl);
         AppServerAdapter.setAppServerUrl(this.appServerUrl);
     }
 
@@ -268,8 +269,8 @@ public class ServerListenerVerifyStreams extends ModuleBase implements IServerNo
         public String resolvePlayAlias(IApplicationInstance appInstance, String name, RTPSession rtpSession) {
             if (currentAliasProvider != null) {
                 if (currentAliasProvider instanceof IMediaStreamNameAliasProvider2)
-                    name = ((IMediaStreamNameAliasProvider2) currentAliasProvider).resolvePlayAlias(appInstance, name,
-                            rtpSession);
+                    name = ((IMediaStreamNameAliasProvider2) currentAliasProvider)
+                            .resolvePlayAlias(appInstance, name, rtpSession);
                 name = currentAliasProvider.resolveStreamAlias(appInstance, name);
             }
             return returnNameIfStreamIsVerified(appInstance, name);
@@ -280,8 +281,8 @@ public class ServerListenerVerifyStreams extends ModuleBase implements IServerNo
                                        ILiveStreamPacketizer liveStreamPacketizer) {
             if (currentAliasProvider != null) {
                 if (currentAliasProvider instanceof IMediaStreamNameAliasProvider2)
-                    name = ((IMediaStreamNameAliasProvider2) currentAliasProvider).resolvePlayAlias(appInstance, name,
-                            liveStreamPacketizer);
+                    name = ((IMediaStreamNameAliasProvider2) currentAliasProvider)
+                            .resolvePlayAlias(appInstance, name, liveStreamPacketizer);
                 name = currentAliasProvider.resolveStreamAlias(appInstance, name);
             }
             return returnNameIfStreamIsVerified(appInstance, name);

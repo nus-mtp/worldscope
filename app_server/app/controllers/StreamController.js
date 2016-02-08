@@ -33,7 +33,10 @@ Class.registerRoutes = function() {
   this.server.route({method: 'GET', path: '/{id}',
                      config: {
                        validate: singleStreamValidator,
-                       auth: {scope: Authenticator.SCOPE.ALL}
+                       auth: {
+                         mode: 'optional',
+                         scope: Authenticator.SCOPE.ALL
+                       }
                      },
                      handler: this.getStreamById});
 
