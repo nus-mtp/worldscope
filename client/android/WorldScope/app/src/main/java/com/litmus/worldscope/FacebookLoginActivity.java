@@ -50,9 +50,8 @@ public class FacebookLoginActivity extends AppCompatActivity implements Facebook
                     Log.d(TAG, "" + response.body().toString());
 
                     // Redirect to MainActivty if successful
-                    Intent intent = new Intent(context, MainActivity.class);
-                    intent.putExtra("loginUser", response.body());
-                    startActivity(intent);
+                    redirectToMainActivity(response.body());
+
                 } else {
                     Log.d(TAG, "Failure" + response.code() + ": " + response.body().toString());
                     // Logout of Facebook
@@ -70,6 +69,13 @@ public class FacebookLoginActivity extends AppCompatActivity implements Facebook
 
     }
 
+    //Redirects to MainActivity
+    protected void redirectToMainActivity(WorldScopeUser user) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra("loginUser", user);
+        startActivity(intent);
+    }
+
     // Called to logout of Facebook when attempt to authenticate with App server fails
     private void logoutOfFacebook() {
         if(facebookLoginFragment == null) {
@@ -84,6 +90,7 @@ public class FacebookLoginActivity extends AppCompatActivity implements Facebook
 
     }
 
+    // Method to load Gif's html data into WebView
     private void loadGifIntoWebView() {
         WebView welcomeGifWebView = (WebView) findViewById(R.id.welcomeGifWebView);
         welcomeGifWebView.loadUrl(WELCOME_GIF_LINK);
