@@ -52,6 +52,8 @@ public class MainActivity extends AppCompatActivity
 
     private final int NUMBER_OF_TABS = 3;
 
+    private static final Boolean IS_LOGOUT_ATTEMPT = true;
+
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -73,6 +75,8 @@ public class MainActivity extends AppCompatActivity
 
     private Toolbar toolbar;
 
+    private Boolean userIsLoaded;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,11 +88,19 @@ public class MainActivity extends AppCompatActivity
 
         // Get user information from intent coming from FacebookLoginActivity
         loginUser = getIntent().getParcelableExtra("loginUser");
-        Log.d(TAG, "" + loginUser.toString());
 
-        // Show welcome message
-        Toast toast = Toast.makeText(context, String.format(WELCOME_MSG, loginUser.getAlias()), Toast.LENGTH_LONG);
-        toast.show();
+        // If user is in Intent
+        if(loginUser != null) {
+            Log.d(TAG, "" + loginUser.toString());
+            // Set boolean to load user
+            userIsLoaded = true;
+            // Show welcome message
+            Toast toast = Toast.makeText(context, String.format(WELCOME_MSG, loginUser.getAlias()), Toast.LENGTH_LONG);
+            toast.show();
+        } else {
+            userIsLoaded = false;
+        }
+
 
         // Set FAB to redirect to StreamActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -196,7 +208,7 @@ public class MainActivity extends AppCompatActivity
 
     // Redirects to Facebook Login activity
 
-    private void redirectToFacebookLoginActivity(boolean isAttemptLogout) {
+    protected void redirectToFacebookLoginActivity(boolean isAttemptLogout) {
         Intent intent = new Intent(this, FacebookLoginActivity.class);
 
         if(isAttemptLogout) {
@@ -209,7 +221,7 @@ public class MainActivity extends AppCompatActivity
 
     // Redirects to view activity
 
-    private void redirectToViewActivity() {
+    protected void redirectToViewActivity() {
         Intent intent = new Intent(this, ViewActivity.class);
         startActivity(intent);
     }
@@ -217,7 +229,7 @@ public class MainActivity extends AppCompatActivity
 
     // Redirects to stream activity
 
-    private void redirectToStreamActivity() {
+    protected void redirectToStreamActivity() {
         Intent intent = new Intent(this, StreamActivity.class);
         startActivity(intent);
     }
@@ -226,6 +238,10 @@ public class MainActivity extends AppCompatActivity
     // Query Facebook graph API for profile picture and loads Alias and picture into Drawer
 
     private void loadUserInfoIntoDrawer() {
+        if(!userIsLoaded) {
+            return;
+        }
+
         TextView alias = (TextView) findViewById(R.id.drawerAlias);
         final ImageView facebookProfilePicture = (ImageView) findViewById(R.id.drawerFacebookProfilePicture);
 
@@ -276,20 +292,20 @@ public class MainActivity extends AppCompatActivity
                     Log.d(TAG, "Success!");
                     Log.d(TAG, "" + response.body().toString());
 
-                    redirectToFacebookLoginActivity(true);
+                    redirectToFacebookLoginActivity(IS_LOGOUT_ATTEMPT);
                 } else {
                     Log.d(TAG, "Failure!");
                     Log.d(TAG, "" + response.code());
                     Log.d(TAG, "" + response.body().toString());
 
-                    redirectToFacebookLoginActivity(true);
+                    redirectToFacebookLoginActivity(IS_LOGOUT_ATTEMPT);
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
 
-                redirectToFacebookLoginActivity(true);
+                redirectToFacebookLoginActivity(IS_LOGOUT_ATTEMPT);
             }
         });
     }
