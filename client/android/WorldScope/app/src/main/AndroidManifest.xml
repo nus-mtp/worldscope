@@ -50,8 +50,11 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name=".MainActivity"
-            android:label="@string/title_activity_main2"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
+
+    <instrumentation
+        android:targetPackage="com.litmus.worldscope.FacebookLoginActivityTest"
+        android:name="android.test.InstrumentationTestRunner" />
 
 </manifest>
