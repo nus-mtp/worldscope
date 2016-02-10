@@ -13,10 +13,7 @@ var Utility = rfr('app/util/Utility');
 var CustomError = rfr('app/util/Error');
 var logger = Utility.createLogger(__filename);
 
-var modelNames = [
-  'User',
-  'Stream'
-];
+var modelNames = ['User', 'Stream', 'View'];
 
 /**
  * Initialises the database connection and load the models written in
@@ -399,6 +396,23 @@ Class.updateStream = function(streamId, newAttributes) {
       fields: Object.keys(newAttributes)
     });
   });
+};
+
+/**
+ * @param  {string} userId
+ * @param  {string} streamId
+ * @return {Promise<Sequelize.object>}
+ */
+Class.createView = function(userId, streamId) {
+console.log(userId);
+console.log(streamId);
+  var userPromise = this.models.User.findById(userId);
+  var streamPromise = this.models.Stream.findById(streamId);
+
+  return Promise.join(userPromise, streamPromise,
+    function(user, stream) {
+      return user.addView(stream);
+    });
 };
 
 /**

@@ -46,7 +46,7 @@ lab.experiment('StreamService Tests', function() {
   lab.beforeEach({timeout: 10000}, function(done) {
     TestUtils.resetDatabase(done);
   });
-/*
+
   lab.test('createNewStream valid', function(done) {
     Service.createNewUser(bob).then(function(user) {
       return Service.createNewStream(user.userId, testStream);
@@ -216,7 +216,7 @@ lab.experiment('StreamService Tests', function() {
       Code.expect(result[1].streamer.username).to.be.equal(bob.username);
       done();
     });
-  });*/
+  });
 
   lab.test('Update Stream valid', function(done) {
     var updates = {
