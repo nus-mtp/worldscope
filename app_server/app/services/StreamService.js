@@ -9,10 +9,16 @@ var CustomError = rfr('app/util/Error');
 var Utility = rfr('app/util/Utility');
 var Storage = rfr('app/models/Storage');
 var SocketAdapter = rfr('app/adapters/socket/SocketAdapter');
+var MediaServerAdapter = rfr('app/adapters/MediaServerAdapter');
+var ServerConfig = rfr('config/ServerConfig');
 
 var logger = Utility.createLogger(__filename);
 
 function StreamService() {
+  let mediaConfig = ServerConfig.mediaServer;
+
+  this.mediaServerAdapter = new MediaServerAdapter(
+    mediaConfig.host, mediaConfig.username, mediaConfig.password);
 }
 
 var Class = StreamService.prototype;
@@ -123,6 +129,14 @@ Class.endStream = function(userId, streamId) {
         return new CustomError.NotFoundError('Stream not found');
       }
     });
+};
+
+Class.stopStream = function(appName, appInstance, streamId) {
+  // TODO: Update stream's state in database before calling the below
+  return this.mediaServerAdapter.stopStream(appName, appInstance, streamId)
+  .catch((err) => {
+    return new Error(err.message);
+  });
 };
 
 /**

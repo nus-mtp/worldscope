@@ -17,6 +17,8 @@ import com.wowza.wms.rtp.model.RTPStream;
 import com.wowza.wms.stream.IMediaStream;
 import com.wowza.wms.vhost.IVHost;
 
+import tk.worldscope.media.listener.ServerListenerVerifyStreams;
+
 /**
  * This class handles http requests to the media server to stop a stream
  * i.e. disconnecting all clients (viewers and publisher)
@@ -30,9 +32,16 @@ public class HTTPProviderStreamsControl extends HTTProvider2Base {
 
     @Override
     public void onHTTPRequest(IVHost vhost, IHTTPRequest request, IHTTPResponse response) {
-        if (!doHTTPAuthentication(vhost, request, response))
+        if (!doHTTPAuthentication(vhost, request, response)) {
+            if (ServerListenerVerifyStreams.debug) {
+                logger.info("Client at " + request.getRemoteAddr() + " failed to authenticate");
+            }
             return;
+        }
 
+        if (ServerListenerVerifyStreams.debug) {
+            logger.info("Handling " + request.getMethod() + " " + request.getRequestURI());
+        }
         String postResponseMsg = this.handlePost(request, vhost);
         response.setHeader("Content-Type", "application/json");
 
@@ -83,7 +92,7 @@ public class HTTPProviderStreamsControl extends HTTProvider2Base {
     }
 
     private String createResponseJSONString(String status, String message) {
-        return String.format("{status: \"%s\", message: \"%s\"}", status, message);
+        return String.format("{\"status\": \"%s\", \"message\": \"%s\"}", status, message);
     }
 
     private boolean stopStream(IVHost vhost, String applicationName, String appInstanceName, String streamName) {

@@ -53,9 +53,7 @@ public class ServerListenerVerifyStreams extends ModuleBase implements IServerNo
     @Override
     public void onServerCreate(IServer server) {
         debug = server.getProperties().getPropertyBoolean(PROP_NAME_PREFIX + "DebugLog", debug);
-        if (logger.isDebugEnabled()) {
-            debug = true;
-        }
+        logger.info("Debug status: " + debug);
 
         this.appServerUrl = server.getProperties()
                 .getPropertyStr(ServerListenerVerifyStreams.PROP_NAME_PREFIX + "AppServerUrl", this.appServerUrl);
