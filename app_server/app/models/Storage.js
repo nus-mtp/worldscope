@@ -409,8 +409,32 @@ Class.createView = function(userId, streamId) {
 
   return Promise.join(userPromise, streamPromise,
     function(user, stream) {
-      return user.addView(stream);
+      return user.addView(stream).then((view) => view[0][0])
+        .catch(err => null);
     });
+};
+
+/**
+ * @param  {string} streamId
+ * @return {Promise<Sequelize.object>} - a Stream object with a list of
+ *                                       embedded users
+ */
+Class.getListOfUsersViewingStream = function(streamId) {
+  return this.models.Stream.findOne({
+    where: {
+      streamId: streamId
+    },
+    include: [{
+      model: this.models.User,
+      as: 'Viewer',
+      through: {
+        where: {
+          endedAt: null
+        }
+      }
+    }],
+    order: [[{model: this.models.User, as: 'Viewer'}, 'username', 'ASC']]
+  });
 };
 
 /**

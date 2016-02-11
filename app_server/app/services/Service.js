@@ -46,7 +46,7 @@ Class.getNumberOfUsers = function() {
 Class.createView = function(userId, streamId) {
   logger.debug('Creating view');
   return UserService.createView(userId, streamId);
-}
+};
 
 ///////////////////////
 

@@ -60,7 +60,7 @@ lab.experiment('View Model Tests', function() {
     Promise.join(userPromise, streamPromise,
       function(user, stream) {
         Storage.createView(user.userId, stream.streamId).then(function(res) {
-          expect(res[0][0].userId).to.equal(user.userId);
+          expect(res.userId).to.equal(user.userId);
           done();
         });
       });
@@ -72,7 +72,7 @@ lab.experiment('View Model Tests', function() {
     userPromise.then(function(user) {
       Storage.createView(user.userId, '3388ffff-aa00-1111a222-00000044888c')
         .then(function(res) {
-          expect(res).to.be.undefined();
+          expect(res).to.be.null();
           done();
         });
     });
@@ -89,7 +89,7 @@ lab.experiment('View Model Tests', function() {
             stream.streamId).catch(function(res) {
               expect(res).to.be.an.instanceof(Error);
               done();
-        });
+            });
       });
   });
 
@@ -103,9 +103,45 @@ lab.experiment('View Model Tests', function() {
         Storage.createView(user.userId, stream.streamId)
           .then(() => Storage.createView(user.userId, stream.streamId))
           .then(function(res) {
-            expect(res).to.deep.equal([]);
+            expect(res).to.be.null();
             done();
           });
+      });
+  });
+
+  lab.test('Get list of users watching a stream valid', function(done) {
+    var userPromise1 = Storage.createUser(user1);
+
+    var streamPromise1 = userPromise1
+      .then(user => Storage.createStream(user.userId, stream1));
+
+    var viewPromise1 = streamPromise1.then(function(stream) {
+      return Storage.createUser(user2).then((user) =>
+        Storage.createView(user.userId, stream.streamId));
+    });
+
+    var viewPromise2 = streamPromise1.then(function(stream) {
+      return userPromise1.then((user) =>
+        Storage.createView(user.userId, stream.streamId));
+    });
+
+    Promise.join(viewPromise1, viewPromise2,
+        function(view1, view2) {
+          Storage.getListOfUsersViewingStream(view1.streamId)
+            .then(function(res) {
+              expect(res.Viewer).to.have.length(2);
+              expect(res.Viewer[0].username).to.equal(user2.username);
+              expect(res.Viewer[1].username).to.equal(user1.username);
+              done();
+            });
+        });
+  });
+
+  lab.test('Get list of users watching a stream valid', function(done) {
+    Storage.getListOfUsersViewingStream('3388ffff-aa00-1111a222-00000044888c')
+      .then(function(res) {
+        expect(res).to.be.null();
+        done();
       });
   });
 

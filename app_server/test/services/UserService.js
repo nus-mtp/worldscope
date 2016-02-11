@@ -230,7 +230,7 @@ lab.experiment('UserService Tests for View', function () {
 
     var viewPromise = userPromise
       .then((user) => Service.createNewStream(user.userId, stream))
-      .then((stream) => Service.createView(stream.owner, stream.streamId))
+      .then((stream) => Service.createView(stream.owner, stream.streamId));
 
     Promise.join(userPromise, viewPromise, function(user, view) {
       Code.expect(view.userId).to.equal(user.userId);
@@ -268,8 +268,7 @@ lab.experiment('UserService Tests for View', function () {
       .then((stream) => Service.createView(stream.owner, stream.streamId))
       .then((view) => Service.createView(view.userId, view.streamId))
       .then(function(res) {
-        Code.expect(res).to.be.an.instanceof(CustomError.DuplicateEntryError);
-        Code.expect(res.message).to.be.equal('User already watching stream');
+        Code.expect(res).to.be.an.instanceof(CustomError.NotFoundError);
         done();
       });
   });

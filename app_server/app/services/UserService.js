@@ -91,13 +91,8 @@ Class.createView = function(userId, streamId) {
       logger.error('Unable to create view');
       return Promise.resolve(new CustomError
         .NotFoundError('Stream not found'));
-    } else if (res.length === 0) {
-      logger.error('Unable to create view, user already watching stream');
-      return Promise.resolve(new CustomError
-        .DuplicateEntryError('User already watching stream'));
     }
-
-    return res[0][0].dataValues;
+    return res.dataValues;
 
   }).catch(function(err) {
     if (err.name === 'TypeError') {
@@ -107,7 +102,7 @@ Class.createView = function(userId, streamId) {
       Promise.resolve(new CustomError.UnknownError());
     }
   });
-}
+};
 
 // Get list of users who are viewing this stream
 

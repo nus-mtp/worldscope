@@ -348,7 +348,7 @@ lab.experiment('Stream Model Tests', function() {
       .catch(function(err) {
         expect(err).to.be.an.instanceof(Error);
         done();
-    });
+      });
   });
 
 });
