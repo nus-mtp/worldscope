@@ -37,20 +37,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".StreamActivity" />
+        <activity android:name=".StreamActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/FullscreenTheme"/>
         <activity
             android:name=".ViewActivity"
+            android:windowSoftInputMode="adjustResize"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="@string/title_activity_view"
             android:theme="@style/FullscreenTheme" />
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:label="@string/app_name"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
         <activity
             android:name=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
     <instrumentation
