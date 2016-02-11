@@ -27,6 +27,13 @@ exports.NotFoundError = function(message, extra) {
   this.extra = extra;
 };
 
+var DuplicateEntryError =
+exports.DuplicateEntryError = function(message) {
+  Error.captureStackTrace(this, this.constructor);
+  this.name = 'DuplicateEntryError';
+  this.message = message;
+};
+
 var UnknownError =
 exports.UnknownError = function() {
   Error.captureStackTrace(this, this.constructor);
@@ -34,6 +41,8 @@ exports.UnknownError = function() {
 };
 
 util.inherits(InvalidFieldError, Error);
+util.inherits(InvalidColumnError, Error);
 util.inherits(NotFoundError, Error);
+util.inherits(DuplicateEntryError, Error);
 util.inherits(UnknownError, Error);
 

@@ -93,7 +93,6 @@ lab.experiment('View Model Tests', function() {
       });
   });
 
-  // repeated views
   lab.test('Create View invalid repeated user/stream', function(done) {
     var userPromise = Storage.createUser(user1);
     var streamPromise = userPromise.then(user =>

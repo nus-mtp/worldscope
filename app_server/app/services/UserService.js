@@ -2,6 +2,7 @@ var rfr = require('rfr');
 
 var Utility = rfr('app/util/Utility');
 var Storage = rfr('app/models/Storage');
+var CustomError = rfr('app/util/Error');
 
 var logger = Utility.createLogger(__filename);
 
@@ -83,5 +84,31 @@ Class.updateUser = function(userId, particulars) {
 Class.getNumberOfUsers = function() {
   return Storage.getNumberOfUsers();
 };
+
+Class.createView = function(userId, streamId) {
+  return Storage.createView(userId, streamId).then(function(res) {
+    if (!res) {
+      logger.error('Unable to create view');
+      return Promise.resolve(new CustomError
+        .NotFoundError('Stream not found'));
+    } else if (res.length === 0) {
+      logger.error('Unable to create view, user already watching stream');
+      return Promise.resolve(new CustomError
+        .DuplicateEntryError('User already watching stream'));
+    }
+
+    return res[0][0].dataValues;
+
+  }).catch(function(err) {
+    if (err.name === 'TypeError') {
+      return Promise.resolve(new CustomError
+        .NotFoundError('User not found'));
+    } else {
+      Promise.resolve(new CustomError.UnknownError());
+    }
+  });
+}
+
+// Get list of users who are viewing this stream
 
 module.exports = new UserService();
