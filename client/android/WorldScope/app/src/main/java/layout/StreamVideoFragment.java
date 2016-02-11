@@ -227,12 +227,10 @@ public class StreamVideoFragment extends Fragment {
 
         //Initialize the frame layout
         FrameLayout.LayoutParams frameLayoutParam;
-        RelativeLayout.LayoutParams relativeLayoutParam;
-        LayoutInflater myInflate;
 
-        myInflate = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         FrameLayout topLayout = new FrameLayout(context);
-        getActivity().setContentView(topLayout);
+        // Add topLayout into view
+        ((ViewGroup) getView()).addView(topLayout);
 
         /* add camera view */
         int display_width_d = (int) (1.0 * bg_screen_width * screenWidth / bg_width);
