@@ -3,22 +3,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="fill_parent"
     android:layout_width="fill_parent"
-    tools:context="com.litmus.worldscope.StreamActivity"
-    android:background="#ff0000">
+    tools:context="com.litmus.worldscope.StreamActivity">
 
     <fragment
         android:layout_width="fill_parent"
-        android:layout_height="249dp"
+        android:layout_height="fill_parent"
         android:name="layout.StreamVideoFragment"
         android:id="@+id/streamVideoFragment"
-        android:layout_gravity="center_horizontal|bottom" />
+        android:layout_gravity="center_horizontal|bottom"
+        tools:layout="@layout/fragment_stream_video" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="HELLO"
-        android:id="@+id/textView"
-        android:layout_gravity="center" />
+    <fragment
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:name="com.litmus.worldscope.StreamCreateFragment"
+        android:id="@+id/streamCreateFragment"
+        android:layout_gravity="center"
+        tools:layout="@layout/fragment_stream_create" />
 
 </FrameLayout>
