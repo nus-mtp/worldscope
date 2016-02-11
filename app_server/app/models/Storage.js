@@ -404,8 +404,6 @@ Class.updateStream = function(streamId, newAttributes) {
  * @return {Promise<Sequelize.object>}
  */
 Class.createView = function(userId, streamId) {
-console.log(userId);
-console.log(streamId);
   var userPromise = this.models.User.findById(userId);
   var streamPromise = this.models.Stream.findById(streamId);
 

@@ -74,6 +74,11 @@ Class.getListOfStreams = function(filters) {
     });
 };
 
+/**
+ * Updates a stream. Used for admin updates and end stream
+ * @param streamId {string}
+ * @param updates  {object}
+ */
 Class.updateStream = function(streamId, updates) {
   logger.debug('Updating stream %s with updates: %j', streamId, updates);
 
