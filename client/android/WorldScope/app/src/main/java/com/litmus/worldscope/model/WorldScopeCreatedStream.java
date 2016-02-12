@@ -7,12 +7,12 @@ import java.util.Date;
  */
 public class WorldScopeCreatedStream extends WorldScopeStream {
 
-    private Date endedAt;
+    private String endedAt;
     private String streamLink;
 
-    public Date getEndedAt() {return endedAt;}
+    public String getEndedAt() {return endedAt;}
     public String getStreamLink() {return streamLink;};
 
-    public void setEndedAt(Date endedAt) {this.endedAt = endedAt;}
+    public void setEndedAt(String endedAt) {this.endedAt = endedAt;}
     public void setStreamLink(String streamLink) {this.streamLink = streamLink;}
 }
