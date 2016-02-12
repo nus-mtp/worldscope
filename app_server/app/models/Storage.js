@@ -443,6 +443,32 @@ Class.getListOfUsersViewingStream = function(streamId) {
   });
 };
 
+Class.getTotalNumberOfUsersViewedStream = function(streamId) {
+  return this.models.View.count({
+    where: {
+      streamId: streamId,
+      endedAt: null //either null or removed, depending live or not
+    }
+  });
+};
+
+/**
+ * @param  {string} userId
+ * @param  {string} streamId
+ * @param  {object} newAttributes
+ * @return {Promise<Sequelize.View>}
+ */
+/*Class.updateView = function(userId, streamId, newAttributes) {
+  var userPromise = this.models.User.findById(userId);
+  var streamPromise = this.models.Stream.findById(streamId);
+
+  return this.getStreamById(streamId).then(function(stream) {
+    return stream.update(newAttributes, {
+      fields: Object.keys(newAttributes)
+    });
+  });
+};*/
+
 /**
  * Check if the fields to be changed match the fields available in object
  * @private

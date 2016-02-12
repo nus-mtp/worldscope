@@ -52,6 +52,12 @@ Class.getListOfUsersViewingStream = function(streamId) {
   logger.debug('Getting list of users viewing stream: %s', streamId);
   return UserService.getListOfUsersViewingStream(streamId);
 };
+
+Class.getTotalNumberOfUsersViewedStream = function(streamId) {
+  logger.debug('Getting total number of users who viewed the stream: %s',
+                streamId);
+  return UserService.getTotalNumberOfUsersViewedStream(streamId);
+};
 ///////////////////////
 
 /////// STREAM APIs ///////

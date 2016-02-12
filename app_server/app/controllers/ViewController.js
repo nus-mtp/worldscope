@@ -61,15 +61,16 @@ Class.getListOfUsersViewingStream = function(request, reply) {
 
   var streamId = request.params.id;
 
-  Service.getListOfUsersViewingStream(streamId).then(function receiveResult(result) {
-    if (!result) {
-      logger.error('List of users cannot be retrieved');
-      reply(Boom.badRequest('Stream could not be found'));
-      return;
-    }
+  Service.getListOfUsersViewingStream(streamId)
+    .then(function receiveResult(result) {
+      if (!result) {
+        logger.error('List of users cannot be retrieved');
+        reply(Boom.badRequest('Stream could not be found'));
+        return;
+      }
 
-    reply(result);
-  });
+      reply(result);
+    });
 };
 
 /* Validator for routes */

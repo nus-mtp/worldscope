@@ -126,11 +126,11 @@ lab.experiment('ViewController Tests', function() {
       Service.createNewStream(user.userId, stream));
 
     streamPromise.then(function(stream) {
-        Router.inject({method: 'GET', url: '/api/views/' + stream.streamId,
-                       credentials: testAccount}, function(res) {
-          Code.expect(res.result).to.deep.equals([]);
-          done();
-        });
+      Router.inject({method: 'GET', url: '/api/views/' + stream.streamId,
+                     credentials: testAccount}, function(res) {
+        Code.expect(res.result).to.deep.equals([]);
+        done();
+      });
     });
   });
 

@@ -127,8 +127,8 @@ Class.endStream = function(request, reply) {
         return;
       }
 
-    reply(res).code(200);
-  });
+      reply(res).code(200);
+    });
 };
 
 /* Validator for routes */

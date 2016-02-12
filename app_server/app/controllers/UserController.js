@@ -84,7 +84,6 @@ Class.getListOfUsers = function(request, reply) {
 };
 
 Class.updateUser = function(request, reply) {
-  console.log(request.payload);
   var updates = {
     alias: request.payload.alias,
     description: request.payload.description,

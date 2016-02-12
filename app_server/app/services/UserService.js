@@ -85,6 +85,7 @@ Class.getNumberOfUsers = function() {
   return Storage.getNumberOfUsers();
 };
 
+///// VIEW RELATED ////
 Class.createView = function(userId, streamId) {
   return Storage.createView(userId, streamId).then(function(res) {
     if (!res) {
@@ -133,4 +134,18 @@ Class.getListOfUsersViewingStream = function(streamId) {
     });
 };
 
+/**
+ * Gets the number of users who have viewed a particular stream.
+ * @param streamId {string}
+ * @return {Promise<Number>}
+ */
+Class.getTotalNumberOfUsersViewedStream = function(streamId) {
+  logger.debug('Getting total number of users who viewed a stream: %s',
+                streamId);
+
+  return Storage.getTotalNumberOfUsersViewedStream(streamId)
+    .then(function receiveResult(result) {
+      return result;
+    });
+};
 module.exports = new UserService();

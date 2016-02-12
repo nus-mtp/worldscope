@@ -9,29 +9,36 @@ var Storage = rfr('app/models/Storage');
 var Service = rfr('app/services/Service');
 var CustomError = rfr('app/util/Error');
 var TestUtils = rfr('test/TestUtils');
-/*
-lab.experiment('UserService Tests', function () {
-  var bob = {
-    username: 'Bob',
-    alias: 'Bob the Builder',
-    email: 'bob@bubblegum.com',
-    password: 'generated',
-    accessToken: 'xyzabc',
-    platformType: 'facebook',
-    platformId: '1238943948',
-    description: 'bam bam bam'
-  };
 
-  var alice = {
-    username: 'Alice',
-    alias: 'Alice in the wonderland',
-    email: 'alice@apple.com',
-    password: 'generated',
-    accessToken: 'anaccesstoken',
-    platformType: 'facebook',
-    platformId: '45454545454',
-    description: 'nil'
-  };
+var bob = {
+  username: 'Bob',
+  alias: 'Bob the Builder',
+  email: 'bob@bubblegum.com',
+  password: 'generated',
+  accessToken: 'xyzabc',
+  platformType: 'facebook',
+  platformId: '1238943948',
+  description: 'bam bam bam'
+};
+
+var alice = {
+  username: 'Alice',
+  alias: 'Alice in the wonderland',
+  email: 'alice@apple.com',
+  password: 'generated',
+  accessToken: 'anaccesstoken',
+  platformType: 'facebook',
+  platformId: '45454545454',
+  description: 'nil'
+};
+
+var stream = {
+  title: 'this is a title from user service',
+  description: 'arbitrary description',
+  appInstance: '123-123-123-123'
+};
+
+lab.experiment('UserService Tests', function () {
 
   lab.beforeEach({timeout: 10000}, function (done) {
     TestUtils.resetDatabase(done);
@@ -190,36 +197,9 @@ lab.experiment('UserService Tests', function () {
       });
   });
 
-});*/
+});
 
 lab.experiment('UserService Tests for View', function () {
-  var bob = {
-    username: 'Bob',
-    alias: 'Bob the Builder',
-    email: 'bob@bubblegum.com',
-    password: 'generated',
-    accessToken: 'xyzabc',
-    platformType: 'facebook',
-    platformId: '1238943948',
-    description: 'bam bam bam'
-  };
-
-  var alice = {
-    username: 'Alice',
-    alias: 'Alice in the wonderland',
-    email: 'alice@apple.com',
-    password: 'generated',
-    accessToken: 'anaccesstoken',
-    platformType: 'facebook',
-    platformId: '45454545454',
-    description: 'nil'
-  };
-
-  var stream = {
-    title: 'this is a title from user service',
-    description: 'arbitrary description',
-    appInstance: '123-123-123-123'
-  };
 
   lab.beforeEach({timeout: 10000}, function (done) {
     TestUtils.resetDatabase(done);
@@ -311,6 +291,31 @@ lab.experiment('UserService Tests for View', function () {
       Service.getListOfUsersViewingStream('3388ffff-aa00-1111a222-00000044888c')
         .then(function(result) {
           Code.expect(result).to.be.null();
+          done();
+        });
+    });
+
+  lab.test('Get number of users who have watched a stream valid',
+    function(done) {
+
+      Service.createNewUser(bob).then(function(user) {
+        return Service.createNewStream(user.userId, stream);
+      }).then(function(stream) {
+        return Service.createView(stream.owner, stream.streamId);
+      }).then(function(view) {
+        return Service.getTotalNumberOfUsersViewedStream(view.streamId);
+      }).then(function(result) {
+        Code.expect(result).to.equal(1);
+        done();
+      });
+    });
+
+  lab.test('Get number of users who have watched a stream invalid',
+    function(done) {
+      Service.getTotalNumberOfUsersViewedStream('3388ffff-aa00-' +
+                                                '1111a222-00000044888c')
+        .then(function(result) {
+          Code.expect(result).to.equal(0);
           done();
         });
     });
