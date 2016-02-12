@@ -1,4 +1,5 @@
 const m = require('mithril');
+const App = require('../app');
 
 const Stream = module.exports = function (data) {
   this.id = m.prop(data.streamId);
@@ -14,7 +15,7 @@ const Stream = module.exports = function (data) {
 };
 
 Stream.list = () =>
-    m.request({
+    App.request({
       method: 'GET',
       url: 'src/js/modules/mockdata/streams.json',
       type: Stream

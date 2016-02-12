@@ -56,6 +56,13 @@ App.routes = {
   }
 };
 
+// Used when logged in
+App.request = function (originalOptions) {
+  let options = Object.assign({}, originalOptions);
+
+  return m.request(options);
+};
+
 // TODO: Separate into Authentication module
 App.isLoggedIn = () => window.localStorage.getItem('ws-user');
 
