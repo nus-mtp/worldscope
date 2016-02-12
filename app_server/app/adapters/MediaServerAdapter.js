@@ -22,7 +22,10 @@ function MediaServerAdapter(host, username, password) {
   this.host = host;
   let authToken = new Buffer(`${username}:${password}`, 'utf8');
   this.wreck = Promise.promisifyAll(Wreck.defaults({
-    headers: {'Authorization': 'Basic ' + authToken.toString('base64')}
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ' + authToken.toString('base64')
+    }
   }));
 }
 
@@ -43,8 +46,8 @@ Class.__makePOST = function(path, data) {
     logger.info('Response from media server: ', payload);
     return payload;
   }).catch((err) => {
-    logger.error('Unable to request media server at %s: %j', url, err);
-    return null;
+    logger.error('Unable to request media server at %s: ', url, err);
+    return err;
   });
 };
 
@@ -58,8 +61,9 @@ Class.stopStream = function(appName, appInstance, streamName) {
 
   return this.__makePOST('/control', data)
   .then((response) => {
-    if (!response || !(response instanceof Object)) {
-      return new Error('Failed to request media server');
+    if (!response || response instanceof Error
+        || !(response instanceof Object)) {
+      return new Error('Failed to request media server ' + response);
     }
 
     if (response.status !== 'OK') {

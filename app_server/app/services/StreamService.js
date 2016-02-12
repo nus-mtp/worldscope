@@ -135,7 +135,7 @@ Class.stopStream = function(appName, appInstance, streamId) {
   // TODO: Update stream's state in database before calling the below
   return this.mediaServerAdapter.stopStream(appName, appInstance, streamId)
   .catch((err) => {
-    return new Error(err.message);
+    return err;
   });
 };
 

@@ -44,7 +44,7 @@ Class.registerRoutes = function() {
   this.server.route({method: 'POST', path: '/control/stop',
                      config: {
                        validate: streamControlStopValidator,
-                       auth: false
+                       auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.controlStopStream});
 
@@ -122,9 +122,9 @@ Class.controlStopStream = function(request, reply) {
   Service.stopStream(ServerConfig.mediaServer.appName,
                      request.payload.appInstance,
                      request.payload.streamId)
-  .then(function (result) {
+  .then((result) => {
     if (result instanceof Error) {
-      reply(Boom.badRequest({status: 'ERR', message: result.message}));
+      reply(Boom.badRequest(result.message));
       return;
     }
 
