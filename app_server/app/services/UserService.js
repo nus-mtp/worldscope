@@ -89,12 +89,15 @@ Class.createView = function(userId, streamId) {
   return Storage.createView(userId, streamId).then(function(res) {
     if (!res) {
       logger.error('Unable to create view');
+
       return Promise.resolve(new CustomError
         .NotFoundError('Stream not found'));
     }
     return res.dataValues;
 
   }).catch(function(err) {
+    logger.error('Unable to create view: %j', err);
+
     if (err.name === 'TypeError') {
       return Promise.resolve(new CustomError
         .NotFoundError('User not found'));

@@ -252,14 +252,15 @@ lab.experiment('UserService Tests for View', function () {
 
   lab.test('Create View invalid stream', function(done) {
     Service.createNewUser(bob)
-    .then((user) => Service.createNewStream(user.userId, stream))
-    .then((stream) => Service.createView(stream.owner,
-                                         '3388ffff-aa00-1111a222-00000044888c'))
-    .then(function(res) {
-      Code.expect(res).to.be.an.instanceof(CustomError.NotFoundError);
-      Code.expect(res.message).to.be.equal('Stream not found');
-      done();
-    });
+      .then((user) => Service.createNewStream(user.userId, stream))
+      .then((stream) =>
+        Service.createView(stream.owner,
+                           '3388ffff-aa00-1111a222-00000044888c'))
+      .then(function(res) {
+        Code.expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+        Code.expect(res.message).to.be.equal('Stream not found');
+        done();
+      });
   });
 
   lab.test('Create View invalid repeated user/stream', function(done) {

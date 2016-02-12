@@ -122,7 +122,7 @@ Class.getListOfUsersViewingStream = function(streamId) {
         return null;
       }
     }).catch(function(err) {
-      logger.error(err);
+      logger.error('Unable to get list of users viewing stream: %j', err);
       return null;
     });
 };
