@@ -244,4 +244,63 @@ lab.experiment('StreamController Tests', function() {
       done();
     });
   });
+
+  lab.test('End stream valid', function(done) {
+
+    var streamInfo = {
+      title: 'this is the title',
+      description: 'this is the description of the stream',
+      appInstance: 'generated'
+    };
+
+    Service.createNewUser(bob).then(function(user) {
+      testAccount.userId = user.userId;
+      return user.userId;
+    }).then(function(userId) {
+      return Service.createNewStream(userId, streamInfo);
+    }).then(function(stream) {
+      Router.inject({method: 'PUT',
+                     url: '/api/streams/' + stream.streamId + '/end',
+                     credentials: testAccount}, function(res) {
+        Code.expect(res.statusCode).to.equal(200);
+        Code.expect(res.result).to.equal('Success');
+        done();
+      });
+    });
+  });
+
+  lab.test('End stream invalid streamId', function(done) {
+    Router.inject({method: 'PUT',
+                   url: '/api/streams/' +
+                   '3388ffff-aa00-1111a222-00000044888c/end',
+                   credentials: testAccount}, function(res) {
+      Code.expect(res.result.statusCode).to.equal(400);
+      Code.expect(res.result.message).to.equal('Stream not found');
+      done();
+    });
+  });
+
+  lab.test('End stream invalid not stream owner', function(done) {
+    var streamInfo = {
+      title: 'this is the title',
+      description: 'this is the description of the stream',
+      appInstance: 'generated'
+    };
+
+    Service.createNewUser(bob).then(function(user) {
+      return user.userId;
+    }).then(function(userId) {
+      return Service.createNewStream(userId, streamInfo);
+    }).then(function(stream) {
+      Router.inject({method: 'PUT',
+                     url: '/api/streams/' + stream.streamId + '/end',
+                     credentials: testAccount}, function(res) {
+        Code.expect(res.result.statusCode).to.equal(400);
+        Code.expect(res.result.message)
+          .to.equal('Not authorised to end stream');
+        done();
+      });
+    });
+
+  });
 });
