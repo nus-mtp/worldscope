@@ -3,13 +3,70 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    tools:context="com.litmus.worldscope.StreamCreateFragment"
-    android:background="#64000000">
+    tools:context="com.litmus.worldscope.StreamCreateFragment">
 
-    <RelativeLayout
+    <LinearLayout
+        android:id="@+id/streamStopForm"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal">
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:background="#64000000">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Stop streaming?"
+            android:id="@+id/textView2"
+            android:textAlignment="center"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="30dp"
+            android:layout_marginTop="30dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                style="?android:attr/borderlessButtonStyle"
+                android:id="@+id/confirmStopStreamButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Yes"
+                android:layout_weight="1"
+                android:textColor="#ffffff" />
+
+            <View
+                android:layout_height="match_parent"
+                android:layout_width="1dp"
+                android:background="@android:color/darker_gray"/>
+
+            <Button
+                style="?android:attr/borderlessButtonStyle"
+                android:id="@+id/cancelStopStreamButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="No"
+                android:layout_weight="1"
+                android:textColor="#ffffff" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/streamCreateForm"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:background="#64000000">
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -34,7 +91,7 @@
                 android:textColorHint="#FFE0E0E0">
 
                 <EditText
-                    android:id="@+id/username"
+                    android:id="@+id/titleInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textCapSentences"
@@ -50,7 +107,7 @@
                 android:textColorHint="#FFE0E0E0">
 
                 <EditText
-                    android:id="@+id/description"
+                    android:id="@+id/descriptionInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textMultiLine"
@@ -62,41 +119,44 @@
 
         </LinearLayout>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_above="@+id/linearLayout"
+            android:layout_alignParentStart="true" />
+
+
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentStart="false">
-            <Button
-                android:id="@+id/createStreamButton"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/button"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="20dp"
-                android:text="Stream"
-                android:layout_weight="1"
-                android:background="#EB8A3A"
-                android:textColor="#FFFFFF" />
-
+            android:layout_alignParentStart="false"
+            android:id="@+id/linearLayout">
 
             <Button
                 android:id="@+id/cancelStreamButton"
                 style="?android:attr/borderlessButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/button"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="20dp"
                 android:text="Cancel"
                 android:layout_weight="1"
-                android:textColor="#ffffff"
-                android:onClick="cancelStream"/>
+                android:textColor="#ffffff"/>
+
+            <Button
+                android:id="@+id/createStreamButton"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Stream"
+                android:layout_weight="1"
+                android:background="#EB8A3A"
+                android:textColor="#FFFFFF" />
+
         </LinearLayout>
 
-
     </RelativeLayout>
+
 
 </FrameLayout>
