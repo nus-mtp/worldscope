@@ -278,5 +278,30 @@ lab.experiment('StreamService Tests', function() {
     });
   });
 
+  lab.test('Get list of users watching a particular stream valid',
+    function(done) {
+
+      Service.createNewUser(bob).then(function(user) {
+        return Service.createNewStream(user.userId, testStream);
+      }).then(function(stream) {
+        return Service.createView(stream.owner, stream.streamId);
+      }).then(function(view) {
+        return Service.getListOfUsersViewingStream(view.streamId);
+      }).then(function(result) {
+        Code.expect(result).to.have.length(1);
+        Code.expect(result[0].username).to.equal(bob.username);
+        done();
+      });
+    });
+
+  lab.test('Get list of users watching a particular stream invalid',
+    function(done) {
+
+      Service.getListOfUsersViewingStream('3388ffff-aa00-1111a222-00000044888c')
+        .then(function(result) {
+          Code.expect(result).to.be.null();
+          done();
+        });
+    });
 });
 

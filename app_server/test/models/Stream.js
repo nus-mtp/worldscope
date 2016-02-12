@@ -53,7 +53,7 @@ lab.experiment('Stream Model Tests', function() {
     // Delete database, run before every single test
     TestUtils.resetDatabase(done);
   });
-/*
+
   lab.test('Create Stream', function(done) {
     Storage.createUser(userDetails).then(function(user) {
       return user.userId;
@@ -295,7 +295,7 @@ lab.experiment('Stream Model Tests', function() {
       done();
     });
   });
-*/
+
   lab.test('Update stream invalid columns', function(done) {
 
     var newStreamAttributes = {

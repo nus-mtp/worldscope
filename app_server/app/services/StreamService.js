@@ -103,6 +103,31 @@ Class.updateStream = function(streamId, updates) {
 };
 
 /**
+ * Gets the list of users watching a particular stream.
+ * @param streamId {string}
+ */
+Class.getListOfUsersViewingStream = function(streamId) {
+  logger.debug('Getting list of users watching stream: %s', streamId);
+
+  return Storage.getListOfUsersViewingStream(streamId)
+    .then(function receiveResult(result) {
+      if (result) {
+        return result.map(
+          function(singleUser) {
+            singleUser = singleUser.dataValues;
+            delete singleUser.View;
+            return Utility.formatUserObject(singleUser);
+          });
+      } else {
+        return null;
+      }
+    }).catch(function(err) {
+      logger.error(err);
+      return null;
+    });
+};
+
+/**
  * Creates a new chat room for a new stream and add the streamer to that room
  * @param userId {string}
  * @param streamAttributes {object}

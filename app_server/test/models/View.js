@@ -129,15 +129,15 @@ lab.experiment('View Model Tests', function() {
         function(view1, view2) {
           Storage.getListOfUsersViewingStream(view1.streamId)
             .then(function(res) {
-              expect(res.Viewer).to.have.length(2);
-              expect(res.Viewer[0].username).to.equal(user2.username);
-              expect(res.Viewer[1].username).to.equal(user1.username);
+              expect(res).to.have.length(2);
+              expect(res[0].username).to.equal(user2.username);
+              expect(res[1].username).to.equal(user1.username);
               done();
             });
         });
   });
 
-  lab.test('Get list of users watching a stream valid', function(done) {
+  lab.test('Get list of users watching a stream invalid', function(done) {
     Storage.getListOfUsersViewingStream('3388ffff-aa00-1111a222-00000044888c')
       .then(function(res) {
         expect(res).to.be.null();

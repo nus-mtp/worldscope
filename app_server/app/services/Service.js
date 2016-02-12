@@ -71,6 +71,10 @@ Class.updateStream = function(streamId, attributes) {
   return StreamService.updateStream(streamId, attributes);
 };
 
+Class.getListOfUsersViewingStream = function(streamId) {
+  logger.debug('Getting list of users viewing stream: %s', streamId);
+  return StreamService.getListOfUsersViewingStream(streamId);
+};
 ///////////////////////
 
 /////// ADMIN APIs ///////

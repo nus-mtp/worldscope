@@ -434,6 +434,12 @@ Class.getListOfUsersViewingStream = function(streamId) {
       }
     }],
     order: [[{model: this.models.User, as: 'Viewer'}, 'username', 'ASC']]
+  }).then(function receiveResult(result) {
+    if (result) {
+      return result.Viewer; //only return the descendents
+    } else {
+      return null;
+    }
   });
 };
 
