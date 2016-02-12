@@ -4,33 +4,34 @@ const App = require('../app');
 const User = module.exports = function (data) {
   this.id = m.prop(data.userId);
   this.username = m.prop(data.username);
-  this.platform = m.prop(data.platform_type);
+  this.platform = m.prop(data.platformType);
   this.alias = m.prop(data.alias);
   this.description = m.prop(data.description);
   this.email = m.prop(data.email);
 };
 
-User.get = () =>
+User.get = (id) =>
     App.request({
       method: 'GET',
-      url: 'src/js/modules/mockdata/user.json',
+      url: '../api/users/' + id,
       type: User
     });
 
-User.list = () =>
+User.list = (order) =>
     App.request({
       method: 'GET',
-      url: 'src/js/modules/mockdata/users.json',
+      url: '../api/users',
       type: User
     });
 
 User.update = (user) =>
     App.request({
       method: 'PUT',
-      url: '/users/' + user.id(),
+      url: '../api/users/' + user.id(),
       data: {
         alias: user.alias(),
         description: user.description(),
         email: user.email()
-      }
+      },
+      type: User
     });

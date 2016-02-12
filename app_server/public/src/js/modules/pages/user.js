@@ -4,7 +4,7 @@ const UserModel = require('../models/user');
 
 const User = module.exports = {
   controller: function () {
-    let id = m.route.param('user') || -1;
+    let id = m.route.param('id') || -1;
 
     let ctrl = this;
 
