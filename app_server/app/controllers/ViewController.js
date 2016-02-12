@@ -57,7 +57,19 @@ Class.createView = function(request, reply) {
 };
 
 Class.getListOfUsersViewingStream = function(request, reply) {
-  reply('hello');
+  logger.debug('Get list of users view a stream');
+
+  var streamId = request.params.id;
+
+  Service.getListOfUsersViewingStream(streamId).then(function receiveResult(result) {
+    if (!result) {
+      logger.error('List of users cannot be retrieved');
+      reply(Boom.badRequest('Stream could not be found'));
+      return;
+    }
+
+    reply(result);
+  });
 };
 
 /* Validator for routes */

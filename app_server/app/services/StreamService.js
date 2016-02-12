@@ -105,6 +105,7 @@ Class.updateStream = function(streamId, updates) {
 /**
  * Gets the list of users watching a particular stream.
  * @param streamId {string}
+ * @return {Promise<Array<User>>||null}
  */
 Class.getListOfUsersViewingStream = function(streamId) {
   logger.debug('Getting list of users watching stream: %s', streamId);

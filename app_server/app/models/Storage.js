@@ -401,7 +401,7 @@ Class.updateStream = function(streamId, newAttributes) {
 /**
  * @param  {string} userId
  * @param  {string} streamId
- * @return {Promise<Sequelize.object>}
+ * @return {Promise<Sequelize.View>}
  */
 Class.createView = function(userId, streamId) {
   var userPromise = this.models.User.findById(userId);
@@ -416,7 +416,7 @@ Class.createView = function(userId, streamId) {
 
 /**
  * @param  {string} streamId
- * @return {Promise<Sequelize.object>} - a Stream object with a list of
+ * @return {Promise<Sequelize.Stream>} - a Stream object with a list of
  *                                       embedded users
  */
 Class.getListOfUsersViewingStream = function(streamId) {
