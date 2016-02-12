@@ -281,7 +281,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     // Log out from WorldScope App server
-    // TODO: Check JSON formatting of API request's result
     private void logoutFromAppServer() {
         Call<WorldScopeUser> call = new WorldScopeRestAPI(context
         ).buildWorldScopeAPIService().logoutUser();
@@ -311,7 +310,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     // Class used to passed into Picasso for cropping pictures into circles
-    // TODO: Might require refactoring if said functionality is required elsewhere, i.e. list of streams
     public class CircleTransform implements Transformation {
         @Override
         public Bitmap transform(Bitmap source) {
