@@ -103,28 +103,30 @@ Class.updateStream = function(streamId, updates) {
 };
 
 /**
- * Gets the list of users watching a particular stream.
+ * Ends a stream only for a stream's owner
  * @param streamId {string}
- * @return {Promise<Array<User>>||null}
+ * @param updates  {object}
  */
-Class.getListOfUsersViewingStream = function(streamId) {
-  logger.debug('Getting list of users watching stream: %s', streamId);
+Class.endStream = function(userId, streamId) {
+  logger.debug('Ending stream: %s', streamId);
 
-  return Storage.getListOfUsersViewingStream(streamId)
-    .then(function receiveResult(result) {
-      if (result) {
-        return result.map(
-          function(singleUser) {
-            singleUser = singleUser.dataValues;
-            delete singleUser.View;
-            return Utility.formatUserObject(singleUser);
-          });
+  // Check that userId is the owner of the stream
+  return Storage.getStreamById(streamId)
+    .then(function(stream) {
+      if (stream.owner === userId) {
+        return Storage.updateStream(streamId, {live: false})
+          .then((res) => 'Success');
       } else {
-        return null;
+        return Promise.resolve(new CustomError
+          .NotAuthorisedError('Not authorised to end stream'));
       }
+
     }).catch(function(err) {
-      logger.error('Unable to get list of users viewing stream: %j', err);
-      return null;
+      logger.error(err);
+      if (err.name === 'TypeError') {
+        return Promise.resolve(new CustomError
+          .NotFoundError('Stream not found'));
+      }
     });
 };
 

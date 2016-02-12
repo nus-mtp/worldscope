@@ -263,45 +263,45 @@ lab.experiment('StreamService Tests', function() {
       });
   });
 
-  lab.test('Update Stream invalid fields', function(done) {
-    var updates = {
-      randomField: 'new title'
-    };
+  lab.test('End stream valid', function(done) {
 
     Service.createNewUser(bob).then(function(user) {
       return Service.createNewStream(user.userId, testStream);
     }).then(function(stream) {
-      return Service.updateStream(stream.streamId, updates);
-    }).then(function(result) {
-      Code.expect(result).to.be.an.instanceof(CustomError.InvalidColumnError);
+      return Service.endStream(stream.owner, stream.streamId);
+    }).then(function(res) {
+      Code.expect(res).to.equal('Success');
       done();
     });
   });
 
-  lab.test('Get list of users watching a particular stream valid',
-    function(done) {
+  lab.test('End stream invalid streamId', function(done) {
 
-      Service.createNewUser(bob).then(function(user) {
-        return Service.createNewStream(user.userId, testStream);
-      }).then(function(stream) {
-        return Service.createView(stream.owner, stream.streamId);
-      }).then(function(view) {
-        return Service.getListOfUsersViewingStream(view.streamId);
-      }).then(function(result) {
-        Code.expect(result).to.have.length(1);
-        Code.expect(result[0].username).to.equal(bob.username);
-        done();
-      });
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, testStream);
+    }).then(function(stream) {
+      return Service.endStream(stream.owner,
+                               '3388ffff-aa00-1111a222-00000044888c');
+    }).then(function(res) {
+      Code.expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+      Code.expect(res.message).to.be.equal('Stream not found');
+      done();
     });
+  });
 
-  lab.test('Get list of users watching a particular stream invalid',
-    function(done) {
+  lab.test('End stream invalid not owner of stream', function(done) {
 
-      Service.getListOfUsersViewingStream('3388ffff-aa00-1111a222-00000044888c')
-        .then(function(result) {
-          Code.expect(result).to.be.null();
-          done();
-        });
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, testStream);
+    }).then(function(stream) {
+      return Service.endStream('3388ffff-aa00-1111a222-00000044888c',
+                                stream.streamId);
+    }).then(function(res) {
+      Code.expect(res).to.be.an.instanceof(CustomError.NotAuthorisedError);
+      Code.expect(res.message).to.be.equal('Not authorised to end stream');
+      done();
     });
+  });
+
 });
 

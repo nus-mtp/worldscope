@@ -274,4 +274,44 @@ lab.experiment('UserService Tests for View', function () {
       });
   });
 
+  lab.test('Update Stream invalid fields', function(done) {
+    var updates = {
+      randomField: 'new title'
+    };
+
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, stream);
+    }).then(function(stream) {
+      return Service.updateStream(stream.streamId, updates);
+    }).then(function(result) {
+      Code.expect(result).to.be.an.instanceof(CustomError.InvalidColumnError);
+      done();
+    });
+  });
+
+  lab.test('Get list of users watching a particular stream valid',
+    function(done) {
+
+      Service.createNewUser(bob).then(function(user) {
+        return Service.createNewStream(user.userId, stream);
+      }).then(function(stream) {
+        return Service.createView(stream.owner, stream.streamId);
+      }).then(function(view) {
+        return Service.getListOfUsersViewingStream(view.streamId);
+      }).then(function(result) {
+        Code.expect(result).to.have.length(1);
+        Code.expect(result[0].username).to.equal(bob.username);
+        done();
+      });
+    });
+
+  lab.test('Get list of users watching a particular stream invalid',
+    function(done) {
+
+      Service.getListOfUsersViewingStream('3388ffff-aa00-1111a222-00000044888c')
+        .then(function(result) {
+          Code.expect(result).to.be.null();
+          done();
+        });
+    });
 });

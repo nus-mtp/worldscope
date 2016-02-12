@@ -48,6 +48,10 @@ Class.createView = function(userId, streamId) {
   return UserService.createView(userId, streamId);
 };
 
+Class.getListOfUsersViewingStream = function(streamId) {
+  logger.debug('Getting list of users viewing stream: %s', streamId);
+  return UserService.getListOfUsersViewingStream(streamId);
+};
 ///////////////////////
 
 /////// STREAM APIs ///////
@@ -71,9 +75,9 @@ Class.updateStream = function(streamId, attributes) {
   return StreamService.updateStream(streamId, attributes);
 };
 
-Class.getListOfUsersViewingStream = function(streamId) {
-  logger.debug('Getting list of users viewing stream: %s', streamId);
-  return StreamService.getListOfUsersViewingStream(streamId);
+Class.endStream = function(userId, streamId) {
+  logger.debug('Ending stream: %s', streamId);
+  return StreamService.endStream(userId, streamId);
 };
 ///////////////////////
 

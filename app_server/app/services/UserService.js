@@ -107,6 +107,30 @@ Class.createView = function(userId, streamId) {
   });
 };
 
-// Get list of users who are viewing this stream
+/**
+ * Gets the list of users watching a particular stream.
+ * @param streamId {string}
+ * @return {Promise<Array<User>>||null}
+ */
+Class.getListOfUsersViewingStream = function(streamId) {
+  logger.debug('Getting list of users watching stream: %s', streamId);
+
+  return Storage.getListOfUsersViewingStream(streamId)
+    .then(function receiveResult(result) {
+      if (result) {
+        return result.map(
+          function(singleUser) {
+            singleUser = singleUser.dataValues;
+            delete singleUser.View;
+            return Utility.formatUserObject(singleUser);
+          });
+      } else {
+        return null;
+      }
+    }).catch(function(err) {
+      logger.error('Unable to get list of users viewing stream: %j', err);
+      return null;
+    });
+};
 
 module.exports = new UserService();
