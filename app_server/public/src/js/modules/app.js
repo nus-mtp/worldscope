@@ -1,5 +1,5 @@
 const m = require('mithril');
-const nav = require('./components/nav');
+const Nav = require('./components/nav');
 
 const templatePage = (content) => m('div#container.row', content);
 
@@ -9,7 +9,7 @@ const wrapView = function (wrapper, vElement) {
   return wrappedElement;
 };
 const navPage = function (page) {
-  let wrappedNav = wrapView((e) => m('div#nav.col s2 l1', e), nav);
+  let wrappedNav = wrapView((e) => m('div#nav.col s2 l1', e), Nav);
   let wrappedPage = wrapView((e) => m('div#content.col offset-s2 s10 offset-l1 l11', e), page);
 
   return {
