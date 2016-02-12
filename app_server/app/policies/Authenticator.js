@@ -205,8 +205,8 @@ Class.validateAccount = function (server, session) {
 
       if (session.scope === Class.SCOPE.USER) {
         return Class.verifyUserToken(user, session.password);
-      } else if (session.scope === Class.SCOPE.ADMIN.DEFAULT) {
         return bcrypt.compareAsync(session.password, user.password);
+      } else if (isAdminScope(session.scope)) {
       } else {
         return new Error(Class.ERRORS.UNKNOWN_SCOPE);
       }
@@ -230,5 +230,8 @@ Class.validateAccount = function (server, session) {
     });
   });
 };
+
+var isAdminScope = (scope) => Array.isArray(scope) &&
+                              scope.indexOf(Class.SCOPE.ADMIN.DEFAULT) !== -1;
 
 module.exports = new Authenticator();
