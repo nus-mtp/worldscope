@@ -190,8 +190,15 @@ Class.validateAccount = function (server, session) {
       return null;
     }
 
-    return session.username === cached.username &&
-           session.password === cached.password;
+    var isAccountValidated = session.username === cached.username &&
+                             session.password === cached.password;
+
+    if (!isAdminScope(session.scope)) {
+      return isAccountValidated;
+    } else {
+      return isAccountValidated && session.csrfToken &&
+             session.csrfToken === cached.encryptedPassword;
+    }
   }).then(function getAccountFromDatabase(cacheValidateResult) {
     if (cacheValidateResult) {
       return session;
@@ -205,8 +212,9 @@ Class.validateAccount = function (server, session) {
 
       if (session.scope === Class.SCOPE.USER) {
         return Class.verifyUserToken(user, session.password);
-        return bcrypt.compareAsync(session.password, user.password);
       } else if (isAdminScope(session.scope)) {
+        return session.csrfToken === user.password &&
+               bcrypt.compareAsync(session.password, user.password);
       } else {
         return new Error(Class.ERRORS.UNKNOWN_SCOPE);
       }

@@ -224,6 +224,7 @@ Class.login = function(request, reply) {
       userId: admin.userId,
       username: admin.username,
       password: credentials.password,
+      encryptedPassword: admin.password,
       scope: unwrapPermissionsFromDB(admin.permissions)
     };
 
@@ -232,7 +233,7 @@ Class.login = function(request, reply) {
 
       // rewrite with unencrypted password
       admin.password = credentials.password;
-      return reply(admin);
+      return reply(admin).header('x-csrf-token', account.encryptedPassword);
     });
   }).catch(function fail(err) {
     return reply(Boom.badRequest('Failed to authenticate admin: ' + err));
