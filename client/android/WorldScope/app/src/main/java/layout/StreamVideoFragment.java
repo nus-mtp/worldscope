@@ -20,7 +20,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 
 import com.litmus.worldscope.R;
 
@@ -47,8 +46,9 @@ public class StreamVideoFragment extends Fragment {
     private final int MAX_SUPPORTED_IMAGE_WIDTH = 1024;
     private final int MAX_SUPPORTED_IMAGE_HEIGHT = 768;
     private StreamVideoControls controls;
+
     //Change this to stream RMTP
-    private String ffmpeg_link = "rtmp://multimedia.worldscope.tk:1935/live/streamkey";
+    private String rtmpLink = "rtmp://multimedia.worldscope.tk:1935/live/streamkey";
     private OnStreamVideoFragmentListener listener;
     private Context context;
 
@@ -75,6 +75,7 @@ public class StreamVideoFragment extends Fragment {
     int frameRate = 30;
 
     private Camera cameraDevice;
+    private CameraView cameraView;
 
     /* audio data getting thread */
     AudioRecord audioRecord;
@@ -253,7 +254,7 @@ public class StreamVideoFragment extends Fragment {
         cameraDevice.setDisplayOrientation(ROTATION_90);
 
         Log.i(TAG, "Camera open");
-        CameraView cameraView = new CameraView(context, cameraDevice);
+        cameraView = new CameraView(context, cameraDevice);
         topLayout.addView(cameraView, frameLayoutParam);
         Log.i(TAG, "Camera preview start: OK");
     }
@@ -470,8 +471,8 @@ public class StreamVideoFragment extends Fragment {
             Log.i(TAG, "create yuvImage");
         }
 
-        Log.i(TAG, "ffmpeg_url: " + ffmpeg_link);
-        recorder = new FFmpegFrameRecorder(ffmpeg_link, imageWidth, imageHeight, 1);
+        Log.i(TAG, "ffmpeg_url: " + rtmpLink);
+        recorder = new FFmpegFrameRecorder(rtmpLink, imageWidth, imageHeight, 1);
 
         // Custom format
         recorder.setFormat("flv");
@@ -513,7 +514,9 @@ public class StreamVideoFragment extends Fragment {
 
         runAudioThread = false;
         try {
-            audioThread.join();
+            if(audioThread != null) {
+                audioThread.join();
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -538,9 +541,17 @@ public class StreamVideoFragment extends Fragment {
     private void destroyRecorder() {
         if(cameraDevice != null) {
             Log.d(TAG, "Camera released!");
+            cameraDevice.stopPreview();
+            cameraView.getHolder().removeCallback(cameraView);
+            cameraDevice.setPreviewCallback(null);
             cameraDevice.release();
+            cameraDevice = null;
         }
         runAudioThread = false;
+    }
+
+    public void setRTMPLink(String rtmpLink) {
+        this.rtmpLink = rtmpLink;
     }
 
     /**
