@@ -9,14 +9,15 @@ const Admin = module.exports = function (data = {}) {
   this.permissions = m.prop(data.permissions || []);
 };
 
-Admin.login = (admin) =>
+Admin.login = (admin, csrfFunction) =>
     App.request({
       method: 'POST',
       url: '../api/admins/login',
       data: {
         username: admin.username(),
         password: admin.password()
-      }
+      },
+      extract: csrfFunction
     });
 
 Admin.create = (admin) =>

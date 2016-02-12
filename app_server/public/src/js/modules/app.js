@@ -60,11 +60,17 @@ App.routes = {
 App.request = function (originalOptions) {
   let options = Object.assign({}, originalOptions);
 
+  options.config = options.config || function (xhr) {
+    xhr.setRequestHeader(App.CSRF_HEADER,
+        window.localStorage.getItem(App.CSRF_HEADER));
+  };
+
   return m.request(options);
 };
 
 // TODO: Separate into Authentication module
-App.isLoggedIn = () => window.localStorage.getItem('ws-user');
+App.CSRF_HEADER = 'x-csrf-token';
+App.isLoggedIn = () => window.localStorage.getItem(App.CSRF_HEADER);
 
 App.updateRoutes = function () {
   if (App.isLoggedIn()) {
