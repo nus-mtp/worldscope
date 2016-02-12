@@ -12,5 +12,7 @@
     <!-- Colors for button bar -->
     <color name="stream_button_black_background">#EEEEEE</color>
     <color name="white_text">#FFFFFF</color>
+    <color name="Dark_Overlay">#7d000000</color>
+    <color name="Bright_Overlay">#C8FFFFFF</color>
 
 </resources>
