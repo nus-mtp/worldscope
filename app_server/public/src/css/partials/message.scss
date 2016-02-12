@@ -1,4 +1,15 @@
-.message {
+#error {
   background-color: $primary-color;
-  color: white;
+  margin: 0;
+
+  p {
+    color: white;
+    margin: 0;
+
+    a.close {
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  }
 }
