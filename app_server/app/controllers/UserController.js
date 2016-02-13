@@ -59,11 +59,11 @@ Class.getUserById = function(request, reply) {
   Service.getUserById(request.params.id)
   .then(function(user) {
     if (!user || user instanceof Error) {
-      reply(Boom.badRequest('Unable to get user with id '+ request.params.id));
-      return;
+      return reply(Boom.badRequest('Unable to get user with id ' +
+                   request.params.id));
     }
 
-    user = Utility.clearUserProfile(user);
+    user = Utility.formatUserObject(user);
     reply(user);
   });
 };
@@ -75,16 +75,14 @@ Class.getListOfUsers = function(request, reply) {
 
   Service.getListOfUsers(filters).then(function(users) {
     if (!users || users instanceof Error) {
-      reply(Boom.badRequest('Unable to get list of users'));
-      return;
+      return reply(Boom.badRequest('Unable to get list of users'));
     }
 
-    reply(users.map(Utility.clearUserProfile));
+    reply(users.map(Utility.formatUserObject));
   });
 };
 
 Class.updateUser = function(request, reply) {
-  console.log(request.payload);
   var updates = {
     alias: request.payload.alias,
     description: request.payload.description,
@@ -94,8 +92,7 @@ Class.updateUser = function(request, reply) {
   Service.updateUser(request.auth.credentials.userId, updates)
     .then(function(user) {
       if (!user || user instanceof Error) {
-        reply(Boom.badRequest('Unable to update user'));
-        return;
+        return reply(Boom.badRequest('Unable to update user'));
       }
 
       reply(user);
@@ -128,7 +125,7 @@ Class.login = function(request, reply) {
 
       request.cookieAuth.set(account);
 
-      return reply(Utility.clearUserProfile(user));
+      return reply(Utility.formatUserObject(user));
     });
   }).catch(function fail(err) {
     return reply(Boom.badRequest('Failed to authenticate user: ' + err));

@@ -272,7 +272,7 @@ lab.experiment('Stream Model Tests', function() {
       });
   });
 
-  lab.test('Update stream details', function(done) {
+  lab.test('Update stream valid', function(done) {
 
     var newStreamAttributes = {
       title: 'a new title',
@@ -286,8 +286,7 @@ lab.experiment('Stream Model Tests', function() {
     }).then(function(userId) {
       return Storage.createStream(userId, streamDetails);
     }).then(function(stream) {
-      return Storage.updateStreamAttributes(stream.streamId,
-          newStreamAttributes);
+      return Storage.updateStream(stream.streamId, newStreamAttributes);
     }).then(function(updatedStream) {
       expect(updatedStream.title).to.equal('a new title');
       expect(updatedStream.duration).to.equal('100000');
@@ -295,6 +294,61 @@ lab.experiment('Stream Model Tests', function() {
       expect(updatedStream.totalViewers).to.equal(23123);
       done();
     });
+  });
+
+  lab.test('Update stream invalid columns', function(done) {
+
+    var newStreamAttributes = {
+      randomCol: 'a new title',
+      duration: '100000',
+      totalViewers: 23123
+    };
+
+    Storage.createUser(userDetails).then(function(user) {
+      return user.userId;
+    }).then(function(userId) {
+      return Storage.createStream(userId, streamDetails);
+    }).then(function(stream) {
+      return Storage.updateStream(stream.streamId, newStreamAttributes);
+    }).catch(function(err) {
+      expect(err).to.be.an.instanceof(Error);
+      done();
+    });
+  });
+
+  lab.test('Update stream invalid empty title', function(done) {
+
+    var newStreamAttributes = {
+      title: '',
+      description: 'blah'
+    };
+
+    Storage.createUser(userDetails).then(function(user) {
+      return user.userId;
+    }).then(function(userId) {
+      return Storage.createStream(userId, streamDetails);
+    }).then(function(stream) {
+      return Storage.updateStream(stream.streamId, newStreamAttributes);
+    }).catch(function(err) {
+      expect(err).to.be.an.instanceof(Error);
+      done();
+    });
+  });
+
+  lab.test('Update stream invalid streamId', function(done) {
+
+    var newStreamAttributes = {
+      title: 'a new title',
+      duration: '100000',
+      totalViewers: 23123
+    };
+
+    Storage.updateStream('3388ffff-aa00-1111a222-00000044888c',
+                          newStreamAttributes)
+      .catch(function(err) {
+        expect(err).to.be.an.instanceof(Error);
+        done();
+      });
   });
 
 });

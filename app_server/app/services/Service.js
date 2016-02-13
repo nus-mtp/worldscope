@@ -43,6 +43,21 @@ Class.getNumberOfUsers = function() {
   return UserService.getNumberOfUsers();
 };
 
+Class.createView = function(userId, streamId) {
+  logger.debug('Creating view');
+  return UserService.createView(userId, streamId);
+};
+
+Class.getListOfUsersViewingStream = function(streamId) {
+  logger.debug('Getting list of users viewing stream: %s', streamId);
+  return UserService.getListOfUsersViewingStream(streamId);
+};
+
+Class.getTotalNumberOfUsersViewedStream = function(streamId) {
+  logger.debug('Getting total number of users who viewed the stream: %s',
+                streamId);
+  return UserService.getTotalNumberOfUsersViewedStream(streamId);
+};
 ///////////////////////
 
 /////// STREAM APIs ///////
@@ -59,6 +74,16 @@ Class.getStreamById = function(streamId) {
 Class.getListOfStreams = function(filters) {
   logger.debug('Getting list of streams with filters: %j', filters);
   return StreamService.getListOfStreams(filters);
+};
+
+Class.updateStream = function(streamId, attributes) {
+  logger.debug('Updating stream %s with attributes: %j', streamId, attributes);
+  return StreamService.updateStream(streamId, attributes);
+};
+
+Class.endStream = function(userId, streamId) {
+  logger.debug('Ending stream: %s', streamId);
+  return StreamService.endStream(userId, streamId);
 };
 ///////////////////////
 

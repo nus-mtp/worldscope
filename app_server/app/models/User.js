@@ -124,6 +124,11 @@ module.exports = function(sequelize, DataTypes) {
           as: 'streams',
           foreignKey: 'owner'
         });
+        User.belongsToMany(models.Stream, {
+          through: models.View,
+          as: 'View',
+          foreignKey: 'userId'
+        });
       }
     }
   });

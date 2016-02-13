@@ -66,8 +66,7 @@ Class.createStream = function(request, reply) {
   }).then(function(result) {
     if (result instanceof CustomError.NotFoundError) {
       logger.error('Stream could not be created');
-      reply(Boom.unauthorized(result.message));
-      return;
+      return reply(Boom.unauthorized(result.message));
     }
 
     reply(result);
@@ -83,8 +82,7 @@ Class.getStreamById = function(request, reply) {
   Service.getStreamById(request.params.id).then(function(result) {
     if (result instanceof Error) {
       logger.error(result.message);
-      reply(Boom.notFound(result.message));
-      return;
+      return reply(Boom.notFound(result.message));
     }
 
     reply(result);
@@ -102,8 +100,7 @@ Class.getListOfStreams = function(request, reply) {
 
   Service.getListOfStreams(filters).then(function(listStreams) {
     if (!listStreams || listStreams instanceof Error) {
-      reply(Boom.notFound('Stream not found'));
-      return;
+      return reply(Boom.notFound('Stream not found'));
     }
 
     reply(listStreams);

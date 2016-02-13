@@ -62,6 +62,52 @@ exports.createLogger = function(filename) {
   });
 };
 
+var formatUserObject =
+/**
+ * Formats a user object
+ * @param  {Object} a user object
+ * @return {Object} removes private info and changes to unix time
+ */
+exports.formatUserObject = function(user) {
+  user = clearUserProfile(user);
+  user = changeToUnixTime(user);
+  return user;
+};
+
+var formatStreamObject =
+/**
+ * Formats a stream object
+ * @param  {Sequelize<Stream>} stream
+ * @return {Stream}
+ */
+exports.formatStreamObject = function(stream, option) {
+  var formattedStream = stream.dataValues;
+
+  // Assign view or stream link based on options
+  if (option === 'stream') {
+    formattedStream.streamLink =
+      util.format('%s/%s/%s', exports.streamBaseUrl,
+                              stream.appInstance,
+                              stream.streamId);
+  } else if (option === 'view') {
+    formattedStream.viewLink =
+      util.format('%s/%s/%s/manifest.mpd', exports.viewBaseUrl,
+                                           stream.appInstance,
+                                           stream.streamId);
+    formattedStream.thumbnailLink =
+      util.format(exports.thumbnailTemplateUrl,
+                  stream.appInstance,
+                  stream.streamId);
+  }
+
+  formattedStream.streamer = formatUserObject(formattedStream.streamer
+                                                             .dataValues);
+  // Converts sequelize time to unix time
+  formattedStream = changeToUnixTime(formattedStream);
+
+  return formattedStream;
+};
+
 var clearUserProfile =
 /**
  * Clears user's sensitive credentials
@@ -75,48 +121,19 @@ exports.clearUserProfile = function(user) {
   return user;
 };
 
-var formatStreamObject =
+var changeToUnixTime =
 /**
- * Formats to be streamed stream object
- * @param  {Sequelize<Stream>} stream
- * @return {Stream}
+ * Changes these fields createdAt, deletedAt, updatedAt into unix time
+ * @param  {Object}
+ * @return {Object} user without sensitive credentials
  */
-exports.formatStreamObject = function(stream) {
+exports.changeToUnixTime = function(obj) {
+  obj.createdAt === null ? null
+    : obj.createdAt = Date.parse(obj.createdAt)/1000;
+  obj.deletedAt === null ? null
+    : obj.deletedAt = Date.parse(obj.deletedAt)/1000;
+  obj.updatedAt === null ? null
+    : obj.updatedAt =Date.parse(obj.updatedAt)/1000;
 
-  return new Promise(function(resolve) {
-    var formattedStream = stream.dataValues;
-    formattedStream.streamLink =
-      util.format('%s/%s/%s', exports.streamBaseUrl,
-                              stream.appInstance,
-                              stream.streamId);
-    formattedStream.streamer = clearUserProfile(formattedStream.streamer
-                                                               .dataValues);
-
-    resolve(formattedStream);
-  });
-};
-
-var formatViewObject =
-/**
- * Formats to be viewed stream object
- * @param  {Sequelize<Stream>} stream
- * @return {Stream}
- */
-exports.formatViewObject = function(stream) {
-
-  var formattedStream = stream.dataValues;
-  var viewLink = util.format('%s/%s/%s/manifest.mpd', exports.viewBaseUrl,
-                             stream.appInstance,
-                             stream.streamId);
-  formattedStream.viewLink = viewLink;
-  formattedStream.thumbnailLink =
-    util.format(exports.thumbnailTemplateUrl,
-                stream.appInstance,
-                stream.streamId);
-
-  formattedStream.streamer = clearUserProfile(formattedStream.streamer
-                                                             .dataValues);
-
-  return formattedStream;
-
+  return obj;
 };

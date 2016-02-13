@@ -2,6 +2,7 @@ var rfr = require('rfr');
 
 var Utility = rfr('app/util/Utility');
 var Storage = rfr('app/models/Storage');
+var CustomError = rfr('app/util/Error');
 
 var logger = Utility.createLogger(__filename);
 
@@ -84,4 +85,65 @@ Class.getNumberOfUsers = function() {
   return Storage.getNumberOfUsers();
 };
 
+///// VIEW RELATED ////
+Class.createView = function(userId, streamId) {
+  return Storage.createView(userId, streamId).then(function(res) {
+    if (!res) {
+      logger.error('Unable to create view');
+
+      return new CustomError.NotFoundError('Stream not found');
+    }
+    return res.dataValues;
+
+  }).catch(function(err) {
+    logger.error('Unable to create view: %j', err);
+
+    if (err.name === 'TypeError') {
+      return new CustomError.NotFoundError('User not found');
+    } else {
+      return new CustomError.UnknownError();
+    }
+  });
+};
+
+/**
+ * Gets the list of users watching a particular stream.
+ * @param streamId {string}
+ * @return {Promise<Array<User>>||null}
+ */
+Class.getListOfUsersViewingStream = function(streamId) {
+  logger.debug('Getting list of users watching stream: %s', streamId);
+
+  return Storage.getListOfUsersViewingStream(streamId)
+    .then(function receiveResult(result) {
+      if (result) {
+        return result.map(
+          function(singleUser) {
+            singleUser = singleUser.dataValues;
+            delete singleUser.View;
+            return Utility.formatUserObject(singleUser);
+          });
+      }
+
+      return null;
+    }).catch(function(err) {
+      logger.error('Unable to get list of users viewing stream: %j', err);
+      return null;
+    });
+};
+
+/**
+ * Gets the number of users who have viewed a particular stream.
+ * @param streamId {string}
+ * @return {Promise<Number>}
+ */
+Class.getTotalNumberOfUsersViewedStream = function(streamId) {
+  logger.debug('Getting total number of users who viewed a stream: %s',
+                streamId);
+
+  return Storage.getTotalNumberOfUsersViewedStream(streamId)
+    .then(function receiveResult(result) {
+      return result;
+    });
+};
 module.exports = new UserService();
