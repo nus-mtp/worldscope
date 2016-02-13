@@ -281,7 +281,10 @@ lab.experiment('AdminController Routes tests', function() {
 
         Router.inject({
           method: 'POST', url: '/api/admins', payload: {},
-          headers: {'Cookie': res.headers['set-cookie'][0].split(';')[0]}
+          headers: {
+            'Cookie': res.headers['set-cookie'][0].split(';')[0],
+            'x-csrf-token': res.headers['x-csrf-token']
+          }
         }, function checkValidCredentials(res) {
           // 401 if invalid credentials
           expect(res.statusCode).to.equal(400);
