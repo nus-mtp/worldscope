@@ -59,8 +59,8 @@ Class.getUserById = function(request, reply) {
   Service.getUserById(request.params.id)
   .then(function(user) {
     if (!user || user instanceof Error) {
-      reply(Boom.badRequest('Unable to get user with id '+ request.params.id));
-      return;
+      return reply(Boom.badRequest('Unable to get user with id ' +
+                   request.params.id));
     }
 
     user = Utility.formatUserObject(user);
@@ -75,8 +75,7 @@ Class.getListOfUsers = function(request, reply) {
 
   Service.getListOfUsers(filters).then(function(users) {
     if (!users || users instanceof Error) {
-      reply(Boom.badRequest('Unable to get list of users'));
-      return;
+      return reply(Boom.badRequest('Unable to get list of users'));
     }
 
     reply(users.map(Utility.formatUserObject));
@@ -93,8 +92,7 @@ Class.updateUser = function(request, reply) {
   Service.updateUser(request.auth.credentials.userId, updates)
     .then(function(user) {
       if (!user || user instanceof Error) {
-        reply(Boom.badRequest('Unable to update user'));
-        return;
+        return reply(Boom.badRequest('Unable to update user'));
       }
 
       reply(user);

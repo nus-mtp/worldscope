@@ -48,8 +48,7 @@ Class.createView = function(request, reply) {
   Service.createView(userId, streamId).then(function receiveResult(result) {
     if (result instanceof CustomError.NotFoundError) {
       logger.error('View could not be created');
-      reply(Boom.badRequest(result.message));
-      return;
+      return reply(Boom.badRequest(result.message));
     }
 
     reply(result);
@@ -65,8 +64,7 @@ Class.getListOfUsersViewingStream = function(request, reply) {
     .then(function receiveResult(result) {
       if (!result) {
         logger.error('List of users cannot be retrieved');
-        reply(Boom.badRequest('Stream could not be found'));
-        return;
+        return reply(Boom.badRequest('Stream could not be found'));
       }
 
       reply(result);
