@@ -43,13 +43,6 @@ Class.registerRoutes = function() {
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.createStream});
-
-  this.server.route({method: 'PUT', path: '/{id}/end',
-                     config: {
-                       validate: singleStreamValidator,
-                       auth: {scope: Authenticator.SCOPE.ALL}
-                     },
-                     handler: this.endStream});
 };
 
 /* Routes handlers */
@@ -115,20 +108,6 @@ Class.getListOfStreams = function(request, reply) {
 
     reply(listStreams);
   });
-};
-
-Class.endStream = function(request, reply) {
-  logger.debug('Ending a stream');
-
-  Service.endStream(request.auth.credentials.userId, request.params.id)
-    .then(function(res) {
-      if (!res || res instanceof Error) {
-        reply(Boom.badRequest(res.message));
-        return;
-      }
-
-      reply(res).code(200);
-    });
 };
 
 /* Validator for routes */
