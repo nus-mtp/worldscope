@@ -91,8 +91,7 @@ Class.createView = function(userId, streamId) {
     if (!res) {
       logger.error('Unable to create view');
 
-      return Promise.resolve(new CustomError
-        .NotFoundError('Stream not found'));
+      return new CustomError.NotFoundError('Stream not found');
     }
     return res.dataValues;
 
@@ -100,10 +99,9 @@ Class.createView = function(userId, streamId) {
     logger.error('Unable to create view: %j', err);
 
     if (err.name === 'TypeError') {
-      return Promise.resolve(new CustomError
-        .NotFoundError('User not found'));
+      return new CustomError.NotFoundError('User not found');
     } else {
-      Promise.resolve(new CustomError.UnknownError());
+      return new CustomError.UnknownError();
     }
   });
 };
@@ -125,9 +123,9 @@ Class.getListOfUsersViewingStream = function(streamId) {
             delete singleUser.View;
             return Utility.formatUserObject(singleUser);
           });
-      } else {
-        return null;
       }
+
+      return null;
     }).catch(function(err) {
       logger.error('Unable to get list of users viewing stream: %j', err);
       return null;

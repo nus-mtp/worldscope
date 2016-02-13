@@ -32,13 +32,12 @@ Class.createNewStream = function(userId, streamAttributes) {
       logger.error('Error in stream creation ', err);
       if (err.name === 'SequelizeValidationError' ||
           err.message === 'Validation error') {
-        return Promise.resolve(new CustomError
-          .InvalidFieldError(err.errors[0].message, err.errors[0].path));
+        return new CustomError.InvalidFieldError(err.errors[0].message,
+                                                 err.errors[0].path);
       } else if (err.name === 'TypeError') {
-        return Promise.resolve(new CustomError
-          .NotFoundError('User not found'));
+        return new CustomError.NotFoundError('User not found');
       } else {
-        return Promise.resolve(new CustomError.UnknownError());
+        return new CustomError.UnknownError();
       }
     });
 };
@@ -50,8 +49,7 @@ Class.getStreamById = function(streamId) {
     if (result) {
       return Utility.formatStreamObject(result, 'view');
     } else {
-      return Promise.resolve(new CustomError
-        .NotFoundError('Stream not found'));
+      return new CustomError.NotFoundError('Stream not found');
     }
   });
 };
@@ -65,8 +63,7 @@ Class.getListOfStreams = function(filters) {
         return results.map((singleStream) =>
           Utility.formatStreamObject(singleStream, 'view'));
       } else {
-        return Promise.resolve(new CustomError
-          .NotFoundError('Stream not found'));
+        return new CustomError.NotFoundError('Stream not found');
       }
     }).catch(function(err) {
       logger.error(err);
@@ -89,15 +86,14 @@ Class.updateStream = function(streamId, updates) {
       logger.error(err);
 
       if (err.name === 'SequelizeValidationError') {
-        return Promise.resolve(new CustomError
-          .InvalidFieldError(err.errors[0].message, err.errors[0].path));
+        return new CustomError.InvalidFieldError(err.errors[0].message,
+                                                 err.errors[0].path);
       } else if (err.name === 'TypeError') {
-        return Promise.resolve(new CustomError
-          .NotFoundError('Stream not found'));
+        return new CustomError.NotFoundError('Stream not found');
       } else if (err.name === 'InvalidColumnError') {
         return err;
       } else {
-        return Promise.resolve(new CustomError.UnknownError());
+        return new CustomError.UnknownError();
       }
     });
 };
@@ -117,15 +113,14 @@ Class.endStream = function(userId, streamId) {
         return Storage.updateStream(streamId, {live: false})
           .then((res) => 'Success');
       } else {
-        return Promise.resolve(new CustomError
-          .NotAuthorisedError('Not authorised to end stream'));
+        return new CustomError
+          .NotAuthorisedError('Not authorised to end stream');
       }
 
     }).catch(function(err) {
       logger.error(err);
       if (err.name === 'TypeError') {
-        return Promise.resolve(new CustomError
-          .NotFoundError('Stream not found'));
+        return new CustomError.NotFoundError('Stream not found');
       }
     });
 };
