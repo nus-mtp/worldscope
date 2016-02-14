@@ -11,6 +11,7 @@ const createPage = {
   admin: m.prop(),
   init: function () {
     Admin.admin(new AdminModel());
+    initPermissions(Admin.admin());
   },
   action: function (e) {
     e.preventDefault();
@@ -25,7 +26,7 @@ const editPage = {
   title: 'Edit Admin',
   admin: m.prop(),
   init: function () {
-    AdminModel.get(Admin.username).then(Admin.admin);
+    AdminModel.get(Admin.username).then(Admin.admin).then(initPermissions);
   },
   action: function (e) {
     e.preventDefault();
@@ -34,6 +35,32 @@ const editPage = {
         (err) => console.log(err) // TODO: display error
     );
   }
+};
+
+const permissionsWrapper = {
+  metrics: m.prop(false),
+  streams: m.prop(false),
+  users: m.prop(false),
+  admins: m.prop(false),
+  settings: m.prop(false)
+};
+
+const initPermissions = function (admin) {
+  Object.keys(permissionsWrapper).forEach(function (permission) {
+    let isAllowed = admin.permissions().indexOf(permission) !== -1;
+    permissionsWrapper[permission](isAllowed);
+  });
+};
+
+const updatePermissions = function () {
+  let permissionsArr = [];
+  Object.keys(permissionsWrapper)
+      .filter((p) => permissionsWrapper[p]())
+      .forEach(function (permission) {
+        permissionsArr.push(permission);
+      });
+
+  Admin.admin().permissions(permissionsArr);
 };
 
 Admin.controller = function () {
@@ -62,6 +89,19 @@ Admin.view = function () {
     ];
   };
 
+  let getPermissionCheckbox = function (label, id, prop) {
+    let attributes = {
+      type: 'checkbox',
+      checked: prop(),
+      onclick: m.withAttr('checked', prop),
+      onchange: updatePermissions
+    };
+    return m('div.col s2', [
+      m('input#' + id, attributes),
+      m('label', {for: id}, label)
+    ]);
+  };
+
   let admin = Admin.admin();
   return [
     m('div.row', mz.text, [
@@ -76,6 +116,14 @@ Admin.view = function () {
         m('div.input-field col s12',
             getLabelledInput('Email', 'email', 'text', admin.email)
         ),
+        m('div.row', [
+          m('div.col s2 grey-text', 'Permissions:'),
+          getPermissionCheckbox('Access to Metrics', 'metrics', permissionsWrapper.metrics),
+          getPermissionCheckbox('Access to Streams', 'streams', permissionsWrapper.streams),
+          getPermissionCheckbox('Access to Users', 'users', permissionsWrapper.users),
+          getPermissionCheckbox('Access to Admins', 'admins', permissionsWrapper.admins),
+          getPermissionCheckbox('Access to Settings', 'settings', permissionsWrapper.settings)
+        ]),
         m('button.btn col s12', {type: 'submit'}, Admin.title)
       ])
     ])
