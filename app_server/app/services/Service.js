@@ -85,7 +85,11 @@ Class.endStream = function(userId, streamId) {
   logger.debug('Ending stream: %s', streamId);
   return StreamService.endStream(userId, streamId);
 };
-///////////////////////
+
+Class.stopStream = function(appName, appInstance, streamId) {
+  logger.debug(`Stopping stream: ${appName}/${appInstance}/${streamId}`);
+  return StreamService.stopStream(appName, appInstance, streamId);
+};
 
 /////// ADMIN APIs ///////
 Class.getListOfAdmins = function(filters) {
