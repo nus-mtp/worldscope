@@ -26,9 +26,7 @@ Admin.create = (admin) =>
         username: admin.username(),
         password: admin.password(),
         email: admin.email(),
-        permissions: [
-          'metrics', 'streams', 'users', 'admins', 'settings'
-        ]
+        permissions: admin.permissions()
       }
     });
 
