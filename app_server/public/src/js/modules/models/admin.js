@@ -16,8 +16,7 @@ Admin.login = (admin, csrfFunction) =>
       data: {
         username: admin.username(),
         password: admin.password()
-      },
-      extract: csrfFunction
+      }
     });
 
 Admin.create = (admin) =>

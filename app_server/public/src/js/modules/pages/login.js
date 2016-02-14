@@ -14,13 +14,9 @@ const Login = module.exports = {
 
     ctrl.login = function (e) {
       e.preventDefault();
-      AdminModel.login(ctrl.admin, function (xhr) {
-        let csrfToken = xhr.getResponseHeader(App.CSRF_HEADER);
-        if (csrfToken) {
-          window.localStorage.setItem(App.CSRF_HEADER, csrfToken);
-        }
-        return xhr.responseText;
-      }).then(function () {
+      AdminModel.login(ctrl.admin).then(function () {
+        let csrfToken = document.cookie;
+        window.localStorage.setItem(App.CSRF_HEADER, csrfToken);
         App.goToHome();
       }, function (err) {
         ctrl.loginError(err);
