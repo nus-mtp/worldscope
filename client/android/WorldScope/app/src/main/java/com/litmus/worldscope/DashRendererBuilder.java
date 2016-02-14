@@ -64,6 +64,9 @@ public class DashRendererBuilder implements ManifestFetcher.ManifestCallback<Med
 
 
     public DashRendererBuilder(LitmusPlayer player, Context context, String mpdLink, String userAgent, MediaDrmCallback drmCallback) {
+
+        Log.d(TAG, "DashRendererBuilder created");
+        Log.d(TAG, "mpdLink: " + mpdLink);
         this.player = player;
         this.context = context;
         this.userAgent = userAgent;
@@ -106,6 +109,8 @@ public class DashRendererBuilder implements ManifestFetcher.ManifestCallback<Med
     // Function to build both renderers
     private void buildRenderers() {
 
+        Log.d(TAG, "Building renderers");
+
         Period period = manifest.getPeriod(0);
 
         boolean hasContentProtection = false;
@@ -139,6 +144,7 @@ public class DashRendererBuilder implements ManifestFetcher.ManifestCallback<Med
         renderers[LitmusPlayer.TYPE_VIDEO] = videoRenderer;
         renderers[LitmusPlayer.TYPE_AUDIO] = audioRenderer;
         this.player.onRenderers(renderers);
+        Log.d(TAG, "Renderer ready to push");
         player.readyToPushSurface(LitmusPlayer.RENDERER_READY);
     }
 
@@ -153,6 +159,8 @@ public class DashRendererBuilder implements ManifestFetcher.ManifestCallback<Med
     // Implement for ManifestCallback
     @Override
     public void onSingleManifest(MediaPresentationDescription manifest) {
+        Log.d(TAG, "Received manifest");
+
         this.manifest = manifest;
         if (manifest.dynamic && manifest.utcTiming != null) {
             UtcTimingElementResolver.resolveTimingElement(manifestDataSource, manifest.utcTiming,
@@ -164,6 +172,7 @@ public class DashRendererBuilder implements ManifestFetcher.ManifestCallback<Med
 
     @Override
     public void onSingleManifestError(IOException e) {
+        e.printStackTrace();
     }
 
     // Implement for UTCTimingCallBack
