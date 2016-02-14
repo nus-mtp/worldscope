@@ -11,7 +11,6 @@ const ErrorDisplay = module.exports = {
   },
   removeMessageAt: function (idx) {
     ErrorDisplay.messages().splice(idx, 1);
-    console.log(ErrorDisplay.messages());
   },
   resetMessages: function () {
     ErrorDisplay.messages([]);
