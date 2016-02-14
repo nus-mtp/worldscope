@@ -56,6 +56,12 @@ Nav.controller = function () {
         sub: []
       });
     }
+    
+    nav.push({
+      name: 'Logout',
+      href: '/logout',
+      sub: []
+    });
 
     return nav;
   };

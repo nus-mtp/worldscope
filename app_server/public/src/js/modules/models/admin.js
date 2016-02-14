@@ -18,6 +18,13 @@ Admin.login = (admin) =>
       }
     });
 
+Admin.logout = () =>
+    m.request({
+      method: 'GET',
+      url: '../api/admins/logout',
+      deserialize: (text) => text
+    });
+
 Admin.create = (admin) =>
     m.request({
       method: 'POST',
