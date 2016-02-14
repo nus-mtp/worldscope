@@ -65,6 +65,11 @@ App.getScopes = () => window.localStorage.getItem('ws-scopes');
 // TODO: Separate into Authentication module
 App.isLoggedIn = () => window.localStorage.getItem('ws-user');
 
+App.login = function (admin) {
+  window.localStorage.setItem('ws-user', admin.userId);
+  window.localStorage.setItem('ws-scopes', admin.permissions);
+};
+
 App.updateRoutes = function () {
   if (App.isLoggedIn()) {
     m.route(document.body, '/metrics', App.routes.app);
