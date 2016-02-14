@@ -1,11 +1,14 @@
 package com.litmus.worldscope.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Date;
 
 /**
  * Generic Stream object model returned by WorldScope API Service
  */
-public class WorldScopeStream {
+public class WorldScopeStream implements Parcelable {
     private String streamId;
     private String appInstance;
     private String title;
@@ -24,6 +27,10 @@ public class WorldScopeStream {
         private Date deletedAt;
         private WorldScopeUser owner;
     */
+
+    public WorldScopeStream() {
+        // Default empty constructor
+    }
 
     public String getStreamId() {return streamId;}
     public String getAppInstance() {return appInstance;}
@@ -80,4 +87,53 @@ public class WorldScopeStream {
                 + "deletedAt: " + getDeletedAt() + "\n"
                 + "owner: " + getOwner();
     }
+
+    protected WorldScopeStream(Parcel in) {
+        streamId = in.readString();
+        appInstance = in.readString();
+        title = in.readString();
+        roomId = in.readString();
+        totalStickers = in.readInt();
+        totalViewers = in.readInt();
+        live = in.readByte() != 0x00;
+        duration = in.readString();
+        description = in.readString();
+        createdAt = in.readString();
+        deletedAt = in.readString();
+        owner = in.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(streamId);
+        dest.writeString(appInstance);
+        dest.writeString(title);
+        dest.writeString(roomId);
+        dest.writeInt(totalStickers);
+        dest.writeInt(totalViewers);
+        dest.writeByte((byte) (live ? 0x01 : 0x00));
+        dest.writeString(duration);
+        dest.writeString(description);
+        dest.writeString(createdAt);
+        dest.writeString(deletedAt);
+        dest.writeString(owner);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<WorldScopeStream> CREATOR = new Parcelable.Creator<WorldScopeStream>() {
+        @Override
+        public WorldScopeStream createFromParcel(Parcel in) {
+            return new WorldScopeStream(in);
+        }
+
+        @Override
+        public WorldScopeStream[] newArray(int size) {
+            return new WorldScopeStream[size];
+        }
+    };
 }
