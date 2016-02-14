@@ -73,7 +73,7 @@ App.login = function (admin) {
 
 App.updateRoutes = function () {
   if (App.isLoggedIn()) {
-    m.route(document.body, '/metrics', App.routes.app);
+    m.route(document.body, Nav.getFirstLocation(), App.routes.app);
   } else {
     m.route(document.body, '/login', App.routes.locked);
   }

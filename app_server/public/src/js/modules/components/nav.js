@@ -65,6 +65,8 @@ Nav.updateVisibleItems = function () {
   return nav;
 };
 
+Nav.getFirstLocation = () => Nav.navItems[0].href;
+
 Nav.view = function (ctrl) {
   let getLink = (item) =>
       m('a[href="' + item.href + '"]', {config: m.route}, item.name);
