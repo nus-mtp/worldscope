@@ -1,5 +1,7 @@
 const m = require('mithril');
 
+const App = module.exports = {};
+
 const Nav = require('./components/nav');
 const ErrorDisplay = require('./components/errordisplay');
 
@@ -23,8 +25,6 @@ const navPage = function (page) {
 const blank = navPage({
   view: () => m('div', 'TODO')
 });
-
-const App = module.exports = {};
 
 App.routes = {
   locked: {
@@ -68,6 +68,7 @@ App.isLoggedIn = () => window.localStorage.getItem('ws-user');
 App.login = function (admin) {
   window.localStorage.setItem('ws-user', admin.userId);
   window.localStorage.setItem('ws-scopes', admin.permissions);
+  Nav.updateVisibleItems();
 };
 
 App.updateRoutes = function () {
