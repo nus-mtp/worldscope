@@ -132,9 +132,16 @@ Class.endStream = function(userId, streamId) {
 };
 
 Class.stopStream = function(appName, appInstance, streamId) {
-  // TODO: Update stream's state in database before calling the below
-  return this.mediaServerAdapter.stopStream(appName, appInstance, streamId)
-  .catch((err) => {
+  return this.updateStream(streamId, {live: false})
+  .then((stream) => {
+    if (!stream || stream instanceof Error) {
+      return stream;
+    }
+    if (stream.appInstance !== appInstance) {
+      return new Error('appInstance parameter does not match streamId');
+    }
+    return this.mediaServerAdapter.stopStream(appName, appInstance, streamId);
+  }).catch((err) => {
     return err;
   });
 };
