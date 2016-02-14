@@ -1,6 +1,7 @@
 package com.litmus.worldscope;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -83,6 +85,7 @@ public class StreamRefreshListFragment extends Fragment {
         // Set the WorldScopeStreamAdapter into ListView
         swipeRefreshLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeRefreshLayout);
         listView = (ListView) rootView.findViewById(R.id.streamListView);
+
         worldScopeStreamAdapter = new WorldScopeStreamAdapter(getActivity(), R.layout.fragment_stream_list_item, streams);
         listView.setAdapter(worldScopeStreamAdapter);
 
@@ -95,7 +98,27 @@ public class StreamRefreshListFragment extends Fragment {
             }
         });
 
+        // Set the callback action when listView item is clicked
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Get stream data and pass into ViewActivity
+                WorldScopeViewStream selectedStream = streams.get(position);
+                Log.d(TAG, "Stream selected");
+                Log.d(TAG, selectedStream.toString());
+
+                redirectToViewActivity(selectedStream);
+            }
+        });
+
         return rootView;
+    }
+
+    // Passes a stream into ViewActivity
+    private void redirectToViewActivity(WorldScopeViewStream stream) {
+        Intent intent = new Intent(getActivity(), ViewActivity.class);
+        intent.putExtra("stream", stream);
+        startActivity(intent);
     }
 
     private void getStreamsData() {
