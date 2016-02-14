@@ -1,7 +1,9 @@
 const m = require('mithril');
-const Nav = require('./components/nav');
 
-const templatePage = (content) => m('div#container.row', content);
+const Nav = require('./components/nav');
+const ErrorDisplay = require('./components/errordisplay');
+
+const templatePage = (content) => m('div#container.row', [ErrorDisplay, content]);
 
 const wrapView = function (wrapper, vElement) {
   let wrappedElement = Object.assign({}, vElement);
