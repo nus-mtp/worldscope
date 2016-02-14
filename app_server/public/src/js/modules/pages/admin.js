@@ -9,6 +9,7 @@ const Admin = module.exports = {};
 const createPage = {
   title: 'Create Admin',
   admin: m.prop(),
+  activeForm: true,
   init: function () {
     Admin.admin(new AdminModel());
     initPermissions(Admin.admin());
@@ -25,12 +26,29 @@ const createPage = {
 const editPage = {
   title: 'Edit Admin',
   admin: m.prop(),
+  activeForm: true,
   init: function () {
     AdminModel.get(Admin.username).then(Admin.admin).then(initPermissions);
   },
   action: function (e) {
     e.preventDefault();
     AdminModel.update(Admin.admin()).then(
+        () => m.route('/admins'),
+        (err) => console.log(err) // TODO: display error
+    );
+  }
+};
+
+const deletePage = {
+  title: 'Delete Admin',
+  admin: m.prop(),
+  activeForm: false,
+  init: function () {
+    AdminModel.get(Admin.username).then(Admin.admin).then(initPermissions);
+  },
+  action: function (e) {
+    e.preventDefault();
+    AdminModel.delete(Admin.admin()).then(
         () => m.route('/admins'),
         (err) => console.log(err) // TODO: display error
     );
@@ -66,10 +84,13 @@ const updatePermissions = function () {
 Admin.controller = function () {
   Admin.username = m.route.param('username') || '';
 
-  if (Admin.username) {
-    Object.assign(Admin, editPage);
-  } else {
+  let currentPage = m.route();
+  if (currentPage.startsWith('/admins/create')) {
     Object.assign(Admin, createPage);
+  } else if (currentPage.startsWith('/admins/view')) {
+    Object.assign(Admin, editPage);
+  } else if (currentPage.startsWith('/admins/delete')) {
+    Object.assign(Admin, deletePage);
   }
 
   Admin.init();
@@ -78,6 +99,7 @@ Admin.controller = function () {
 Admin.view = function () {
   let getLabelledInput = function (label, id, type, prop) {
     let attributes = {
+      disabled: !Admin.activeForm,
       type: type,
       value: prop(),
       onchange: m.withAttr('value', prop)
@@ -91,6 +113,7 @@ Admin.view = function () {
 
   let getPermissionCheckbox = function (label, id, prop) {
     let attributes = {
+      disabled: !Admin.activeForm,
       type: 'checkbox',
       checked: prop(),
       onclick: m.withAttr('checked', prop),
