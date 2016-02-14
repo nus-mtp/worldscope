@@ -168,7 +168,7 @@ Class.authenticateAdmin = function (credentials) {
       });
 };
 
-Class.validateAccount = function (server, session) {
+Class.validateAccount = function (server, session, request) {
   return Promise.resolve(session.userId)
   .then(function getAccountFromCache(userId) {
     if (!userId) {
@@ -190,13 +190,15 @@ Class.validateAccount = function (server, session) {
       return null;
     }
 
-    var isAccountValidated = session.username === cached.username &&
-                             session.password === cached.password;
+    var isCredentialsValidated = session.username === cached.username &&
+                                 session.password === cached.password;
 
-    var isCsrfValidated = !isAdminScope(session.scope) ||
-                          session.csrfToken === session.cookie;
+    if (!isAdminScope(session.scope)) {
+      return isCredentialsValidated;
+    }
 
-    return isAccountValidated && isCsrfValidated;
+    return isCredentialsValidated &&
+           request.headers['x-csrf-token'] === request.headers.cookie;
   }).then(function getAccountFromDatabase(cacheValidateResult) {
     if (cacheValidateResult) {
       return session;
@@ -211,7 +213,7 @@ Class.validateAccount = function (server, session) {
       if (session.scope === Class.SCOPE.USER) {
         return Class.verifyUserToken(user, session.password);
       } else if (isAdminScope(session.scope)) {
-        return session.csrfToken === session.cookie &&
+        return request.headers['x-csrf-token'] === request.headers.cookie &&
                bcrypt.compareAsync(session.password, user.password);
       } else {
         return new Error(Class.ERRORS.UNKNOWN_SCOPE);
