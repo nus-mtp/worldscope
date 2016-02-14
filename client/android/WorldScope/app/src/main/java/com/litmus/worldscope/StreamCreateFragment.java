@@ -29,7 +29,7 @@ public class StreamCreateFragment extends Fragment {
 
     private static final String STREAM_FAILED_MESSAGE = "Failed to get a response from WorldScope servers, please try again later";
 
-    private static final String STREAM_STARTED_MESSAGE = "You're LIVE now! Tap button to pause and hold to stop streaming";
+    private static final String STREAM_STARTED_MESSAGE = "You're LIVE! Hold Record Button to stop streaming";
 
     private static final boolean TERMINATE_STREAM = true;
 
