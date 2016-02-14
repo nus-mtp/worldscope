@@ -17,6 +17,7 @@ const Login = module.exports = {
       e.preventDefault();
       AdminModel.login(ctrl.admin).then(function (admin) {
         window.localStorage.setItem('ws-user', admin.userId);
+        window.localStorage.setItem('ws-scopes', admin.permissions);
         App.goToHome();
       }, function (err) {
         ErrorDisplay.setMessage(err.message);

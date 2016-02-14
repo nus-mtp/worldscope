@@ -58,6 +58,8 @@ App.routes = {
   }
 };
 
+App.getScopes = () => window.localStorage.getItem('ws-scopes');
+
 // TODO: Separate into Authentication module
 App.isLoggedIn = () => window.localStorage.getItem('ws-user');
 
