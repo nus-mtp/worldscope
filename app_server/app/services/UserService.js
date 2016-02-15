@@ -146,4 +146,21 @@ Class.getTotalNumberOfUsersViewedStream = function(streamId) {
       return result;
     });
 };
+
+///// SUBSCRIPTION RELATED ////
+/**
+ * Gets the number of users who have viewed a particular stream.
+ * @param streamId {string}
+ * @return {Promise<Number>}
+ */
+Class.createSubscription = function(subscribeFrom, subscribeTo) {
+  logger.debug('Subscribing from user %s to user %s',
+                subscribeFrom, subscribeTo);
+
+  return Storage.createSubscription(subscribeFrom, subscribeTo)
+    .then(function receiveResult(result) {
+      return result;
+    });
+};
+
 module.exports = new UserService();

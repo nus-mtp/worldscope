@@ -129,6 +129,12 @@ module.exports = function(sequelize, DataTypes) {
           as: 'View',
           foreignKey: 'userId'
         });
+        User.belongsToMany(models.User, {
+          through: models.Subscription,
+          as: 'SubscribeTo', // pro
+          foreignKey: 'subscriber', // noob
+          otherKey: 'subscribeTo'
+        });
       }
     }
   });

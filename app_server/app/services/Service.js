@@ -58,6 +58,13 @@ Class.getTotalNumberOfUsersViewedStream = function(streamId) {
                 streamId);
   return UserService.getTotalNumberOfUsersViewedStream(streamId);
 };
+
+Class.createSubscription = function(subscribeFrom, subscribeTo) {
+  logger.debug('Subscribing from user %s to user %s',
+                subscribeFrom, subscribeTo);
+
+  return UserService.createSubscription(subscribeFrom, subscribeTo);
+};
 ///////////////////////
 
 /////// STREAM APIs ///////
