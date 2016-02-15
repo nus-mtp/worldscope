@@ -1,0 +1,15 @@
+#error {
+  background-color: $primary-color;
+  margin: 0;
+
+  p {
+    color: white;
+    margin: 0;
+
+    a.close {
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  }
+}

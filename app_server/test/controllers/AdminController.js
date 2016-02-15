@@ -15,7 +15,8 @@ var rootAdminPermissions = [
   Authenticator.SCOPE.ADMIN.STREAMS,
   Authenticator.SCOPE.ADMIN.USERS,
   Authenticator.SCOPE.ADMIN.ADMINS,
-  Authenticator.SCOPE.ADMIN.SETTINGS
+  Authenticator.SCOPE.ADMIN.SETTINGS,
+  Authenticator.SCOPE.ADMIN.DEFAULT
 ];
 
 var testAccount = {
@@ -96,7 +97,7 @@ lab.experiment('AdminController Routes tests', function() {
     TestUtils.resetDatabase(done);
   });
 
-  lab.test('Unauthorized to public routes', function(done) {
+  lab.test('Unauthorized-to-public routes', function(done) {
     var routes = {
       GET: [
         '/api/admins',

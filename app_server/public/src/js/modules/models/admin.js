@@ -18,6 +18,13 @@ Admin.login = (admin) =>
       }
     });
 
+Admin.logout = () =>
+    m.request({
+      method: 'GET',
+      url: '../api/admins/logout',
+      deserialize: (text) => text
+    });
+
 Admin.create = (admin) =>
     m.request({
       method: 'POST',
@@ -26,9 +33,7 @@ Admin.create = (admin) =>
         username: admin.username(),
         password: admin.password(),
         email: admin.email(),
-        permissions: [
-          'metrics', 'streams', 'users', 'admins', 'settings'
-        ]
+        permissions: admin.permissions()
       }
     });
 
