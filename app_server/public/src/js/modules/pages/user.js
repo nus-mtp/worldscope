@@ -1,58 +1,67 @@
 const m = require('mithril');
 
+const mz = require('../utils/mzInit');
+
 const UserModel = require('../models/user');
 
-const User = module.exports = {
-  controller: function () {
-    let id = m.route.param('id') || -1;
+const User = module.exports = {};
 
-    let ctrl = this;
+User.user = m.prop();
 
-    ctrl.user = m.prop();
-    UserModel.get(id).then(ctrl.user);
+User.update = function (e) {
+  e.preventDefault();
+  UserModel.update(User.user()).then(
+      () => m.route('/users')
+  );
+};
 
-    ctrl.update = () => UserModel.update(ctrl.user());
-  },
-  view: function (ctrl) {
-    let getLabelledInput = function (label, id, type, prop, options) {
-      let inputType = options && options.className === 'materialize-textarea' ?
-          'textarea' : 'input';
+User.controller = function () {
+  let id = m.route.param('id') || -1;
 
-      let attributes = {
-        type: type,
-        value: prop(),
-        onchange: m.withAttr('value', prop)
-      };
-      for (let attr in options) {
-        attributes[attr] = options[attr];
-      }
+  UserModel.get(id).then(User.user);
+};
 
-      return [
-        m(inputType + '#' + id, attributes),
-        m('label.active', {for: id}, label)
-      ];
+User.view = function () {
+  let getLabelledInput = function (label, id, type, prop, options) {
+    let inputType = options && options.className === 'materialize-textarea' ?
+        'textarea' : 'input';
+
+    let attributes = {
+      type: type,
+      value: prop(),
+      onchange: m.withAttr('value', prop)
     };
+    for (let attr in options) {
+      attributes[attr] = options[attr];
+    }
 
-    let user = ctrl.user();
     return [
-      m('h1', 'Edit User'),
-      m('div.input-field col s12',
-          getLabelledInput('Username', 'username', 'text', user.username,
-              {disabled: true})
-      ),
-      m('div.input-field col s12',
-          getLabelledInput('Alias', 'alias', 'text', user.alias)
-      ),
-      m('div.input-field col s12',
-          getLabelledInput('Email', 'email', 'text', user.email)
-      ),
-      m('div.input-field col s12',
-          getLabelledInput('Description', 'desc', 'text', user.description,
-              {className: 'materialize-textarea'})
-      ),
-      m('div.col s12',
-          m('button.btn', {onclick: ctrl.update}, 'Submit')
-      )
+      m(inputType + '#' + id, attributes),
+      m('label.active', {for: id}, label)
     ];
-  }
+  };
+
+  let user = User.user();
+  return [
+    m('div.row', mz.text, [
+      m('h1', 'Edit User'),
+      m('form.col s12', {onsubmit: User.update}, [
+        m('div.input-field col s12',
+            getLabelledInput('Username', 'username', 'text', user.username,
+                {disabled: true})
+        ),
+        m('div.input-field col s12',
+            getLabelledInput('Alias', 'alias', 'text', user.alias)
+        ),
+        m('div.input-field col s12',
+            getLabelledInput('Email', 'email', 'text', user.email)
+        ),
+        m('div.input-field col s12',
+            getLabelledInput('Description', 'desc', 'text', user.description,
+                {className: 'materialize-textarea'})
+        ),
+        m('button.btn col s12', {type: 'submit'}, 'Edit User')
+      ])
+    ])
+  ];
 };
