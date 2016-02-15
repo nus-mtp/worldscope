@@ -105,7 +105,7 @@ lab.experiment('UserController Tests', {timeout: 5000}, function () {
 
     Service.createNewUser(bob).then(function (user) {
       testAccount.userId = user.userId;
-      Router.inject({method: 'PUT', url: '/api/users/' + user.userId,
+      Router.inject({method: 'PUT', url: '/api/users',
                      credentials: testAccount,
                      payload: updates},
         function (res) {
@@ -119,7 +119,7 @@ lab.experiment('UserController Tests', {timeout: 5000}, function () {
   lab.test('Update user valid no payload', function (done) {
     Service.createNewUser(bob).then(function (user) {
       testAccount.userId = user.userId;
-      Router.inject({method: 'PUT', url: '/api/users/' + user.userId,
+      Router.inject({method: 'PUT', url: '/api/users',
                      credentials: testAccount,
                      payload: {}},
         function (res) {
@@ -136,7 +136,7 @@ lab.experiment('UserController Tests', {timeout: 5000}, function () {
 
     Service.createNewUser(bob).then(function (user) {
       testAccount.userId = user.userId;
-      Router.inject({method: 'PUT', url: '/api/users/' + user.userId,
+      Router.inject({method: 'PUT', url: '/api/users',
                      credentials: testAccount,
                      payload: updates},
         function (res) {
@@ -156,7 +156,7 @@ lab.experiment('UserController Tests', {timeout: 5000}, function () {
     Service.createNewUser(bob).then(function (result) {
       return Service.getUserById(result.userId);
     }).then(function(user) {
-      Router.inject({method: 'PUT', url: '/api/users/' + user.userId,
+      Router.inject({method: 'PUT', url: '/api/users',
                      credentials: testAccount,
                      payload: updates},
         function (res) {

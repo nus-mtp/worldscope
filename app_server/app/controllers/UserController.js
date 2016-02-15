@@ -38,9 +38,16 @@ Class.registerRoutes = function() {
   this.server.route({method: 'PUT', path: '/{id}',
                      config: {
                        validate: updateUserValidator,
-                       auth: {scope: Authenticator.SCOPE.ALL}
+                       auth: {scope: Authenticator.SCOPE.ADMIN.USERS}
                      },
                      handler: this.updateUser});
+
+  this.server.route({method: 'PUT', path: '/',
+                     config: {
+                       validate: updateUserValidator,
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
+                     handler: this.updateSelf});
 
   this.server.route({method: 'POST', path: '/login',
                      config: {
@@ -89,14 +96,19 @@ Class.updateUser = function(request, reply) {
     email: request.payload.email
   };
 
-  Service.updateUser(request.auth.credentials.userId, updates)
-    .then(function(user) {
-      if (!user || user instanceof Error) {
-        return reply(Boom.badRequest('Unable to update user'));
-      }
+  Service.updateUser(request.params.id, updates)
+  .then(function(user) {
+    if (!user || user instanceof Error) {
+      return reply(Boom.badRequest('Unable to update user'));
+    }
 
-      reply(Utility.formatUserObject(user));
-    });
+    reply(Utility.formatUserObject(user));
+  });
+};
+
+Class.updateSelf = function(request, reply) {
+  request.params.id = request.auth.credentials.userId;
+  Class.updateUser(request, reply);
 };
 
 Class.login = function(request, reply) {
