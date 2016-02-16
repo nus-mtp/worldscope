@@ -16,11 +16,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.litmus.worldscope.model.WorldScopeUser;
 import com.litmus.worldscope.model.WorldScopeViewStream;
+import com.ocpsoft.pretty.time.PrettyTime;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import retrofit2.Call;
@@ -61,7 +62,6 @@ public class StreamRefreshListFragment extends Fragment {
         args.putInt(ARG_SECTION_NUMBER, sectionNumber);
         fragment.setArguments(args);
         fragment.sectionNumber = sectionNumber;
-        fragment.sectionNumber = sectionNumber;
         return fragment;
     }
 
@@ -93,7 +93,7 @@ public class StreamRefreshListFragment extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                // Adds one more dummy when refresh
+                // Get streams data when refresh
                 getStreamsData();
             }
         });
@@ -123,7 +123,7 @@ public class StreamRefreshListFragment extends Fragment {
 
     private void getStreamsData() {
 
-        // Make a dummy call to backend
+        // Make a call to backend to get streams
         Log.d(TAG, "Getting Streams");
         Call<List<WorldScopeViewStream>> call = new WorldScopeRestAPI(getActivity()).buildWorldScopeAPIService().getStreams("live", "time", "desc");
         call.enqueue(new Callback<List<WorldScopeViewStream>>() {
@@ -215,7 +215,7 @@ public class StreamRefreshListFragment extends Fragment {
             // Set text data into the view
             viewHolder.titleTextView.setText(stream.getTitle());
             //viewHolder.ownerTextView.setText(stream.getOwner().getAlias());
-            viewHolder.createdAtTextView.setText(stream.getCreatedAt().toString());
+            viewHolder.createdAtTextView.setText(formatDate(stream.getCreatedAt()));
             viewHolder.totalViewerTextView.setText(String.valueOf(stream.getTotalViewers()));
 
             // Use Picasso to set thumbnail image
@@ -226,6 +226,10 @@ public class StreamRefreshListFragment extends Fragment {
             return convertView;
         }
 
+        private String formatDate(long unixTime) {
+            PrettyTime p = new PrettyTime();
+            return p.format(new Date(unixTime));
+        }
     }
 
     private static class ViewHolder {

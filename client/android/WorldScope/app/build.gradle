@@ -52,4 +52,5 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.0.0-beta3'
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.ocpsoft:ocpsoft-pretty-time:1.0.6'
 }
