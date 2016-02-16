@@ -1,5 +1,8 @@
 package com.litmus.worldscope;
 
+import android.content.Context;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.gson.FieldNamingPolicy;
@@ -9,9 +12,17 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
+import com.litmus.worldscope.model.WorldScopeUser;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.HashSet;
+import java.util.Set;
 
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import retrofit2.GsonConverterFactory;
 import retrofit2.Retrofit;
 
@@ -19,9 +30,28 @@ public class WorldScopeRestAPI {
 
     private static final String TAG = "WorldScopeRestAPI";
 
+    private static final String cookiesSetTag = "PREF_COOKIES";
+
+    private static final String cookiesHeaderTag = "cookie";
+
+    private static final String setCookiesHeaderTag = "set-cookie";
+
+    private static Context context;
+
+    private OkHttpClient okHttpClient;
     static Retrofit.Builder retrofitBuilder;
 
-    public static WorldScopeAPIService.WorldScopeAPIInterface buildWorldScopeAPIService() {
+    public WorldScopeRestAPI(Context context) {
+        this.context = context;
+
+        // Set up interceptors for cookies with Context given
+        okHttpClient = new OkHttpClient.Builder()
+            .addInterceptor(new AddCookiesInterceptor())
+            .addInterceptor(new SaveCookiesInterceptor())
+            .build();
+    }
+
+    public WorldScopeAPIService.WorldScopeAPIInterface buildWorldScopeAPIService() {
 
         // Create an instance of the GsonBuilder to pass JSON results
         GsonBuilder  gsonBuilder = new GsonBuilder();
@@ -34,6 +64,7 @@ public class WorldScopeRestAPI {
         Retrofit retrofit = getRetrofitBuilderInstance()
                 .baseUrl(WorldScopeAPIService.WorldScopeURL)
                 .addConverterFactory(GsonConverterFactory.create())
+                .client(okHttpClient)
                 .build();
 
         Log.d(TAG, "Returning created service");
@@ -59,5 +90,65 @@ public class WorldScopeRestAPI {
 
             return new Gson().fromJson(content, type);
         }
+    }
+
+    // AddCookiesInterceptor appends cookies to request
+    public class AddCookiesInterceptor implements Interceptor {
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+
+            Log.d(TAG, "Request: " + chain.request().toString());
+            Log.d(TAG, "Request URL: " + chain.request().url());
+            Log.d(TAG, "Request Method: " + chain.request().method());
+
+            HashSet<String> preferences = (HashSet<String>) PreferenceManager.getDefaultSharedPreferences(context)
+                    .getStringSet(cookiesSetTag, new HashSet<String>());
+
+            if(chain.request().method().equals("POST") && chain.request().url().toString().equals(WorldScopeAPIService.WorldScopeURL + "/api/users/login")) {
+                Log.d(TAG, "Login detected, clearing cookies");
+                preferences.clear();
+            }
+
+            Request.Builder builder = chain.request().newBuilder();
+            for(String cookie: preferences) {
+                builder.addHeader(cookiesHeaderTag, cookie);
+                Log.d(TAG, "Header: " + cookiesHeaderTag + "=" + cookie);
+            }
+
+            return chain.proceed(builder.build());
+
+        }
+    }
+
+    // SaveCookiesInterceptor saves cookies received
+    public class SaveCookiesInterceptor implements Interceptor {
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+            Response originalResponse = chain.proceed(chain.request());
+
+            Log.d(TAG, "Response: " + originalResponse.toString());
+
+            if(!originalResponse.headers(setCookiesHeaderTag).isEmpty()) {
+                HashSet<String> cookies = new HashSet<>();
+
+                for(String header: originalResponse.headers(setCookiesHeaderTag)) {
+
+                    // Remove the extra "; HttpOnly; Path=/" behind cookie
+                    int cookieEndIndex = header.indexOf(";");
+                    if(cookieEndIndex > 0) {
+                        header = header.substring(0, cookieEndIndex);
+                    }
+
+                    cookies.add(header);
+                    Log.d(TAG, "Cookies saved: " + header);
+                }
+
+                PreferenceManager.getDefaultSharedPreferences(context).edit()
+                    .putStringSet(cookiesSetTag, cookies)
+                    .apply();
+            }
+            return originalResponse;
+        }
+
     }
 }

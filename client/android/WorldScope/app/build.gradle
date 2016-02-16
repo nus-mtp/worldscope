@@ -10,6 +10,7 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
@@ -19,27 +20,37 @@ android {
     }
 }
 
+
+
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
+
+    //Instrumented Tests
+    androidTestCompile 'junit:junit:4.12'
+    androidTestCompile 'com.android.support:support-annotations:23.1.1'
+    androidTestCompile 'com.android.support.test:runner:0.4.1'
+    androidTestCompile 'com.android.support.test:rules:0.4.1'
+    androidTestCompile 'org.mockito:mockito-core:1.+'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
     //JavaCV
-    compile group: 'org.bytedeco', name: 'javacv', version: '1.0'
-    compile group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '2.4.9-0.9', classifier: 'android-arm'
-    compile group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '2.3-0.9', classifier: 'android-arm'
+    compile group: 'org.bytedeco', name: 'javacv', version: '1.1'
+    compile group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '3.0.0-1.1', classifier: 'android-arm'
+    compile group: 'org.bytedeco.javacpp-presets', name: 'ffmpeg', version: '2.8.1-1.1', classifier: 'android-arm'
     //Exoplayer
-    compile 'com.android.support:design:23.1.1'
-    compile 'com.android.support:support-v4:23.1.1'
-    compile 'com.google.android.exoplayer:exoplayer:r1.5.1'
-    compile 'com.facebook.android:facebook-android-sdk:4.+'
     //Facebook
-    compile 'com.android.support:appcompat-v7:23.1.1'
     //Retrofit - RESTful client
+    //Gson
+    //Picasso - Android Image Loader
+    compile 'com.google.android.exoplayer:exoplayer:r1.5.1'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:support-v4:23.1.1'
+    compile 'com.android.support:design:23.1.1'
+    compile 'com.facebook.android:facebook-android-sdk:4.9.0'
     compile 'com.squareup.retrofit2:retrofit:2.0.0-beta3'
     compile 'com.squareup.retrofit2:converter-gson:2.0.0-beta3'
-    //Gson
     compile 'com.google.code.gson:gson:2.4'
-    //Picasso - Android Image Loader
     compile 'com.squareup.picasso:picasso:2.5.2'
-    //Android GIF Drawable
-    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.+'
+    compile 'com.ocpsoft:ocpsoft-pretty-time:1.0.6'
 }

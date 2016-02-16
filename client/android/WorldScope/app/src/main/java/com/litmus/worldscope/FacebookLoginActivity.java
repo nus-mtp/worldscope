@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.webkit.WebView;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
+import com.litmus.worldscope.model.WorldScopeUser;
 
 import layout.FacebookLoginFragment;
 
@@ -18,6 +20,7 @@ import retrofit2.Response;
 public class FacebookLoginActivity extends AppCompatActivity implements FacebookLoginFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "FacebookLoginActivity";
+    private static final String WELCOME_GIF_LINK = "file:///android_asset/welcomeGifAssets/welcome.html";
     private static final String APP_SERVER_AUTH_FAILED_MSG = "Authentication with WorldScope's server has failed, please check that you have internet connections and try again.";
     private static Context context;
     private FacebookLoginFragment facebookLoginFragment;
@@ -28,6 +31,7 @@ public class FacebookLoginActivity extends AppCompatActivity implements Facebook
         setContentView(R.layout.activity_facebook_login);
         context = this;
 
+        loadGifIntoWebView();
     }
 
     @Override
@@ -37,7 +41,7 @@ public class FacebookLoginActivity extends AppCompatActivity implements Facebook
         Log.d(TAG, "AccessToken: " + accessToken.getToken());
 
         // Instantiate and make a call to login user into WorldScope servers
-        Call<WorldScopeUser> call = WorldScopeRestAPI.buildWorldScopeAPIService().loginUser(new WorldScopeAPIService.LoginUserRequest(accessToken.getToken()));
+        Call<WorldScopeUser> call = new WorldScopeRestAPI(context).buildWorldScopeAPIService().loginUser(new WorldScopeAPIService.LoginUserRequest(accessToken.getToken()));
         call.enqueue(new Callback<WorldScopeUser>() {
             @Override
             public void onResponse(Response<WorldScopeUser> response) {
@@ -46,11 +50,10 @@ public class FacebookLoginActivity extends AppCompatActivity implements Facebook
                     Log.d(TAG, "" + response.body().toString());
 
                     // Redirect to MainActivty if successful
-                    Intent intent = new Intent(context, MainActivity.class);
-                    intent.putExtra("loginUser", response.body());
-                    startActivity(intent);
+                    redirectToMainActivity(response.body());
+
                 } else {
-                    Log.d(TAG, "Failure" + response.code() + ": " + response.body().toString());
+                    Log.d(TAG, "Failure" + response.code() + ": " + response.message().toString());
                     // Logout of Facebook
                     logoutOfFacebook();
                 }
@@ -66,6 +69,13 @@ public class FacebookLoginActivity extends AppCompatActivity implements Facebook
 
     }
 
+    //Redirects to MainActivity
+    protected void redirectToMainActivity(WorldScopeUser user) {
+        Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra("loginUser", user);
+        startActivity(intent);
+    }
+
     // Called to logout of Facebook when attempt to authenticate with App server fails
     private void logoutOfFacebook() {
         if(facebookLoginFragment == null) {
@@ -78,5 +88,11 @@ public class FacebookLoginActivity extends AppCompatActivity implements Facebook
         toast.show();
         facebookLoginFragment.logoutFromFacebook();
 
+    }
+
+    // Method to load Gif's html data into WebView
+    private void loadGifIntoWebView() {
+        WebView welcomeGifWebView = (WebView) findViewById(R.id.welcomeGifWebView);
+        welcomeGifWebView.loadUrl(WELCOME_GIF_LINK);
     }
 }

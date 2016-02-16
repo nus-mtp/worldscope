@@ -19,6 +19,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,6 +32,7 @@ import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
+import com.litmus.worldscope.model.WorldScopeUser;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
@@ -47,6 +49,10 @@ public class MainActivity extends AppCompatActivity
 
     // Welcome message shown in Toast
     private final String WELCOME_MSG = "Welcome to WorldScope, %s";
+
+    private final int NUMBER_OF_TABS = 3;
+
+    private static final Boolean IS_LOGOUT_ATTEMPT = true;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -69,6 +75,8 @@ public class MainActivity extends AppCompatActivity
 
     private Toolbar toolbar;
 
+    private Boolean userIsLoaded;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,11 +88,19 @@ public class MainActivity extends AppCompatActivity
 
         // Get user information from intent coming from FacebookLoginActivity
         loginUser = getIntent().getParcelableExtra("loginUser");
-        Log.d(TAG, "" + loginUser.toString());
 
-        // Show welcome message
-        Toast toast = Toast.makeText(context, String.format(WELCOME_MSG, loginUser.getAlias()), Toast.LENGTH_LONG);
-        toast.show();
+        // If user is in Intent
+        if(loginUser != null) {
+            Log.d(TAG, "" + loginUser.toString());
+            // Set boolean to load user
+            userIsLoaded = true;
+            // Show welcome message
+            Toast toast = Toast.makeText(context, String.format(WELCOME_MSG, loginUser.getAlias()), Toast.LENGTH_LONG);
+            toast.show();
+        } else {
+            userIsLoaded = false;
+        }
+
 
         // Set FAB to redirect to StreamActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -109,7 +125,10 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            Intent startMain = new Intent(Intent.ACTION_MAIN);
+            startMain.addCategory(Intent.CATEGORY_HOME);
+            startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(startMain);
         }
     }
 
@@ -152,6 +171,9 @@ public class MainActivity extends AppCompatActivity
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
+
+        // Keep all three tabs in memory
+        mViewPager.setOffscreenPageLimit(NUMBER_OF_TABS);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -184,9 +206,22 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    // Redirects to Facebook Login activity
+
+    protected void redirectToFacebookLoginActivity(boolean isAttemptLogout) {
+        Intent intent = new Intent(this, FacebookLoginActivity.class);
+
+        if(isAttemptLogout) {
+            intent.putExtra("isAttemptLogout", true);
+        }
+
+        startActivity(intent);
+    }
+
+
     // Redirects to view activity
 
-    private void redirectToViewActivity() {
+    protected void redirectToViewActivity() {
         Intent intent = new Intent(this, ViewActivity.class);
         startActivity(intent);
     }
@@ -194,7 +229,7 @@ public class MainActivity extends AppCompatActivity
 
     // Redirects to stream activity
 
-    private void redirectToStreamActivity() {
+    protected void redirectToStreamActivity() {
         Intent intent = new Intent(this, StreamActivity.class);
         startActivity(intent);
     }
@@ -203,6 +238,10 @@ public class MainActivity extends AppCompatActivity
     // Query Facebook graph API for profile picture and loads Alias and picture into Drawer
 
     private void loadUserInfoIntoDrawer() {
+        if(!userIsLoaded) {
+            return;
+        }
+
         TextView alias = (TextView) findViewById(R.id.drawerAlias);
         final ImageView facebookProfilePicture = (ImageView) findViewById(R.id.drawerFacebookProfilePicture);
 
@@ -242,9 +281,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     // Log out from WorldScope App server
-    // TODO: Check JSON formatting of API request's result
     private void logoutFromAppServer() {
-        Call<WorldScopeUser> call = WorldScopeRestAPI.buildWorldScopeAPIService().logoutUser();
+        Call<WorldScopeUser> call = new WorldScopeRestAPI(context
+        ).buildWorldScopeAPIService().logoutUser();
         call.enqueue(new Callback<WorldScopeUser>() {
             @Override
             public void onResponse(Response<WorldScopeUser> response) {
@@ -252,25 +291,25 @@ public class MainActivity extends AppCompatActivity
                     Log.d(TAG, "Success!");
                     Log.d(TAG, "" + response.body().toString());
 
-                    // Redirect to FacebookLoginActivty
-                    Intent intent = new Intent(context, FacebookLoginActivity.class);
-                    startActivity(intent);
+                    redirectToFacebookLoginActivity(IS_LOGOUT_ATTEMPT);
                 } else {
                     Log.d(TAG, "Failure!");
                     Log.d(TAG, "" + response.code());
                     Log.d(TAG, "" + response.body().toString());
+
+                    redirectToFacebookLoginActivity(IS_LOGOUT_ATTEMPT);
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
-                Log.d(TAG, "Failure: " + t.getMessage());
+
+                redirectToFacebookLoginActivity(IS_LOGOUT_ATTEMPT);
             }
         });
     }
 
     // Class used to passed into Picasso for cropping pictures into circles
-    // TODO: Might require refactoring if said functionality is required elsewhere, i.e. list of streams
     public class CircleTransform implements Transformation {
         @Override
         public Bitmap transform(Bitmap source) {

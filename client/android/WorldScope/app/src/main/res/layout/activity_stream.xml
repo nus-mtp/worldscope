@@ -1,11 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:id="@+id/streamFrameLayout"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="fill_parent"
+    android:layout_width="fill_parent"
     tools:context="com.litmus.worldscope.StreamActivity">
+
+    <fragment
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:name="layout.StreamVideoFragment"
+        android:id="@+id/streamVideoFragment"
+        android:layout_gravity="center_horizontal|bottom"
+        tools:layout="@layout/fragment_stream_video" />
+
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:name="layout.StreamVideoControlFragment"
+        android:id="@+id/streamVideoControlFragment"
+        android:layout_gravity="right|bottom"
+        tools:layout="@layout/fragment_stream_video_control" />
+
+    <fragment
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:name="com.litmus.worldscope.StreamCreateFragment"
+        android:id="@+id/streamCreateFragment"
+        android:layout_gravity="center"
+        tools:layout="@layout/fragment_stream_create" />
 
 </FrameLayout>

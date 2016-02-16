@@ -1,4 +1,4 @@
-package com.litmus.worldscope;
+package com.litmus.worldscope.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -58,6 +58,8 @@ public class WorldScopeUser implements Parcelable {
                 + this.getUpdatedAt() + " " + this.getDeletedAt() + " " + this.getuserName();
     }
 
+    public WorldScopeUser() {
+    }
 
     protected WorldScopeUser(Parcel in) {
         userId = in.readString();

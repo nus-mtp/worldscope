@@ -12,6 +12,7 @@ import android.view.View;
 
 import com.google.android.exoplayer.AspectRatioFrameLayout;
 import com.google.android.exoplayer.util.Util;
+import com.litmus.worldscope.model.WorldScopeViewStream;
 
 public class ViewActivity extends AppCompatActivity implements
         SurfaceHolder.Callback,
@@ -21,8 +22,10 @@ public class ViewActivity extends AppCompatActivity implements
 
     // Reference to LitmusPlayer
     private LitmusPlayer litmusPlayer;
+    // Stream currently viewing
+    private WorldScopeViewStream viewStream;
     // String of mpd link
-    private final String mpdLink = "http://worldscope.tk:1935/live/streamkey/manifest.mpd";
+    private String mpdLink;
     private Context context;
     // User Agent string
     private String userAgent;
@@ -35,6 +38,9 @@ public class ViewActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        viewStream = getIntent().getParcelableExtra("stream");
+        mpdLink = viewStream.getViewLink();
+        Log.d(TAG, "mpdLink: " + mpdLink);
         setContentView(R.layout.activity_view);
     }
 
