@@ -6,6 +6,7 @@ const UserModel = require('./user');
 
 const Stream = module.exports = function (data) {
   this.id = m.prop(data.streamId);
+  this.appInstance = m.prop(data.appInstance);
   this.link = m.prop(data.viewLink);
   this.thumbnail = m.prop(data.thumbnailLink);
   this.room = m.prop(data.roomId);
@@ -35,4 +36,14 @@ Stream.list = (state, sort, order) =>
         order: order
       }),
       type: Stream
+    });
+
+Stream.stop = (stream) =>
+    App.request({
+      method: 'POST',
+      url: '../api/streams/control/stop',
+      data: {
+        appInstance: stream.appInstance(),
+        streamId: stream.id()
+      }
     });
