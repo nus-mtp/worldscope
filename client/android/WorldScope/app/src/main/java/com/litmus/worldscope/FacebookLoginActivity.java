@@ -53,7 +53,7 @@ public class FacebookLoginActivity extends AppCompatActivity implements Facebook
                     redirectToMainActivity(response.body());
 
                 } else {
-                    Log.d(TAG, "Failure" + response.code() + ": " + response.body().toString());
+                    Log.d(TAG, "Failure" + response.code() + ": " + response.message().toString());
                     // Logout of Facebook
                     logoutOfFacebook();
                 }
