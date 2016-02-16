@@ -129,11 +129,11 @@ var changeToUnixTime =
  */
 exports.changeToUnixTime = function(obj) {
   obj.createdAt === null ? null
-    : obj.createdAt = Date.parse(obj.createdAt)/1000;
+    : obj.createdAt = Date.parse(obj.createdAt);
   obj.deletedAt === null ? null
-    : obj.deletedAt = Date.parse(obj.deletedAt)/1000;
+    : obj.deletedAt = Date.parse(obj.deletedAt);
   obj.updatedAt === null ? null
-    : obj.updatedAt =Date.parse(obj.updatedAt)/1000;
+    : obj.updatedAt =Date.parse(obj.updatedAt);
 
   return obj;
 };
