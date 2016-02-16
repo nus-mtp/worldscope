@@ -4,6 +4,8 @@ const m = require('mithril');
 
 const StreamModel = require('../models/stream');
 
+const datetime = require('../utils/dateFormat');
+
 const Stream = module.exports = {};
 
 Stream.stream = m.prop();
@@ -63,8 +65,8 @@ Stream.view = function () {
           m('div.col s3', 'user-image-here'),
           m('div.row col s9', [
             m('div.col s12', stream.user().alias()),
-            m('div.col s12', 'Start: ' + stream.startDateTime()),
-            m('div.col s12', 'End: ' + stream.endDateTime())
+            m('div.col s12', 'Start: ' + datetime.toShortDateTime(stream.startDateTime())),
+            m('div.col s12', 'End: ' + datetime.toShortDateTime(stream.endDateTime()))
           ])
         ]),
         m('div.row', [

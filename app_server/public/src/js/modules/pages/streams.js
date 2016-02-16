@@ -3,6 +3,8 @@ const m = require('mithril');
 const StreamModel = require('../models/stream');
 const DataDisplay = require('../components/datadisplay');
 
+const datetime = require('../utils/dateFormat');
+
 const Streams = module.exports = {};
 
 Streams.init = function () {
@@ -37,7 +39,7 @@ const parse = (streams) => streams.map(
         title: stream.title(),
         desc: stream.description(),
         stats: formatStats(stream.viewers(), stream.stickers()),
-        date: stream.startDateTime(),
+        date: datetime.toShortDateTime(stream.startDateTime()),
         user: stream.user().alias(),
         actions: getActions(stream.id())
       };
