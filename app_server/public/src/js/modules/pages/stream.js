@@ -52,7 +52,8 @@ Stream.view = function () {
             config: () => initPlayer(),
             width: '100%',
             height: 'auto',
-            controls: true})),
+            controls: true,
+            preload: 'none'})),
       m('div.col s12 m6 l4', [
         m('div.row', [
           m('div.col s6', 'Viewers: ' + stream.viewers()),
