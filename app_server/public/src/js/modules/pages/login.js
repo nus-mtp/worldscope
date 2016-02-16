@@ -16,7 +16,8 @@ const Login = module.exports = {
     ctrl.login = function (e) {
       e.preventDefault();
       AdminModel.login(ctrl.admin).then(function (admin) {
-        App.login(admin);
+        let csrfToken = document.cookie;
+        App.login(admin, csrfToken);
         App.goToHome();
       }, function (err) {
         ErrorDisplay.setMessage(err.message);

@@ -168,7 +168,7 @@ Class.authenticateAdmin = function (credentials) {
       });
 };
 
-Class.validateAccount = function (server, session) {
+Class.validateAccount = function (server, session, request) {
   return Promise.resolve(session.userId)
   .then(function getAccountFromCache(userId) {
     if (!userId) {
@@ -190,8 +190,15 @@ Class.validateAccount = function (server, session) {
       return null;
     }
 
-    return session.username === cached.username &&
-           session.password === cached.password;
+    var isCredentialsValidated = session.username === cached.username &&
+                                 session.password === cached.password;
+
+    if (!isAdminScope(session.scope)) {
+      return isCredentialsValidated;
+    }
+
+    return isCredentialsValidated &&
+           request.headers['x-csrf-token'] === request.headers.cookie;
   }).then(function getAccountFromDatabase(cacheValidateResult) {
     if (cacheValidateResult) {
       return session;
@@ -205,8 +212,9 @@ Class.validateAccount = function (server, session) {
 
       if (session.scope === Class.SCOPE.USER) {
         return Class.verifyUserToken(user, session.password);
-      } else if (session.scope === Class.SCOPE.ADMIN.DEFAULT) {
-        return bcrypt.compareAsync(session.password, user.password);
+      } else if (isAdminScope(session.scope)) {
+        return request.headers['x-csrf-token'] === request.headers.cookie &&
+               bcrypt.compareAsync(session.password, user.password);
       } else {
         return new Error(Class.ERRORS.UNKNOWN_SCOPE);
       }
@@ -230,5 +238,8 @@ Class.validateAccount = function (server, session) {
     });
   });
 };
+
+var isAdminScope = (scope) => Array.isArray(scope) &&
+                              scope.indexOf(Class.SCOPE.ADMIN.DEFAULT) !== -1;
 
 module.exports = new Authenticator();

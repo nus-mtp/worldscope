@@ -60,14 +60,26 @@ App.routes = {
   }
 };
 
-App.getScopes = () => window.localStorage.getItem('ws-scopes');
+// Used when logged in
+App.request = function (originalOptions) {
+  let options = Object.assign({}, originalOptions);
+
+  options.config = options.config || function (xhr) {
+    xhr.setRequestHeader(App.CSRF_HEADER,
+        window.localStorage.getItem(App.CSRF_HEADER));
+  };
+
+  return m.request(options);
+};
 
 // TODO: Separate into Authentication module
-App.isLoggedIn = () => window.localStorage.getItem('ws-user');
-
-App.login = function (admin) {
+App.CSRF_HEADER = 'x-csrf-token';
+App.isLoggedIn = () => window.localStorage.getItem(App.CSRF_HEADER);
+App.getScopes = () => window.localStorage.getItem('ws-scopes');
+App.login = function (admin, csrfToken) {
   window.localStorage.setItem('ws-user', admin.userId);
   window.localStorage.setItem('ws-scopes', admin.permissions);
+  window.localStorage.setItem(App.CSRF_HEADER, csrfToken);
   Nav.updateVisibleItems();
 };
 

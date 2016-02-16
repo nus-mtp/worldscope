@@ -47,10 +47,11 @@ server.register(require('hapi-auth-cookie'), function (err) {
     password: ServerConfig.cookiePassword,
     cookie: Authenticator.SID,
     isSecure: false,
+    isHttpOnly: false,
     validateFunc: function (request, session, callback) {
       logger.debug('Validating user: ' + JSON.stringify(session));
 
-      Authenticator.validateAccount(server, session)
+      Authenticator.validateAccount(server, session, request)
       .then(function (account) {
         if (!account || account instanceof Error) {
           return callback(account, false);

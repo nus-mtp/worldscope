@@ -1,4 +1,5 @@
 const m = require('mithril');
+const App = require('../app');
 
 const User = module.exports = function (data) {
   this.id = m.prop(data.userId);
@@ -10,21 +11,21 @@ const User = module.exports = function (data) {
 };
 
 User.get = () =>
-    m.request({
+    App.request({
       method: 'GET',
       url: 'src/js/modules/mockdata/user.json',
       type: User
     });
 
 User.list = () =>
-    m.request({
+    App.request({
       method: 'GET',
       url: 'src/js/modules/mockdata/users.json',
       type: User
     });
 
 User.update = (user) =>
-    m.request({
+    App.request({
       method: 'PUT',
       url: '/users/' + user.id(),
       data: {

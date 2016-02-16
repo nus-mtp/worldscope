@@ -1,4 +1,5 @@
 const m = require('mithril');
+const App = require('../app');
 
 const Admin = module.exports = function (data = {}) {
   this.id = m.prop(data.userId || '');
@@ -8,8 +9,8 @@ const Admin = module.exports = function (data = {}) {
   this.permissions = m.prop(data.permissions || []);
 };
 
-Admin.login = (admin) =>
-    m.request({
+Admin.login = (admin, csrfFunction) =>
+    App.request({
       method: 'POST',
       url: '../api/admins/login',
       data: {
@@ -26,7 +27,7 @@ Admin.logout = () =>
     });
 
 Admin.create = (admin) =>
-    m.request({
+    App.request({
       method: 'POST',
       url: '../api/admins',
       data: {
@@ -38,21 +39,21 @@ Admin.create = (admin) =>
     });
 
 Admin.get = (username) =>
-    m.request({
+    App.request({
       method: 'GET',
       url: '../api/admins/' + username,
       type: Admin
     });
 
 Admin.list = () =>
-    m.request({
+    App.request({
       method: 'GET',
       url: '../api/admins',
       type: Admin
     });
 
 Admin.update = (admin) =>
-    m.request({
+    App.request({
       method: 'PUT',
       url: '../api/admins/' + admin.id(),
       data: (function () {
@@ -70,7 +71,7 @@ Admin.update = (admin) =>
     });
 
 Admin.delete = (admin) =>
-    m.request({
+    App.request({
       method: 'DELETE',
       url: '../api/admins/' + admin.id()
     });

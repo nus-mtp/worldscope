@@ -225,7 +225,7 @@ Class.login = function(request, reply) {
     var account = {
       userId: admin.userId,
       username: admin.username,
-      password: admin.password,
+      password: credentials.password,
       scope: unwrapPermissionsFromDB(admin.permissions)
     };
 
