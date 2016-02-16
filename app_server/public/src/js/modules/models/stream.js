@@ -26,9 +26,13 @@ Stream.get = (id) =>
       type: Stream
     });
 
-Stream.list = () =>
+Stream.list = (state, sort, order) =>
     App.request({
       method: 'GET',
-      url: '../api/streams',
+      url: '../api/streams?' + m.route.buildQueryString({
+        state: state,
+        sort: sort,
+        order: order
+      }),
       type: Stream
     });

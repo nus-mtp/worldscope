@@ -37,7 +37,7 @@ App.routes = {
     '/metrics/demographics': blank,
 
     '/streams': {controller: () => m.route('/streams/live')},
-    '/streams/live': blank,
+    '/streams/live': navPage(require('./pages/streams')),
     '/streams/all': navPage(require('./pages/streams')),
     '/streams/search': blank,
     '/streams/view/:id': navPage(require('./pages/stream')),

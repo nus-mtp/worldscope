@@ -7,8 +7,18 @@ const datetime = require('../utils/dateFormat');
 
 const Streams = module.exports = {};
 
+const livePage = {
+  title: 'Live Streams',
+  state: 'live'
+};
+
+const allPage = {
+  title: 'All Streams',
+  state: 'all'
+};
+
 Streams.init = function () {
-  Streams.streamData = StreamModel.list().then(parse);
+  Streams.streamData = StreamModel.list(Streams.state, 'time', 'desc').then(parse);
 };
 
 const names = {
@@ -47,11 +57,18 @@ const parse = (streams) => streams.map(
 );
 
 Streams.controller = function () {
+  let currentPage = m.route();
+  if (currentPage.startsWith('/streams/live')) {
+    Object.assign(Streams, livePage);
+  } else if (currentPage.startsWith('/streams/all')) {
+    Object.assign(Streams, allPage);
+  }
+
   Streams.init();
 };
 
 Streams.view = () => [
-  m('h1', 'Streams'),
+  m('h1', Streams.title),
   m(DataDisplay, {
     names: names,
     data: Streams.streamData
