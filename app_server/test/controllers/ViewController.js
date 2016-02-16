@@ -144,4 +144,28 @@ lab.experiment('ViewController Tests', function() {
     });
   });
 
+  lab.test('Get number of users who viewed a stream valid', function(done) {
+    var userPromise = Service.createNewUser(bob);
+    var streamPromise = userPromise.then((user) =>
+      Service.createNewStream(user.userId, stream));
+
+    var viewPromise1 = streamPromise.then((stream) =>
+      Service.createView(stream.owner, stream.streamId));
+
+    var viewPromise2 = streamPromise.then(function(stream) {
+      return Service.createNewUser(alice).then(function(user) {
+        return Service.createView(user.userId, stream.streamId);
+      });
+    });
+
+    Promise.join(viewPromise1, viewPromise2,
+      function(view1, view2) {
+        Router.inject({method: 'GET', url: '/api/views/' + view1.streamId +
+                       '/number',
+                       credentials: testAccount}, function(res) {
+          Code.expect(res.result).to.equal(2);
+          done();
+        });
+      });
+  });
 });

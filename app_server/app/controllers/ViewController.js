@@ -36,6 +36,13 @@ Class.registerRoutes = function() {
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.createView});
+
+  this.server.route({method: 'GET', path: '/{id}/number',
+                     config: {
+                       validate: singleViewValidator,
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
+                     handler: this.getTotalNumberOfUsersViewedStream});
 };
 
 /* Routes handlers */
@@ -64,6 +71,22 @@ Class.getListOfUsersViewingStream = function(request, reply) {
     .then(function receiveResult(result) {
       if (!result) {
         logger.error('List of users cannot be retrieved');
+        return reply(Boom.badRequest('Stream could not be found'));
+      }
+
+      reply(result);
+    });
+};
+
+Class.getTotalNumberOfUsersViewedStream = function(request, reply) {
+  logger.debug('Get number of users view a stream');
+
+  var streamId = request.params.id;
+
+  Service.getTotalNumberOfUsersViewedStream(streamId)
+    .then(function receiveResult(result) {
+      if (!result) {
+        logger.error('Number of users cannot be retrieved');
         return reply(Boom.badRequest('Stream could not be found'));
       }
 

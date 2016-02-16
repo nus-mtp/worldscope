@@ -95,7 +95,7 @@ Class.updateUser = function(request, reply) {
         return reply(Boom.badRequest('Unable to update user'));
       }
 
-      reply(user);
+      reply(Utility.formatUserObject(user));
     });
 };
 
