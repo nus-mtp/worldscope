@@ -36,7 +36,7 @@ const Streams = module.exports = {
             desc: stream.description(),
             stats: formatStats(stream.viewers(), stream.stickers()),
             date: stream.startDateTime(),
-            user: stream.user(),
+            user: stream.user().alias(),
             actions: getActions(stream.id())
           };
         }
