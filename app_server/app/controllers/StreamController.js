@@ -48,6 +48,13 @@ Class.registerRoutes = function() {
                      },
                      handler: this.controlStopStream});
 
+  this.server.route({method: 'POST', path: '/control/end',   // for users
+                     config: {
+                       validate: singleStreamPayloadValidator,
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
+                     handler: this.endStream});
+
   this.server.route({method: 'POST', path: '/',
                      config: {
                        validate: streamCreatePayloadValidator,
@@ -131,12 +138,33 @@ Class.controlStopStream = function(request, reply) {
     reply({status: 'OK', message: ''});
   });
 };
+
+Class.endStream = function(request, reply) {
+  logger.debug('Ending a stream');
+
+  Service.endStream(request.auth.credentials.userId,
+                    request.payload.streamId)
+    .then(function(res) {
+      if (!res || res instanceof Error) {
+        reply(Boom.badRequest(res.message));
+        return;
+      }
+      reply({status: 'OK', message: ''}).code(200);
+    });
+};
+
 /* End of route handlers */
 
 /* Validator for routes */
 var singleStreamValidator = {
   params: {
     id: Joi.string().guid().required()
+  }
+};
+
+var singleStreamPayloadValidator = {
+  payload: {
+    streamId: Joi.string().guid().required()
   }
 };
 
