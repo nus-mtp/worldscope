@@ -14,6 +14,12 @@ var Authenticator = rfr('app/policies/Authenticator');
 var testAccount = {userId: 1, username: 'bob', password: 'abc',
                    scope: Authenticator.SCOPE.USER};
 
+var testAdmin = Object({}, testAccount);
+testAdmin.scope = [
+  Authenticator.SCOPE.ADMIN.DEFAULT,
+  Authenticator.SCOPE.ADMIN.USERS
+];
+
 var bob = {
   username: 'Bob',
   alias: 'Bob the Builder',
@@ -104,14 +110,43 @@ lab.experiment('UserController Tests', {timeout: 5000}, function () {
     };
 
     Service.createNewUser(bob).then(function (user) {
-      testAccount.userId = user.userId;
       Router.inject({method: 'PUT', url: '/api/users/' + user.userId,
+                     credentials: testAdmin,
+                     payload: updates},
+        function (res) {
+          Code.expect(TestUtils.isEqualOnProperties(updates, res.result))
+            .to.be.true();
+
+          Service.getUserById(user.userId).then(function (user) {
+            Code.expect(TestUtils.isEqualOnProperties(updates, user))
+              .to.be.true();
+            done();
+          });
+        });
+    });
+  });
+
+  lab.test('Update user valid (self)', function (done) {
+    var updates = {
+      alias: 'Taeng',
+      email: 'taeng@email.com',
+      description: 'hey hey hey!'
+    };
+
+    Service.createNewUser(bob).then(function (user) {
+      testAccount.userId = user.userId;
+      Router.inject({method: 'PUT', url: '/api/users',
                      credentials: testAccount,
                      payload: updates},
         function (res) {
           Code.expect(TestUtils.isEqualOnProperties(updates, res.result))
             .to.be.true();
-          done();
+
+          Service.getUserById(testAccount.userId).then(function (user) {
+            Code.expect(TestUtils.isEqualOnProperties(updates, user))
+              .to.be.true();
+            done();
+          });
         });
     });
   });
@@ -119,7 +154,7 @@ lab.experiment('UserController Tests', {timeout: 5000}, function () {
   lab.test('Update user valid no payload', function (done) {
     Service.createNewUser(bob).then(function (user) {
       testAccount.userId = user.userId;
-      Router.inject({method: 'PUT', url: '/api/users/' + user.userId,
+      Router.inject({method: 'PUT', url: '/api/users',
                      credentials: testAccount,
                      payload: {}},
         function (res) {
@@ -136,7 +171,7 @@ lab.experiment('UserController Tests', {timeout: 5000}, function () {
 
     Service.createNewUser(bob).then(function (user) {
       testAccount.userId = user.userId;
-      Router.inject({method: 'PUT', url: '/api/users/' + user.userId,
+      Router.inject({method: 'PUT', url: '/api/users',
                      credentials: testAccount,
                      payload: updates},
         function (res) {
@@ -156,7 +191,7 @@ lab.experiment('UserController Tests', {timeout: 5000}, function () {
     Service.createNewUser(bob).then(function (result) {
       return Service.getUserById(result.userId);
     }).then(function(user) {
-      Router.inject({method: 'PUT', url: '/api/users/' + user.userId,
+      Router.inject({method: 'PUT', url: '/api/users',
                      credentials: testAccount,
                      payload: updates},
         function (res) {
