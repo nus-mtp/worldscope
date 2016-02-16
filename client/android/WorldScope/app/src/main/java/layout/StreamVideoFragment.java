@@ -478,7 +478,7 @@ public class StreamVideoFragment extends Fragment {
         recorder.setFormat("flv");
         recorder.setVideoCodec(28);
         recorder.setAudioCodec(86018);
-        recorder.setSampleRate(22050);
+        recorder.setSampleRate(sampleAudioRateInHz);
         recorder.setFrameRate(30.0D);
 
         // Default format
