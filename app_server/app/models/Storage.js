@@ -508,7 +508,7 @@ Class.createSubscription = function(subscribeFrom, subscribeTo) {
           return [];
         }
         return res[0][0];
-        );
+        });
     });
 };
 
