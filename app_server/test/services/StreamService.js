@@ -53,7 +53,9 @@ lab.experiment('StreamService Tests', function() {
     }).then(function(result) {
       Code.expect(result.title).to.be.equal(testStream.title);
       Code.expect(result.description).to.be.equal(testStream.description);
+      Code.expect(result.createdAt).to.match(/\d{10}/);
       Code.expect(result.streamer.username).to.be.equal(bob.username);
+      Code.expect(result.streamer.createdAt).to.match(/\d{10}/);
       done();
     });
   });
@@ -214,5 +216,90 @@ lab.experiment('StreamService Tests', function() {
       done();
     });
   });
-});
 
+  lab.test('Update Stream valid', function(done) {
+    var updates = {
+      title: 'new title',
+      description: 'a description'
+    };
+
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, testStream);
+    }).then(function(stream) {
+      return Service.updateStream(stream.streamId, updates);
+    }).then(function(result) {
+      Code.expect(TestUtils.isEqualOnProperties(updates, result)).to.be.true();
+      done();
+    });
+  });
+
+  lab.test('Update Stream invalid empty title', function(done) {
+    var updates = {
+      title: '',
+      description: 'a description'
+    };
+
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, testStream);
+    }).then(function(stream) {
+      return Service.updateStream(stream.streamId, updates);
+    }).then(function(result) {
+      Code.expect(result).to.be.an.instanceof(CustomError.InvalidFieldError);
+      done();
+    });
+  });
+
+  lab.test('Update Stream invalid streamId', function(done) {
+    var updates = {
+      title: 'new title',
+      description: 'a description'
+    };
+
+    Service.updateStream('3388ffff-aa00-1111a222-00000044888c', updates)
+      .then(function(result) {
+        Code.expect(result).to.be.an.instanceof(CustomError.NotFoundError);
+        done();
+      });
+  });
+
+  lab.test('End stream valid', function(done) {
+
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, testStream);
+    }).then(function(stream) {
+      return Service.endStream(stream.owner, stream.streamId);
+    }).then(function(res) {
+      Code.expect(res).to.equal('Success');
+      done();
+    });
+  });
+
+  lab.test('End stream invalid streamId', function(done) {
+
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, testStream);
+    }).then(function(stream) {
+      return Service.endStream(stream.owner,
+                               '3388ffff-aa00-1111a222-00000044888c');
+    }).then(function(res) {
+      Code.expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+      Code.expect(res.message).to.be.equal('Stream not found');
+      done();
+    });
+  });
+
+  lab.test('End stream invalid not owner of stream', function(done) {
+
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, testStream);
+    }).then(function(stream) {
+      return Service.endStream('3388ffff-aa00-1111a222-00000044888c',
+                                stream.streamId);
+    }).then(function(res) {
+      Code.expect(res).to.be.an.instanceof(CustomError.NotAuthorisedError);
+      Code.expect(res.message).to.be.equal('Not authorised to end stream');
+      done();
+    });
+  });
+
+});

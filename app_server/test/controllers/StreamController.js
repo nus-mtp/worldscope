@@ -1,8 +1,10 @@
+'use strict';
 var rfr = require('rfr');
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var Code = require('code');
 var util = require('util');
+var Hapi = require('hapi');
 
 var Authenticator = rfr('app/policies/Authenticator');
 var Utility = rfr('app/util/Utility');
@@ -242,6 +244,105 @@ lab.experiment('StreamController Tests', function() {
       Code.expect(res.result.statusCode).to.equal(400);
       Code.expect(res.result.error).to.equal('Bad Request');
       done();
+    });
+  });
+
+});
+
+lab.experiment('StreamController Control Tests', () => {
+  let testStream = {
+    title: 'Test Stream',
+    description: 'No description',
+    appInstance: 'abcdefg'
+  };
+  let expectedAuthToken = new Buffer('username:password', 'utf8')
+                              .toString('base64');
+
+  function createTestUserAndStream(streamInfo) {
+    return Service.createNewUser(bob)
+    .then((user) => {
+      testAccount.userId = user.userId;
+      return user.userId;
+    }).then((userId) => {
+      return Service.createNewStream(userId, streamInfo);
+    });
+  }
+
+  function mockMediaServer(expectedStreamId) {
+    let mediaServer = new Hapi.Server();
+    mediaServer.connection({port: 8086});
+    mediaServer.route({
+      method: 'POST',
+      path: '/control',
+      handler: function (request, reply) {
+        if (request.headers.authorization !== `Basic ${expectedAuthToken}`) {
+          return reply('Unauthorized').code(401);
+        }
+
+        let payload = request.payload;
+        if (payload.stop === '1' && payload.app == 'worldscope' &&
+            payload.appInstance == testStream.appInstance &&
+            payload.stream === expectedStreamId) {
+          return reply({status: 'OK', message: ''});
+        }
+
+        return reply({status: 'ERR', message: 'Unexpected parameters'});
+      }
+    });
+
+    return mediaServer;
+  }
+
+  lab.beforeEach({timeout: 10000}, (done) => {
+    TestUtils.resetDatabase(done);
+  });
+
+  lab.test('Stop valid stream', (done) => {
+    createTestUserAndStream(testStream).then((stream) => {
+      let mediaServer = mockMediaServer(stream.streamId);
+      mediaServer.start(() => {
+        Router.inject({method: 'POST', url: '/api/streams/control/stop',
+                      credentials: testAccount,
+                      payload: {
+                        appInstance: stream.appInstance,
+                        streamId: stream.streamId
+                      }}, (res) => {
+          Code.expect(res.result.status).to.equal('OK');
+          Service.getStreamById(stream.streamId)
+          .then((updatedStream) => {
+            Code.expect(updatedStream.live === false);
+            mediaServer.stop(() => done());
+          });
+        });
+      });
+    });
+  });
+
+  lab.test('Stop stream media server offline', (done) => {
+    createTestUserAndStream(testStream).then((stream) => {
+      Router.inject({method: 'POST', url: '/api/streams/control/stop',
+                    credentials: testAccount,
+                    payload: {
+                      appInstance: stream.appInstance,
+                      streamId: stream.streamId
+                    }}, (res) => {
+        Code.expect(res.statusCode).to.equal(400);
+        done();
+      });
+    });
+  });
+
+  lab.test('Stop stream invalid appInstance', (done) => {
+    createTestUserAndStream(testStream).then((stream) => {
+      Router.inject({method: 'POST', url: '/api/streams/control/stop',
+                    credentials: testAccount,
+                    payload: {
+                      appInstance: 'xyz',
+                      streamId: stream.streamId
+                    }}, (res) => {
+        Code.expect(res.statusCode).to.equal(400);
+        done();
+      });
     });
   });
 });

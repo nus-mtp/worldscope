@@ -64,6 +64,11 @@ module.exports = function(sequelize, DataTypes) {
           onDelete: 'CASCADE',
           foreignKey: 'owner'
         });
+        Stream.belongsToMany(models.User, {
+          through: models.View,
+          as: 'Viewer',
+          foreignKey: 'streamId'
+        });
       }
     }
   });

@@ -12,6 +12,7 @@ var CustomError = rfr('app/util/Error');
 var Utility = rfr('app/util/Utility');
 var Service = rfr('app/services/Service');
 var Authenticator = rfr('app/policies/Authenticator');
+var ServerConfig = rfr('config/ServerConfig');
 
 var logger = Utility.createLogger(__filename);
 
@@ -33,9 +34,19 @@ Class.registerRoutes = function() {
   this.server.route({method: 'GET', path: '/{id}',
                      config: {
                        validate: singleStreamValidator,
-                       auth: {scope: Authenticator.SCOPE.ALL}
+                       auth: {
+                         mode: 'optional',
+                         scope: Authenticator.SCOPE.ALL
+                       }
                      },
                      handler: this.getStreamById});
+
+  this.server.route({method: 'POST', path: '/control/stop',
+                     config: {
+                       validate: streamControlStopValidator,
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
+                     handler: this.controlStopStream});
 
   this.server.route({method: 'POST', path: '/',
                      config: {
@@ -66,8 +77,7 @@ Class.createStream = function(request, reply) {
   }).then(function(result) {
     if (result instanceof CustomError.NotFoundError) {
       logger.error('Stream could not be created');
-      reply(Boom.unauthorized(result.message));
-      return;
+      return reply(Boom.unauthorized(result.message));
     }
 
     reply(result);
@@ -83,8 +93,7 @@ Class.getStreamById = function(request, reply) {
   Service.getStreamById(request.params.id).then(function(result) {
     if (result instanceof Error) {
       logger.error(result.message);
-      reply(Boom.notFound(result.message));
-      return;
+      return reply(Boom.notFound(result.message));
     }
 
     reply(result);
@@ -102,13 +111,27 @@ Class.getListOfStreams = function(request, reply) {
 
   Service.getListOfStreams(filters).then(function(listStreams) {
     if (!listStreams || listStreams instanceof Error) {
-      reply(Boom.notFound('Stream not found'));
-      return;
+      return reply(Boom.notFound('Stream not found'));
     }
 
     reply(listStreams);
   });
 };
+
+Class.controlStopStream = function(request, reply) {
+  Service.stopStream(ServerConfig.mediaServer.appName,
+                     request.payload.appInstance,
+                     request.payload.streamId)
+  .then((result) => {
+    if (result instanceof Error) {
+      reply(Boom.badRequest(result.message));
+      return;
+    }
+
+    reply({status: 'OK', message: ''});
+  });
+};
+/* End of route handlers */
 
 /* Validator for routes */
 var singleStreamValidator = {
@@ -131,6 +154,14 @@ var streamListParamsValidator = {
     order: Joi.any().valid('desc', 'asc').default('desc')
   }
 };
+
+var streamControlStopValidator = {
+  payload: {
+    appInstance: Joi.string().required(),
+    streamId: Joi.string().required()
+  }
+};
+/* End of validators */
 
 exports.register = function(server, options, next) {
   var streamController = new StreamController(server, options);

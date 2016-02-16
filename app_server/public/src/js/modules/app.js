@@ -1,7 +1,11 @@
 const m = require('mithril');
-const nav = require('./components/nav');
 
-const templatePage = (content) => m('div#container.row', content);
+const App = module.exports = {};
+
+const Nav = require('./components/nav');
+const ErrorDisplay = require('./components/errordisplay');
+
+const templatePage = (content) => m('div#container.row', [ErrorDisplay, content]);
 
 const wrapView = function (wrapper, vElement) {
   let wrappedElement = Object.assign({}, vElement);
@@ -9,7 +13,7 @@ const wrapView = function (wrapper, vElement) {
   return wrappedElement;
 };
 const navPage = function (page) {
-  let wrappedNav = wrapView((e) => m('div#nav.col s2 l1', e), nav);
+  let wrappedNav = wrapView((e) => m('div#nav.col s2 l1', e), Nav);
   let wrappedPage = wrapView((e) => m('div#content.col offset-s2 s10 offset-l1 l11', e), page);
 
   return {
@@ -21,8 +25,6 @@ const navPage = function (page) {
 const blank = navPage({
   view: () => m('div', 'TODO')
 });
-
-const App = module.exports = {};
 
 App.routes = {
   locked: {
@@ -50,9 +52,11 @@ App.routes = {
     '/admins/all': navPage(require('./pages/admins')),
     '/admins/create': navPage(require('./pages/admin')),
     '/admins/view/:username': navPage(require('./pages/admin')),
-    '/admins/delete/:username': navPage(require('./pages/admindelete')),
+    '/admins/delete/:username': navPage(require('./pages/admin')),
 
-    '/settings': blank
+    '/settings': blank,
+
+    '/logout': require('./pages/logout')
   }
 };
 
@@ -71,10 +75,17 @@ App.request = function (originalOptions) {
 // TODO: Separate into Authentication module
 App.CSRF_HEADER = 'x-csrf-token';
 App.isLoggedIn = () => window.localStorage.getItem(App.CSRF_HEADER);
+App.getScopes = () => window.localStorage.getItem('ws-scopes');
+App.login = function (admin, csrfToken) {
+  window.localStorage.setItem('ws-user', admin.userId);
+  window.localStorage.setItem('ws-scopes', admin.permissions);
+  window.localStorage.setItem(App.CSRF_HEADER, csrfToken);
+  Nav.updateVisibleItems();
+};
 
 App.updateRoutes = function () {
   if (App.isLoggedIn()) {
-    m.route(document.body, '/metrics', App.routes.app);
+    m.route(document.body, Nav.getFirstLocation(), App.routes.app);
   } else {
     m.route(document.body, '/login', App.routes.locked);
   }

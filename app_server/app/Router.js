@@ -107,6 +107,16 @@ server.register({
   }
 });
 
+server.register({
+  register: rfr('app/controllers/ViewController.js')
+}, {
+  routes: {prefix: '/api/views'}
+}, function (err) {
+  if (err) {
+    logger.error('Unable to register ViewController: %j', err);
+  }
+});
+
 server.route({
   method: 'GET',
   path: '/',

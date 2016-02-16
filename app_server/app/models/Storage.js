@@ -10,13 +10,10 @@ var _ = require('underscore');
 
 var config = rfr('config/DatabaseConfig');
 var Utility = rfr('app/util/Utility');
-
+var CustomError = rfr('app/util/Error');
 var logger = Utility.createLogger(__filename);
 
-var modelNames = [
-  'User',
-  'Stream'
-];
+var modelNames = ['User', 'Stream', 'View'];
 
 /**
  * Initialises the database connection and load the models written in
@@ -279,7 +276,6 @@ Class.getListOfAdmins = function(filters) {
  *         {False} on fail
  */
 Class.getNumberOfUsers = function() {
-
   return this.models.User.count({
     where: {
       permissions: null
@@ -296,7 +292,6 @@ Class.getNumberOfUsers = function() {
  *         {False} on fail
  */
 Class.getNumberOfAdmins = function() {
-
   return this.models.User.count({
     where: {
       permissions: {
@@ -395,13 +390,84 @@ Class.getListOfStreams = function(originalFilters) {
  * @return {Promise<Sequelize.object>} on success
            {Error} on fail
  */
-Class.updateStreamAttributes = function(streamId, newAttributes) {
+Class.updateStream = function(streamId, newAttributes) {
   return this.getStreamById(streamId).then(function(stream) {
     return stream.update(newAttributes, {
       fields: Object.keys(newAttributes)
     });
   });
 };
+
+/**
+ * @param  {string} userId
+ * @param  {string} streamId
+ * @return {Promise<Sequelize.View>}
+ */
+Class.createView = function(userId, streamId) {
+  var userPromise = this.models.User.findById(userId);
+  var streamPromise = this.models.Stream.findById(streamId);
+
+  return Promise.join(userPromise, streamPromise,
+    function(user, stream) {
+      return user.addView(stream).then((view) => view[0][0])
+        .catch(err => null);
+    });
+};
+
+/**
+ * @param  {string} streamId
+ * @return {Promise<Sequelize.Stream>} - a Stream object with a list of
+ *                                       embedded users
+ */
+Class.getListOfUsersViewingStream = function(streamId) {
+  return this.models.Stream.findOne({
+    where: {
+      streamId: streamId
+    },
+    include: [{
+      model: this.models.User,
+      as: 'Viewer',
+      through: {
+        where: {
+          endedAt: null
+        }
+      }
+    }],
+    order: [[{model: this.models.User, as: 'Viewer'}, 'username', 'ASC']]
+  }).then(function receiveResult(result) {
+    if (result) {
+      return result.Viewer; //only return the descendents
+    } else {
+      return null;
+    }
+  });
+};
+
+Class.getTotalNumberOfUsersViewedStream = function(streamId) {
+  return this.models.View.count({
+    where: {
+      streamId: streamId,
+      endedAt: null //either null or removed, depending live or not
+    }
+  });
+};
+
+/**
+ * @param  {string} userId
+ * @param  {string} streamId
+ * @param  {object} newAttributes
+ * @return {Promise<Sequelize.View>}
+ */
+/*Class.updateView = function(userId, streamId, newAttributes) {
+  var userPromise = this.models.User.findById(userId);
+  var streamPromise = this.models.Stream.findById(streamId);
+
+  return this.getStreamById(streamId).then(function(stream) {
+    return stream.update(newAttributes, {
+      fields: Object.keys(newAttributes)
+    });
+  });
+};*/
 
 /**
  * Check if the fields to be changed match the fields available in object
@@ -417,7 +483,7 @@ function isFieldsMatched(user, options, fn) {
   }
 
   if (_(fieldsToChange).difference(objFields).length !== 0) {
-    throw new Error('Invalid parameters');
+    throw new CustomError.InvalidColumnError('Column name undefined');
   } else {
     return fn();
   }

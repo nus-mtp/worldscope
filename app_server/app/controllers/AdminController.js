@@ -138,14 +138,15 @@ Class.createRootAdmin = function(request, reply) {
 */
 
 Class.createAdmin = function(request, reply) {
+  var permissions = request.payload.permissions;
+  permissions = ensureDefaultAdminScope(permissions);
+  permissions = wrapPermissionsForDB(permissions);
+
   var credentials = {
     username: request.payload.username,
     password: encrypt(request.payload.password),
     email: request.payload.email || null,
-    permissions: (function () {
-      request.payload.permissions.push(Authenticator.SCOPE.ADMIN.DEFAULT);
-      return wrapPermissionsForDB(request.payload.permissions);
-    }())
+    permissions: permissions
   };
 
   Service.createNewAdmin(credentials)
@@ -173,6 +174,7 @@ Class.updateAdmin = function(request, reply) {
     delete particulars.password;
   }
 
+  particulars.permissions = ensureDefaultAdminScope(particulars.permissions);
   particulars.permissions = wrapPermissionsForDB(particulars.permissions);
 
   return Service.updateAdmin(id, particulars)
@@ -286,6 +288,13 @@ var updateCache = function(request, account, callback) {
 
     return callback();
   });
+};
+
+var ensureDefaultAdminScope = function(scopes) {
+  if (scopes.indexOf(Authenticator.SCOPE.ADMIN.DEFAULT) === -1) {
+    scopes.push(Authenticator.SCOPE.ADMIN.DEFAULT);
+  }
+  return scopes;
 };
 
 var wrapPermissionsForDB = (permissionsArr) => permissionsArr.join(';');
