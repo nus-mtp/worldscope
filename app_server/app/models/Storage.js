@@ -505,7 +505,7 @@ Class.createSubscription = function(subscribeFrom, subscribeTo) {
     function(from, to) {
       return from.addSubscribeTo(to).then(res => {
         if (!res || res.length === 0) {
-          return [];
+          return null;
         }
         return res[0][0];
         });
