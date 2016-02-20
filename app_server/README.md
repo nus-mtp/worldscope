@@ -8,7 +8,7 @@ As WorldScope relies on MySQL, it is required to set up a MySQL database. Downlo
 ```
 mysql> CREATE DATABASE worldscope_db;
 ```
-* Edit the `name`, `username` and `password` fields accordingly in configuration file located in `worldscope/app_server/config/DatabaseConfig.js`
+* Edit the `name`, `username` and `password` fields accordingly in configuration file located in [config/DatabaseConfig.js](config/DatabaseConfig.js)
 
 ## Deployment
 To install dependencies, run `npm install`
