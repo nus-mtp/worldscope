@@ -131,9 +131,13 @@ module.exports = function(sequelize, DataTypes) {
         });
         User.belongsToMany(models.User, {
           through: models.Subscription,
-          as: 'SubscribeTo', // pro
-          foreignKey: 'subscriber', // noob
-          otherKey: 'subscribeTo'
+          as: 'Subscriptions', // pro
+          foreignKey: 'subscriber' // noob
+        });
+        User.belongsToMany(models.User, {
+          through: models.Subscription,
+          as: 'Subscribers', // noob
+          foreignKey: 'subscribeTo' // pro
         });
       }
     }

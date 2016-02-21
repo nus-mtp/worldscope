@@ -508,7 +508,7 @@ Class.createSubscription = function(subscribeFrom, subscribeTo) {
 
         return new CustomError.NotFoundError('User not found');
       };
-      return from.addSubscribeTo(to).then(res => {
+      return from.addSubscription(to).then(res => {
         if (!res || res.length === 0) {
           logger.error('Duplicate Subscription');
 
@@ -517,6 +517,44 @@ Class.createSubscription = function(subscribeFrom, subscribeTo) {
         return res[0][0];
         });
     });
+};
+
+/**
+ * @param  {string} userId
+ * @return {Promise<List<Sequelize.Subscription>>}
+ */
+Class.getSubscriptions = function(userId) {
+  var userPromise = this.models.User.findById(userId);
+
+  return userPromise.then(function(user) {
+    if (user === null) {
+      logger.error('User cannot be found');
+
+      return new CustomError.NotFoundError('User not found');
+    };
+    return user.getSubscriptions({order: [['username', 'ASC']]}).then(res => {
+      return res;
+    });
+  });
+};
+
+/**
+ * @param  {string} userId
+ * @return {Promise<List<Sequelize.Subscription>>}
+ */
+Class.getSubscribers = function(userId) {
+  var userPromise = this.models.User.findById(userId);
+
+  return userPromise.then(function(user) {
+    if (user === null) {
+      logger.error('User cannot be found');
+
+      return new CustomError.NotFoundError('User not found');
+    };
+    return user.getSubscribers({order: [['username', 'ASC']]}).then(res => {
+      return res;
+    });
+  });
 };
 
 /**

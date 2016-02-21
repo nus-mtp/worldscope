@@ -12,7 +12,7 @@ var logger = Utility.createLogger(__filename);
 var Storage = rfr('app/models/Storage.js');
 var TestUtils = rfr('test/TestUtils');
 
-lab.experiment('View Model Tests', function() {
+lab.experiment('Subscription Model Tests', function() {
 
   var user1 = {
     username: 'Noob Nie',
@@ -36,16 +36,15 @@ lab.experiment('View Model Tests', function() {
     description: 'pro is too cool for description'
   };
 
-  var stream1 = {
-    title: 'stream from view test',
-    description: 'hello',
-    appInstance: '123-123'
-  };
-
-  var stream2 = {
-    title: 'second stream from view test',
-    description: 'hello hello',
-    appInstance: '34234-3434'
+  var user3 = {
+    username: 'Mr Workaholic',
+    alias: 'workaholic',
+    email: 'workaholic@office.com',
+    password: 'generated',
+    accessToken: 'another accesstoken',
+    platformType: 'facebook',
+    platformId: '22222222222',
+    description: 'workaholic is too busy for description'
   };
 
   lab.beforeEach({timeout: 10000}, function(done) {
@@ -99,5 +98,98 @@ lab.experiment('View Model Tests', function() {
       });
   });
 
+  lab.test('Get Subscriptions valid', function(done) {
+    var userPromise1 = Storage.createUser(user1);
+    var userPromise2 = Storage.createUser(user2);
+    var userPromise3 = Storage.createUser(user3);
+
+    var createUsers = Promise.join(userPromise1, userPromise2, userPromise3,
+      function(user1, user2, user3) {
+        return Storage.createSubscription(user1.userId, user2.userId)
+          .then(function(res) {
+            return Storage.createSubscription(user1.userId, user3.userId);
+          });
+      });
+
+    createUsers.then(function(subscription) {
+      Storage.getSubscriptions(subscription.subscriber)
+        .then(function(res) {
+          expect(res).to.have.length(2);
+          done();
+        });
+    });
+  });
+
+  lab.test('Get Subscriptions valid empty', function(done) {
+    var userPromise1 = Storage.createUser(user1);
+    var userPromise2 = Storage.createUser(user2);
+
+    Promise.join(userPromise1, userPromise2,
+      function(user1, user2) {
+        Storage.createSubscription(user1.userId, user2.userId)
+          .then(function(res) {
+            Storage.getSubscriptions(user2.userId).then(function(res) {
+              expect(res).to.have.length(0);
+              done();
+            })
+        });
+      });
+  });
+
+  lab.test('Get Subscriptions invalid userId', function(done) {
+    Storage.getSubscriptions('3388ffff-aa00-1111a222-00000044888c')
+      .then(function(res) {
+        expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+        expect(res.message).to.be.equal('User not found');
+        done();
+      });
+  });
+
+  lab.test('Get Subscribers valid', function(done) {
+    var userPromise1 = Storage.createUser(user1);
+    var userPromise2 = Storage.createUser(user2);
+    var userPromise3 = Storage.createUser(user3);
+
+    var createUsers = Promise.join(userPromise1, userPromise2, userPromise3,
+      function(user1, user2, user3) {
+        return Storage.createSubscription(user2.userId, user3.userId)
+          .then(function(res) {
+            return Storage.createSubscription(user1.userId, user3.userId);
+          });
+      });
+
+    createUsers.then(function(subscription) {
+      Storage.getSubscribers(subscription.subscribeTo)
+        .then(function(res) {
+          expect(res).to.have.length(2);
+          done();
+        });
+    });
+  });
+
+  lab.test('Get Subscribers valid empty', function(done) {
+    var userPromise1 = Storage.createUser(user1);
+    var userPromise2 = Storage.createUser(user2);
+
+    Promise.join(userPromise1, userPromise2,
+      function(user1, user2) {
+        Storage.createSubscription(user1.userId, user2.userId)
+          .then(function(res) {
+            Storage.getSubscribers(user1.userId).then(function(res) {
+              expect(res).to.have.length(0);
+              done();
+            })
+        });
+      });
+  });
+
+  lab.test('Get Subscribers invalid userId', function(done) {
+    Storage.getSubscribers('3388ffff-aa00-1111a222-00000044888c')
+      .then(function(res) {
+        expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+        expect(res.message).to.be.equal('User not found');
+        done();
+      });
+  });
 
 });
