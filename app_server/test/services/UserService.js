@@ -365,7 +365,8 @@ lab.experiment('UserService Tests for Subscriptions', function () {
             Storage.createSubscription(subscription.subscriber,
                                        subscription.subscribeTo))
           .then(function(res) {
-            expect(res).to.be.null();
+            expect(res).to.be.an.instanceof(Error);
+            expect(res.message).to.be.equal('Duplicate Subscription');
             done();
         });
       });
