@@ -163,7 +163,49 @@ Class.createSubscription = function(subscribeFrom, subscribeTo) {
       if (!result || result instanceof Error) {
         return result;
       }
-      return result.dataValues;
+      return Utility.changeToUnixTime(result.dataValues);
+    });
+};
+
+/**
+ * Gets the list of subscriptions that a user has subscribed to.
+ * @param userId {string}
+ * @return {Promise<List<User>>}
+ */
+Class.getSubscriptions = function(userId) {
+  logger.debug('Getting subscriptions for user %s', userId);
+
+  return Storage.getSubscriptions(userId)
+    .then(function receiveResult(result) {
+      if (!result || result instanceof Error) {
+        return result;
+      }
+      return result.map((singleUser) => {
+        singleUser = singleUser.dataValues
+        delete singleUser.Subscription;
+        return Utility.formatUserObject(singleUser);
+      });
+    });
+};
+
+/**
+ * Gets the list of subscriptions that a user has subscribed to.
+ * @param userId {string}
+ * @return {Promise<List<User>>}
+ */
+Class.getSubscribers = function(userId) {
+  logger.debug('Getting subscribers for user %s', userId);
+
+  return Storage.getSubscribers(userId)
+    .then(function receiveResult(result) {
+      if (!result || result instanceof Error) {
+        return result;
+      }
+      return result.map((singleUser) => {
+        singleUser = singleUser.dataValues
+        delete singleUser.Subscription;
+        return Utility.formatUserObject(singleUser);
+      });
     });
 };
 

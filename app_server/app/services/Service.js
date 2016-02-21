@@ -65,6 +65,18 @@ Class.createSubscription = function(subscribeFrom, subscribeTo) {
 
   return UserService.createSubscription(subscribeFrom, subscribeTo);
 };
+
+Class.getSubscriptions = function(userId) {
+  logger.debug('Getting subscriptions for user %s', userId);
+
+  return UserService.getSubscriptions(userId);
+};
+
+Class.getSubscribers = function(userId) {
+  logger.debug('Getting subscribers for user %s', userId);
+
+  return UserService.getSubscribers(userId);
+};
 ///////////////////////
 
 /////// STREAM APIs ///////

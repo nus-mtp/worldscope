@@ -503,7 +503,7 @@ Class.createSubscription = function(subscribeFrom, subscribeTo) {
 
   return Promise.join(fromPromise, toPromise,
     function(from, to) {
-      if (to === null) {
+      if (to === null || from.userId == to.userId) {
         logger.error('Subscription user cannot be found');
 
         return new CustomError.NotFoundError('User not found');

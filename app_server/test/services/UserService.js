@@ -32,6 +32,17 @@ var alice = {
   description: 'nil'
 };
 
+var carlos = {
+  username: 'Carlos',
+  alias: 'Carlos hehe',
+  email: 'carlos@car.com',
+  password: 'generated',
+  accessToken: 'an accesstoken',
+  platformType: 'facebook',
+  platformId: '111112222',
+  description: 'nil'
+};
+
 var stream = {
   title: 'this is a title from user service',
   description: 'arbitrary description',
@@ -354,15 +365,28 @@ lab.experiment('UserService Tests for Subscriptions', function () {
       });
   });
 
+  lab.test('Create Subscription invalid self subscribe', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+
+    userPromise1.then(function(user1) {
+        Service.createSubscription(user1.userId, user1.userId)
+          .then(function(res) {
+            expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+            expect(res.message).to.be.equal('User not found');
+            done();
+          });
+      });
+  });
+
   lab.test('Create Subscription invalid duplicate', function(done) {
     var userPromise1 = Service.createNewUser(alice);
     var userPromise2 = Service.createNewUser(bob);
 
     Promise.join(userPromise1, userPromise2,
       function(user1, user2) {
-       Storage.createSubscription(user1.userId, user2.userId)
+       Service.createSubscription(user1.userId, user2.userId)
           .then((subscription) =>
-            Storage.createSubscription(subscription.subscriber,
+            Service.createSubscription(subscription.subscriber,
                                        subscription.subscribeTo))
           .then(function(res) {
             expect(res).to.be.an.instanceof(Error);
@@ -370,6 +394,66 @@ lab.experiment('UserService Tests for Subscriptions', function () {
             done();
         });
       });
+  });
+
+  lab.test('Get Subscriptions valid', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+    var userPromise2 = Service.createNewUser(bob);
+    var userPromise3 = Service.createNewUser(carlos);
+
+    Promise.join(userPromise1, userPromise2, userPromise3,
+      function(user1, user2, user3) {
+        Service.createSubscription(user1.userId, user2.userId)
+          .then(() => Service.createSubscription(user1.userId, user3.userId))
+          .then(function(subscription) {
+            Service.getSubscriptions(subscription.subscriber)
+              .then(function(res) {
+                expect(res).to.have.length(2);
+                expect(res[0].username).to.equal(bob.username);
+                expect(res[1].username).to.equal(carlos.username);
+                done();
+              });
+          });
+      });
+  });
+
+  lab.test('Get Subscriptions invalid userId', function(done) {
+    Service.getSubscriptions('3388ffff-aa00-1111a222-00000044888c')
+      .then(function(res) {
+        expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+        expect(res.message).to.be.equal('User not found');
+        done();
+      })
+  });
+
+  lab.test('Get Subscribers valid', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+    var userPromise2 = Service.createNewUser(bob);
+    var userPromise3 = Service.createNewUser(carlos);
+
+    Promise.join(userPromise1, userPromise2, userPromise3,
+      function(user1, user2, user3) {
+        Service.createSubscription(user1.userId, user3.userId)
+          .then(() => Service.createSubscription(user2.userId, user3.userId))
+          .then(function(subscription) {
+            Service.getSubscribers(subscription.subscribeTo)
+              .then(function(res) {
+                expect(res).to.have.length(2);
+                expect(res[0].username).to.equal(alice.username);
+                expect(res[1].username).to.equal(bob.username);
+                done();
+              })
+          });
+      });
+  });
+
+  lab.test('Get Subscribers invalid userId', function(done) {
+    Service.getSubscribers('3388ffff-aa00-1111a222-00000044888c')
+      .then(function(res) {
+        expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+        expect(res.message).to.be.equal('User not found');
+        done();
+      })
   });
 
 });

@@ -66,7 +66,7 @@ lab.experiment('Subscription Model Tests', function() {
       });
   });
 
-  lab.test('Create Subscription invalid subscribeTo', function(done) {
+  lab.test('Create Subscription invalid subscribeTo id', function(done) {
     var userPromise1 = Storage.createUser(user1);
 
     userPromise1.then(function(user1) {
@@ -98,6 +98,20 @@ lab.experiment('Subscription Model Tests', function() {
       });
   });
 
+  lab.test('Create Subscription invalid self subscribe', function(done) {
+    var userPromise1 = Storage.createUser(user1);
+
+    userPromise1.then(function(user1) {
+      Storage.createSubscription(user1.userId, user1.userId)
+        .then(function(res) {
+          console.log(res);
+          expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+          expect(res.message).to.be.equal('User not found');
+          done();
+        });
+    });
+  });
+
   lab.test('Get Subscriptions valid', function(done) {
     var userPromise1 = Storage.createUser(user1);
     var userPromise2 = Storage.createUser(user2);
@@ -114,6 +128,8 @@ lab.experiment('Subscription Model Tests', function() {
     createUsers.then(function(subscription) {
       Storage.getSubscriptions(subscription.subscriber)
         .then(function(res) {
+          expect(res[0].username).to.equal(user2.username);
+          expect(res[1].username).to.equal(user3.username);
           expect(res).to.have.length(2);
           done();
         });
@@ -162,6 +178,8 @@ lab.experiment('Subscription Model Tests', function() {
       Storage.getSubscribers(subscription.subscribeTo)
         .then(function(res) {
           expect(res).to.have.length(2);
+          expect(res[0].username).to.equal(user2.username);
+          expect(res[1].username).to.equal(user1.username);
           done();
         });
     });
