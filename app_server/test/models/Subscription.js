@@ -6,6 +6,7 @@ var expect = Code.expect;
 var Promise = require('bluebird');
 
 var Utility = rfr('app/util/Utility');
+var CustomError = rfr('app/util/Error');
 var logger = Utility.createLogger(__filename);
 
 var Storage = rfr('app/models/Storage.js');
@@ -52,14 +53,13 @@ lab.experiment('View Model Tests', function() {
   });
 
   lab.test('Create Subscription valid', function(done) {
-    var user1Promise = Storage.createUser(user1);
-    var user2Promise = Storage.createUser(user2);
+    var userPromise1 = Storage.createUser(user1);
+    var userPromise2 = Storage.createUser(user2);
 
-    Promise.join(user1Promise, user2Promise,
+    Promise.join(userPromise1, userPromise2,
       function(user1, user2) {
         Storage.createSubscription(user1.userId, user2.userId)
           .then(function(res) {
-            console.log(res);
             expect(res.subscriber).to.equal(user1.userId);
             expect(res.subscribeTo).to.equal(user2.userId);
             done();
@@ -67,11 +67,25 @@ lab.experiment('View Model Tests', function() {
       });
   });
 
-  lab.test('Create Subscription invalid repeated', function(done) {
-    var user1Promise = Storage.createUser(user1);
-    var user2Promise = Storage.createUser(user2);
+  lab.test('Create Subscription invalid subscribeTo', function(done) {
+    var userPromise1 = Storage.createUser(user1);
 
-    Promise.join(user1Promise, user2Promise,
+    userPromise1.then(function(user1) {
+      Storage.createSubscription(user1.userId,
+                                 '3388ffff-aa00-1111a222-00000044888c')
+        .then(function(res) {
+          expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+          expect(res.message).to.be.equal('User not found');
+          done();
+        });
+    });
+  });
+
+  lab.test('Create Subscription invalid duplicate', function(done) {
+    var userPromise1 = Storage.createUser(user1);
+    var userPromise2 = Storage.createUser(user2);
+
+    Promise.join(userPromise1, userPromise2,
       function(user1, user2) {
         Storage.createSubscription(user1.userId, user2.userId)
           .then((subscription) =>
