@@ -18,10 +18,10 @@ var DEFAULT_ROOM = 'lobby';
 function RoomsManager(server, io) {
   this.io = io;
 
-  this.rooms = {};
+  this.rooms = {}; // A map from room name to Room objects
   this.rooms[DEFAULT_ROOM] = new Room(DEFAULT_ROOM,
                                       Room.ROOM_TYPES.GENERAL);
-  this.users = {};
+  this.users = {}; // A map from user id to an array of Client objects
 
   this.requestInjector = new RequestInjector(server);
 }

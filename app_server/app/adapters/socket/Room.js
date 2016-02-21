@@ -23,7 +23,7 @@ function Room(name, type) {
 
   this.__name = name;
   this.__type = type;
-  this.__clients = {};
+  this.__clients = {}; // A map from client's socket.io id to Client object
 }
 
 var Class = Room.prototype;
