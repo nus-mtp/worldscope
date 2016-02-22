@@ -209,4 +209,18 @@ Class.getSubscribers = function(userId) {
     });
 };
 
+/**
+ * @param  {string} subscribeFrom - userId of one who is subscribing
+ * @param  {string} subscribeTo - userId of the one being subscribed to
+ * @return {Promise<Boolean>}
+ */
+Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
+  logger.debug('Delete subscriptions');
+
+  return Storage.deleteSubscription(subscribeFrom, subscribeTo)
+    .then(function receiveResult(result) {
+      return result;
+    });
+};
+
 module.exports = new UserService();

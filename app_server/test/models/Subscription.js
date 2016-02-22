@@ -231,6 +231,25 @@ lab.experiment('Subscription Model Tests', function() {
       });
   });
 
+  lab.test('Delete Subscription invalid subscription', function(done) {
+    var userPromise1 = Storage.createUser(user1);
+    var userPromise2 = Storage.createUser(user2);
+
+    function deleteSubscription(user1, user2) {
+      Storage.deleteSubscription(user1.userId,
+                                 user2.userId)
+        .then(function(res) {
+          expect(res).to.be.false();
+          done();
+        });
+    }
+
+    Promise.join(userPromise1, userPromise2,
+      function(user1, user2) {
+        deleteSubscription(user1, user2);
+      });
+  });
+
   lab.test('Delete Subscription invalid user', function(done) {
     var userPromise1 = Storage.createUser(user1);
     var userPromise2 = Storage.createUser(user2);

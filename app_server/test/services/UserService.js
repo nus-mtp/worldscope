@@ -337,7 +337,7 @@ lab.experiment('UserService Tests for Subscriptions', function () {
   lab.beforeEach({timeout: 10000}, function (done) {
     TestUtils.resetDatabase(done);
   });
-
+/*
   lab.test('Create Subscription valid', function(done) {
     var userPromise1 = Service.createNewUser(alice);
     var userPromise2 = Service.createNewUser(bob);
@@ -346,6 +346,8 @@ lab.experiment('UserService Tests for Subscriptions', function () {
       function(user1, user2) {
         Service.createSubscription(user1.userId, user2.userId)
           .then(function(res) {
+            expect(res.subscriber).to.equal(user1.userId);
+            expect(res.subscribeTo).to.equal(user2.userId);
             done();
           });
       });
@@ -454,6 +456,76 @@ lab.experiment('UserService Tests for Subscriptions', function () {
         expect(res.message).to.be.equal('User not found');
         done();
       });
+  });*/
+
+  lab.test('Delete Subscription valid', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+    var userPromise2 = Service.createNewUser(bob);
+
+    function deleteSubscription(user1, user2) {
+      Service.deleteSubscription(user1.userId,
+                                 user2.userId)
+        .then(function(res) {
+          expect(res).to.be.true();
+          done();
+        });
+    }
+
+    Promise.join(userPromise1, userPromise2,
+      function(user1, user2) {
+        Service.createSubscription(user1.userId, user2.userId)
+          .then((res) => deleteSubscription(user1, user2));
+      });
+  });
+
+  lab.test('Delete Subscription invalid subscription', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+    var userPromise2 = Service.createNewUser(bob);
+
+    function deleteSubscription(user1, user2) {
+      Subscription.deleteSubscription(user1.userId,
+                                 user2.userId)
+        .then(function(res) {
+          expect(res).to.be.true();
+          done();
+        });
+    }
+
+    Promise.join(userPromise1, userPromise2,
+      function(user1, user2) {
+        Service.deleteSubscription(user1.userId, user2.userId)
+          .then(function(res) {
+            expect(res).to.be.false();
+          });
+      });
+  });
+
+  lab.test('Delete Subscription invalid user', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+
+    userPromise1.then(function(user) {
+      Service.deleteSubscription('3388ffff-aa00-1111a222-00000044888c',
+                                 user.userId)
+        .then(function(res) {
+          expect(res).to.be.an.instanceof(Error);
+          expect(res.message).to.equal('User not found');
+          done();
+        });
+    });
+  });
+
+  lab.test('Delete Subscription invalid subscribed user', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+
+    userPromise1.then(function(user) {
+      Service.deleteSubscription(user.userId,
+                                 '123-123')
+        .then(function(res) {
+          expect(res).to.be.an.instanceof(Error);
+          expect(res.message).to.equal('User not found');
+          done();
+        });
+    });
   });
 
 });

@@ -77,6 +77,13 @@ Class.getSubscribers = function(userId) {
 
   return UserService.getSubscribers(userId);
 };
+
+Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
+  logger.debug('Deleting subscription');
+
+  return UserService.deleteSubscription(subscribeFrom, subscribeTo);
+};
+
 ///////////////////////
 
 /////// STREAM APIs ///////
