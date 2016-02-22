@@ -52,8 +52,9 @@ lab.experiment('StreamController Tests', function() {
                                   res.result.streamId));
         Code.expect(res.result.title).to.equal(streamPayload.title);
         Code.expect(res.result.streamer.username).to.equal(bob.username);
-        Code.expect(SocketAdapter.roomsManager.getRoom(res.result.appInstance))
-        .to.not.be.null();
+        Code.expect(
+          SocketAdapter.roomsManager.__getRoom(res.result.appInstance))
+          .to.not.be.null();
 
         done();
       });
@@ -68,7 +69,7 @@ lab.experiment('StreamController Tests', function() {
                                 res.result.streamId));
       Code.expect(res.result.title).to.equal(streamPayload.title);
       Code.expect(res.result.streamer.username).to.equal(bob.username);
-      Code.expect(SocketAdapter.roomsManager.getRoom(res.result.appInstance))
+      Code.expect(SocketAdapter.roomsManager.__getRoom(res.result.appInstance))
       .to.not.be.null();
 
       Router.inject({method: 'POST', url: '/api/streams',
@@ -84,7 +85,7 @@ lab.experiment('StreamController Tests', function() {
                                 res.result.streamId));
       Code.expect(res.result.title).to.equal(streamPayload.title);
       Code.expect(res.result.streamer.username).to.equal(bob.username);
-      Code.expect(SocketAdapter.roomsManager.getRoom(res.result.appInstance))
+      Code.expect(SocketAdapter.roomsManager.__getRoom(res.result.appInstance))
       .to.not.be.null();
       done();
     }
@@ -139,8 +140,9 @@ lab.experiment('StreamController Tests', function() {
                      payload: streamPayload}, function(res) {
         Code.expect(res.result.statusCode).to.equal(400);
         Code.expect(res.result.error).to.equal('Bad Request');
-        Code.expect(SocketAdapter.roomsManager.getRoom(res.result.appInstance))
-        .to.be.null();
+        Code.expect(
+          SocketAdapter.roomsManager.__getRoom(res.result.appInstance))
+          .to.be.null();
         done();
       });
     });

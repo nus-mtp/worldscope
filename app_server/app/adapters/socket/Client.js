@@ -17,7 +17,7 @@ function Client(socket, credentials) {
 
   this.socket = socket;
   this.credentials = credentials;
-  this.rooms = {};
+  this.rooms = {}; // A map from room's name to Room object
 
   this.handleSocketEvents(socket);
 }
@@ -26,6 +26,7 @@ util.inherits(Client, EventEmitter);
 var Class = Client.prototype;
 
 Client.EVENT_COMMENT = Class.EVENT_COMMENT = 'comment';
+Client.EVENT_DISCONNECT = Class.EVENT_DISCONNECT = 'disconnect';
 
 Class.getUserId = function getUserId() {
   return this.credentials['userId'];
@@ -39,20 +40,26 @@ Class.getSocketId = function getSocketId() {
   return this.socket.id;
 };
 
+Class.getRooms = function getRooms() {
+  return this.rooms;
+};
+
 /**
- * Joins a socket.io room represented by a Room instance
+ * Joins a socket.io room represented by a Room instance. To maintain
+ * consistency, this method should only be called by a Room object
  * @param room {Room}
  */
-Class.joinRoom = function joinRoom(room) {
+Class.__joinRoom__ = function(room) {
   this.socket.join(room.getName());
   this.rooms[room.getName()] = room;
 };
 
 /**
- * Leave a socket.io room represented by a Room instance
+ * Leave a socket.io room represented by a Room instance. To maintain
+ * consistency, this method should only be called by a Room object
  * @param room {Room}
  */
-Class.leaveRoom = function leaveRoom(room) {
+Class.__leaveRoom__ = function(room) {
   if (!(room.getName() in this.rooms)) {
     let err = `Client ${this.getSocketId()} is not in ${room.getName()}`;
     logger.error(err);
@@ -86,10 +93,23 @@ Class.broadcastToRoom = function broadcastToRoom(event, msg) {
   }
 };
 
+Class.equals = function(otherClient) {
+  if (!(otherClient instanceof Client)) {
+    return false;
+  }
+  if (otherClient.getSocketId() !== this.getSocketId()) {
+    return false;
+  }
+  return true;
+};
+
 Class.handleSocketEvents = function handleSocketEvents(socket) {
   socket.on(this.EVENT_COMMENT, (comment) => {
     this.broadcastToRoom(this.EVENT_COMMENT, comment);
     this.emit(this.EVENT_COMMENT, comment);
+  });
+  socket.on(this.EVENT_DISCONNECT, () => {
+    this.emit(this.EVENT_DISCONNECT);
   });
 };
 

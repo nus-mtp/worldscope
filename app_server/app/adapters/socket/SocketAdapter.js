@@ -29,15 +29,10 @@ Class.init = function init(server) {
     logger.info('New websocket connection from: ' +
                 (socket.conn.request.headers['x-forwarded-for'] ||
                  socket.conn.request.connection.remoteAddress));
-    this.__handleSocketEvents(socket);
+    this.__handleIdentifyEvent(socket);
   });
 
   this.isInitialized = true;
-};
-
-Class.__handleSocketEvents = function(socket) {
-  this.__handleIdentifyEvent(socket);
-  this.__handleDisconnectEvent(socket);
 };
 
 /**
@@ -76,9 +71,6 @@ Class.__handleIdentifyEvent = function(socket) {
       socket.emit('identify', 'ERR');
     });
   });
-};
-
-Class.__handleDisconnectEvent = function(socket) {
 };
 
 /**

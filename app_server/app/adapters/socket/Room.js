@@ -40,12 +40,18 @@ Class.getClients = function() { return this.__clients; };
 
 Class.getClient = function(socketId) { return this.__clients[socketId]; };
 
+/**
+ * @param client {Client}
+ */
 Class.addClient = function(client) {
   this.__clients[client.getSocketId()] = client;
-  client.joinRoom(this);
+  client.__joinRoom__(this);
   logger.info(`${client.getSocketId()} added to ${this.getName()}`);
 };
 
+/**
+ * @param client {Client}
+ */
 Class.removeClient = function(client) {
   if (!(client.getSocketId() in this.__clients)) {
     let err = `${client.getSocketId()} doesn't exist in ${this.getName()}`;
@@ -54,7 +60,7 @@ Class.removeClient = function(client) {
   }
 
   delete this.__clients[client.getSocketId()];
-  client.leaveRoom(this);
+  client.__leaveRoom__(this);
   logger.info(`${client.getSocketId()} removed from ${this.getName()}`);
 };
 
