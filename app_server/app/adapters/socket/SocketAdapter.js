@@ -75,9 +75,17 @@ Class.__handleIdentifyEvent = function(socket) {
 
 /**
  * @param roomName {string}
+ * @return {Room}
  */
-Class.createNewRoom = function (roomName) {
+Class.createNewRoom = function(roomName) {
   return this.roomsManager.createNewRoom(roomName);
+};
+
+/**
+ * @param roomName {string}
+ */
+Class.closeRoom = function(roomName) {
+  this.roomsManager.removeRoom(roomName);
 };
 
 var socketAdapter = new SocketAdapter();

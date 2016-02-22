@@ -114,21 +114,22 @@ Class.endStream = function(userId, streamId) {
 
   // Check that userId is the owner of the stream
   return Storage.getStreamById(streamId)
-    .then(function(stream) {
-      if (stream.owner === userId) {
-        return Storage.updateStream(streamId, {live: false})
-          .then((res) => 'Success');
-      } else {
-        return new CustomError
-          .NotAuthorisedError('Not authorised to end stream');
-      }
+  .then((stream) => {
+    if (stream.owner !== userId) {
+      return new CustomError.NotAuthorisedError('Not authorised to end stream');
+    }
 
-    }).catch(function(err) {
-      logger.error(err);
-      if (err.name === 'TypeError') {
-        return new CustomError.NotFoundError('Stream not found');
-      }
+    return Storage.updateStream(streamId, {live: false})
+    .then((res) => {
+      closeChatRoomForStream(stream.appInstance);
+      return 'Success';
     });
+  }).catch((err) => {
+    logger.error(err);
+    if (err.name === 'TypeError') {
+      return new CustomError.NotFoundError('Stream not found');
+    }
+  });
 };
 
 Class.stopStream = function(appName, appInstance, streamId) {
@@ -140,6 +141,7 @@ Class.stopStream = function(appName, appInstance, streamId) {
     if (stream.appInstance !== appInstance) {
       return new Error('appInstance parameter does not match streamId');
     }
+    closeChatRoomForStream(appInstance);
     return this.mediaServerAdapter.stopStream(appName, appInstance, streamId);
   }).catch((err) => {
     return err;
@@ -162,6 +164,19 @@ function initializeChatRoomForStream(userId, streamAttributes) {
     logger.error('Unable to create new chat room for stream %s',
                  streamAttributes.title);
   }
+}
+
+/**
+ * Creates a new chat room for a new stream and add the streamer to that room
+ * @param userId {string}
+ * @param streamAttributes {object}
+ */
+function closeChatRoomForStream(appInstance) {
+  if (!SocketAdapter.isInitialized) {
+    logger.error('SocketAdapter is not isInitialized');
+    return;
+  }
+  SocketAdapter.closeRoom(appInstance);
 }
 
 module.exports = new StreamService();

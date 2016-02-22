@@ -88,6 +88,17 @@ Class.createNewRoom = function(roomName) {
   return newRoom;
 };
 
+Class.removeRoom = function(roomName) {
+  logger.info(`Removing ${roomName} from chat room system`);
+  let room = this.__getRoom(roomName);
+  room.removeAllClients();
+  delete this.rooms[roomName];
+};
+
+/**
+ * @param roomName {string}
+ * @return {Room}
+ */
 Class.__getRoom = function(roomName) {
   if (!(roomName in this.rooms)) {
     return null;

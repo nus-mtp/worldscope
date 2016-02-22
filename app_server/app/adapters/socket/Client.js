@@ -50,6 +50,7 @@ Class.getRooms = function getRooms() {
  * @param room {Room}
  */
 Class.__joinRoom__ = function(room) {
+  logger.info(`Client ${this.getSocketId()} joining room ${room.getName()}`);
   this.socket.join(room.getName());
   this.rooms[room.getName()] = room;
 };
@@ -66,6 +67,7 @@ Class.__leaveRoom__ = function(room) {
     return new Error(err);
   }
 
+  logger.info(`Client ${this.getSocketId()} leaving room ${room.getName()}`);
   this.socket.leave(room.getName());
   delete this.rooms[room.getName()];
 };

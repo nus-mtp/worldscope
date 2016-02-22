@@ -64,4 +64,12 @@ Class.removeClient = function(client) {
   logger.info(`${client.getSocketId()} removed from ${this.getName()}`);
 };
 
+Class.removeAllClients = function() {
+  logger.info(`Removing all clients in ${this.getName()}`);
+  for (var client in this.__clients) {
+    client.__leaveRoom__(this);
+  }
+  this.__clients = {};
+};
+
 module.exports = Room;
