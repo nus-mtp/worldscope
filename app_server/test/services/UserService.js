@@ -355,27 +355,27 @@ lab.experiment('UserService Tests for Subscriptions', function () {
     var userPromise1 = Service.createNewUser(alice);
 
     userPromise1.then(function(user1) {
-        Service.createSubscription(user1.userId,
-                                   '3388ffff-aa00-1111a222-00000044888c')
-          .then(function(res) {
-            expect(res).to.be.an.instanceof(CustomError.NotFoundError);
-            expect(res.message).to.be.equal('User not found');
-            done();
-          });
-      });
+      Service.createSubscription(user1.userId,
+                                 '3388ffff-aa00-1111a222-00000044888c')
+        .then(function(res) {
+          expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+          expect(res.message).to.be.equal('User not found');
+          done();
+        });
+    });
   });
 
   lab.test('Create Subscription invalid self subscribe', function(done) {
     var userPromise1 = Service.createNewUser(alice);
 
     userPromise1.then(function(user1) {
-        Service.createSubscription(user1.userId, user1.userId)
-          .then(function(res) {
-            expect(res).to.be.an.instanceof(CustomError.NotFoundError);
-            expect(res.message).to.be.equal('User not found');
-            done();
-          });
-      });
+      Service.createSubscription(user1.userId, user1.userId)
+        .then(function(res) {
+          expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+          expect(res.message).to.be.equal('User not found');
+          done();
+        });
+    });
   });
 
   lab.test('Create Subscription invalid duplicate', function(done) {
@@ -384,7 +384,7 @@ lab.experiment('UserService Tests for Subscriptions', function () {
 
     Promise.join(userPromise1, userPromise2,
       function(user1, user2) {
-       Service.createSubscription(user1.userId, user2.userId)
+        Service.createSubscription(user1.userId, user2.userId)
           .then((subscription) =>
             Service.createSubscription(subscription.subscriber,
                                        subscription.subscribeTo))
@@ -392,7 +392,7 @@ lab.experiment('UserService Tests for Subscriptions', function () {
             expect(res).to.be.an.instanceof(Error);
             expect(res.message).to.be.equal('Duplicate Subscription');
             done();
-        });
+          });
       });
   });
 
@@ -423,7 +423,7 @@ lab.experiment('UserService Tests for Subscriptions', function () {
         expect(res).to.be.an.instanceof(CustomError.NotFoundError);
         expect(res.message).to.be.equal('User not found');
         done();
-      })
+      });
   });
 
   lab.test('Get Subscribers valid', function(done) {
@@ -442,7 +442,7 @@ lab.experiment('UserService Tests for Subscriptions', function () {
                 expect(res[0].username).to.equal(alice.username);
                 expect(res[1].username).to.equal(bob.username);
                 done();
-              })
+              });
           });
       });
   });
@@ -453,7 +453,7 @@ lab.experiment('UserService Tests for Subscriptions', function () {
         expect(res).to.be.an.instanceof(CustomError.NotFoundError);
         expect(res.message).to.be.equal('User not found');
         done();
-      })
+      });
   });
 
 });

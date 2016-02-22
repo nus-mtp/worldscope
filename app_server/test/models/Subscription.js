@@ -62,7 +62,7 @@ lab.experiment('Subscription Model Tests', function() {
             expect(res.subscriber).to.equal(user1.userId);
             expect(res.subscribeTo).to.equal(user2.userId);
             done();
-        });
+          });
       });
   });
 
@@ -94,7 +94,7 @@ lab.experiment('Subscription Model Tests', function() {
             expect(res).to.be.an.instanceof(Error);
             expect(res.message).to.be.equal('Duplicate Subscription');
             done();
-        });
+          });
       });
   });
 
@@ -147,8 +147,8 @@ lab.experiment('Subscription Model Tests', function() {
             Storage.getSubscriptions(user2.userId).then(function(res) {
               expect(res).to.have.length(0);
               done();
-            })
-        });
+            });
+          });
       });
   });
 
@@ -196,8 +196,8 @@ lab.experiment('Subscription Model Tests', function() {
             Storage.getSubscribers(user1.userId).then(function(res) {
               expect(res).to.have.length(0);
               done();
-            })
-        });
+            });
+          });
       });
   });
 

@@ -95,8 +95,8 @@ Class.getSubscribers = function(request, reply) {
         return reply(Boom.badRequest(result.message));
       }
 
-    reply(result);
-  });
+      reply(result);
+    });
 
 };
 

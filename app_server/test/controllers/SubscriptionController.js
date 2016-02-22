@@ -58,7 +58,7 @@ lab.experiment('SubscriptionController Tests', function() {
   lab.beforeEach({timeout: 10000}, function(done) {
     TestUtils.resetDatabase(done);
   });
-/*
+
   lab.test('Create subscription valid', function(done) {
     var userPromise1 = Service.createNewUser(bob);
     var userPromise2 = Service.createNewUser(alice);
@@ -66,13 +66,13 @@ lab.experiment('SubscriptionController Tests', function() {
     Promise.join(userPromise1, userPromise2,
       function(user1, user2) {
         testAccount.userId = user1.userId;
-         Router.inject({method: 'POST',
-                        url: '/api/subscriptions/' + user2.userId,
-                        credentials: testAccount}, function(res) {
+        Router.inject({method: 'POST',
+                       url: '/api/subscriptions/' + user2.userId,
+                       credentials: testAccount}, function(res) {
           Code.expect(res.statusCode).to.equal(200);
           done();
         });
-      })
+      });
   });
 
   lab.test('Create subscription invalid subscribeTo Id', function(done) {
@@ -80,10 +80,10 @@ lab.experiment('SubscriptionController Tests', function() {
 
     userPromise1.then(function(user) {
       testAccount.userId = user.userId;
-       Router.inject({method: 'POST',
-                      url: '/api/subscriptions/' +
-                      '3388ffff-aa00-1111a222-00000044888c',
-                      credentials: testAccount}, function(res) {
+      Router.inject({method: 'POST',
+                     url: '/api/subscriptions/' +
+                     '3388ffff-aa00-1111a222-00000044888c',
+                     credentials: testAccount}, function(res) {
         Code.expect(res.result.statusCode).to.equal(400);
         Code.expect(res.result.message).to.equal('User not found');
         done();
@@ -98,22 +98,21 @@ lab.experiment('SubscriptionController Tests', function() {
     Promise.join(userPromise1, userPromise2,
       function(user1, user2) {
         testAccount.userId = user1.userId;
-         Router.inject({method: 'POST',
-                        url: '/api/subscriptions/' + user2.userId,
-                        credentials: testAccount}, function(res) {
-            // Duplicate Request
-            Router.inject({method: 'POST',
-                           url: '/api/subscriptions/' + user2.userId,
-                           credentials: testAccount}, function(res) {
-              Code.expect(res.result.statusCode).to.equal(400);
-              Code.expect(res.result.message).
-                to.equal('Duplicate Subscription');
-              done();
-            });
+        Router.inject({method: 'POST',
+                       url: '/api/subscriptions/' + user2.userId,
+                       credentials: testAccount}, function(res) {
+          // Duplicate Request
+          Router.inject({method: 'POST',
+                         url: '/api/subscriptions/' + user2.userId,
+                         credentials: testAccount}, function(res) {
+            Code.expect(res.result.statusCode).to.equal(400);
+            Code.expect(res.result.message)
+              .to.equal('Duplicate Subscription');
+            done();
           });
+        });
       });
-  });*/
-
+  });
 
   lab.test('Get subscriptions valid', function(done) {
     var userPromise1 = Service.createNewUser(bob);
@@ -125,30 +124,30 @@ lab.experiment('SubscriptionController Tests', function() {
       Router.inject({method: 'POST',
                      url: '/api/subscriptions/' + user3.userId,
                      credentials: testAccount}, (res) => {
-                       querySubscriptions();
-                     });
+        querySubscriptions();
+      });
     }
 
     function querySubscriptions() {
       Router.inject({method: 'GET',
                      url: '/api/subscriptions',
                      credentials: testAccount}, function(res) {
-                       Code.expect(res.result).to.have.length(2);
-                       Code.expect(res.result[0].username).to.equal(alice.username);
-                       Code.expect(res.result[1].username).to.equal(carlos.username);
-                       done();
-                     });
+        Code.expect(res.result).to.have.length(2);
+        Code.expect(res.result[0].username).to.equal(alice.username);
+        Code.expect(res.result[1].username).to.equal(carlos.username);
+        done();
+      });
     }
 
     // First subscription
     Promise.join(userPromise1, userPromise2, userPromise3,
       function(user1, user2, user3) {
         testAccount.userId = user1.userId;
-         Router.inject({method: 'POST',
+        Router.inject({method: 'POST',
                         url: '/api/subscriptions/' + user2.userId,
                         credentials: testAccount}, (res) => {
-                          subscribePromise(user3);
-                        });
+          subscribePromise(user3);
+        });
       });
   });
 
@@ -160,21 +159,21 @@ lab.experiment('SubscriptionController Tests', function() {
       Router.inject({method: 'GET',
                      url: '/api/subscriptions',
                      credentials: testAccount}, function(res) {
-                       Code.expect(res.result).deep.equal([]);
-                       done();
-                     });
+        Code.expect(res.result).deep.equal([]);
+        done();
+      });
     });
   });
 
   lab.test('Get subscriptions invalid userId', function(done) {
     testAccount.userId = '3388ffff-aa00-1111a222-00000044888c';
-      Router.inject({method: 'GET',
-                     url: '/api/subscriptions',
-                     credentials: testAccount}, function(res) {
-                       Code.expect(res.result.statusCode).to.equal(400);
-                       Code.expect(res.result.message).to.equal('User not found');
-                       done();
-                     });
+    Router.inject({method: 'GET',
+                   url: '/api/subscriptions',
+                   credentials: testAccount}, function(res) {
+      Code.expect(res.result.statusCode).to.equal(400);
+      Code.expect(res.result.message).to.equal('User not found');
+      done();
+    });
   });
 
   lab.test('Get subscribers valid', function(done) {
@@ -188,30 +187,30 @@ lab.experiment('SubscriptionController Tests', function() {
       Router.inject({method: 'POST',
                      url: '/api/subscriptions/' + user2.userId,
                      credentials: testAccount}, (res) => {
-                       querySubscribers(user2);
-                     });
+        querySubscribers(user2);
+      });
     }
 
     function querySubscribers(user2) {
       Router.inject({method: 'GET',
                      url: '/api/subscriptions/' + user2.userId,
                      credentials: testAccount}, function(res) {
-                       Code.expect(res.result).to.have.length(2);
-                       Code.expect(res.result[0].username).to.equal(bob.username);
-                       Code.expect(res.result[1].username).to.equal(carlos.username);
-                       done();
-                     });
+        Code.expect(res.result).to.have.length(2);
+        Code.expect(res.result[0].username).to.equal(bob.username);
+        Code.expect(res.result[1].username).to.equal(carlos.username);
+        done();
+      });
     }
 
     // First subscription
     Promise.join(userPromise1, userPromise2, userPromise3,
       function(user1, user2, user3) {
         testAccount.userId = user1.userId;
-         Router.inject({method: 'POST',
+        Router.inject({method: 'POST',
                         url: '/api/subscriptions/' + user2.userId,
                         credentials: testAccount}, (res) => {
-                          subscribePromise(res.result, user2, user3);
-                        });
+          subscribePromise(res.result, user2, user3);
+        });
       });
 
     /*    Promise.join(userPromise1, userPromise2, userPromise3,
@@ -232,20 +231,21 @@ lab.experiment('SubscriptionController Tests', function() {
       Router.inject({method: 'GET',
                      url: '/api/subscriptions/' + user.userId,
                      credentials: testAccount}, function(res) {
-                       Code.expect(res.result).deep.equal([]);
-                       done();
-                     });
+        Code.expect(res.result).deep.equal([]);
+        done();
+      });
     });
   });
 
   lab.test('Get subscribers invalid userId', function(done) {
-      Router.inject({method: 'GET',
-                     url: '/api/subscriptions/3388ffff-aa00-1111a222-00000044888c',
-                     credentials: testAccount}, function(res) {
-                       Code.expect(res.result.statusCode).to.equal(400);
-                       Code.expect(res.result.message).to.equal('User not found');
-                       done();
-                     });
+    Router.inject({method: 'GET',
+                   url: '/api/subscriptions/' +
+                   '3388ffff-aa00-1111a222-00000044888c',
+                   credentials: testAccount}, function(res) {
+      Code.expect(res.result.statusCode).to.equal(400);
+      Code.expect(res.result.message).to.equal('User not found');
+      done();
+    });
   });
 
 });

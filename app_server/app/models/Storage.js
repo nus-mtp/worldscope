@@ -507,7 +507,7 @@ Class.createSubscription = function(subscribeFrom, subscribeTo) {
         logger.error('Subscription user cannot be found');
 
         return new CustomError.NotFoundError('User not found');
-      };
+      }
       return from.addSubscription(to).then(res => {
         if (!res || res.length === 0) {
           logger.error('Duplicate Subscription');
@@ -515,7 +515,7 @@ Class.createSubscription = function(subscribeFrom, subscribeTo) {
           return new Error('Duplicate Subscription');
         }
         return res[0][0];
-        });
+      });
     });
 };
 
@@ -531,7 +531,7 @@ Class.getSubscriptions = function(userId) {
       logger.error('User cannot be found');
 
       return new CustomError.NotFoundError('User not found');
-    };
+    }
     return user.getSubscriptions({order: [['username', 'ASC']]}).then(res => {
       return res;
     });
@@ -550,7 +550,7 @@ Class.getSubscribers = function(userId) {
       logger.error('User cannot be found');
 
       return new CustomError.NotFoundError('User not found');
-    };
+    }
     return user.getSubscribers({order: [['username', 'ASC']]}).then(res => {
       return res;
     });
