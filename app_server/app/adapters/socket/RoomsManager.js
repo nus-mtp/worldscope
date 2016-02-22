@@ -37,6 +37,10 @@ Class.createUser = function(userId) {
   return this.users[userId] = {};
 };
 
+Class.__removeUser = function(userId) {
+  delete this.users[userId];
+};
+
 /**
  * Add a client to the chat room system
  * @param {Client} client
@@ -100,7 +104,11 @@ Class.__removeClient = function(client) {
 
 Class.__removeClientFromUsersList = function(client) {
   let user = this.getUser(client.getUserId());
-  delete user[client.getSocketId];
+  delete user[client.getSocketId()];
+
+  if (Object.keys(user).length === 0) {
+    this.__removeUser(client.getUserId());
+  }
 };
 
 Class.__removeClientFromRooms = function(client) {
