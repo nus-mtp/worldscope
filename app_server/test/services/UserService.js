@@ -482,20 +482,12 @@ lab.experiment('UserService Tests for Subscriptions', function () {
     var userPromise1 = Service.createNewUser(alice);
     var userPromise2 = Service.createNewUser(bob);
 
-    function deleteSubscription(user1, user2) {
-      Service.deleteSubscription(user1.userId,
-                                 user2.userId)
-        .then(function(res) {
-          expect(res).to.be.true();
-          done();
-        });
-    }
-
     Promise.join(userPromise1, userPromise2,
       function(user1, user2) {
         Service.deleteSubscription(user1.userId, user2.userId)
           .then(function(res) {
             expect(res).to.be.false();
+            done();
           });
       });
   });
