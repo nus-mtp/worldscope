@@ -45,8 +45,7 @@ Class.__handleIdentifyEvent = function(socket) {
     .then((credentials) => {
       if (!credentials || credentials instanceof Error) {
         logger.error('Error decryping cookie from <identify> message');
-        socket.emit('identify', 'ERR');
-        return;
+        return socket.emit('identify', 'ERR');
       }
 
       let Authenticator = this.server.app.authenticator;

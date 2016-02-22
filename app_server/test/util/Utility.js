@@ -28,6 +28,7 @@ lab.experiment('Utility#randomValueBase64 tests', function () {
     Code.expect(Utility.randomValueBase64(20).length).to.equal(20);
     done();
   });
+
   lab.test('Should return different string in each call', function (done) {
     var string1 = Utility.randomValueBase64(20); 
     var string2 = Utility.randomValueBase64(20);

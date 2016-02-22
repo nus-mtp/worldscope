@@ -11,7 +11,7 @@ var Utility = rfr('app/util/Utility');
 var Service = rfr('app/services/Service');
 var TestUtils = rfr('test/TestUtils');
 var Router = rfr('app/Router.js');
-var SocketAdapter = rfr('app/adapters/socket/SocketAdapter');
+var roomsManager = rfr('app/adapters/socket/SocketAdapter').roomsManager;
 
 var testAccount = {userId: 1, username: 'bob', password: 'abc',
                    scope: Authenticator.SCOPE.USER};
@@ -52,9 +52,8 @@ lab.experiment('StreamController Tests', function() {
                                   res.result.streamId));
         Code.expect(res.result.title).to.equal(streamPayload.title);
         Code.expect(res.result.streamer.username).to.equal(bob.username);
-        Code.expect(
-          SocketAdapter.roomsManager.__getRoom(res.result.appInstance))
-          .to.not.be.null();
+        Code.expect(roomsManager.__getRoom(res.result.appInstance))
+        .to.not.be.null();
 
         done();
       });
@@ -69,7 +68,7 @@ lab.experiment('StreamController Tests', function() {
                                 res.result.streamId));
       Code.expect(res.result.title).to.equal(streamPayload.title);
       Code.expect(res.result.streamer.username).to.equal(bob.username);
-      Code.expect(SocketAdapter.roomsManager.__getRoom(res.result.appInstance))
+      Code.expect(roomsManager.__getRoom(res.result.appInstance))
       .to.not.be.null();
 
       Router.inject({method: 'POST', url: '/api/streams',
@@ -85,7 +84,7 @@ lab.experiment('StreamController Tests', function() {
                                 res.result.streamId));
       Code.expect(res.result.title).to.equal(streamPayload.title);
       Code.expect(res.result.streamer.username).to.equal(bob.username);
-      Code.expect(SocketAdapter.roomsManager.__getRoom(res.result.appInstance))
+      Code.expect(roomsManager.__getRoom(res.result.appInstance))
       .to.not.be.null();
       done();
     }
@@ -140,9 +139,8 @@ lab.experiment('StreamController Tests', function() {
                      payload: streamPayload}, function(res) {
         Code.expect(res.result.statusCode).to.equal(400);
         Code.expect(res.result.error).to.equal('Bad Request');
-        Code.expect(
-          SocketAdapter.roomsManager.__getRoom(res.result.appInstance))
-          .to.be.null();
+        Code.expect(roomsManager.__getRoom(res.result.appInstance))
+        .to.be.null();
         done();
       });
     });
@@ -408,6 +406,8 @@ lab.experiment('StreamController Control Tests', () => {
           Service.getStreamById(stream.streamId)
           .then((updatedStream) => {
             Code.expect(updatedStream.live === false);
+            Code.expect(roomsManager.__getRoom(updatedStream.appInstance))
+            .to.be.null();
             mediaServer.stop(() => done());
           });
         });
@@ -438,6 +438,31 @@ lab.experiment('StreamController Control Tests', () => {
                       streamId: stream.streamId
                     }}, (res) => {
         Code.expect(res.statusCode).to.equal(400);
+        done();
+      });
+    });
+  });
+
+  lab.test('End stream should close corresponding chat room', (done) => {
+    var streamInfo = {
+      title: 'this is the title',
+      description: 'this is the description of the stream',
+      appInstance: 'generated'
+    };
+
+    Service.createNewUser(bob)
+    .then((user) => {
+      testAccount.userId = user.userId;
+      return user.userId;
+    }).then((userId) => {
+      return Service.createNewStream(userId, streamInfo);
+    }).then((stream) => {
+      Router.inject({method: 'POST',
+                     url: '/api/streams/control/end',
+                     payload: {streamId: stream.streamId},
+                     credentials: testAccount}, (res) => {
+        Code.expect(roomsManager.__getRoom(stream.appInstance))
+        .to.be.null();
         done();
       });
     });
