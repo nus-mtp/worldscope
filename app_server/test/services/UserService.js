@@ -48,7 +48,7 @@ var stream = {
   description: 'arbitrary description',
   appInstance: '123-123-123-123'
 };
-/*
+
 lab.experiment('UserService Tests', function () {
 
   lab.beforeEach({timeout: 10000}, function (done) {
@@ -330,14 +330,14 @@ lab.experiment('UserService Tests for View', function () {
           done();
         });
     });
-});*/
+});
 
 lab.experiment('UserService Tests for Subscriptions', function () {
 
   lab.beforeEach({timeout: 10000}, function (done) {
     TestUtils.resetDatabase(done);
   });
-/*
+
   lab.test('Create Subscription valid', function(done) {
     var userPromise1 = Service.createNewUser(alice);
     var userPromise2 = Service.createNewUser(bob);
@@ -456,7 +456,7 @@ lab.experiment('UserService Tests for Subscriptions', function () {
         expect(res.message).to.be.equal('User not found');
         done();
       });
-  });*/
+  });
 
   lab.test('Delete Subscription valid', function(done) {
     var userPromise1 = Service.createNewUser(alice);
@@ -478,12 +478,12 @@ lab.experiment('UserService Tests for Subscriptions', function () {
       });
   });
 
-  lab.test('Delete Subscription invalid subscription', function(done) {
+  lab.test('Delete Subscription non-existent subscription', function(done) {
     var userPromise1 = Service.createNewUser(alice);
     var userPromise2 = Service.createNewUser(bob);
 
     function deleteSubscription(user1, user2) {
-      Subscription.deleteSubscription(user1.userId,
+      Service.deleteSubscription(user1.userId,
                                  user2.userId)
         .then(function(res) {
           expect(res).to.be.true();

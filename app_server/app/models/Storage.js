@@ -574,7 +574,7 @@ Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
         return new CustomError.NotFoundError('User not found');
       }
       return from.removeSubscription(to).then(res => {
-        if(res === 1) {
+        if (res === 1) {
           return true;
         }
         return false;

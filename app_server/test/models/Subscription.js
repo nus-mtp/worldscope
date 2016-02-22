@@ -51,7 +51,7 @@ lab.experiment('Subscription Model Tests', function() {
     TestUtils.resetDatabase(done);
   });
 
-/*  lab.test('Create Subscription valid', function(done) {
+  lab.test('Create Subscription valid', function(done) {
     var userPromise1 = Storage.createUser(user1);
     var userPromise2 = Storage.createUser(user2);
 
@@ -209,7 +209,6 @@ lab.experiment('Subscription Model Tests', function() {
         done();
       });
   });
-*/
 
   lab.test('Delete Subscription valid', function(done) {
     var userPromise1 = Storage.createUser(user1);
@@ -227,7 +226,7 @@ lab.experiment('Subscription Model Tests', function() {
     Promise.join(userPromise1, userPromise2,
       function(user1, user2) {
         Storage.createSubscription(user1.userId, user2.userId)
-          .then(deleteSubscription)
+          .then(deleteSubscription);
       });
   });
 
@@ -266,7 +265,7 @@ lab.experiment('Subscription Model Tests', function() {
     Promise.join(userPromise1, userPromise2,
       function(user1, user2) {
         Storage.createSubscription(user1.userId, user2.userId)
-          .then(deleteSubscription)
+          .then(deleteSubscription);
       });
   });
 });

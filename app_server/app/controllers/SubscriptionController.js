@@ -42,12 +42,19 @@ Class.registerRoutes = function() {
                      },
                      handler: this.getSubscribers});
 
-  this.server.route({method: 'DELETE', path: '/{id}',
+  this.server.route({method: 'DELETE', path: '/unsubscribe/{id}',
                      config: {
                        validate: singleSubscriptionValidator,
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.deleteSubscription});
+
+  this.server.route({method: 'DELETE', path: '/{id}',
+                     config: {
+                       validate: singleSubscriptionValidator,
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
+                     handler: this.deleteSubscriber});
 };
 
 /* Routes handlers */
@@ -72,6 +79,7 @@ Class.getSubscriptions = function(request, reply) {
   logger.debug('Get list of subscriptions');
 
   var userId = request.auth.credentials.userId;
+
   Service.getSubscriptions(userId)
     .then(function receiveResult(result) {
       if (result instanceof Error) {
@@ -97,13 +105,43 @@ Class.getSubscribers = function(request, reply) {
 
       reply(result);
     });
-
 };
 
 Class.deleteSubscription = function(request, reply) {
   logger.debug('Deleting Subscription');
 
-  reply('delete');
+  var userId = request.auth.credentials.userId;
+  var targetId = request.params.id;
+
+  Service.deleteSubscription(userId, targetId)
+    .then(function receiveResult(result) {
+
+      if (!result || result instanceof Error) {
+        return reply({'status': 'Unsuccessful'});
+      }
+
+      reply({'status': 'OK'});
+
+    });
+
+};
+
+Class.deleteSubscriber = function(request, reply) {
+  logger.debug('Deleting Subscriber');
+
+  var userId = request.auth.credentials.userId;
+  var targetId = request.params.id;
+
+  Service.deleteSubscription(targetId, userId)
+    .then(function receiveResult(result) {
+
+      if (!result || result instanceof Error) {
+        return reply({'status': 'Unsuccessful'});
+      }
+
+      reply({'status': 'OK'});
+
+    });
 };
 
 /* Validator for routes */
