@@ -181,7 +181,7 @@ Class.getSubscriptions = function(userId) {
         return result;
       }
       return result.map((singleUser) => {
-        singleUser = singleUser.dataValues
+        singleUser = singleUser.dataValues;
         delete singleUser.Subscription;
         return Utility.formatUserObject(singleUser);
       });
@@ -191,7 +191,7 @@ Class.getSubscriptions = function(userId) {
 /**
  * Gets the list of subscriptions that a user has subscribed to.
  * @param userId {string}
- * @return {Promise<List<User>>}
+ * @return {Promise<List<User>> || Error}
  */
 Class.getSubscribers = function(userId) {
   logger.debug('Getting subscribers for user %s', userId);
@@ -202,7 +202,7 @@ Class.getSubscribers = function(userId) {
         return result;
       }
       return result.map((singleUser) => {
-        singleUser = singleUser.dataValues
+        singleUser = singleUser.dataValues;
         delete singleUser.Subscription;
         return Utility.formatUserObject(singleUser);
       });

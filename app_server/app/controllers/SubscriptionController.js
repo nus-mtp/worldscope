@@ -30,17 +30,17 @@ Class.registerRoutes = function() {
                      },
                      handler: this.createSubscription});
 
-  this.server.route({method: 'GET', path: '/',
+  this.server.route({method: 'GET', path: '/', // private
                      config: {
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
-                     handler: this.getListOfSubscriptions});
+                     handler: this.getSubscriptions});
 
   this.server.route({method: 'GET', path: '/{id}',
                      config: {
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
-                     handler: this.getListOfSubscribers});
+                     handler: this.getSubscribers});
 
   this.server.route({method: 'DELETE', path: '/{id}',
                      config: {
@@ -64,20 +64,40 @@ Class.createSubscription = function(request, reply) {
         return reply(Boom.badRequest(result.message));
       }
 
-      reply({status: 'OK'}).code(200);
+      reply(result);
     });
 };
 
-Class.getListOfSubscriptions = function(request, reply) {
+Class.getSubscriptions = function(request, reply) {
   logger.debug('Get list of subscriptions');
 
-  reply('hello');
+  var userId = request.auth.credentials.userId;
+  Service.getSubscriptions(userId)
+    .then(function receiveResult(result) {
+      if (result instanceof Error) {
+        logger.error('Could not retrieve list of subscriptions');
+        return reply(Boom.badRequest(result.message));
+      }
+
+      reply(result);
+    });
 };
 
-Class.getListOfSubscribers = function(request, reply) {
+Class.getSubscribers = function(request, reply) {
   logger.debug('Get list of subscribers');
 
-  reply('hello');
+  var userId = request.params.id;
+
+  Service.getSubscribers(userId)
+    .then(function receiveResult(result) {
+      if (result instanceof Error) {
+        logger.error('Could not retrieve list of subscribers');
+        return reply(Boom.badRequest(result.message));
+      }
+
+    reply(result);
+  });
+
 };
 
 Class.deleteSubscription = function(request, reply) {
