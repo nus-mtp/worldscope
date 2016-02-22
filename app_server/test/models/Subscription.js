@@ -51,7 +51,7 @@ lab.experiment('Subscription Model Tests', function() {
     TestUtils.resetDatabase(done);
   });
 
-  lab.test('Create Subscription valid', function(done) {
+/*  lab.test('Create Subscription valid', function(done) {
     var userPromise1 = Storage.createUser(user1);
     var userPromise2 = Storage.createUser(user2);
 
@@ -209,5 +209,45 @@ lab.experiment('Subscription Model Tests', function() {
         done();
       });
   });
+*/
 
+  lab.test('Delete Subscription valid', function(done) {
+    var userPromise1 = Storage.createUser(user1);
+    var userPromise2 = Storage.createUser(user2);
+
+    function deleteSubscription(subscription) {
+      Storage.deleteSubscription(subscription.subscriber,
+                                 subscription.subscribeTo)
+        .then(function(res) {
+          expect(res).to.be.true();
+          done();
+        });
+    }
+
+    Promise.join(userPromise1, userPromise2,
+      function(user1, user2) {
+        Storage.createSubscription(user1.userId, user2.userId)
+          .then(deleteSubscription)
+      });
+  });
+
+  lab.test('Delete Subscription invalid user', function(done) {
+    var userPromise1 = Storage.createUser(user1);
+    var userPromise2 = Storage.createUser(user2);
+
+    function deleteSubscription(subscription) {
+      Storage.deleteSubscription('3388ffff-aa00-1111a222-00000044888c',
+                                 subscription.subscribeTo)
+        .then(function(res) {
+          expect(res).to.be.an.instanceof(Error);
+          done();
+        });
+    }
+
+    Promise.join(userPromise1, userPromise2,
+      function(user1, user2) {
+        Storage.createSubscription(user1.userId, user2.userId)
+          .then(deleteSubscription)
+      });
+  });
 });

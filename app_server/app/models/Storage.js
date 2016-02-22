@@ -558,6 +558,30 @@ Class.getSubscribers = function(userId) {
 };
 
 /**
+ * @param  {string} subscribeFrom - userId of one who is subscribing
+ * @param  {string} subscribeTo - userId of the one being subscribed to
+ * @return {Promise<Boolean>}
+ */
+Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
+  var fromPromise = this.models.User.findById(subscribeFrom);
+  var toPromise = this.models.User.findById(subscribeTo);
+
+  return Promise.join(fromPromise, toPromise,
+    function(from, to) {
+      if (from === null || to === null) {
+        logger.error('User cannot be found');
+
+        return new CustomError.NotFoundError('User not found');
+      }
+      return from.removeSubscription(to).then(res => {
+        if(res === 1) {
+          return true;
+        }
+        return false;
+      });
+    });
+};
+/**
  * Check if the fields to be changed match the fields available in object
  * @private
  */
