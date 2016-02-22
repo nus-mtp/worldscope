@@ -4,6 +4,7 @@ var lab = exports.lab = Lab.script();
 var Code = require('code');
 
 var Platform = rfr('app/adapters/social_media/Platform');
+var Facebook = rfr('app/adapters/social_media/Facebook');
 
 lab.experiment('SocialMediaAdapter tests', function () {
   lab.test('Invalid apiDomain', function (done) {
@@ -17,10 +18,9 @@ lab.experiment('SocialMediaAdapter tests', function () {
   });
 
   lab.test('Invalid accessToken when querying facebook', function (done) {
-    var platform = new Platform('https://graph.facebook.com');
-    platform.__makeAPICall('/v2.5/me',
-                           {accessToken: 'xyz'}).
-    then(function (result) {
+    var platform = new Platform(Facebook.FACEBOOK_API_URL);
+    platform.__makeAPICall('/v2.5/me', {accessToken: 'xyz'})
+    .then(function (result) {
       Code.expect('id' in result).to.be.false();
       done();
     });

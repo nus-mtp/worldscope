@@ -24,8 +24,14 @@ lab.experiment('Utility#getModuleName Tests', function () {
 });
 
 lab.experiment('Utility#randomValueBase64 tests', function () {
-  lab.test('Should return some strings', function (done) {
+  lab.test('Should return a string with correct length', function (done) {
     Code.expect(Utility.randomValueBase64(20).length).to.equal(20);
+    done();
+  });
+  lab.test('Should return different string in each call', function (done) {
+    var string1 = Utility.randomValueBase64(20); 
+    var string2 = Utility.randomValueBase64(20);
+    Code.expect(string1).to.not.equals(string2);
     done();
   });
 });
