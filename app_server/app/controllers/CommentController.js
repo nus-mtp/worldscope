@@ -25,7 +25,7 @@ Class.registerRoutes = function () {
 Class.createNewComment = function (request, reply) {
   logger.debug(request.auth.credentials.username + ' say ' +
                request.payload.comment);
-  reply('OK');
+  return reply('OK');
 };
 
 exports.register = function (server, options, next) {

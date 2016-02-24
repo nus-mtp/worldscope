@@ -71,7 +71,7 @@ Class.createSubscription = function(request, reply) {
         return reply(Boom.badRequest(result.message));
       }
 
-      reply(result);
+      return reply(result);
     });
 };
 
@@ -87,7 +87,7 @@ Class.getSubscriptions = function(request, reply) {
         return reply(Boom.badRequest(result.message));
       }
 
-      reply(result);
+      return reply(result);
     });
 };
 
@@ -103,7 +103,7 @@ Class.getSubscribers = function(request, reply) {
         return reply(Boom.badRequest(result.message));
       }
 
-      reply(result);
+      return reply(result);
     });
 };
 
@@ -120,7 +120,7 @@ Class.deleteSubscription = function(request, reply) {
         return reply({'status': 'Unsuccessful'});
       }
 
-      reply({'status': 'OK'});
+      return reply({'status': 'OK'});
 
     });
 
@@ -139,7 +139,7 @@ Class.deleteSubscriber = function(request, reply) {
         return reply({'status': 'Unsuccessful'});
       }
 
-      reply({'status': 'OK'});
+      return reply({'status': 'OK'});
 
     });
 };

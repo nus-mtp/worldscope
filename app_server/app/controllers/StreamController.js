@@ -87,10 +87,10 @@ Class.createStream = function(request, reply) {
       return reply(Boom.unauthorized(result.message));
     }
 
-    reply(result);
+    return reply(result);
   }).catch(function(err) {
     logger.error(err);
-    reply(Boom.unauthorized('User not found'));
+    return reply(Boom.unauthorized('User not found'));
   });
 };
 
@@ -103,7 +103,7 @@ Class.getStreamById = function(request, reply) {
       return reply(Boom.notFound(result.message));
     }
 
-    reply(result);
+    return reply(result);
   });
 };
 
@@ -121,7 +121,7 @@ Class.getListOfStreams = function(request, reply) {
       return reply(Boom.notFound('Stream not found'));
     }
 
-    reply(listStreams);
+    return reply(listStreams);
   });
 };
 
@@ -131,11 +131,10 @@ Class.controlStopStream = function(request, reply) {
                      request.payload.streamId)
   .then((result) => {
     if (result instanceof Error) {
-      reply(Boom.badRequest(result.message));
-      return;
+      return reply(Boom.badRequest(result.message));
     }
 
-    reply({status: 'OK', message: ''});
+    return reply({status: 'OK', message: ''});
   });
 };
 
@@ -146,10 +145,9 @@ Class.endStream = function(request, reply) {
                     request.payload.streamId)
     .then(function(res) {
       if (!res || res instanceof Error) {
-        reply(Boom.badRequest(res.message));
-        return;
+        return reply(Boom.badRequest(res.message));
       }
-      reply({status: 'OK', message: ''}).code(200);
+      return reply({status: 'OK', message: ''}).code(200);
     });
 };
 
