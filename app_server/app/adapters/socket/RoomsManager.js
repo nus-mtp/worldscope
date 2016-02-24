@@ -18,9 +18,10 @@ var DEFAULT_ROOM = 'lobby';
 function RoomsManager(server, io) {
   this.io = io;
 
-  this.rooms = {};
+  this.rooms = {}; // A map from room name to Room objects
   this.rooms[DEFAULT_ROOM] = new Room(DEFAULT_ROOM,
                                       Room.ROOM_TYPES.GENERAL);
+  // A map from user id to a map of socket.io id to Client object
   this.users = {};
 
   this.requestInjector = new RequestInjector(server);
@@ -28,10 +29,16 @@ function RoomsManager(server, io) {
 
 var Class = RoomsManager.prototype;
 
-Class.getUser = function(userId) { return this.users[userId]; };
+Class.getUser = function(userId) {
+  return this.users[userId];
+};
 
 Class.createUser = function(userId) {
-  return this.users[userId] = [];
+  return this.users[userId] = {};
+};
+
+Class.__removeUser = function(userId) {
+  delete this.users[userId];
 };
 
 /**
@@ -44,9 +51,9 @@ Class.addClient = function(client) {
   if (!user) {
     user = this.createUser(userId);
   }
-  user.push(client);
-  this.addClientToRoom(client, DEFAULT_ROOM);
-  this.handleClientEvents(client);
+  user[client.getSocketId()] = client;
+  this.__addClientToRoom(client, DEFAULT_ROOM);
+  this.__handleClientEvents(client);
 };
 
 /**
@@ -54,8 +61,8 @@ Class.addClient = function(client) {
  * @param client {Client}
  * @param roomName {string}
  */
-Class.addClientToRoom = function(client, roomName) {
-  let room = this.getRoom(roomName);
+Class.__addClientToRoom = function(client, roomName) {
+  let room = this.__getRoom(roomName);
 
   if (!room) {
     let err = `Room ${roomName} does not exist`;
@@ -81,22 +88,70 @@ Class.createNewRoom = function(roomName) {
   return newRoom;
 };
 
-Class.getRoom = function(roomName) {
+Class.removeRoom = function(roomName) {
+  logger.info(`Removing ${roomName} from chat room system`);
+  let room = this.__getRoom(roomName);
+  room.removeAllClients();
+  delete this.rooms[roomName];
+};
+
+/**
+ * @param roomName {string}
+ * @return {Room}
+ */
+Class.__getRoom = function(roomName) {
   if (!(roomName in this.rooms)) {
     return null;
   }
   return this.rooms[roomName];
 };
 
+Class.__removeClient = function(client) {
+  logger.info('Removing client %s/%s from chat room system',
+              client.getUserId(), client.getSocketId());
+  this.__removeClientFromUsersList(client);
+  this.__removeClientFromRooms(client);
+};
+
+Class.__removeClientFromUsersList = function(client) {
+  let user = this.getUser(client.getUserId());
+  delete user[client.getSocketId()];
+
+  if (Object.keys(user).length === 0) {
+    this.__removeUser(client.getUserId());
+  }
+};
+
+Class.__removeClientFromRooms = function(client) {
+  let rooms = client.getRooms();
+  for (var roomName in rooms) {
+    this.__getRoom(roomName).removeClient(client);
+  }
+};
+
 /*
  * Register handler for events emitted by a Client
  * @param client {Client}
  */
-Class.handleClientEvents = function(client) {
+Class.__handleClientEvents = function(client) {
   client.on(Client.EVENT_COMMENT, (comment) => {
-    logger.debug('Receive %s event from %s',
-                 Client.EVENT_COMMENT, client.getUserId());
-    this.requestInjector.createComment(client.getCredentials(), comment);
+    try {
+      logger.debug('Receive %s event from %s',
+                  Client.EVENT_COMMENT, client.getUserId());
+      this.requestInjector.createComment(client.getCredentials(), comment);
+    } catch (e) {
+      logger.error(e);
+    }
+  });
+
+  client.on(Client.EVENT_DISCONNECT, () => {
+    try {
+      logger.debug('Client %s/%s diconnected',
+                  client.getUserId(), client.getSocketId());
+      this.__removeClient(client);
+    } catch (e) {
+      logger.error(e);
+    }
   });
 };
 

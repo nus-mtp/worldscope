@@ -141,14 +141,13 @@ Class.controlStopStream = function(request, reply) {
 Class.endStream = function(request, reply) {
   logger.debug('Ending a stream');
 
-  Service.endStream(request.auth.credentials.userId,
-                    request.payload.streamId)
-    .then(function(res) {
-      if (!res || res instanceof Error) {
-        return reply(Boom.badRequest(res.message));
-      }
-      return reply({status: 'OK', message: ''}).code(200);
-    });
+  Service.endStream(request.auth.credentials.userId, request.payload.streamId)
+  .then(function(res) {
+    if (!res || res instanceof Error) {
+      return reply(Boom.badRequest(res.message));
+    }
+    return reply({status: 'OK', message: ''}).code(200);
+  });
 };
 
 /* End of route handlers */

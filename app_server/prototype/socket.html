@@ -14,7 +14,7 @@
         <script>
             var socket = io('http://localhost:3000');
 
-            var cookie = 'Fe26.2**276a3a02ef886c313f9e4c4db750877b2af7d9e35aeb27dd8e676669d5bf9366*qiLyma3BIVwp0-4a7AChMA*KnhdbREKafL-zHDKN_suwtVBH5IIkOP5hKjGxFmpqPFPaT6h_7l96d9q-SOHk2ptDqjEM72VfaiX3QrOxVtBykEUAZI2fSmRjAdrWIRg8_4xwjEYYzkvpIcMbK6egxLst47zoeRo5Fn7z40ZqygnZsEiaXErfiXHLSjBj3zJ8MIZOsO7ujyV2vVmcAK1OZo-e_Ks10ZujZvfWITuc2vUHcBazZIooxp7XlM54e2lejUaRN2JVTGiZJNaQozIKFkn94tWZyYQbm6Xi12ADqHXSADjz5nXfDXx4n3xUOJcOn2odu3S19UovbU3YX3l8RUtMKRo1-Yk-nDI-X9OwLmT5qgWFeOf_XXrigYmunSg0VAnTfBWteSEdgNL77fxEeCnCPAu_yB9ZabNoaab6z9_c9Bi39lZGQ82zY36Hn0lfX9Hi97vMv03tgHrFJc1RGZuuwZ86klOIJFchOF01jdhPOCo6f3ReoA4rbkT5u5Rj3_SSRd8xmqiWRyfp8l2tuLMW8EcAzwEseqJBdT69qphPAFQ1_ghy6zFn3OnwmrsVtbMqdJLY8lbYsu2r9tewR0CvhOM6TUvFDcBM1qbsyy6-rHL0-n-172bzeXE94Ew-5NNXW03DOr6MKtIvP1p5iuy**a2f53f7afd8bbc629cf59d4cd9f0759aaa54baf9734b5d4220008347f121ae52*36zljxhUWFJ1YZq_tsWDPJ97scqJSEKSfurNxwT-Y-s';
+            var cookie = document.cookie.match('sid-worldscope=(.*)')[1];
             socket.emit('identify', cookie);
 
             socket.on('identify', function (data) {

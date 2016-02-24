@@ -23,7 +23,7 @@ function Room(name, type) {
 
   this.__name = name;
   this.__type = type;
-  this.__clients = {};
+  this.__clients = {}; // A map from client's socket.io id to Client object
 }
 
 var Class = Room.prototype;
@@ -40,12 +40,18 @@ Class.getClients = function() { return this.__clients; };
 
 Class.getClient = function(socketId) { return this.__clients[socketId]; };
 
+/**
+ * @param client {Client}
+ */
 Class.addClient = function(client) {
   this.__clients[client.getSocketId()] = client;
-  client.joinRoom(this);
+  client.__joinRoom__(this);
   logger.info(`${client.getSocketId()} added to ${this.getName()}`);
 };
 
+/**
+ * @param client {Client}
+ */
 Class.removeClient = function(client) {
   if (!(client.getSocketId() in this.__clients)) {
     let err = `${client.getSocketId()} doesn't exist in ${this.getName()}`;
@@ -54,8 +60,16 @@ Class.removeClient = function(client) {
   }
 
   delete this.__clients[client.getSocketId()];
-  client.leaveRoom(this);
+  client.__leaveRoom__(this);
   logger.info(`${client.getSocketId()} removed from ${this.getName()}`);
+};
+
+Class.removeAllClients = function() {
+  logger.info(`Removing all clients in ${this.getName()}`);
+  for (var client in this.__clients) {
+    client.__leaveRoom__(this);
+  }
+  this.__clients = {};
 };
 
 module.exports = Room;

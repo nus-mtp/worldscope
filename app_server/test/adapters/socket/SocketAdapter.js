@@ -11,6 +11,7 @@ var TestUtils = rfr('test/TestUtils');
 var Authenticator = rfr('app/policies/Authenticator');
 var ServerConfig = rfr('config/ServerConfig.js');
 var Service = rfr('app/services/Service');
+var SocketAdapter = rfr('app/adapters/socket/SocketAdapter');
 
 var options ={
   transports: ['websocket'],
@@ -97,6 +98,37 @@ lab.experiment('socket.io connection and identify', function () {
 
           client.emit('identify', sealed);
         });
+      });
+    });
+  });
+});
+
+lab.experiment('socket.io disconnect', function () {
+  lab.before({timeout: 10000}, function (done) {
+    TestUtils.resetDatabase(done);
+  });
+  lab.test('Disconnect should remove client', {timeout: 5000}, (done) => {
+    Service.createNewUser(bob).then((user) => {
+      var account = TestUtils.copyObj(Authenticator.generateUserToken(user),
+                                      ['userId', 'username', 'password']);
+      account.scope = Authenticator.SCOPE.USER;
+      return Iron.sealAsync(account, ServerConfig.cookiePassword, Iron.defaults)
+      .then((sealed) => {
+        var client = io.connect('http://localhost:3000', options);
+
+        client.once('connect', () => {
+          client.once('identify', (msg) => {
+            Code.expect(msg).to.equal('OK');
+            client.disconnect();
+          });
+          client.emit('identify', sealed);
+        });
+
+        setTimeout(() => {
+          var socketUser = SocketAdapter.roomsManager.getUser(user.userId);
+          Code.expect(socketUser).to.be.undefined();
+          done();
+        }, 1000);
       });
     });
   });
