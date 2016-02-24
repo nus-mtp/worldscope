@@ -1,7 +1,5 @@
 const m = require('mithril');
 const App = require('../app');
-
-const App = require('../app');
 const UserModel = require('./user');
 
 const Stream = module.exports = function (data) {
