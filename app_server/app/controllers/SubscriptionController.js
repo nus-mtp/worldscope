@@ -30,26 +30,26 @@ Class.registerRoutes = function() {
                      },
                      handler: this.createSubscription});
 
-  this.server.route({method: 'GET', path: '/', // private
+  this.server.route({method: 'GET', path: '/',
                      config: {
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.getSubscriptions});
 
-  this.server.route({method: 'GET', path: '/{id}',
+  this.server.route({method: 'GET', path: '/subscribers/{id}',
                      config: {
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.getSubscribers});
 
-  this.server.route({method: 'DELETE', path: '/unsubscribe/{id}',
+  this.server.route({method: 'DELETE', path: '/{id}',
                      config: {
                        validate: singleSubscriptionValidator,
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.deleteSubscription});
 
-  this.server.route({method: 'DELETE', path: '/{id}',
+  this.server.route({method: 'DELETE', path: '/subscribers/{id}',
                      config: {
                        validate: singleSubscriptionValidator,
                        auth: {scope: Authenticator.SCOPE.ALL}

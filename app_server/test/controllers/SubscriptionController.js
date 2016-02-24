@@ -193,7 +193,7 @@ lab.experiment('SubscriptionController Tests', function() {
 
     function querySubscribers(user2) {
       Router.inject({method: 'GET',
-                     url: '/api/subscriptions/' + user2.userId,
+                     url: '/api/subscriptions/subscribers/' + user2.userId,
                      credentials: testAccount}, function(res) {
         Code.expect(res.result).to.have.length(2);
         Code.expect(res.result[0].username).to.equal(bob.username);
@@ -212,15 +212,6 @@ lab.experiment('SubscriptionController Tests', function() {
           subscribePromise(user2, user3);
         });
       });
-
-    /*    Promise.join(userPromise1, userPromise2, userPromise3,
-      function(user1, user2, user3) {
-        testAccount.userId = user1.userId;
-         Router.inject({method: 'POST',
-                        url: '/api/subscriptions/' + user2.userId,
-                        credentials: testAccount},
-                        subscribePromise(null, user2, user3));
-      });*/
   });
 
   lab.test('Get subscribers valid empty', function(done) {
@@ -229,7 +220,7 @@ lab.experiment('SubscriptionController Tests', function() {
     userPromise1.then(function(user) {
       testAccount.userId = user.userId;
       Router.inject({method: 'GET',
-                     url: '/api/subscriptions/' + user.userId,
+                     url: '/api/subscriptions/subscribers/' + user.userId,
                      credentials: testAccount}, function(res) {
         Code.expect(res.result).deep.equal([]);
         done();
@@ -239,7 +230,7 @@ lab.experiment('SubscriptionController Tests', function() {
 
   lab.test('Get subscribers invalid userId', function(done) {
     Router.inject({method: 'GET',
-                   url: '/api/subscriptions/' +
+                   url: '/api/subscriptions/subscribers/' +
                    '3388ffff-aa00-1111a222-00000044888c',
                    credentials: testAccount}, function(res) {
       Code.expect(res.result.statusCode).to.equal(400);
@@ -254,7 +245,7 @@ lab.experiment('SubscriptionController Tests', function() {
 
     function deleteSubscription(user2) {
       Router.inject({method: 'DELETE',
-                     url: '/api/subscriptions/unsubscribe/' + user2.userId,
+                     url: '/api/subscriptions/' + user2.userId,
                      credentials: testAccount}, function(res) {
 
         Code.expect(res.result.status).to.equal('OK');
@@ -279,7 +270,7 @@ lab.experiment('SubscriptionController Tests', function() {
 
     function deleteSubscription(user2) {
       Router.inject({method: 'DELETE',
-                     url: '/api/subscriptions/unsubscribe/' + user2.userId,
+                     url: '/api/subscriptions/' + user2.userId,
                      credentials: testAccount}, function(res) {
 
         Code.expect(res.result.status).to.equal('Unsuccessful');
@@ -300,7 +291,7 @@ lab.experiment('SubscriptionController Tests', function() {
 
     userPromise1.then(function(user) {
       Router.inject({method: 'DELETE',
-                     url: '/api/subscriptions/unsubscribe/' +
+                     url: '/api/subscriptions/' +
                      '3388ffff-aa00-1111a222-00000044888c',
                      credentials: testAccount}, function(res) {
 
@@ -317,7 +308,7 @@ lab.experiment('SubscriptionController Tests', function() {
     function deleteSubscription(user1, user2) {
       testAccount.userId = user2.userId;
       Router.inject({method: 'DELETE',
-                     url: '/api/subscriptions/' + user1.userId,
+                     url: '/api/subscriptions/subscribers/' + user1.userId,
                      credentials: testAccount}, function(res) {
 
         Code.expect(res.result.status).to.equal('OK');
@@ -342,7 +333,7 @@ lab.experiment('SubscriptionController Tests', function() {
 
     function deleteSubscription(user2) {
       Router.inject({method: 'DELETE',
-                     url: '/api/subscriptions/' + user2.userId,
+                     url: '/api/subscriptions/subscribers/' + user2.userId,
                      credentials: testAccount}, function(res) {
 
         Code.expect(res.result.status).to.equal('Unsuccessful');
@@ -363,7 +354,7 @@ lab.experiment('SubscriptionController Tests', function() {
 
     userPromise1.then(function(user) {
       Router.inject({method: 'DELETE',
-                     url: '/api/subscriptions/' +
+                     url: '/api/subscriptions/subscribers/' +
                      '3388ffff-aa00-1111a222-00000044888c',
                      credentials: testAccount}, function(res) {
 
@@ -379,7 +370,7 @@ lab.experiment('SubscriptionController Tests', function() {
 
     function deleteSubscription(user1, user2) {
       Router.inject({method: 'DELETE',
-                     url: '/api/subscriptions/' + user1.userId,
+                     url: '/api/subscriptions/subscribers/' + user1.userId,
                      credentials: testAccount}, function(res) {
 
         Code.expect(res.result.status).to.equal('Unsuccessful');
