@@ -117,6 +117,16 @@ server.register({
   }
 });
 
+server.register({
+  register: rfr('app/controllers/SubscriptionController.js')
+}, {
+  routes: {prefix: '/api/subscriptions'}
+}, function (err) {
+  if (err) {
+    logger.error('Unable to register SubscriptionController: %j', err);
+  }
+});
+
 server.route({
   method: 'GET',
   path: '/',

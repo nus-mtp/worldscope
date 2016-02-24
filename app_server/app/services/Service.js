@@ -58,6 +58,32 @@ Class.getTotalNumberOfUsersViewedStream = function(streamId) {
                 streamId);
   return UserService.getTotalNumberOfUsersViewedStream(streamId);
 };
+
+Class.createSubscription = function(subscribeFrom, subscribeTo) {
+  logger.debug('Subscribing from user %s to user %s',
+                subscribeFrom, subscribeTo);
+
+  return UserService.createSubscription(subscribeFrom, subscribeTo);
+};
+
+Class.getSubscriptions = function(userId) {
+  logger.debug('Getting subscriptions for user %s', userId);
+
+  return UserService.getSubscriptions(userId);
+};
+
+Class.getSubscribers = function(userId) {
+  logger.debug('Getting subscribers for user %s', userId);
+
+  return UserService.getSubscribers(userId);
+};
+
+Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
+  logger.debug('Deleting subscription');
+
+  return UserService.deleteSubscription(subscribeFrom, subscribeTo);
+};
+
 ///////////////////////
 
 /////// STREAM APIs ///////

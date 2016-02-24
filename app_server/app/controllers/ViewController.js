@@ -58,7 +58,7 @@ Class.createView = function(request, reply) {
       return reply(Boom.badRequest(result.message));
     }
 
-    reply(result);
+    return reply(result);
   });
 };
 
@@ -74,7 +74,7 @@ Class.getListOfUsersViewingStream = function(request, reply) {
         return reply(Boom.badRequest('Stream could not be found'));
       }
 
-      reply(result);
+      return reply(result);
     });
 };
 
@@ -90,7 +90,7 @@ Class.getTotalNumberOfUsersViewedStream = function(request, reply) {
         return reply(Boom.badRequest('Stream could not be found'));
       }
 
-      reply(result);
+      return reply(result);
     });
 };
 

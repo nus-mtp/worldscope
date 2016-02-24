@@ -13,7 +13,7 @@ var Utility = rfr('app/util/Utility');
 var CustomError = rfr('app/util/Error');
 var logger = Utility.createLogger(__filename);
 
-var modelNames = ['User', 'Stream', 'View'];
+var modelNames = ['User', 'Stream', 'View', 'Subscription'];
 
 /**
  * Initialises the database connection and load the models written in
@@ -72,6 +72,12 @@ function Storage() {
 }
 
 var Class = Storage.prototype;
+
+/************************************************************************
+ *                                                                       *
+ *                              USER API                                 *
+ *                                                                       *
+ *************************************************************************/
 
 /**
  * @param  {object} particulars
@@ -304,6 +310,12 @@ Class.getNumberOfAdmins = function() {
   });
 };
 
+/************************************************************************
+ *                                                                       *
+ *                            STREAM API                                 *
+ *                                                                       *
+ *************************************************************************/
+
 /**
  * @param  {string} userId - userid of the user who created stream
  * @param  {object} streamAttributes
@@ -398,6 +410,12 @@ Class.updateStream = function(streamId, newAttributes) {
   });
 };
 
+/************************************************************************
+ *                                                                       *
+ *                              VIEW API                                 *
+ *                                                                       *
+ *************************************************************************/
+
 /**
  * @param  {string} userId
  * @param  {string} streamId
@@ -469,6 +487,100 @@ Class.getTotalNumberOfUsersViewedStream = function(streamId) {
   });
 };*/
 
+/************************************************************************
+ *                                                                       *
+ *                      SUBSCRIPTION API                                 *
+ *                                                                       *
+ *************************************************************************/
+/**
+ * @param  {string} subscribeFrom - userId of the one who want to subscribe
+ * @param  {string} subscribeTo - userId of the one being subscribed to
+ * @return {Promise<Sequelize.Subscription>}
+ */
+Class.createSubscription = function(subscribeFrom, subscribeTo) {
+  var fromPromise = this.models.User.findById(subscribeFrom);
+  var toPromise = this.models.User.findById(subscribeTo);
+
+  return Promise.join(fromPromise, toPromise,
+    function(from, to) {
+      if (to === null || from.userId == to.userId) {
+        logger.error('Subscription user cannot be found');
+
+        return new CustomError.NotFoundError('User not found');
+      }
+      return from.addSubscription(to).then(res => {
+        if (!res || res.length === 0) {
+          logger.error('Duplicate Subscription');
+
+          return new Error('Duplicate Subscription');
+        }
+        return res[0][0];
+      });
+    });
+};
+
+/**
+ * @param  {string} userId
+ * @return {Promise<List<Sequelize.Subscription>>}
+ */
+Class.getSubscriptions = function(userId) {
+  var userPromise = this.models.User.findById(userId);
+
+  return userPromise.then(function(user) {
+    if (user === null) {
+      logger.error('User cannot be found');
+
+      return new CustomError.NotFoundError('User not found');
+    }
+    return user.getSubscriptions({order: [['username', 'ASC']]}).then(res => {
+      return res;
+    });
+  });
+};
+
+/**
+ * @param  {string} userId
+ * @return {Promise<List<Sequelize.Subscription>>}
+ */
+Class.getSubscribers = function(userId) {
+  var userPromise = this.models.User.findById(userId);
+
+  return userPromise.then(function(user) {
+    if (user === null) {
+      logger.error('User cannot be found');
+
+      return new CustomError.NotFoundError('User not found');
+    }
+    return user.getSubscribers({order: [['username', 'ASC']]}).then(res => {
+      return res;
+    });
+  });
+};
+
+/**
+ * @param  {string} subscribeFrom - userId of one who is subscribing
+ * @param  {string} subscribeTo - userId of the one being subscribed to
+ * @return {Promise<Boolean>}
+ */
+Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
+  var fromPromise = this.models.User.findById(subscribeFrom);
+  var toPromise = this.models.User.findById(subscribeTo);
+
+  return Promise.join(fromPromise, toPromise,
+    function(from, to) {
+      if (from === null || to === null) {
+        logger.error('User cannot be found');
+
+        return new CustomError.NotFoundError('User not found');
+      }
+      return from.removeSubscription(to).then(res => {
+        if (res === 1) {
+          return true;
+        }
+        return false;
+      });
+    });
+};
 /**
  * Check if the fields to be changed match the fields available in object
  * @private

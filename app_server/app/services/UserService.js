@@ -146,4 +146,81 @@ Class.getTotalNumberOfUsersViewedStream = function(streamId) {
       return result;
     });
 };
+
+///// SUBSCRIPTION RELATED ////
+/**
+ * Gets the number of users who have viewed a particular stream.
+ * @param subscribeFrom {string} userId of subscriber
+ * @param subscribeTo   {string} userId of user being subscribed
+ * @return {Promise<Subscription>}
+ */
+Class.createSubscription = function(subscribeFrom, subscribeTo) {
+  logger.debug('Subscribing from user %s to user %s',
+                subscribeFrom, subscribeTo);
+
+  return Storage.createSubscription(subscribeFrom, subscribeTo)
+    .then(function receiveResult(result) {
+      if (!result || result instanceof Error) {
+        return result;
+      }
+      return Utility.changeToUnixTime(result.dataValues);
+    });
+};
+
+/**
+ * Gets the list of subscriptions that a user has subscribed to.
+ * @param userId {string}
+ * @return {Promise<List<User>>}
+ */
+Class.getSubscriptions = function(userId) {
+  logger.debug('Getting subscriptions for user %s', userId);
+
+  return Storage.getSubscriptions(userId)
+    .then(function receiveResult(result) {
+      if (!result || result instanceof Error) {
+        return result;
+      }
+      return result.map((singleUser) => {
+        singleUser = singleUser.dataValues;
+        delete singleUser.Subscription;
+        return Utility.formatUserObject(singleUser);
+      });
+    });
+};
+
+/**
+ * Gets the list of subscriptions that a user has subscribed to.
+ * @param userId {string}
+ * @return {Promise<List<User>> || Error}
+ */
+Class.getSubscribers = function(userId) {
+  logger.debug('Getting subscribers for user %s', userId);
+
+  return Storage.getSubscribers(userId)
+    .then(function receiveResult(result) {
+      if (!result || result instanceof Error) {
+        return result;
+      }
+      return result.map((singleUser) => {
+        singleUser = singleUser.dataValues;
+        delete singleUser.Subscription;
+        return Utility.formatUserObject(singleUser);
+      });
+    });
+};
+
+/**
+ * @param  {string} subscribeFrom - userId of one who is subscribing
+ * @param  {string} subscribeTo - userId of the one being subscribed to
+ * @return {Promise<Boolean>}
+ */
+Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
+  logger.debug('Delete subscriptions');
+
+  return Storage.deleteSubscription(subscribeFrom, subscribeTo)
+    .then(function receiveResult(result) {
+      return result;
+    });
+};
+
 module.exports = new UserService();

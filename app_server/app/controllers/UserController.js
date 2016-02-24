@@ -71,7 +71,7 @@ Class.getUserById = function(request, reply) {
     }
 
     user = Utility.formatUserObject(user);
-    reply(user);
+    return reply(user);
   });
 };
 
@@ -85,7 +85,7 @@ Class.getListOfUsers = function(request, reply) {
       return reply(Boom.badRequest('Unable to get list of users'));
     }
 
-    reply(users.map(Utility.formatUserObject));
+    return reply(users.map(Utility.formatUserObject));
   });
 };
 
@@ -102,7 +102,7 @@ Class.updateUser = function(request, reply) {
       return reply(Boom.badRequest('Unable to update user'));
     }
 
-    reply(Utility.formatUserObject(user));
+    return reply(Utility.formatUserObject(user));
   });
 };
 

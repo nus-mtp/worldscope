@@ -32,6 +32,17 @@ var alice = {
   description: 'nil'
 };
 
+var carlos = {
+  username: 'Carlos',
+  alias: 'Carlos hehe',
+  email: 'carlos@car.com',
+  password: 'generated',
+  accessToken: 'an accesstoken',
+  platformType: 'facebook',
+  platformId: '111112222',
+  description: 'nil'
+};
+
 var stream = {
   title: 'this is a title from user service',
   description: 'arbitrary description',
@@ -319,4 +330,194 @@ lab.experiment('UserService Tests for View', function () {
           done();
         });
     });
+});
+
+lab.experiment('UserService Tests for Subscriptions', function () {
+
+  lab.beforeEach({timeout: 10000}, function (done) {
+    TestUtils.resetDatabase(done);
+  });
+
+  lab.test('Create Subscription valid', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+    var userPromise2 = Service.createNewUser(bob);
+
+    Promise.join(userPromise1, userPromise2,
+      function(user1, user2) {
+        Service.createSubscription(user1.userId, user2.userId)
+          .then(function(res) {
+            expect(res.subscriber).to.equal(user1.userId);
+            expect(res.subscribeTo).to.equal(user2.userId);
+            done();
+          });
+      });
+  });
+
+  lab.test('Create Subscription invalid subscribeTo', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+
+    userPromise1.then(function(user1) {
+      Service.createSubscription(user1.userId,
+                                 '3388ffff-aa00-1111a222-00000044888c')
+        .then(function(res) {
+          expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+          expect(res.message).to.be.equal('User not found');
+          done();
+        });
+    });
+  });
+
+  lab.test('Create Subscription invalid self subscribe', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+
+    userPromise1.then(function(user1) {
+      Service.createSubscription(user1.userId, user1.userId)
+        .then(function(res) {
+          expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+          expect(res.message).to.be.equal('User not found');
+          done();
+        });
+    });
+  });
+
+  lab.test('Create Subscription invalid duplicate', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+    var userPromise2 = Service.createNewUser(bob);
+
+    Promise.join(userPromise1, userPromise2,
+      function(user1, user2) {
+        Service.createSubscription(user1.userId, user2.userId)
+          .then((subscription) =>
+            Service.createSubscription(subscription.subscriber,
+                                       subscription.subscribeTo))
+          .then(function(res) {
+            expect(res).to.be.an.instanceof(Error);
+            expect(res.message).to.be.equal('Duplicate Subscription');
+            done();
+          });
+      });
+  });
+
+  lab.test('Get Subscriptions valid', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+    var userPromise2 = Service.createNewUser(bob);
+    var userPromise3 = Service.createNewUser(carlos);
+
+    Promise.join(userPromise1, userPromise2, userPromise3,
+      function(user1, user2, user3) {
+        Service.createSubscription(user1.userId, user2.userId)
+          .then(() => Service.createSubscription(user1.userId, user3.userId))
+          .then(function(subscription) {
+            Service.getSubscriptions(subscription.subscriber)
+              .then(function(res) {
+                expect(res).to.have.length(2);
+                expect(res[0].username).to.equal(bob.username);
+                expect(res[1].username).to.equal(carlos.username);
+                done();
+              });
+          });
+      });
+  });
+
+  lab.test('Get Subscriptions invalid userId', function(done) {
+    Service.getSubscriptions('3388ffff-aa00-1111a222-00000044888c')
+      .then(function(res) {
+        expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+        expect(res.message).to.be.equal('User not found');
+        done();
+      });
+  });
+
+  lab.test('Get Subscribers valid', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+    var userPromise2 = Service.createNewUser(bob);
+    var userPromise3 = Service.createNewUser(carlos);
+
+    Promise.join(userPromise1, userPromise2, userPromise3,
+      function(user1, user2, user3) {
+        Service.createSubscription(user1.userId, user3.userId)
+          .then(() => Service.createSubscription(user2.userId, user3.userId))
+          .then(function(subscription) {
+            Service.getSubscribers(subscription.subscribeTo)
+              .then(function(res) {
+                expect(res).to.have.length(2);
+                expect(res[0].username).to.equal(alice.username);
+                expect(res[1].username).to.equal(bob.username);
+                done();
+              });
+          });
+      });
+  });
+
+  lab.test('Get Subscribers invalid userId', function(done) {
+    Service.getSubscribers('3388ffff-aa00-1111a222-00000044888c')
+      .then(function(res) {
+        expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+        expect(res.message).to.be.equal('User not found');
+        done();
+      });
+  });
+
+  lab.test('Delete Subscription valid', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+    var userPromise2 = Service.createNewUser(bob);
+
+    function deleteSubscription(user1, user2) {
+      Service.deleteSubscription(user1.userId,
+                                 user2.userId)
+        .then(function(res) {
+          expect(res).to.be.true();
+          done();
+        });
+    }
+
+    Promise.join(userPromise1, userPromise2,
+      function(user1, user2) {
+        Service.createSubscription(user1.userId, user2.userId)
+          .then((res) => deleteSubscription(user1, user2));
+      });
+  });
+
+  lab.test('Delete Subscription non-existent subscription', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+    var userPromise2 = Service.createNewUser(bob);
+
+    Promise.join(userPromise1, userPromise2,
+      function(user1, user2) {
+        Service.deleteSubscription(user1.userId, user2.userId)
+          .then(function(res) {
+            expect(res).to.be.false();
+            done();
+          });
+      });
+  });
+
+  lab.test('Delete Subscription invalid user', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+
+    userPromise1.then(function(user) {
+      Service.deleteSubscription('3388ffff-aa00-1111a222-00000044888c',
+                                 user.userId)
+        .then(function(res) {
+          expect(res).to.be.an.instanceof(Error);
+          expect(res.message).to.equal('User not found');
+          done();
+        });
+    });
+  });
+
+  lab.test('Delete Subscription invalid subscribed user', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+
+    userPromise1.then(function(user) {
+      Service.deleteSubscription(user.userId,
+                                 '123-123')
+        .then(function(res) {
+          expect(res).to.be.an.instanceof(Error);
+          expect(res.message).to.equal('User not found');
+          done();
+        });
+    });
+  });
+
 });
