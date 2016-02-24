@@ -165,7 +165,7 @@ lab.experiment('StreamService Tests', function() {
     });
   });
 
-  lab.test('getListOfStreams valid sorted by title', function(done) {
+  lab.test('getListOfStreams valid sorted by title asc', function(done) {
     var filters = {
       state: 'all',
       sort: 'title',
@@ -192,7 +192,59 @@ lab.experiment('StreamService Tests', function() {
     });
   });
 
-  lab.test('getListOfStreams valid live sorted by time', function(done) {
+  lab.test('getListOfStreams valid sorted by title desc', function(done) {
+    var filters = {
+      state: 'all',
+      sort: 'title',
+      order: 'desc'
+    };
+
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, testStream);
+    }).then(function(stream) {
+      return Service.createNewStream(stream.owner, testStream2);
+    }).then(function(stream) {
+      return Service.createNewStream(stream.owner, testStream3);
+    }).then(function() {
+      return Service.getListOfStreams(filters);
+    }).then(function(result) {
+      Code.expect(result).to.have.length(3);
+      Code.expect(result[0].title).to.be.equal(testStream.title);
+      Code.expect(result[0].streamer.username).to.be.equal(bob.username);
+      Code.expect(result[1].title).to.be.equal(testStream3.title);
+      Code.expect(result[1].streamer.username).to.be.equal(bob.username);
+      Code.expect(result[2].title).to.be.equal(testStream2.title);
+      Code.expect(result[2].streamer.username).to.be.equal(bob.username);
+      done();
+    });
+  });
+
+  lab.test('getListOfStreams valid live sorted by time asc', function(done) {
+    var filters = {
+      state: 'live',
+      sort: 'time',
+      order: 'asc'
+    };
+
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, testStream);
+    }).then(function(stream) {
+      return Service.createNewStream(stream.owner, testStream2);
+    }).then(function(stream) {
+      return Service.createNewStream(stream.owner, testStream3);
+    }).then(function() {
+      return Service.getListOfStreams(filters);
+    }).then(function(result) {
+      Code.expect(result).to.have.length(2);
+      Code.expect(result[0].title).to.be.equal(testStream.title);
+      Code.expect(result[0].streamer.username).to.be.equal(bob.username);
+      Code.expect(result[1].title).to.be.equal(testStream2.title);
+      Code.expect(result[1].streamer.username).to.be.equal(bob.username);
+      done();
+    });
+  });
+
+  lab.test('getListOfStreams valid live sorted by time desc', function(done) {
     var filters = {
       state: 'live',
       sort: 'time',
@@ -213,6 +265,54 @@ lab.experiment('StreamService Tests', function() {
       Code.expect(result[0].streamer.username).to.be.equal(bob.username);
       Code.expect(result[1].title).to.be.equal(testStream.title);
       Code.expect(result[1].streamer.username).to.be.equal(bob.username);
+      done();
+    });
+  });
+
+  lab.test('getListOfStreams valid state live', function(done) {
+    var filters = {
+      state: 'live',
+      sort: 'title',
+      order: 'asc'
+    };
+
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, testStream);
+    }).then(function(stream) {
+      return Service.createNewStream(stream.owner, testStream2);
+    }).then(function(stream) {
+      return Service.createNewStream(stream.owner, testStream3);
+    }).then(function() {
+      return Service.getListOfStreams(filters);
+    }).then(function(result) {
+      Code.expect(result).to.have.length(2);
+      Code.expect(result[0].title).to.be.equal(testStream2.title);
+      Code.expect(result[0].streamer.username).to.be.equal(bob.username);
+      Code.expect(result[1].title).to.be.equal(testStream.title);
+      Code.expect(result[1].streamer.username).to.be.equal(bob.username);
+      done();
+    });
+  });
+
+  lab.test('getListOfStreams valid state done', function(done) {
+    var filters = {
+      state: 'done',
+      sort: 'title',
+      order: 'asc'
+    };
+
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, testStream);
+    }).then(function(stream) {
+      return Service.createNewStream(stream.owner, testStream2);
+    }).then(function(stream) {
+      return Service.createNewStream(stream.owner, testStream3);
+    }).then(function() {
+      return Service.getListOfStreams(filters);
+    }).then(function(result) {
+      Code.expect(result).to.have.length(1);
+      Code.expect(result[0].title).to.be.equal(testStream3.title);
+      Code.expect(result[0].streamer.username).to.be.equal(bob.username);
       done();
     });
   });

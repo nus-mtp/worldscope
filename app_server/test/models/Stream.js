@@ -100,41 +100,6 @@ lab.experiment('Stream Model Tests', function() {
     });
   });
 
-  lab.test('Get list of streams sorted by time', function(done) {
-    var filters = {
-      state: 'all',
-      sort: 'time',
-      order: 'desc'
-    };
-
-    var userPromise = Storage.createUser(userDetails);
-    var userPromise2 = Storage.createUser(userDetails2);
-
-    var streamPromise = userPromise.then(function(user) {
-      return Storage.createStream(user.userId, streamDetails3)
-        .then(function(stream) {
-          return Storage.createStream(user.userId, streamDetails2);
-        });
-    });
-
-    var streamPromise2 = userPromise2.then(function(user2) {
-      return Storage.createStream(user2.userId, streamDetails);
-    });
-
-    return Promise.join(streamPromise, streamPromise2,
-      function() {
-        Storage.getListOfStreams(filters).then(function(res) {
-          expect(res[0].title).to.equal(streamDetails2.title);
-          expect(res[0].streamer.username).to.equal(userDetails.username);
-          expect(res[1].title).to.equal(streamDetails.title);
-          expect(res[1].streamer.username).to.equal(userDetails2.username);
-          expect(res[2].title).to.equal(streamDetails3.title);
-          expect(res[2].streamer.username).to.equal(userDetails.username);
-          done();
-        });
-      });
-  });
-
   lab.test('Get list of streams sorted by time asc', function(done) {
     var filters = {
       state: 'all',
@@ -156,7 +121,7 @@ lab.experiment('Stream Model Tests', function() {
       return Storage.createStream(user2.userId, streamDetails);
     });
 
-    return Promise.join(streamPromise, streamPromise2,
+    Promise.join(streamPromise, streamPromise2,
       function() {
         Storage.getListOfStreams(filters).then(function(res) {
           expect(res[0].title).to.equal(streamDetails3.title);
@@ -165,7 +130,41 @@ lab.experiment('Stream Model Tests', function() {
           expect(res[1].streamer.username).to.equal(userDetails2.username);
           expect(res[2].title).to.equal(streamDetails2.title);
           expect(res[2].streamer.username).to.equal(userDetails.username);
+          done();
+        });
+      });
+  });
 
+  lab.test('Get list of streams sorted by time desc', function(done) {
+    var filters = {
+      state: 'all',
+      sort: 'time',
+      order: 'desc'
+    };
+
+    var userPromise = Storage.createUser(userDetails);
+    var userPromise2 = Storage.createUser(userDetails2);
+
+    var streamPromise = userPromise.then(function(user) {
+      return Storage.createStream(user.userId, streamDetails3)
+        .then(function(stream) {
+          return Storage.createStream(user.userId, streamDetails2);
+        });
+    });
+
+    var streamPromise2 = userPromise2.then(function(user2) {
+      return Storage.createStream(user2.userId, streamDetails);
+    });
+
+    Promise.join(streamPromise, streamPromise2,
+      function() {
+        Storage.getListOfStreams(filters).then(function(res) {
+          expect(res[0].title).to.equal(streamDetails2.title);
+          expect(res[0].streamer.username).to.equal(userDetails.username);
+          expect(res[1].title).to.equal(streamDetails.title);
+          expect(res[1].streamer.username).to.equal(userDetails2.username);
+          expect(res[2].title).to.equal(streamDetails3.title);
+          expect(res[2].streamer.username).to.equal(userDetails.username);
           done();
         });
       });
@@ -192,7 +191,7 @@ lab.experiment('Stream Model Tests', function() {
       return Storage.createStream(user2.userId, streamDetails);
     });
 
-    return Promise.join(streamPromise, streamPromise2,
+    Promise.join(streamPromise, streamPromise2,
       function() {
         Storage.getListOfStreams(filters).then(function(res) {
           expect(res[0].title).to.equal(streamDetails.title);
@@ -201,6 +200,41 @@ lab.experiment('Stream Model Tests', function() {
           expect(res[1].streamer.username).to.equal(userDetails.username);
           expect(res[2].title).to.equal(streamDetails2.title);
           expect(res[2].streamer.username).to.equal(userDetails.username);
+          done();
+        });
+      });
+  });
+
+  lab.test('Get list of streams sorted by title desc', function(done) {
+    var filters = {
+      state: 'all',
+      sort: 'title',
+      order: 'desc'
+    };
+
+    var userPromise = Storage.createUser(userDetails);
+    var userPromise2 = Storage.createUser(userDetails2);
+
+    var streamPromise = userPromise.then(function(user) {
+      return Storage.createStream(user.userId, streamDetails3)
+        .then(function(stream) {
+          return Storage.createStream(user.userId, streamDetails2);
+        });
+    });
+
+    var streamPromise2 = userPromise2.then(function(user2) {
+      return Storage.createStream(user2.userId, streamDetails);
+    });
+
+    Promise.join(streamPromise, streamPromise2,
+      function() {
+        Storage.getListOfStreams(filters).then(function(res) {
+          expect(res[0].title).to.equal(streamDetails2.title);
+          expect(res[0].streamer.username).to.equal(userDetails.username);
+          expect(res[1].title).to.equal(streamDetails3.title);
+          expect(res[1].streamer.username).to.equal(userDetails.username);
+          expect(res[2].title).to.equal(streamDetails.title);
+          expect(res[2].streamer.username).to.equal(userDetails2.username);
           done();
         });
       });
@@ -227,7 +261,7 @@ lab.experiment('Stream Model Tests', function() {
       return Storage.createStream(user2.userId, streamDetails);
     });
 
-    return Promise.join(streamPromise, streamPromise2,
+    Promise.join(streamPromise, streamPromise2,
       function() {
         Storage.getListOfStreams(filters).then(function(res) {
           expect(res).to.have.length(2);
@@ -235,6 +269,38 @@ lab.experiment('Stream Model Tests', function() {
           expect(res[0].streamer.username).to.equal(userDetails.username);
           expect(res[1].title).to.equal(streamDetails.title);
           expect(res[1].streamer.username).to.equal(userDetails2.username);
+          done();
+        });
+      });
+  });
+
+  lab.test('Get list of done streams', function(done) {
+    var filters = {
+      state: 'done',
+      sort: 'time',
+      order: 'desc'
+    };
+
+    var userPromise = Storage.createUser(userDetails);
+    var userPromise2 = Storage.createUser(userDetails2);
+
+    var streamPromise = userPromise.then(function(user) {
+      return Storage.createStream(user.userId, streamDetails3)
+        .then(function(stream) {
+          return Storage.createStream(user.userId, streamDetails2);
+        });
+    });
+
+    var streamPromise2 = userPromise2.then(function(user2) {
+      return Storage.createStream(user2.userId, streamDetails);
+    });
+
+    Promise.join(streamPromise, streamPromise2,
+      function() {
+        Storage.getListOfStreams(filters).then(function(res) {
+          expect(res).to.have.length(1);
+          expect(res[0].title).to.equal(streamDetails3.title);
+          expect(res[0].streamer.username).to.equal(userDetails.username);
           done();
         });
       });
