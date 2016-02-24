@@ -12,7 +12,7 @@ Nav.updateVisibleItems = function () {
 
   if (scopes.contains('metrics')) {
     nav.push({
-      name: 'Metrics', href: '/metrics',
+      name: 'Metrics', href: '/metrics', icon: 'dashboard',
       sub: [
         {name: 'Overview', href: '/metrics/overview'},
         {name: 'Real-Time', href: '/metrics/realtime'},
@@ -22,7 +22,7 @@ Nav.updateVisibleItems = function () {
   }
   if (scopes.contains('streams')) {
     nav.push({
-      name: 'Streams', href: '/streams',
+      name: 'Streams', href: '/streams', icon: 'videocam',
       sub: [
         {name: 'Live Streams', href: '/streams/live'},
         {name: 'All Streams', href: '/streams/all'},
@@ -32,7 +32,7 @@ Nav.updateVisibleItems = function () {
   }
   if (scopes.contains('users')) {
     nav.push({
-      name: 'Users', href: '/users',
+      name: 'Users', href: '/users', icon: 'people',
       sub: [
         {name: 'All Users', href: '/users/all'},
         {name: 'Search', href: '/users/search'}
@@ -41,7 +41,7 @@ Nav.updateVisibleItems = function () {
   }
   if (scopes.contains('admins')) {
     nav.push({
-      name: 'Admins', href: '/admins',
+      name: 'Admins', href: '/admins', icon: 'visibility',
       sub: [
         {name: 'All Admins', href: '/admins/all'},
         {name: 'Create Admin', href: '/admins/create'}
@@ -52,6 +52,7 @@ Nav.updateVisibleItems = function () {
     nav.push({
       name: 'Settings',
       href: '/settings',
+      icon: 'settings',
       sub: []
     });
   }
@@ -59,6 +60,7 @@ Nav.updateVisibleItems = function () {
   nav.push({
     name: 'Logout',
     href: '/logout',
+    icon: 'arrow_back',
     sub: []
   });
 
@@ -67,9 +69,11 @@ Nav.updateVisibleItems = function () {
 
 Nav.getFirstLocation = () => Nav.navItems[0].href;
 
-Nav.view = function (ctrl) {
+Nav.view = function () {
+  let getName = (item) => item.icon ?
+      [m('i.material-icons', item.icon), ' ', m('span', item.name)] : item.name;
   let getLink = (item) =>
-      m('a[href="' + item.href + '"]', {config: m.route}, item.name);
+      m('a[href="' + item.href + '"]', {config: m.route}, getName(item));
 
   let makeList = function (items) {
     if (!items) {

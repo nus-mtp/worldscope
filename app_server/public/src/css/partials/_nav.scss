@@ -25,6 +25,10 @@ $nav-secondary-bg-color: color("teal", "lighten-4");
       color: #FFFFFF;
       opacity: $opacity-light-on-dark-secondary;
 
+      i, span {
+        vertical-align: middle;
+      }
+
       &:hover {
         opacity: $opacity-light-on-dark-primary
       }
