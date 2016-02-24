@@ -5,7 +5,6 @@ const Logout = module.exports = {};
 
 Logout.controller = function () {
   AdminModel.logout();
-  window.localStorage.removeItem('ws-user');
-  window.localStorage.removeItem('ws-scopes');
+  App.logout();
   App.goToHome();
 };
