@@ -15,14 +15,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-public class FacebookLoginActivityTest extends TestCase{
+public class LoginActivityTest extends TestCase{
 
-    private FacebookLoginActivity facebookLoginActivity;
+    private LoginActivity facebookLoginActivity;
 
 
     @Rule
-    public ActivityTestRule<FacebookLoginActivity> activityRule = new ActivityTestRule<>(
-            FacebookLoginActivity.class);
+    public ActivityTestRule<LoginActivity> activityRule = new ActivityTestRule<>(
+            LoginActivity.class);
 
     @Before
     public void setUp() {
