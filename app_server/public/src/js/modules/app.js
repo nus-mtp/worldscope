@@ -5,7 +5,7 @@ const App = module.exports = {};
 const Nav = require('./components/nav');
 const ErrorDisplay = require('./components/errordisplay');
 
-const templatePage = (content) => m('div#container.row', [ErrorDisplay, content]);
+const templatePage = (content) => m('div#container', [ErrorDisplay, content]);
 
 const wrapView = function (wrapper, vElement) {
   let wrappedElement = Object.assign({}, vElement);
@@ -13,8 +13,8 @@ const wrapView = function (wrapper, vElement) {
   return wrappedElement;
 };
 const navPage = function (page) {
-  let wrappedNav = wrapView((e) => m('div#nav.col s2 l1', e), Nav);
-  let wrappedPage = wrapView((e) => m('div#content.col offset-s2 s10 offset-l1 l11', e), page);
+  let wrappedNav = wrapView((e) => m('div#nav', e), Nav);
+  let wrappedPage = wrapView((e) => m('div#content.row', e), page);
 
   return {
     view: () => templatePage([wrappedNav, wrappedPage])
