@@ -1,3 +1,18 @@
 #content {
   margin-left: 170px;
+
+  h1 {
+    height: 4.5rem;
+    padding-top: 1.5rem;
+    padding-left: 4rem;
+    margin-top: 0;
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+
+    background-color: $primary-color;
+    color: #FFFFFF;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.16);
+
+    font-size: 1.5rem;
+  }
 }

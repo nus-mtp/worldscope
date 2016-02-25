@@ -23,7 +23,7 @@ const navPage = function (page) {
 
 // TODO: remove after implementing pages
 const blank = navPage({
-  view: () => m('div', 'TODO')
+  view: () => [m('h1', 'To-do'), m('div', 'TODO')]
 });
 
 App.routes = {
