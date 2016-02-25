@@ -19,7 +19,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -86,7 +85,7 @@ public class MainActivity extends AppCompatActivity
         //Set the title of the toolbar
         setToolbarTitle();
 
-        // Get user information from intent coming from FacebookLoginActivity
+        // Get user information from intent coming from LoginActivity
         loginUser = getIntent().getParcelableExtra("loginUser");
 
         // If user is in Intent
@@ -206,10 +205,10 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    // Redirects to Facebook Login activity
+    // Redirects to LoginActivity
 
-    protected void redirectToFacebookLoginActivity(boolean isAttemptLogout) {
-        Intent intent = new Intent(this, FacebookLoginActivity.class);
+    protected void redirectToLoginActivity(boolean isAttemptLogout) {
+        Intent intent = new Intent(this, LoginActivity.class);
 
         if(isAttemptLogout) {
             intent.putExtra("isAttemptLogout", true);
@@ -291,20 +290,20 @@ public class MainActivity extends AppCompatActivity
                     Log.d(TAG, "Success!");
                     Log.d(TAG, "" + response.body().toString());
 
-                    redirectToFacebookLoginActivity(IS_LOGOUT_ATTEMPT);
+                    redirectToLoginActivity(IS_LOGOUT_ATTEMPT);
                 } else {
                     Log.d(TAG, "Failure!");
                     Log.d(TAG, "" + response.code());
                     Log.d(TAG, "" + response.body().toString());
 
-                    redirectToFacebookLoginActivity(IS_LOGOUT_ATTEMPT);
+                    redirectToLoginActivity(IS_LOGOUT_ATTEMPT);
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
 
-                redirectToFacebookLoginActivity(IS_LOGOUT_ATTEMPT);
+                redirectToLoginActivity(IS_LOGOUT_ATTEMPT);
             }
         });
     }
