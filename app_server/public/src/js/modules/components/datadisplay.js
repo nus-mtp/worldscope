@@ -42,23 +42,21 @@ DataDisplay.view = function (ctrl, args) {
   });
 
   return m('div', mz.select, [
-    m('div.row right-align', [
-      m('div.col s1 offset-s11',
+    m('div.row', [
+      m('div.col s12 push-m9 m3 push-l10 l2',
           m(ItemsCount, {
             possibleItemsPerPage: ITEMS_PER_PAGE,
             itemsPerPage: DataDisplay.itemsPerPage
           })
-      )
+      ),
+      m('div.col s12 pull-m3 m6 offset-m3 pull-l2 l8 offset-l2 center-align', pagination)
     ]),
-    m('div.row right-align',
-        m('div.col s12', pagination)
-    ),
     m(DataTable, {
       names: args.names,
       data: data()
     }),
-    m('div.row right-align',
-        m('div.col s12', pagination)
+    m('div.row',
+        m('div.col s12 center-align', pagination)
     )
   ]);
 };
