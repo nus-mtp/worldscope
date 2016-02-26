@@ -71,8 +71,4 @@ Pagination.controller = function (args) {
   Pagination.currentPage = args.currentPage;
 };
 
-Pagination.view = () => m('div.row right-align',
-    m('div.col s12',
-        m('ul.pagination', getPagination())
-    )
-);
+Pagination.view = () => m('ul.pagination', getPagination());

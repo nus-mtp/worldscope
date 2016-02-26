@@ -42,15 +42,23 @@ DataDisplay.view = function (ctrl, args) {
   });
 
   return m('div', mz.select, [
-    m(ItemsCount, {
-      possibleItemsPerPage: ITEMS_PER_PAGE,
-      itemsPerPage: DataDisplay.itemsPerPage
-    }),
-    pagination,
+    m('div.row right-align', [
+      m('div.col s1 offset-s11',
+          m(ItemsCount, {
+            possibleItemsPerPage: ITEMS_PER_PAGE,
+            itemsPerPage: DataDisplay.itemsPerPage
+          })
+      )
+    ]),
+    m('div.row right-align',
+        m('div.col s12', pagination)
+    ),
     m(DataTable, {
       names: args.names,
       data: data()
     }),
-    pagination
+    m('div.row right-align',
+        m('div.col s12', pagination)
+    )
   ]);
 };
