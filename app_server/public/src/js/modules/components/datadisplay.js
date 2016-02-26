@@ -6,43 +6,45 @@ const ItemsCount = require('../components/itemscount');
 const Pagination = require('../components/pagination');
 const DataTable = require('../components/datatable');
 
-const DataDisplay = module.exports = {};
+const DataDisplay = module.exports = {
+  currentPage: m.prop(),
+  itemsPerPage: m.prop(),
+  maxPage: m.prop()
+};
 
 const ITEMS_PER_PAGE = [10, 30, 50];
 
+const updatePageVars = function (items) {
+  DataDisplay.maxPage(Math.floor((items.length - 0.5) / DataDisplay.itemsPerPage() + 1));
+  DataDisplay.currentPage(Math.min(DataDisplay.currentPage(), DataDisplay.maxPage()));
+  return items;
+};
+
+const paginate = function (items) {
+  let count = parseInt(DataDisplay.itemsPerPage());
+  let from = (parseInt(DataDisplay.currentPage()) - 1) * count;
+  let to = from + count;
+  return items.slice(from, to);
+};
+
 DataDisplay.controller = function () {
-  let ctrl = this;
-
-  ctrl.currentPage = m.prop(m.route.param('page') || 1);
-  ctrl.itemsPerPage = m.prop(m.route.param('items') || ITEMS_PER_PAGE[0]);
-  ctrl.maxPage = m.prop(1);
-
-  ctrl.updatePageVars = function (items) {
-    ctrl.maxPage(Math.floor(items.length / ctrl.itemsPerPage() + 1));
-    ctrl.currentPage(Math.min(ctrl.currentPage(), ctrl.maxPage()));
-    return items;
-  };
-
-  ctrl.paginate = function (items) {
-    let count = parseInt(ctrl.itemsPerPage());
-    let from = (parseInt(ctrl.currentPage()) - 1) * count;
-    let to = from + count;
-    return items.slice(from, to);
-  };
+  DataDisplay.currentPage(m.route.param('page') || 1);
+  DataDisplay.itemsPerPage(m.route.param('items') || ITEMS_PER_PAGE[0]);
+  DataDisplay.maxPage(1);
 };
 
 DataDisplay.view = function (ctrl, args) {
-  let data = args.data.then(ctrl.updatePageVars).then(ctrl.paginate);
+  let data = args.data.then(updatePageVars).then(paginate);
 
   let pagination = m(Pagination, {
-    maxPage: ctrl.maxPage,
-    currentPage: ctrl.currentPage
+    maxPage: DataDisplay.maxPage,
+    currentPage: DataDisplay.currentPage
   });
 
   return m('div', mz.select, [
     m(ItemsCount, {
       possibleItemsPerPage: ITEMS_PER_PAGE,
-      itemsPerPage: ctrl.itemsPerPage
+      itemsPerPage: DataDisplay.itemsPerPage
     }),
     pagination,
     m(DataTable, {
