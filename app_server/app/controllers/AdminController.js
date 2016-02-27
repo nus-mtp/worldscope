@@ -85,7 +85,9 @@ Class.registerRoutes = function() {
 
   this.server.route({
     method: 'GET', path: '/logout',
-    config: {auth: false},
+    config: {
+      auth: {scope: Authenticator.SCOPE.ADMIN.DEFAULT}
+    },
     handler: this.logout
   });
 };
