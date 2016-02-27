@@ -244,6 +244,7 @@ Class.login = function(request, reply) {
 };
 
 Class.logout = function(request, reply) {
+  request.server.app.cache.drop(request.auth.credentials.userId);
   request.cookieAuth.clear();
   return reply('Logged out');
 };
