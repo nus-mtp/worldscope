@@ -63,7 +63,7 @@ const getPagination = function () {
   });
   pages.push(getPageIndicator(currentPage + 1, '>'));
 
-  return pages;
+  return pages.length > 2 ? pages : []; // if there are pages
 };
 
 Pagination.controller = function (args) {
@@ -71,4 +71,7 @@ Pagination.controller = function (args) {
   Pagination.currentPage = args.currentPage;
 };
 
-Pagination.view = () => m('ul.pagination', getPagination());
+Pagination.view = function () {
+  let pages = getPagination();
+  return pages ? m('ul.pagination', pages) : '';
+};
