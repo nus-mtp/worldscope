@@ -145,9 +145,16 @@ var addValidationDetailsForJoi =
  */
 exports.addValidationDetailsForJoi = function(request, reply, source, error) {
   var errors = error.data.details.map(function(err) {
+    for (var key in err.context) {
+      if (err.context.hasOwnProperty(key) &&
+          err.context[key] && err.context[key].toString) {
+        err.context[key] = err.context[key].toString();
+      }
+    }
+
     return {
-      param: err.path,
-      type: err.type
+      type: err.type,
+      context: err.context
     };
   });
   Object.assign(error.output.payload, {details: errors});
