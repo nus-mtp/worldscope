@@ -20,6 +20,7 @@ function AdminController(server, options) {
 var Class = AdminController.prototype;
 
 var ROOT_ADMIN_USERNAME = 'root';
+var ROOT_ADMIN_EMAIL = 'admin@example.com';
 
 Class.registerRoutes = function() {
   /*
@@ -127,6 +128,7 @@ Class.createRootAdmin = function(request, reply) {
   request.payload = {
     username: ROOT_ADMIN_USERNAME,
     password: generatedPassword,
+    email: ROOT_ADMIN_EMAIL,
     permissions: [
       Authenticator.SCOPE.ADMIN.METRICS,
       Authenticator.SCOPE.ADMIN.STREAMS,
@@ -263,7 +265,7 @@ var accountPayloadValidator = {
   payload: {
     username: Joi.string().required(),
     password: Joi.string().required(),
-    email: Joi.string().optional(),
+    email: Joi.string().email().optional(),
     permissions: Joi.array().items(validPermissions).unique().default([])
   }
 };
@@ -272,7 +274,7 @@ var updatePayloadValidator = {
   payload: {
     username: Joi.string().required(),
     password: Joi.string().optional(),
-    email: Joi.string().optional(),
+    email: Joi.string().email().required(),
     permissions: Joi.array().items(validPermissions).unique().required()
   }
 };
