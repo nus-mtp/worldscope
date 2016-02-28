@@ -62,6 +62,7 @@ Class.addClient = function(client) {
  * @param roomName {string}
  */
 Class.__addClientToRoom = function(client, roomName) {
+  logger.info(`Adding ${client.getSocketId()} to room ${roomName}`);
   let room = this.__getRoom(roomName);
 
   if (!room) {
@@ -70,9 +71,25 @@ Class.__addClientToRoom = function(client, roomName) {
     return new Error(err);
   }
 
-  logger.info(`Adding ${client.getSocketId()} to room ${roomName}`);
-  room.addClient(client);
-  return true;
+  return room.addClient(client);
+};
+
+/**
+ * Add a client to a socket.io room
+ * @param client {Client}
+ * @param roomName {string}
+ */
+Class.__removeClientFromRoom = function(client, roomName) {
+  logger.info(`Removing ${client.getSocketId()} from room ${roomName}`);
+  let room = this.__getRoom(roomName);
+
+  if (!room) {
+    let err = `Room ${roomName} does not exist`;
+    logger.error(err);
+    return new Error(err);
+  }
+
+  return room.removeClient(client);
 };
 
 Class.createNewRoom = function(roomName) {
@@ -125,7 +142,7 @@ Class.__removeClientFromUsersList = function(client) {
 Class.__removeClientFromRooms = function(client) {
   let rooms = client.getRooms();
   for (var roomName in rooms) {
-    this.__getRoom(roomName).removeClient(client);
+    this.__removeClientFromRoom(client, roomName);
   }
 };
 
@@ -146,9 +163,29 @@ Class.__handleClientEvents = function(client) {
 
   client.on(Client.EVENT_DISCONNECT, () => {
     try {
-      logger.debug('Client %s/%s diconnected',
+      logger.info('Client %s/%s diconnected',
                   client.getUserId(), client.getSocketId());
       this.__removeClient(client);
+    } catch (e) {
+      logger.error(e);
+    }
+  });
+
+  client.on(Client.EVENT_JOIN, (roomName) => {
+    try {
+      logger.info('Client %s/%s joining room %s',
+                   client.getUserId(), client.getSocketId(), roomName);
+      this.__addClientToRoom(client, roomName);
+    } catch (e) {
+      logger.error(e);
+    }
+  });
+
+  client.on(Client.EVENT_LEAVE, (roomName) => {
+    try {
+      logger.info('Client %s/%s leaving room %s',
+                   client.getUserId(), client.getSocketId(), roomName);
+      this.__removeClientFromRoom(client, roomName);
     } catch (e) {
       logger.error(e);
     }

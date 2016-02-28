@@ -3,13 +3,32 @@
 <html>
     <head>
         <title>Socket testing prototype</title>
+        <style>
+            .input-block {
+                margin: 10px
+            }
+            ul {
+                list-style-type: none
+            }
+        </style>
     </head>
     <body>
-        <ul id="output"></ul>
+        <ul id='output'></ul>
         <form action="">
-            <input type='text' id='input' autocomplete='off'>
-            <button>Send</button>
+            <div class='input-block'>
+                <label>Message</label>
+                <input type='text' id='input' autocomplete='off'>
+                <button onclick='comment()'>Comment</button>
+            </div>
+            <div class='input-block'>
+                <label>Room</label>
+                <input type='text' id='roomName'>
+                <button onclick='joinRoom()'>Join</button>
+                <button onclick='leaveRoom()'>Leave</button>
+            </div>
         </form>
+        <p>In rooms:</p>
+        <ul id='rooms'></ul>
         <script src='http://localhost:3000/socket.io/socket.io.js'></script>
         <script>
             var socket = io('http://localhost:3000');
@@ -18,9 +37,9 @@
             socket.emit('identify', cookie);
 
             socket.on('identify', function (data) {
-                if (data == 'OK') {
+                if (data === 'OK') {
                     alert('Connected');
-                } else if (data == 'ERR') {
+                } else if (data === 'ERR') {
                     alert('Failed to connect');
                 } else {
                     alert('Unknown response: ' + data);
@@ -30,17 +49,45 @@
             var form = document.querySelector('form');
             var input = document.querySelector('#input');
             var output = document.querySelector('#output');
+            var roomName = document.querySelector('#roomName');
+            var rooms = document.querySelector('#rooms');
 
-            form.onsubmit = function () {
-                socket.emit('comment', input.value);
+            form.onsubmit = function() {
                 return false;
             };
 
-            socket.on('comment', function (comment) {
+            function comment() {
+                socket.emit('comment', input.value);
+            }
+
+            function joinRoom() {
+                socket.emit('join', roomName.value);
+            }
+
+            function leaveRoom() {
+                socket.emit('leave', roomName.value);
+            }
+
+            socket.on('comment', function(comment) {
                 console.log(comment);
                 var li = document.createElement('li');
                 li.innerHTML = comment;
                 output.appendChild(li);
+            });
+            socket.on('join', function(msg) {
+                var li = document.createElement('li');
+                li.innerHTML = msg.room;
+                rooms.appendChild(li);
+                if (msg.userId === 'me') {
+                    return alert('Joined ' + msg.room);
+                }
+                return alert(msg.userId + ' joined ' + msg.room);
+            });
+            socket.on('leave', function(msg) {
+                if (msg.userId === 'me') {
+                    return alert('Left ' + msg.room);
+                }
+                return alert(msg.userId + ' left ' + msg.room);
             });
         </script>
 
