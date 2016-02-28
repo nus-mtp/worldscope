@@ -1,15 +1,23 @@
 package com.litmus.worldscope;
 
 import android.app.Activity;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.util.Log;
 
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +35,10 @@ public class FacebookWrapper extends SocialMediaWrapper {
     private Fragment fragment;
     private static FacebookWrapper instance;
     private LoginManager loginManager;
+    private String facebookUserId;
+    private FacebookWrapperProfilePictureCallback facebookWrapperProfilePictureCallback;
+
+    private boolean loadProfilePicture;
 
     protected FacebookWrapper(){
         // Empty constructor
@@ -76,13 +88,66 @@ public class FacebookWrapper extends SocialMediaWrapper {
         getLoginManager().registerCallback(callbackManager, facebookCallback);
     }
 
+    public void setFacebookWrapperProfilePictureCallbackListener(FacebookWrapperProfilePictureCallback listener) {
+        this.facebookWrapperProfilePictureCallback = listener;
+    }
 
     public void getProfilePictureUrl() {
 
+        if(facebookUserId == null) {
+            loadProfilePicture = true;
+            return;
+        }
+
+        Bundle facebookGraphParams = new Bundle();
+        facebookGraphParams.putInt("height", 400);
+        facebookGraphParams.putInt("width", 400);
+        facebookGraphParams.putBoolean("redirect", false);
+        /* make the API call */
+        new GraphRequest(
+                AccessToken.getCurrentAccessToken(),
+                "/" + facebookUserId + "/picture",
+                facebookGraphParams,
+                HttpMethod.GET,
+                new GraphRequest.Callback() {
+                    public void onCompleted(GraphResponse response) {
+                        /* handle the result */
+                        try {
+                            String profilePictureUrl = response.getJSONObject().getJSONObject("data").get("url").toString();
+                            facebookWrapperProfilePictureCallback.onProfilePictureUrl(profilePictureUrl);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+        ).executeAsync();
     }
 
     public interface FacebookWrapperProfilePictureCallback {
-        void onProfilePicture(String profilePictureUrl);
+        void onProfilePictureUrl(String profilePictureUrl);
+    }
+
+    public void getUserData() {
+
+        Log.d(TAG, "Getting User data");
+        GraphRequest.newMeRequest(
+                AccessToken.getCurrentAccessToken(),
+                new GraphRequest.GraphJSONObjectCallback() {
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        /* handle the result */
+                        try {
+                            facebookUserId = object.getString("id");
+                            Log.d(TAG, "Facebook User Id: " + facebookUserId);
+                            // Check if profile picture is required
+                            if(loadProfilePicture) {
+                                getProfilePictureUrl();
+                                loadProfilePicture = false;
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).executeAsync();
     }
 
     private LoginManager getLoginManager() {
