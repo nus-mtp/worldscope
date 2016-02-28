@@ -3,9 +3,9 @@ const m = require('mithril');
 const App = module.exports = {};
 
 const Nav = require('./components/nav');
-const ErrorDisplay = require('./components/errordisplay');
+const Alert = require('./components/alert');
 
-const templatePage = (content) => m('div#container', [ErrorDisplay, content]);
+const templatePage = (content) => m('div#container', [Alert, content]);
 
 const wrapView = function (wrapper, vElement) {
   let wrappedElement = Object.assign({}, vElement);

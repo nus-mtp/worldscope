@@ -3,7 +3,7 @@
 const m = require('mithril');
 
 const StreamModel = require('../models/stream');
-const ErrorDisplay = require('../components/errordisplay');
+const Alert = require('../components/alert');
 
 const datetime = require('../utils/dateFormat');
 
@@ -32,7 +32,7 @@ const initPlayer = function () {
 const stopStream = function () {
   StreamModel.stop(Stream.stream()).then(
       () => m.route('/streams'),
-      (err) => ErrorDisplay.setError(err)
+      (err) => Alert.setError(err)
   );
 };
 

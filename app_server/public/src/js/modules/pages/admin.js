@@ -3,7 +3,7 @@ const m = require('mithril');
 const mz = require('../utils/mzInit');
 
 const AdminModel = require('../models/admin');
-const ErrorDisplay = require('../components/errordisplay');
+const Alert = require('../components/alert');
 
 const Admin = module.exports = {};
 
@@ -19,7 +19,7 @@ const createPage = {
     e.preventDefault();
     AdminModel.create(Admin.admin()).then(
         () => m.route('/admins'),
-        (err) => ErrorDisplay.setError(err)
+        (err) => Alert.setError(err)
     );
   }
 };
@@ -35,7 +35,7 @@ const editPage = {
     e.preventDefault();
     AdminModel.update(Admin.admin()).then(
         () => m.route('/admins'),
-        (err) => ErrorDisplay.setError(err)
+        (err) => Alert.setError(err)
     );
   }
 };
@@ -51,7 +51,7 @@ const deletePage = {
     e.preventDefault();
     AdminModel.delete(Admin.admin()).then(
         () => m.route('/admins'),
-        (err) => ErrorDisplay.setError(err)
+        (err) => Alert.setError(err)
     );
   }
 };

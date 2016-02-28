@@ -4,7 +4,7 @@ const mz = require('../utils/mzInit');
 
 const App = require('../app');
 const AdminModel = require('../models/admin');
-const ErrorDisplay = require('../components/errordisplay');
+const Alert = require('../components/alert');
 
 const Login = module.exports = {
   controller: function () {
@@ -19,7 +19,7 @@ const Login = module.exports = {
         let csrfToken = document.cookie;
         App.login(admin, csrfToken);
         App.goToHome();
-      }, ((err) => ErrorDisplay.setError(err)));
+      }, ((err) => Alert.setError(err)));
     };
   },
   view: function (ctrl) {
