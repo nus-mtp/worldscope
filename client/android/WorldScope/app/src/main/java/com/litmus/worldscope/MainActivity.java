@@ -27,22 +27,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
 
-import com.facebook.AccessToken;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.HttpMethod;
 import com.litmus.worldscope.model.WorldScopeUser;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
-
-import org.json.JSONException;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, FacebookWrapper.FacebookWrapperProfilePictureCallback {
 
     private final String TAG = "MainActivity";
 
@@ -63,18 +57,16 @@ public class MainActivity extends AppCompatActivity
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
-    private ViewPager mViewPager;
-
-    private WorldScopeUser loginUser;
-
+    // State variables
     private Context context;
+    private Boolean userIsLoaded;
 
+    // UI variables
+    private ViewPager mViewPager;
+    private WorldScopeUser loginUser;
     private Toolbar toolbar;
 
-    private Boolean userIsLoaded;
+    private FacebookWrapper facebookWrapper = FacebookWrapper.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,20 +78,8 @@ public class MainActivity extends AppCompatActivity
         setToolbarTitle();
 
         // Get user information from intent coming from LoginActivity
-        loginUser = getIntent().getParcelableExtra("loginUser");
-
-        // If user is in Intent
-        if(loginUser != null) {
-            Log.d(TAG, "" + loginUser.toString());
-            // Set boolean to load user
-            userIsLoaded = true;
-            // Show welcome message
-            Toast toast = Toast.makeText(context, String.format(WELCOME_MSG, loginUser.getAlias()), Toast.LENGTH_LONG);
-            toast.show();
-        } else {
-            userIsLoaded = false;
-        }
-
+        loginUser = getLoginUserFromIntent();
+        showLoginToast(loginUser.getAlias());
 
         // Set FAB to redirect to StreamActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -162,6 +142,28 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    // Checks if a user exists in the intent and sets state accordingly before returning the user
+    private WorldScopeUser getLoginUserFromIntent() {
+        WorldScopeUser user = getIntent().getParcelableExtra("loginUser");
+        // If user is in Intent
+        if(user != null) {
+            Log.d(TAG, "" + user.toString());
+            // Set boolean to load user
+            userIsLoaded = true;
+        } else {
+            userIsLoaded = false;
+        }
+
+        return user;
+    }
+
+    private void showLoginToast(String alias) {
+        // Show welcome message
+        Toast toast = Toast.makeText(context,
+                String.format(WELCOME_MSG, alias), Toast.LENGTH_LONG);
+        toast.show();
     }
 
     // Set up the ViewPager and TabLayout to form the Tabs Fragment in the activity
@@ -242,41 +244,28 @@ public class MainActivity extends AppCompatActivity
         }
 
         TextView alias = (TextView) findViewById(R.id.drawerAlias);
-        final ImageView facebookProfilePicture = (ImageView) findViewById(R.id.drawerFacebookProfilePicture);
-
         // Set alias into drawer
         alias.setText(loginUser.getAlias());
+        Log.d(TAG, "Username loaded: " + loginUser.getAlias());
 
-        Bundle facebookGraphParams = new Bundle();
-        facebookGraphParams.putInt("height", 400);
-        facebookGraphParams.putInt("width", 400);
-        facebookGraphParams.putBoolean("redirect", false);
-        /* make the API call */
-        new GraphRequest(
-                AccessToken.getCurrentAccessToken(),
-                "/"+ loginUser.getPlatformId() +"/picture",
-                facebookGraphParams,
-                HttpMethod.GET,
-                new GraphRequest.Callback() {
-                    public void onCompleted(GraphResponse response) {
-                        /* handle the result */
-                        try {
-                            String facebookProfilePictureUrl = response.getJSONObject().getJSONObject("data").get("url").toString();
-                            Log.d(TAG, "" + facebookProfilePictureUrl);
+        facebookWrapper.setFacebookWrapperProfilePictureCallbackListener(this);
+        facebookWrapper.getProfilePictureUrl();
+    }
 
-                            // Set the image to the imageView and trim it to a circle
-                            Picasso.with(facebookProfilePicture.getContext())
-                                    .load(facebookProfilePictureUrl)
-                                    .transform(new CircleTransform())
-                                    .into(facebookProfilePicture);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+    @Override
+    public void onProfilePictureUrl(String profilePictureUrl) {
+        loadProfilePictureIntoView(profilePictureUrl);
+    }
 
-                    }
-                }
-        ).executeAsync();
+    private void loadProfilePictureIntoView(String profilePictureUrl) {
+        // Get the view for profile picture
+        final ImageView profilePicture = (ImageView) findViewById(R.id.drawerProfilePicture);
 
+        // Set the image to the imageView and trim it to a circle
+        Picasso.with(profilePicture.getContext())
+                .load(profilePictureUrl)
+                .transform(new CircleTransform())
+                .into(profilePicture);
     }
 
     // Log out from WorldScope App server

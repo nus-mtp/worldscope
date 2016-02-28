@@ -12,7 +12,7 @@
     android:background="@color/colorAccent">
 
     <ImageView
-        android:id="@+id/drawerFacebookProfilePicture"
+        android:id="@+id/drawerProfilePicture"
         android:layout_width="@dimen/facebook_profile_picture_size"
         android:layout_height="@dimen/facebook_profile_picture_size"
         android:layout_marginTop="@dimen/nav_header_vertical_spacing" />
