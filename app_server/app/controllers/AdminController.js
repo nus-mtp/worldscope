@@ -267,7 +267,8 @@ var accountPayloadValidator = {
     password: Joi.string().required(),
     email: Joi.string().email().optional(),
     permissions: Joi.array().items(validPermissions).unique().default([])
-  }
+  },
+  failAction: Utility.addValidationDetailsForJoi
 };
 
 var updatePayloadValidator = {
@@ -276,7 +277,8 @@ var updatePayloadValidator = {
     password: Joi.string().optional(),
     email: Joi.string().email().required(),
     permissions: Joi.array().items(validPermissions).unique().required()
-  }
+  },
+  failAction: Utility.addValidationDetailsForJoi
 };
 
 /* Helpers for everything above */
