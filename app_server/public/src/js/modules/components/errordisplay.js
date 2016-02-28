@@ -1,9 +1,20 @@
 const m = require('mithril');
+const errInterpreter = require('../utils/errorInterpreter');
 
 const ErrorDisplay = module.exports = {
   messages: m.prop([]),
+  addError: function (err) {
+    ErrorDisplay.addMessage(errInterpreter.interpret(err));
+  },
   addMessage: function (str) {
-    ErrorDisplay.messages().push(str);
+    if (Array.isArray(str)) {
+      str.forEach(ErrorDisplay.addMessage);
+    } else {
+      ErrorDisplay.messages().push(str);
+    }
+  },
+  setError: function (err) {
+    ErrorDisplay.setMessage(errInterpreter.interpret(err));
   },
   setMessage: function (str) {
     ErrorDisplay.resetMessages();
@@ -21,7 +32,7 @@ ErrorDisplay.controller = function () {
   ErrorDisplay.resetMessages();
 };
 
-ErrorDisplay.view = function (ctrl) {
+ErrorDisplay.view = function () {
   return m('div#error.row',
       m('div.col s12 center-align',
           ErrorDisplay.messages().map((msg, idx) =>
