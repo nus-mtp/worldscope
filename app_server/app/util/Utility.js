@@ -137,3 +137,20 @@ exports.changeToUnixTime = function(obj) {
 
   return obj;
 };
+
+var addValidationDetailsForJoi =
+/**
+ * Adds details for validation errors through validate's failAction property
+ * Assumes validation is done through joi
+ */
+exports.addValidationDetailsForJoi = function(request, reply, source, error) {
+  var errors = error.data.details.map(function(err) {
+    return {
+      param: err.path,
+      type: err.type
+    };
+  });
+  Object.assign(error.output.payload, {details: errors});
+
+  return reply(error);
+};
