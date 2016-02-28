@@ -27,18 +27,20 @@ const Login = module.exports = {
   view: function (ctrl) {
     let admin = ctrl.admin;
 
-    return m('div.row', mz.text, [
-      m('form.col offset-s3 s6', {onsubmit: ctrl.login}, [
-        m('div.input-field col s12', [
-          m('input#username', {type: 'text', onchange: m.withAttr('value', admin.username)}),
-          m('label', {for: 'username'}, 'Username')
-        ]),
-        m('div.input-field col s12', [
-          m('input#password', {type: 'password', onchange: m.withAttr('value', admin.password)}),
-          m('label', {for: 'password'}, 'Password')
-        ]),
-        m('button.btn col s12', {type: 'submit'}, 'Log In')
-      ])
-    ]);
+    return m('div#login.row', mz.text,
+        m('div.col s12 offset-m3 m6 offset-l4 l4',
+          m('form.card-panel row', {onsubmit: ctrl.login}, [
+            m('div.input-field col s12', [
+              m('input', {type: 'text', onchange: m.withAttr('value', admin.username)}),
+              m('label', {for: 'username'}, 'Username')
+            ]),
+            m('div.input-field col s12', [
+              m('input', {type: 'password', onchange: m.withAttr('value', admin.password)}),
+              m('label', {for: 'password'}, 'Password')
+            ]),
+            m('button.btn col s12', {type: 'submit'}, 'Log In')
+          ])
+        )
+    );
   }
 };

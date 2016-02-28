@@ -1,68 +1,77 @@
 const m = require('mithril');
 
-const Pagination = module.exports = {};
+const Pagination = module.exports = {
+  maxPage: m.prop(),
+  currentPage: m.prop()
+};
 
-Pagination.view = function (ctrl, args) {
-  const MAX_LENGTH = 5;
-  let maxPage = args.maxPage();
-  let currentPage = parseInt(args.currentPage());
+const MAX_LENGTH = 5;
 
-  let isValidPage = (page) => page >= 1 && page <= maxPage;
-  let isCurrentPage = (page) => page === currentPage;
+const getPageRange = function (length) {
+  let maxPage = Pagination.maxPage();
+  let curPage = Pagination.currentPage();
 
-  let getPagination = function () {
-    let getPageRange = function (curPage, length) {
-      // TODO: Consider large number of pages (> MAX_LENGTH)
-      //   Insert "..." if more than total length?
-      let startPage = maxPage < length ? 1 : function () {
-        let atFront = 1;
-        let atMiddle = curPage - Math.floor(length / 2);
-        let atBack = maxPage - length + 1;
-        return Math.max(atFront, Math.min(atMiddle, atBack));
-      };
+  // TODO: Consider large number of pages (> MAX_LENGTH)
+  //   Insert "..." if more than total length?
+  let startPage = maxPage < length ? 1 : (function () {
+    let atFront = 1;
+    let atMiddle = curPage - Math.floor(length / 2);
+    let atBack = maxPage - length + 1;
+    return Math.max(atFront, Math.min(atMiddle, atBack));
+  })();
 
-      let totalLength = maxPage < length ? maxPage : length;
+  let totalLength = maxPage < length ? maxPage : length;
 
-      let range = [];
-      for (let i = 0; i < totalLength; i++) {
-        range.push(startPage + i);
-      }
-      return range;
+  let range = [];
+  for (let i = 0; i < totalLength; i++) {
+    range.push(startPage + i);
+  }
+  return range;
+};
+
+const getPageIndicator = function (page, text) {
+  let maxPage = Pagination.maxPage();
+  let curPage = Pagination.currentPage();
+  let curPageProp = Pagination.currentPage;
+
+  let liClass = '';
+  let aConfig = {};
+
+  if (page < 1 || page > maxPage) {
+    liClass = '.disabled';
+  } else {
+    if (page === curPage) {
+      liClass = '.active';
+    }
+
+    aConfig = {
+      'data-page': page,
+      onclick: m.withAttr('data-page', curPageProp)
     };
+  }
 
-    let getPageIndicator = function (page, text) {
-      let liClass = '';
-      let aConfig = {};
+  return m('li' + liClass, m('a', aConfig, text));
+};
 
-      if (!isValidPage(page)) {
-        liClass = '.disabled';
-      } else {
-        if (isCurrentPage(page)) {
-          liClass = '.active';
-        }
+const getPagination = function () {
+  let currentPage = Pagination.currentPage();
 
-        aConfig = {
-          'data-page': page,
-          onclick: m.withAttr('data-page', args.currentPage)
-        };
-      }
+  let pages = [];
+  pages.push(getPageIndicator(currentPage - 1, '<'));
+  getPageRange(MAX_LENGTH).map(function (page) {
+    pages.push(getPageIndicator(page, page));
+  });
+  pages.push(getPageIndicator(currentPage + 1, '>'));
 
-      return m('li' + liClass, m('a', aConfig, text));
-    };
+  return pages.length > 2 ? pages : []; // if there are pages
+};
 
-    let pages = [];
-    pages.push(getPageIndicator(currentPage - 1, '<'));
-    getPageRange(currentPage, MAX_LENGTH).map(function (page) {
-      pages.push(getPageIndicator(page, page));
-    });
-    pages.push(getPageIndicator(currentPage + 1, '>'));
+Pagination.controller = function (args) {
+  Pagination.maxPage = args.maxPage;
+  Pagination.currentPage = args.currentPage;
+};
 
-    return pages;
-  };
-
-  return m('div.row right-align',
-      m('div.col s12',
-          m('ul.pagination', getPagination())
-      )
-  );
+Pagination.view = function () {
+  let pages = getPagination();
+  return pages ? m('ul.pagination', pages) : '';
 };

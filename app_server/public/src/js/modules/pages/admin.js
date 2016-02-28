@@ -120,7 +120,7 @@ Admin.view = function () {
       onclick: m.withAttr('checked', prop),
       onchange: updatePermissions
     };
-    return m('div.col s2', [
+    return m('div.col s6 m4 l2', [
       m('input#' + id, attributes),
       m('label', {for: id}, label)
     ]);
@@ -141,7 +141,7 @@ Admin.view = function () {
             getLabelledInput('Email', 'email', 'text', admin.email)
         ),
         m('div.row', [
-          m('div.col s2 grey-text', 'Permissions:'),
+          m('div.col s12 m4 l2 grey-text', 'Permissions:'),
           getPermissionCheckbox('Access to Metrics', 'metrics', permissionsWrapper.metrics),
           getPermissionCheckbox('Access to Streams', 'streams', permissionsWrapper.streams),
           getPermissionCheckbox('Access to Users', 'users', permissionsWrapper.users),

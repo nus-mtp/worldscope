@@ -16,9 +16,5 @@ ItemsCount.view = function (ctrl, args) {
     m('label', 'Items per Page')
   ];
 
-  return m('div.row right-align', [
-    m('div#itemsCount.input-field col s1 offset-s11',
-        getItemsCountSelect
-    )
-  ]);
+  return m('div#itemsCount.input-field', getItemsCountSelect);
 };
