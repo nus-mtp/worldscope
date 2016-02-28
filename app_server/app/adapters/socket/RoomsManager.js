@@ -13,16 +13,11 @@ var Client = rfr('app/adapters/socket/Client');
 
 var logger = Utility.createLogger(__filename);
 
-var DEFAULT_ROOM = 'lobby';
-
 function RoomsManager(server, io) {
   this.io = io;
 
   this.rooms = {}; // A map from room name to Room objects
-  this.rooms[DEFAULT_ROOM] = new Room(DEFAULT_ROOM,
-                                      Room.ROOM_TYPES.GENERAL);
-  // A map from user id to a map of socket.io id to Client object
-  this.users = {};
+  this.users = {}; // A map from userId to a map of socketId to Client object
 
   this.requestInjector = new RequestInjector(server);
 }
@@ -52,7 +47,6 @@ Class.addClient = function(client) {
     user = this.createUser(userId);
   }
   user[client.getSocketId()] = client;
-  this.__addClientToRoom(client, DEFAULT_ROOM);
   this.__handleClientEvents(client);
 };
 
