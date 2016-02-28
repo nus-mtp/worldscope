@@ -16,9 +16,14 @@ var logger = Utility.createLogger(__filename);
 
 function StreamService() {
   let mediaConfig = ServerConfig.mediaServer;
-
   this.mediaServerAdapter = new MediaServerAdapter(
     mediaConfig.host, mediaConfig.username, mediaConfig.password);
+
+  Storage.dbSyncPromise.then((status) => {
+    if (status) {
+      this.createChatRoomsForLiveStreams();
+    }
+  });
 }
 
 var Class = StreamService.prototype;
@@ -29,7 +34,7 @@ Class.createNewStream = function(userId, streamAttributes) {
   return Storage.createStream(userId, streamAttributes)
     .then((result) => {
       if (result) {
-        initializeChatRoomForStream(userId, streamAttributes);
+        initializeChatRoomForStream(streamAttributes);
         return Utility.formatStreamObject(result, 'stream');
       }
 
@@ -148,17 +153,26 @@ Class.stopStream = function(appName, appInstance, streamId) {
   });
 };
 
+Class.createChatRoomsForLiveStreams = function() {
+  var filters = {
+    state: 'live',
+    sort: 'title',
+    order: 'desc'
+  };
+  this.getListOfStreams(filters)
+  .then((liveStreams) => {
+    for (var i in liveStreams) {
+      initializeChatRoomForStream(liveStreams[i]);
+    }
+  });
+};
+
 /**
  * Creates a new chat room for a new stream and add the streamer to that room
  * @param userId {string}
  * @param streamAttributes {object}
  */
-function initializeChatRoomForStream(userId, streamAttributes) {
-  if (!SocketAdapter.isInitialized) {
-    logger.error('SocketAdapter is not isInitialized');
-    return;
-  }
-
+function initializeChatRoomForStream(streamAttributes) {
   let room = SocketAdapter.createNewRoom(streamAttributes.appInstance);
   if (!room || room instanceof Error) {
     logger.error('Unable to create new chat room for stream %s',
@@ -168,8 +182,7 @@ function initializeChatRoomForStream(userId, streamAttributes) {
 
 /**
  * Creates a new chat room for a new stream and add the streamer to that room
- * @param userId {string}
- * @param streamAttributes {object}
+ * @param appInstance {string}
  */
 function closeChatRoomForStream(appInstance) {
   if (!SocketAdapter.isInitialized) {
