@@ -19,7 +19,7 @@ const createPage = {
     e.preventDefault();
     AdminModel.create(Admin.admin()).then(
         () => m.route('/admins'),
-        (err) => ErrorDisplay.setMessage(err.message)
+        (err) => ErrorDisplay.setError(err)
     );
   }
 };
@@ -35,7 +35,7 @@ const editPage = {
     e.preventDefault();
     AdminModel.update(Admin.admin()).then(
         () => m.route('/admins'),
-        (err) => ErrorDisplay.setMessage(err.message)
+        (err) => ErrorDisplay.setError(err)
     );
   }
 };
@@ -51,7 +51,7 @@ const deletePage = {
     e.preventDefault();
     AdminModel.delete(Admin.admin()).then(
         () => m.route('/admins'),
-        (err) => ErrorDisplay.setMessage(err.message)
+        (err) => ErrorDisplay.setError(err)
     );
   }
 };

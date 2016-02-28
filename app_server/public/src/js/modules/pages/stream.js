@@ -32,7 +32,7 @@ const initPlayer = function () {
 const stopStream = function () {
   StreamModel.stop(Stream.stream()).then(
       () => m.route('/streams'),
-      (err) => ErrorDisplay.setMessage(err.message)
+      (err) => ErrorDisplay.setError(err)
   );
 };
 
