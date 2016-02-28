@@ -10,7 +10,9 @@ Nav.updateVisibleItems = function () {
   let scopes = App.getScopes();
   let nav = Nav.navItems = [];
 
-  if (scopes.contains('metrics')) {
+  let contains = (str, sub) => str.indexOf(sub) > -1;
+
+  if (contains(scopes, 'metrics')) {
     nav.push({
       name: 'Metrics', href: '/metrics', icon: 'dashboard',
       sub: [
@@ -20,7 +22,7 @@ Nav.updateVisibleItems = function () {
       ]
     });
   }
-  if (scopes.contains('streams')) {
+  if (contains(scopes, 'streams')) {
     nav.push({
       name: 'Streams', href: '/streams', icon: 'videocam',
       sub: [
@@ -30,7 +32,7 @@ Nav.updateVisibleItems = function () {
       ]
     });
   }
-  if (scopes.contains('users')) {
+  if (contains(scopes, 'users')) {
     nav.push({
       name: 'Users', href: '/users', icon: 'people',
       sub: [
@@ -39,7 +41,7 @@ Nav.updateVisibleItems = function () {
       ]
     });
   }
-  if (scopes.contains('admins')) {
+  if (contains(scopes, 'admins')) {
     nav.push({
       name: 'Admins', href: '/admins', icon: 'visibility',
       sub: [
@@ -48,7 +50,7 @@ Nav.updateVisibleItems = function () {
       ]
     });
   }
-  if (scopes.contains('settings')) {
+  if (contains(scopes, 'settings')) {
     nav.push({
       name: 'Settings',
       href: '/settings',
