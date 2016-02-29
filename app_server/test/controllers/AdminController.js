@@ -34,6 +34,7 @@ adminForDB.permissions = Authenticator.SCOPE.ADMIN.DEFAULT;
 var rootAdmin = {
   username: 'Jane',
   password: 'manual',
+  email: 'jane@example.com',
   permissions: rootAdminPermissions
 };
 
