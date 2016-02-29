@@ -34,6 +34,7 @@ adminForDB.permissions = Authenticator.SCOPE.ADMIN.DEFAULT;
 var rootAdmin = {
   username: 'Jane',
   password: 'manual',
+  email: 'jane@example.com',
   permissions: rootAdminPermissions
 };
 
@@ -297,13 +298,52 @@ lab.experiment('AdminController Routes tests', function() {
       });
     });
 
-  lab.test('Logout', function(done) {
+  lab.test('Login and Logout', {timeout: 5000}, (done) => {
     Router.inject({
-      method: 'GET', url: '/api/admins/logout'
-    }, function(res) {
-      expect(res.statusCode).to.equal(200);
-      expect(res.result).to.equal('Logged out');
-      done();
+      method: 'POST', url: '/api/admins', credentials: testAccount,
+      payload: rootAdmin
+    }, function login() {
+      Router.inject({
+        method: 'POST', url: '/api/admins/login', payload: rootAdmin
+      }, function checkLoggedIn(res) {
+        expect(res.statusCode).to.equal(200);
+
+        var cookie = res.headers['set-cookie'][0].split(';')[0];
+        var token = cookie;
+
+        Router.inject({
+          method: 'POST', url: '/api/admins', payload: {},
+          headers: {
+            'Cookie': cookie,
+            'x-csrf-token': token
+          }
+        }, function checkValidCredentials(res) {
+          // 401 if invalid credentials
+          expect(res.statusCode).to.equal(400);
+
+          Router.inject({
+            method: 'GET', url: '/api/admins/logout',
+            headers: {
+              'Cookie': cookie,
+              'x-csrf-token': token
+            }
+          }, function checkLoggedOut(res) {
+            expect(res.statusCode).to.equal(200);
+            token = cookie = res.headers['set-cookie'][0].split(';')[0];
+
+            Router.inject({
+              method: 'POST', url: '/api/admins', payload: {},
+              headers: {
+                'Cookie': cookie,
+                'x-csrf-token': token
+              }
+            }, function checkInvalidCredentials(res) {
+              expect(res.statusCode).to.equal(401);
+              done();
+            });
+          });
+        });
+      });
     });
   });
 });

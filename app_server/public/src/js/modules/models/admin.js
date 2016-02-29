@@ -20,7 +20,7 @@ Admin.login = (admin, csrfFunction) =>
     });
 
 Admin.logout = () =>
-    m.request({
+    App.request({
       method: 'GET',
       url: '../api/admins/logout',
       deserialize: (text) => text
