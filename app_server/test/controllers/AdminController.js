@@ -41,7 +41,7 @@ var rootAdmin = {
 var rootAdminForDB = Object.assign({}, rootAdmin);
 rootAdminForDB.permissions = rootAdminPermissions.join(';');
 
-lab.experiment('AdminController Function Tests', function() {
+lab.experiment('AdminController Function Tests', {timeout: 5000}, function() {
   lab.beforeEach({timeout: 10000}, function(done) {
     TestUtils.resetDatabase(done);
   });
