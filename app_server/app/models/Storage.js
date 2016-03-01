@@ -54,17 +54,19 @@ function Storage() {
   });
 
   // create the tables
-  sequelize
-    .sync()
-    .then(function(res) {
-      logger.info('Table synchronized');
-    }, function(err) {
-      if (err.parent.code === 'ER_NO_SUCH_TABLE') {
-        logger.info('Building table');
-      } else {
-        logger.error('An error occurred while synchronizing table: %j', err);
-      }
-    });
+  this.dbSyncPromise = sequelize
+  .sync()
+  .then(function(res) {
+    logger.info('Table synchronized');
+    return true;
+  }, function(err) {
+    if (err.parent.code === 'ER_NO_SUCH_TABLE') {
+      logger.info('Building table');
+    } else {
+      logger.error('An error occurred while synchronizing table: %j', err);
+    }
+    return false;
+  });
 
   this.Sequelize = Sequelize;
   this.sequelize = sequelize;

@@ -9,6 +9,7 @@ var EventEmitter = require('events').EventEmitter;
 var util = require('util');
 
 var Utility = rfr('app/util/Utility');
+var Room = rfr('app/adapters/socket/Room');
 
 var logger = Utility.createLogger(__filename);
 
@@ -27,6 +28,8 @@ var Class = Client.prototype;
 
 Client.EVENT_COMMENT = Class.EVENT_COMMENT = 'comment';
 Client.EVENT_DISCONNECT = Class.EVENT_DISCONNECT = 'disconnect';
+Client.EVENT_JOIN = Class.EVENT_JOIN = 'join';
+Client.EVENT_LEAVE = Class.EVENT_LEAVE = 'leave';
 
 Class.getUserId = function getUserId() {
   return this.credentials['userId'];
@@ -50,9 +53,11 @@ Class.getRooms = function getRooms() {
  * @param room {Room}
  */
 Class.__joinRoom__ = function(room) {
-  logger.info(`Client ${this.getSocketId()} joining room ${room.getName()}`);
+  logger.info(`Client ${this.getSocketId()} joined room ${room.getName()}`);
   this.socket.join(room.getName());
   this.rooms[room.getName()] = room;
+  this.broadcastJoinMessage(room);
+  return true;
 };
 
 /**
@@ -67,31 +72,69 @@ Class.__leaveRoom__ = function(room) {
     return new Error(err);
   }
 
-  logger.info(`Client ${this.getSocketId()} leaving room ${room.getName()}`);
+  logger.info(`Client ${this.getSocketId()} left room ${room.getName()}`);
   this.socket.leave(room.getName());
   delete this.rooms[room.getName()];
+  this.broadcastLeaveMessage(room);
+  return true;
+};
+
+Class.__isInRoom = function(roomName) {
+  return this.rooms[roomName] instanceof Room;
+};
+
+Class.broadcastJoinMessage = function(room) {
+  this.broadcastToRoom(Client.EVENT_JOIN, 'OK', room);
+};
+
+Class.broadcastLeaveMessage = function(room) {
+  this.broadcastToRoom(Client.EVENT_LEAVE, 'OK', room);
 };
 
 /**
- * Broadcasts @msg under the message name @event. Current implementation
- * broadcasts to all rooms for testing.
+ * Broadcasts @msg under the message name @event to @room. The message is also
+ * tagged with data to identify the user and the room
+ * @param event {string}
+ * @param msg {string}
+ * @param room {Room}
+ */
+Class.broadcastToRoom = function(event, message, room) {
+  let msgToOthers = {
+    userId: this.getUserId(),
+    room: room.getName(),
+    message: message
+  };
+  let msgToSelf = {
+    userId: 'me',
+    room: room.getName(),
+    message: message
+  };
+  this.socket.to(room.getName()).emit(event, msgToOthers);
+  this.socket.emit(event, msgToSelf);
+};
+
+/**
+ * Broadcasts @msg under the message name @event to all
+ * `ROOM_TYPES.STREAM` rooms that this client is in
  * @param event {string}
  * @param msg {string}
  */
-Class.broadcastToRoom = function broadcastToRoom(event, msg) {
+Class.broadcastToStreamRooms = function(event, msg) {
   if (!this.rooms || this.rooms.length === 0) {
     var err = util.format('@%s: no room to broadcast message to',
                           this.getSocketId());
     logger.error(err);
-    throw new Error(err);
+    return new Error(err);
   }
 
   for (var roomName in this.rooms) {
     var room = this.rooms[roomName];
+    if (room.getType() !== Room.ROOM_TYPES.STREAM) {
+      continue;
+    }
     logger.debug('%s comments in #%s: %s',
                  this.getSocketId(), room.getName(), msg);
-    this.socket.to(room.getName()).emit(event, msg);
-    this.socket.emit(event, msg);
+    this.broadcastToRoom(event, msg, room);
   }
 };
 
@@ -107,11 +150,17 @@ Class.equals = function(otherClient) {
 
 Class.handleSocketEvents = function handleSocketEvents(socket) {
   socket.on(this.EVENT_COMMENT, (comment) => {
-    this.broadcastToRoom(this.EVENT_COMMENT, comment);
+    this.broadcastToStreamRooms(this.EVENT_COMMENT, comment);
     this.emit(this.EVENT_COMMENT, comment);
   });
   socket.on(this.EVENT_DISCONNECT, () => {
     this.emit(this.EVENT_DISCONNECT);
+  });
+  socket.on(this.EVENT_JOIN, (roomName) => {
+    this.emit(this.EVENT_JOIN, roomName);
+  });
+  socket.on(this.EVENT_LEAVE, (roomName) => {
+    this.emit(this.EVENT_LEAVE, roomName);
   });
 };
 

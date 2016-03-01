@@ -45,8 +45,8 @@ Class.getClient = function(socketId) { return this.__clients[socketId]; };
  */
 Class.addClient = function(client) {
   this.__clients[client.getSocketId()] = client;
-  client.__joinRoom__(this);
   logger.info(`${client.getSocketId()} added to ${this.getName()}`);
+  return client.__joinRoom__(this);
 };
 
 /**
@@ -60,8 +60,8 @@ Class.removeClient = function(client) {
   }
 
   delete this.__clients[client.getSocketId()];
-  client.__leaveRoom__(this);
   logger.info(`${client.getSocketId()} removed from ${this.getName()}`);
+  return client.__leaveRoom__(this);
 };
 
 Class.removeAllClients = function() {

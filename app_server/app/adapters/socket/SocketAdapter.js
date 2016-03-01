@@ -41,7 +41,8 @@ Class.init = function init(server) {
  */
 Class.__handleIdentifyEvent = function(socket) {
   socket.on('identify', (cookie) => {
-    Iron.unsealAsync(cookie, ServerConfig.cookiePassword, Iron.defaults)
+    let cookieData = this.__extractCookieData(cookie);
+    Iron.unsealAsync(cookieData, ServerConfig.cookiePassword, Iron.defaults)
     .then((credentials) => {
       if (!credentials || credentials instanceof Error) {
         logger.error('Error decryping cookie from <identify> message');
@@ -70,6 +71,19 @@ Class.__handleIdentifyEvent = function(socket) {
       socket.emit('identify', 'ERR');
     });
   });
+};
+
+Class.__extractCookieData = function(cookie) {
+  if (!cookie) {
+    return '';
+  }
+
+  let cookieTokens = cookie.match('sid-worldscope=(.*)');
+  if (!cookieTokens || cookieTokens.length <= 0) {
+    return '';
+  }
+
+  return cookieTokens[1];
 };
 
 /**
