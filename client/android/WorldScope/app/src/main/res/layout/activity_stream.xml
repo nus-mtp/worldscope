@@ -8,23 +8,31 @@
     <fragment
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:name="layout.StreamVideoFragment"
+        android:name="fragment.StreamVideoFragment"
         android:id="@+id/streamVideoFragment"
         android:layout_gravity="center_horizontal|bottom"
         tools:layout="@layout/fragment_stream_video" />
 
     <fragment
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:name="fragment.CommentFragment"
+        android:id="@+id/commentFragment"
+        tools:layout="@layout/fragment_comment" />
+
+    <fragment
+        android:layout_width="91dp"
         android:layout_height="wrap_content"
-        android:name="layout.StreamVideoControlFragment"
+        android:name="fragment.StreamVideoControlFragment"
         android:id="@+id/streamVideoControlFragment"
         android:layout_gravity="right|bottom"
-        tools:layout="@layout/fragment_stream_video_control" />
+        tools:layout="@layout/fragment_stream_video_control"
+        android:layout_marginBottom="60dp" />
 
     <fragment
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:name="com.litmus.worldscope.StreamCreateFragment"
+        android:name="fragment.StreamCreateFragment"
         android:id="@+id/streamCreateFragment"
         android:layout_gravity="center"
         tools:layout="@layout/fragment_stream_create" />
