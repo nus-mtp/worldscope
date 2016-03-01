@@ -1,4 +1,4 @@
-package com.litmus.worldscope;
+package com.litmus.worldscope.utility;
 
 import android.app.Activity;
 import android.os.Bundle;

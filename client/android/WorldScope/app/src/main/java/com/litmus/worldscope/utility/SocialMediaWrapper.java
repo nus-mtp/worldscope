@@ -1,4 +1,4 @@
-package com.litmus.worldscope;
+package com.litmus.worldscope.utility;
 
 /**
  * Wrapper class for interfacing with Facebook API

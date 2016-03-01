@@ -1,4 +1,4 @@
-package com.litmus.worldscope;
+package com.litmus.worldscope.utility;
 
 import android.content.Context;
 import android.media.MediaCodec;

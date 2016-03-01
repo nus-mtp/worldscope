@@ -1,4 +1,4 @@
-package layout;
+package fragment;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +15,7 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.litmus.worldscope.FacebookWrapper;
+import com.litmus.worldscope.utility.FacebookWrapper;
 import com.litmus.worldscope.R;
 
 /**

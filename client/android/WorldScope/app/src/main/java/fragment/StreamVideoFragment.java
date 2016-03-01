@@ -1,4 +1,4 @@
-package layout;
+package fragment;
 
 import android.content.Context;
 import android.graphics.Point;
@@ -48,7 +48,7 @@ public class StreamVideoFragment extends Fragment {
     private StreamVideoControls controls;
 
     //Change this to stream RMTP
-    private String rtmpLink = "rtmp://multimedia.worldscope.tk:1935/live/streamkey";
+    private String rtmpLink;
     private OnStreamVideoFragmentListener listener;
     private Context context;
 
@@ -65,7 +65,7 @@ public class StreamVideoFragment extends Fragment {
     private CameraView cameraView;
 
     // Video and audio codec settings
-    private String VIDEO_FORMAT = "mp4";
+    private String VIDEO_FORMAT = "flv";
     private int VIDEO_CODEC_H264 = 28;
     private int AUDIO_CODEC_AAC = 86018;
     private int VIDEO_FRAME_RATE = 30;

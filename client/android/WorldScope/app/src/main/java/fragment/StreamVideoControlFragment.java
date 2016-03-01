@@ -1,4 +1,4 @@
-package layout;
+package fragment;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -9,11 +9,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Vibrator;
-import android.view.animation.AlphaAnimation;
 
 import com.litmus.worldscope.R;
 
@@ -38,6 +36,7 @@ public class StreamVideoControlFragment extends Fragment {
     private FloatingActionButton fabRecordButton;
     private boolean isBlocked;
     private boolean isRecording;
+    private boolean isShown;
     private Timer timer;
     private TimerTask timerTask;
 
@@ -170,15 +169,29 @@ public class StreamVideoControlFragment extends Fragment {
         timer.schedule(timerTask, 5000, 5000);
     }
 
+    public void toggleControlVisibility() {
+        if(isShown) {
+            // Hide control
+            hideControls();
+        } else {
+            // Show control and reset the timer
+            restartHideButtonTimerTask();
+        }
+    }
+
     // Interrupt and restart the hide button task
-    public void restartHideButtonTimerTask() {
+    private void restartHideButtonTimerTask() {
         showControls();
-        timer.cancel();
+        // Touch event may occur before initialization complete
+        if(timer != null) {
+            timer.cancel();
+        }
         setFadeButtonTimerTask();
     }
 
     // Show the control
     private void showControls() {
+        isShown = true;
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -198,12 +211,13 @@ public class StreamVideoControlFragment extends Fragment {
 
     // Hide the control
     private void hideControls() {
+        isShown = false;
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 view.animate()
                         .alpha(0.0f)
-                        .setDuration(300)
+                        .setDuration(150)
                         .setListener(new AnimatorListenerAdapter() {
                             @Override
                             public void onAnimationEnd(Animator animation) {
