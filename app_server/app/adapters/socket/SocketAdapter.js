@@ -41,7 +41,9 @@ Class.init = function init(server) {
  */
 Class.__handleIdentifyEvent = function(socket) {
   socket.on('identify', (cookie) => {
-    Iron.unsealAsync(cookie, ServerConfig.cookiePassword, Iron.defaults)
+    console.log(cookie);
+    let cookieData = cookie.match('sid-worldscope=(.*)')[1];
+    Iron.unsealAsync(cookieData, ServerConfig.cookiePassword, Iron.defaults)
     .then((credentials) => {
       if (!credentials || credentials instanceof Error) {
         logger.error('Error decryping cookie from <identify> message');

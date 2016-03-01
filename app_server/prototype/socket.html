@@ -33,7 +33,7 @@
         <script>
             var socket = io("http://localhost:3000");
 
-            var cookie = document.cookie.match("sid-worldscope=(.*)")[1];
+            var cookie = document.cookie;
             socket.emit("identify", cookie);
 
             socket.on("identify", function (data) {
