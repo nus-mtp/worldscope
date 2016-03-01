@@ -10,8 +10,10 @@ import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.litmus.worldscope.model.WorldScopeUser;
+import com.litmus.worldscope.utility.WorldScopeAPIService;
+import com.litmus.worldscope.utility.WorldScopeRestAPI;
 
-import layout.FacebookLoginFragment;
+import fragment.FacebookLoginFragment;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -36,7 +38,7 @@ public class LoginActivity extends AppCompatActivity implements FacebookLoginFra
 
     @Override
     public void onFacebookLoginSuccess(AccessToken accessToken) {
-        // Successful login -> Redirect to main activity
+        // Successful login -> Redirect to Main activity
         Log.d(TAG, "Login Success!");
         Log.d(TAG, "AccessToken: " + accessToken.getToken());
 
@@ -49,8 +51,10 @@ public class LoginActivity extends AppCompatActivity implements FacebookLoginFra
                     Log.d(TAG, "Success!");
                     Log.d(TAG, "" + response.body().toString());
 
+                    WorldScopeUser user = response.body();
+                    WorldScopeAPIService.setUser(user);
                     // Redirect to MainActivity if successful
-                    redirectToMainActivity(response.body());
+                    redirectToMainActivity();
 
                 } else {
                     Log.d(TAG, "Failure" + response.code() + ": " + response.message());
@@ -69,9 +73,8 @@ public class LoginActivity extends AppCompatActivity implements FacebookLoginFra
     }
 
     //Redirects to MainActivity
-    protected void redirectToMainActivity(WorldScopeUser user) {
+    protected void redirectToMainActivity() {
         Intent intent = new Intent(context, MainActivity.class);
-        intent.putExtra("loginUser", user);
         startActivity(intent);
     }
 
