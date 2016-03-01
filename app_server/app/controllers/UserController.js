@@ -153,13 +153,15 @@ Class.logout = function(request, reply) {
 var singleUserValidator = {
   params: {
     id: Joi.string().guid()
-  }
+  },
+  failAction: Utility.addValidationDetailsForJoi
 };
 
 var userListParamsValidator = {
   query: {
     order: Joi.any().valid('desc', 'asc').default('asc')
-  }
+  },
+  failAction: Utility.addValidationDetailsForJoi
 };
 
 var loginPayloadValidator = {
@@ -174,7 +176,8 @@ var updateUserValidator = {
     alias: Joi.string(),
     description: Joi.string(),
     email: Joi.string()
-  }
+  },
+  failAction: Utility.addValidationDetailsForJoi
 };
 
 exports.register = function(server, options, next) {
