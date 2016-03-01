@@ -28,15 +28,22 @@ import android.widget.Toast;
 import android.util.Log;
 
 import com.litmus.worldscope.model.WorldScopeUser;
+import com.litmus.worldscope.utility.FacebookWrapper;
+import com.litmus.worldscope.utility.WorldScopeAPIService;
+import com.litmus.worldscope.utility.WorldScopeRestAPI;
+import com.litmus.worldscope.utility.WorldScopeSocketService;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
+import fragment.StreamRefreshListFragment;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, FacebookWrapper.FacebookWrapperProfilePictureCallback {
+        implements NavigationView.OnNavigationItemSelectedListener,
+            FacebookWrapper.FacebookWrapperProfilePictureCallback,
+            WorldScopeSocketService.OnIdentifyEventListener {
 
     private final String TAG = "MainActivity";
 
@@ -74,12 +81,25 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         context = this;
 
-        //Set the title of the toolbar
+        // Initialize Socket.IO
+        WorldScopeSocketService.initialize();
+
+        // Make an identify connection
+        WorldScopeSocketService.emitIdentify(WorldScopeAPIService.getCookie());
+
+        // Register this as a listener
+        WorldScopeSocketService.registerListener(this);
+
+        // Set the title of the toolbar
         setToolbarTitle();
 
         // Get user information from intent coming from LoginActivity
-        loginUser = getLoginUserFromIntent();
-        showLoginToast(loginUser.getAlias());
+        loginUser = getLoginUserFromWorldScopeAPIService();
+        if(loginUser != null) {
+            showLoginToast(loginUser.getAlias());
+        } else {
+            Log.d(TAG, "Unable to get user");
+        }
 
         // Set FAB to redirect to StreamActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -145,8 +165,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     // Checks if a user exists in the intent and sets state accordingly before returning the user
-    private WorldScopeUser getLoginUserFromIntent() {
-        WorldScopeUser user = getIntent().getParcelableExtra("loginUser");
+    private WorldScopeUser getLoginUserFromWorldScopeAPIService() {
+        WorldScopeUser user = WorldScopeAPIService.getUser();
         // If user is in Intent
         if(user != null) {
             Log.d(TAG, "" + user.toString());
@@ -368,6 +388,11 @@ public class MainActivity extends AppCompatActivity
             }
             return null;
         }
+    }
+
+    @Override
+    public void onIdentifyEventEmitted(String data) {
+        Log.d(TAG, "Socket.IO emitted 'identify' event with data: " + data);
     }
 
 }

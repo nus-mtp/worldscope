@@ -4,44 +4,66 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.View;
 
-import layout.StreamVideoControlFragment;
-import layout.StreamVideoFragment;
+import fragment.CommentFragment;
+import fragment.StreamCreateFragment;
+import fragment.StreamVideoControlFragment;
+import fragment.StreamVideoFragment;
 
 public class StreamActivity extends AppCompatActivity implements StreamVideoFragment.OnStreamVideoFragmentListener,
         StreamCreateFragment.OnStreamCreateFragmentListener,
-        StreamVideoControlFragment.OnStreamVideoControlFragmentListener{
+        StreamVideoControlFragment.OnStreamVideoControlFragmentListener,
+        CommentFragment.OnCommentFragmentInteractionListener {
 
     private static final String TAG = "StreamActivity";
+    private String streamWhenReadyTag = "streamWhenReady";
+    private String isRecordingTag = "isRecordingTag";
     private StreamVideoFragment.StreamVideoControls control;
     private StreamCreateFragment streamCreateFragment;
     private StreamVideoControlFragment streamVideoControlFragment;
+    private CommentFragment commentFragment;
     private android.support.v4.app.FragmentManager sfm;
     private boolean streamWhenReady = false;
     private boolean isRecording = false;
+    private GestureDetector gestureDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if(savedInstanceState != null) {
+            savedInstanceState.getBoolean(streamWhenReadyTag);
+            savedInstanceState.getBoolean(isRecordingTag);
+        }
+
         setContentView(R.layout.activity_stream);
         sfm = getSupportFragmentManager();
+
+        // Create GestureDetector
+        gestureDetector = new GestureDetector(this, new GestureListener());
 
         // Get streamCreateFragment
         streamCreateFragment = (StreamCreateFragment) sfm.findFragmentById(R.id.streamCreateFragment);
         // Get streamVideoControlFragment
         streamVideoControlFragment = (StreamVideoControlFragment) sfm.findFragmentById(R.id.streamVideoControlFragment);
+        // Get commentFragment
+        commentFragment = (CommentFragment) sfm.findFragmentById(R.id.commentFragment);
 
         Log.d(TAG, "Streamer activity created!");
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(streamWhenReadyTag, streamWhenReady);
+        outState.putBoolean(isRecordingTag , isRecording);
+    }
+
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
-        // On touch, calls the video control fragment back into view if hidden
-        Log.d(TAG, "Touch detected, showing controls");
-        streamVideoControlFragment.restartHideButtonTimerTask();
-        return true;
+        return gestureDetector.onTouchEvent(event);
     }
 
     /**
@@ -61,7 +83,7 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
      */
 
     @Override
-    public void onStreamCreationSuccess(String rtmpLink) {
+    public void onStreamCreationSuccess(String rtmpLink, String appInstance, String alias) {
         Log.d(TAG, rtmpLink);
 
         // Find streamVideoFragment and set the rtmp link from streamCreateFragment
@@ -78,6 +100,10 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
 
         // Start the streamVideoControls
         streamVideoControlFragment.startStreaming();
+
+        // Join room and show comment UI
+        commentFragment.joinRoom(appInstance, alias);
+        commentFragment.initialize();
     }
 
     @Override
@@ -124,4 +150,28 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
+
+    // For CommentFragment TODO: Update
+    @Override
+    public void onFragmentInteraction() {
+
+    }
+
+    // Gesture Listener to listen for double taps
+    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            // On Double Tap, calls the video control fragment back into view if hidden
+            Log.d(TAG, "Double Tap detected, showing controls");
+            streamVideoControlFragment.toggleControlVisibility();
+            return true;
+        }
+    }
+
 }
