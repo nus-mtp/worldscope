@@ -1,7 +1,8 @@
 /**
  * 'errorInterpreter' returns humanized error details.
  */
-const UNKNOWN_ERROR = 'An unknown error has occurred.';
+const ERROR_UNKNOWN = 'An unknown error has occurred.';
+const ERROR_NETWORK = 'Unable to connect to the server.';
 
 /*eslint-disable max-len */
 const validationErrors = {
@@ -137,13 +138,11 @@ const formatContextError = function (msg, ctx) {
 
 const interpretValidationErrors = function (details) {
   return details.map(function(error) {
-    let errMsg = error.type.split('.').reduce(function (prev, cur) {
-      return prev[cur];
-    }, validationErrors) || UNKNOWN_ERROR;
+    let errMsg = error.type.split('.').reduce((prev, cur) => prev[cur], validationErrors);
 
     return {
       param: error.context.key,
-      msg: formatContextError(errMsg, error.context)
+      msg: formatContextError(errMsg || ERROR_UNKNOWN, error.context)
     };
   });
 };
@@ -155,6 +154,15 @@ const formatErrors = function (errors) {
 };
 
 const errorInterpreter = module.exports = {
-  interpret: (err) => err.validation && err.details ?
-      formatErrors(interpretValidationErrors(err.details)) : err.message
+  interpret: function (err) {
+    let msg = err.message;
+
+    if (err.validation && err.details) {
+      msg = formatErrors(interpretValidationErrors(err.details));
+    } else if (err.network) {
+      msg = ERROR_NETWORK;
+    }
+
+    return msg;
+  }
 };

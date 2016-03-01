@@ -69,7 +69,12 @@ App.request = function (originalOptions) {
         window.localStorage.getItem(App.CSRF_HEADER));
   };
 
-  return m.request(options);
+  let deferred = m.deferred();
+  m.request(options).then(
+      (res) => deferred.resolve(res),
+      (err) => deferred.reject(err || {network: true})
+  );
+  return deferred.promise;
 };
 
 // TODO: Separate into Authentication module
