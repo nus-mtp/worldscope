@@ -75,7 +75,7 @@ lab.experiment('socket.io connection and identify', function () {
           done();
         });
 
-        client.emit('identify', sealed);
+        client.emit('identify', `sid-worldscope=${sealed}`);
       });
     });
   });
@@ -96,7 +96,7 @@ lab.experiment('socket.io connection and identify', function () {
             done();
           });
 
-          client.emit('identify', sealed);
+          client.emit('identify', `sid-worldscope=${sealed}`);
         });
       });
     });
@@ -121,7 +121,7 @@ lab.experiment('socket.io disconnect', function () {
             Code.expect(msg).to.equal('OK');
             client.disconnect();
           });
-          client.emit('identify', sealed);
+          client.emit('identify', `sid-worldscope=${sealed}`);
         });
 
         setTimeout(() => {
@@ -178,7 +178,7 @@ lab.experiment('Room join and leave', function () {
             Code.expect(isUserInRoom(account.userId, 'abc')).to.be.true();
             done();
           });
-          client.emit('identify', sealed);
+          client.emit('identify', `sid-worldscope=${sealed}`);
         });
       });
     });
@@ -199,7 +199,7 @@ lab.experiment('Room join and leave', function () {
             client.emit('join', 'xyz');
           });
         });
-        client.emit('identify', sealed);
+        client.emit('identify', `sid-worldscope=${sealed}`);
 
         setTimeout(() => {
           Code.expect(isUserInRoom(account.userId, 'abc')).to.be.false();
@@ -234,7 +234,7 @@ lab.experiment('Room join and leave', function () {
             Code.expect(isUserInRoom(account.userId, 'abc')).to.be.false();
             done();
           });
-          client.emit('identify', sealed);
+          client.emit('identify', `sid-worldscope=${sealed}`);
         });
       });
     });

@@ -41,8 +41,7 @@ Class.init = function init(server) {
  */
 Class.__handleIdentifyEvent = function(socket) {
   socket.on('identify', (cookie) => {
-    console.log(cookie);
-    let cookieData = cookie.match('sid-worldscope=(.*)')[1];
+    let cookieData = this.__extractCookieData(cookie);
     Iron.unsealAsync(cookieData, ServerConfig.cookiePassword, Iron.defaults)
     .then((credentials) => {
       if (!credentials || credentials instanceof Error) {
@@ -72,6 +71,19 @@ Class.__handleIdentifyEvent = function(socket) {
       socket.emit('identify', 'ERR');
     });
   });
+};
+
+Class.__extractCookieData = function(cookie) {
+  if (!cookie) {
+    return '';
+  }
+
+  let cookieTokens = cookie.match('sid-worldscope=(.*)');
+  if (!cookieTokens || cookieTokens.length <= 0) {
+    return '';
+  }
+
+  return cookieTokens[1];
 };
 
 /**
