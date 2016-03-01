@@ -16,6 +16,10 @@ public class WorldScopeViewStream extends WorldScopeStream implements Parcelable
     public void setViewLink(String viewLink) {this.viewLink = viewLink;}
     public void setThumbnailLink(String thumbnailLink) {this.thumbnailLink = thumbnailLink;}
 
+    public WorldScopeViewStream() {
+        // Default empty constructor
+    }
+
     @Override
     public String toString() {
         return super.toString() + "\n"

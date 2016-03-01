@@ -1,4 +1,4 @@
-package com.litmus.worldscope;
+package fragment;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -11,7 +11,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.litmus.worldscope.R;
 import com.litmus.worldscope.model.WorldScopeCreatedStream;
+import com.litmus.worldscope.utility.WorldScopeAPIService;
+import com.litmus.worldscope.utility.WorldScopeRestAPI;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -166,7 +169,11 @@ public class StreamCreateFragment extends Fragment {
                 if (response.isSuccess()) {
                     Log.d(TAG, "Success!");
                     Log.d(TAG, "" + response.body().toString());
-                    listener.onStreamCreationSuccess(response.body().getStreamLink());
+
+                    listener.onStreamCreationSuccess(response.body().getStreamLink(),
+                            response.body().getAppInstance(),
+                            WorldScopeAPIService.getUser().getAlias());
+
                     hideStreamCreateView();
                     Toast toast = Toast.makeText(context, STREAM_STARTED_MESSAGE, Toast.LENGTH_LONG);
                     toast.show();
@@ -214,7 +221,7 @@ public class StreamCreateFragment extends Fragment {
      */
     public interface OnStreamCreateFragmentListener {
         // Implement to receive update upon stream creation success
-        void onStreamCreationSuccess(String rtmpLink);
+        void onStreamCreationSuccess(String rtmpLink, String appInstance, String alias);
 
         // Implement to handle CancelStreamButton
         void onCancelStreamButtonClicked();

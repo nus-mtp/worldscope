@@ -1,4 +1,4 @@
-package layout;
+package fragment;
 
 import android.content.Context;
 import android.graphics.Point;
@@ -48,18 +48,29 @@ public class StreamVideoFragment extends Fragment {
     private StreamVideoControls controls;
 
     //Change this to stream RMTP
-    private String rtmpLink = "rtmp://multimedia.worldscope.tk:1935/live/streamkey";
+    private String rtmpLink;
     private OnStreamVideoFragmentListener listener;
     private Context context;
 
     private FrameLayout root;
 
-    long startTime = 0;
+    // States for recorder
+    long startTime;
     boolean recording = false;
+
+    // Recorder and camera objects
     private FFmpegFrameRecorder recorder;
     private FFmpegFrameFilter filter;
+    private Camera cameraDevice;
+    private CameraView cameraView;
 
-    /* From javacpp-presets -> avutil.java */
+    // Video and audio codec settings
+    private String VIDEO_FORMAT = "flv";
+    private int VIDEO_CODEC_H264 = 28;
+    private int AUDIO_CODEC_AAC = 86018;
+    private int VIDEO_FRAME_RATE = 30;
+
+    // From javacpp-presets -> avutil.java
     private int AV_PIX_FMT_NV21 = 26;
     private Frame yuvImage = null;
 
@@ -67,23 +78,19 @@ public class StreamVideoFragment extends Fragment {
     final int ROTATION_90 = 90;
 
     // Audio and video initial setting
-
     boolean isPreviewOn = false;
     int sampleAudioRateInHz = 44100;
     int imageWidth = 320;
     int imageHeight = 240;
     int frameRate = 30;
-
-    private Camera cameraDevice;
-    private CameraView cameraView;
-
-    /* audio data getting thread */
-    AudioRecord audioRecord;
-    AudioRecordRunnable audioRecordRunnable;
-    Thread audioThread;
-    volatile boolean runAudioThread = true;
-
     private int actualHeight;
+
+    // Audio data getting thread
+    private AudioRecord audioRecord;
+    private AudioRecordRunnable audioRecordRunnable;
+    private Thread audioThread;
+
+    volatile boolean runAudioThread = true;
 
     public StreamVideoFragment() {
     }
@@ -464,7 +471,7 @@ public class StreamVideoFragment extends Fragment {
 
     // Create recorder
     private void initializeRecorder() {
-        Log.w(TAG,"init recorder");
+        Log.w(TAG, "init recorder");
 
         if (yuvImage == null) {
             yuvImage = new Frame(imageWidth, imageHeight, Frame.DEPTH_UBYTE, 2);
@@ -475,11 +482,11 @@ public class StreamVideoFragment extends Fragment {
         recorder = new FFmpegFrameRecorder(rtmpLink, imageWidth, imageHeight, 1);
 
         // Custom format
-        recorder.setFormat("flv");
-        recorder.setVideoCodec(28);
-        recorder.setAudioCodec(86018);
+        recorder.setFormat(VIDEO_FORMAT);
+        recorder.setVideoCodec(VIDEO_CODEC_H264);
+        recorder.setAudioCodec(AUDIO_CODEC_AAC);
         recorder.setSampleRate(sampleAudioRateInHz);
-        recorder.setFrameRate(30.0D);
+        recorder.setFrameRate(VIDEO_FRAME_RATE);
 
         // Default format
         //recorder.setSampleRate(sampleAudioRateInHz);

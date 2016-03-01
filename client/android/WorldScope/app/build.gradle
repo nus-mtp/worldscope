@@ -23,6 +23,9 @@ android {
 
 
 
+
+
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
@@ -43,6 +46,7 @@ dependencies {
     //Retrofit - RESTful client
     //Gson
     //Picasso - Android Image Loader
+    // Socket.IO
     compile 'com.google.android.exoplayer:exoplayer:r1.5.1'
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:support-v4:23.1.1'
@@ -53,4 +57,5 @@ dependencies {
     compile 'com.google.code.gson:gson:2.4'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.ocpsoft:ocpsoft-pretty-time:1.0.6'
+    compile 'com.github.nkzawa:socket.io-client:0.6.0'
 }

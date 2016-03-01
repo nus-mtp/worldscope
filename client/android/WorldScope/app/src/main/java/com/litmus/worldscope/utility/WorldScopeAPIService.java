@@ -1,4 +1,4 @@
-package com.litmus.worldscope;
+package com.litmus.worldscope.utility;
 
 import com.litmus.worldscope.model.WorldScopeCreatedStream;
 import com.litmus.worldscope.model.WorldScopeUser;
@@ -14,6 +14,14 @@ public class WorldScopeAPIService {
 
     // Server address
     public static final String WorldScopeURL = "http://54.179.170.132:3000";
+
+    //public static final String WorldScopeURL = "http://kyleasuspc:3000";
+
+    // Current cookie for this session
+    // Retrived from the save cookie interceptor in WorldScopeRestAPI
+    private static String currentCookie;
+
+    private static WorldScopeUser currentUser;
 
     // REST API Routes
     private static final String loginRoute = "/api/users/login";
@@ -56,7 +64,7 @@ public class WorldScopeAPIService {
         private final String accessToken;
         private final String appId;
 
-        LoginUserRequest(String accessToken) {
+        public LoginUserRequest(String accessToken) {
             this.accessToken = accessToken;
             this.appId = WorldScopeAPIService.appId;
         }
@@ -71,9 +79,34 @@ public class WorldScopeAPIService {
         private final String title;
         private final String description;
 
-        PostStreamRequest(String title, String description) {
+        public PostStreamRequest(String title, String description) {
             this.title= title;
             this.description = description;
         }
+    }
+
+    // Cookies methods
+    public static String getCookie() {
+        return currentCookie;
+    }
+
+    public static void setCookie(String cookie) {
+        currentCookie = cookie;
+    }
+
+    public static void resetCookie() {
+        currentCookie = null;
+    }
+
+    public static WorldScopeUser getUser() {
+        return currentUser;
+    }
+
+    public static void setUser(WorldScopeUser user) {
+        currentUser = user;
+    }
+
+    public static void resetUser() {
+        currentUser = null;
     }
 }

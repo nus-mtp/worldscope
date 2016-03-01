@@ -1,4 +1,4 @@
-package com.litmus.worldscope;
+package fragment;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +16,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.litmus.worldscope.R;
+import com.litmus.worldscope.ViewActivity;
 import com.litmus.worldscope.model.WorldScopeViewStream;
+import com.litmus.worldscope.utility.WorldScopeRestAPI;
 import com.ocpsoft.pretty.time.PrettyTime;
 import com.squareup.picasso.Picasso;
 
@@ -140,6 +143,12 @@ public class StreamRefreshListFragment extends Fragment {
                     for (WorldScopeViewStream stream : response.body()) {
                         streams.add(stream);
                     }
+
+                    WorldScopeViewStream testStream = new WorldScopeViewStream();
+                    testStream.setViewLink("http://yt-dash-mse-test.commondatastorage.googleapis.com/media/motion-20120802-manifest.mpd");
+                    testStream.setTitle("Test");
+                    streams.add(testStream);
+
                     worldScopeStreamAdapter.notifyDataSetChanged();
 
                 } else {

@@ -1,7 +1,6 @@
-package com.litmus.worldscope;
+package com.litmus.worldscope.utility;
 
 import android.content.Context;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -17,7 +16,6 @@ import com.litmus.worldscope.model.WorldScopeUser;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashSet;
-import java.util.Set;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -26,6 +24,11 @@ import okhttp3.Response;
 import retrofit2.GsonConverterFactory;
 import retrofit2.Retrofit;
 
+/**
+ * WorldScopeRestAPI creates instances of API calls through RetroFit and other libraries
+ * Cookies are also intercepted and stored
+ * Think of this class as the gun and WorldScopeAPIService as the bullets
+ */
 public class WorldScopeRestAPI {
 
     private static final String TAG = "WorldScopeRestAPI";
@@ -104,9 +107,13 @@ public class WorldScopeRestAPI {
             HashSet<String> preferences = (HashSet<String>) PreferenceManager.getDefaultSharedPreferences(context)
                     .getStringSet(cookiesSetTag, new HashSet<String>());
 
+            // If the request is login, clear previous cookies (cookies not required for login)
             if(chain.request().method().equals("POST") && chain.request().url().toString().equals(WorldScopeAPIService.WorldScopeURL + "/api/users/login")) {
                 Log.d(TAG, "Login detected, clearing cookies");
                 preferences.clear();
+
+                // Clear cookies from WorldScopeAPIService
+                WorldScopeAPIService.resetCookie();
             }
 
             Request.Builder builder = chain.request().newBuilder();
@@ -137,10 +144,13 @@ public class WorldScopeRestAPI {
                     int cookieEndIndex = header.indexOf(";");
                     if(cookieEndIndex > 0) {
                         header = header.substring(0, cookieEndIndex);
-                    }
+                        cookies.add(header);
 
-                    cookies.add(header);
-                    Log.d(TAG, "Cookies saved: " + header);
+                        // Set the cookie in WorldScopeAPIService
+                        WorldScopeAPIService.setCookie(header);
+
+                        Log.d(TAG, "Cookies saved: " + header);
+                    }
                 }
 
                 PreferenceManager.getDefaultSharedPreferences(context).edit()
