@@ -16,7 +16,7 @@
     <fragment
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:name="layout.FacebookLoginFragment"
+        android:name="fragment.FacebookLoginFragment"
         android:id="@+id/facebookLoginButtonFragment"
         tools:layout="@layout/fragment_facebook_login"
         android:layout_marginBottom="104dp"
