@@ -22,7 +22,7 @@ const initPlayer = function () {
     console.error(event);
   });
 
-  let mpdUrl = Stream.stream().link;
+  let mpdUrl = Stream.stream().link();
   let estimator = new shaka.util.EWMABandwidthEstimator();
   let source = new shaka.player.DashVideoSource(mpdUrl, null, estimator);
 
