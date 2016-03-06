@@ -35,6 +35,10 @@ Class.getUserId = function getUserId() {
   return this.credentials['userId'];
 };
 
+Class.getAlias = function getAlias() {
+  return this.credentials['alias'];
+};
+
 Class.getCredentials = function getCredentials() {
   return this.credentials;
 };
@@ -101,11 +105,13 @@ Class.broadcastLeaveMessage = function(room) {
 Class.broadcastToRoom = function(event, message, room) {
   let msgToOthers = {
     userId: this.getUserId(),
+    alias: this.getAlias(),
     room: room.getName(),
     message: message
   };
   let msgToSelf = {
     userId: 'me',
+    alias: this.getAlias(),
     room: room.getName(),
     message: message
   };

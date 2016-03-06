@@ -71,7 +71,7 @@
             socket.on("comment", function(comment) {
                 console.log(comment);
                 var li = document.createElement("li");
-                li.innerHTML = comment.message;
+                li.innerHTML = comment["alias"] + ": " + comment.message;
                 output.appendChild(li);
             });
             socket.on("join", function(msg) {
