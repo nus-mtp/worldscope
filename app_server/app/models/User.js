@@ -140,6 +140,10 @@ module.exports = function(sequelize, DataTypes) {
           as: 'Subscribers', // noob
           foreignKey: 'subscribeTo' // pro
         });
+        User.hasMany(models.Comment, {
+          as: 'comments',
+          foreignKey: 'userId'
+        });
       }
     }
   });

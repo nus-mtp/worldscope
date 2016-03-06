@@ -13,7 +13,7 @@ var Utility = rfr('app/util/Utility');
 var CustomError = rfr('app/util/Error');
 var logger = Utility.createLogger(__filename);
 
-var modelNames = ['User', 'Stream', 'View', 'Subscription'];
+var modelNames = ['User', 'Stream', 'View', 'Subscription', 'Comment'];
 
 /**
  * Initialises the database connection and load the models written in
@@ -583,6 +583,41 @@ Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
       });
     });
 };
+
+/************************************************************************
+ *                                                                       *
+ *                           COMMENT API                                 *
+ *                                                                       *
+ *************************************************************************/
+ /**
+ * @param  {string} userId
+ * @param  {string} streamId
+ * @param  {Object} commentObj
+ * @param  {string} commentObj.content
+ * @return {Promise<Sequelize.Comment>}
+ */
+Class.createComment = function(userId, streamId, commentObj) {
+  var userPromise = this.models.User.findById(userId);
+  var streamPromise = this.models.Stream.findById(streamId);
+
+  return Promise.join(userPromise, streamPromise,
+    function(user, stream) {
+      if (user === null || stream === null) {
+        logger.error('Either user or stream cannot be found');
+
+        return new CustomError.NotFoundError('User or stream not found');
+      }
+
+      var comment = {
+        content: commentObj.content,
+        userId: userId,
+        streamId: streamId
+      };
+
+      return this.models.Comment.create(comment).bind(this);
+    }.bind(this));
+};
+
 /**
  * Check if the fields to be changed match the fields available in object
  * @private
