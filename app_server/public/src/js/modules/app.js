@@ -61,6 +61,9 @@ App.routes = {
 };
 
 // Used when logged in
+// Also extends error handling in m.request with a default action.
+// The default action can also be used via errorCallback(error, defaultCallback)
+// where defaultCallback takes in error as its only parameter.
 App.request = function (originalOptions) {
   let options = Object.assign({}, originalOptions);
 
@@ -69,12 +72,16 @@ App.request = function (originalOptions) {
         window.localStorage.getItem(App.CSRF_HEADER));
   };
 
-  let deferred = m.deferred();
-  m.request(options).then(
-      (res) => deferred.resolve(res),
-      (err) => deferred.reject(err || {network: true})
-  );
-  return deferred.promise;
+  let request = m.prop(options.initialValue);
+  let showError = (err) => Alert.setError(err);
+  request.then = (resolve, reject) =>
+      m.request(options).then(
+          resolve,
+          function (err) {
+            err = err || {network: true}; // if server is unavailable
+            reject ? reject(err, showError) : showError(err);
+          });
+  return request;
 };
 
 // TODO: Separate into Authentication module
