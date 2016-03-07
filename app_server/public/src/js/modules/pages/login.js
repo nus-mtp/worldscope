@@ -19,7 +19,7 @@ const Login = module.exports = {
         let csrfToken = document.cookie;
         App.login(admin, csrfToken);
         App.goToHome();
-      }, ((err) => Alert.setError(err)));
+      });
     };
   },
   view: function (ctrl) {

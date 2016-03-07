@@ -67,10 +67,12 @@ App.routes = {
 App.request = function (originalOptions) {
   let options = Object.assign({}, originalOptions);
 
-  options.config = options.config || function (xhr) {
-    xhr.setRequestHeader(App.CSRF_HEADER,
-        window.localStorage.getItem(App.CSRF_HEADER));
-  };
+  if (App.isLoggedIn()) {
+    options.config = options.config || function (xhr) {
+      xhr.setRequestHeader(App.CSRF_HEADER,
+          window.localStorage.getItem(App.CSRF_HEADER));
+    };
+  }
 
   let request = m.prop(options.initialValue);
   let showError = (err) => Alert.setError(err);
