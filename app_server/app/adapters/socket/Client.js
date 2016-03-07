@@ -103,13 +103,16 @@ Class.broadcastLeaveMessage = function(room) {
  * @param room {Room}
  */
 Class.broadcastToRoom = function(event, message, room) {
+  let currentTime = Date.now();
   let msgToOthers = {
+    time: currentTime,
     userId: this.getUserId(),
     alias: this.getAlias(),
     room: room.getName(),
     message: message
   };
   let msgToSelf = {
+    time: currentTime,
     userId: 'me',
     alias: this.getAlias(),
     room: room.getName(),
