@@ -15,6 +15,8 @@ function RequestInjector(server) {
   this.server = server;
 }
 
+var Class = RequestInjector.prototype;
+
 RequestInjector.prototype.API_PATHS = {
   CREATE_COMMENT: '/api/comments'
 };
@@ -23,7 +25,7 @@ RequestInjector.prototype.API_PATHS = {
  * Create a new comment in the main pipeline
  * @return {Promise}
  */
-RequestInjector.prototype.createComment = function (credentials, comment) {
+Class.createComment = function(credentials, comment) {
   return new Promise((function (resolve, reject) {
     var options = {
       'method': 'POST',
@@ -38,6 +40,10 @@ RequestInjector.prototype.createComment = function (credentials, comment) {
       resolve(res);
     });
   }).bind(this));
+};
+
+Class.updateStickers = function(credentials, sticker) {
+  return true;
 };
 
 module.exports = RequestInjector;

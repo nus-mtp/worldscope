@@ -148,8 +148,18 @@ Class.__handleClientEvents = function(client) {
   client.on(Client.EVENT_COMMENT, (comment) => {
     try {
       logger.debug('Receive %s event from %s',
-                  Client.EVENT_COMMENT, client.getUserId());
+                   Client.EVENT_COMMENT, client.getUserId());
       this.requestInjector.createComment(client.getCredentials(), comment);
+    } catch (e) {
+      logger.error(e);
+    }
+  });
+
+  client.on(Client.EVENT_STICKER, (sticker) => {
+    try {
+      logger.debug('Receive %s event from %s',
+                   Client.EVENT_STICKER, client.getUserId());
+      this.requestInjector.updateStickers(client.getCredentials(), sticker);
     } catch (e) {
       logger.error(e);
     }

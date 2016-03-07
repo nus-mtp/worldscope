@@ -27,6 +27,7 @@ util.inherits(Client, EventEmitter);
 var Class = Client.prototype;
 
 Client.EVENT_COMMENT = Class.EVENT_COMMENT = 'comment';
+Client.EVENT_STICKER = Class.EVENT_STICKER = 'sticker';
 Client.EVENT_DISCONNECT = Class.EVENT_DISCONNECT = 'disconnect';
 Client.EVENT_JOIN = Class.EVENT_JOIN = 'join';
 Client.EVENT_LEAVE = Class.EVENT_LEAVE = 'leave';
@@ -161,6 +162,10 @@ Class.handleSocketEvents = function handleSocketEvents(socket) {
   socket.on(this.EVENT_COMMENT, (comment) => {
     this.broadcastToStreamRooms(this.EVENT_COMMENT, comment);
     this.emit(this.EVENT_COMMENT, comment);
+  });
+  socket.on(this.EVENT_STICKER, (sticker) => {
+    this.broadcastToStreamRooms(this.EVENT_STICKER, sticker);
+    this.emit(this.EVENT_STICKER, sticker);
   });
   socket.on(this.EVENT_DISCONNECT, () => {
     this.emit(this.EVENT_DISCONNECT);

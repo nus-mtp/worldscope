@@ -248,7 +248,7 @@ lab.experiment('Room join and leave', function () {
   });
 });
 
-lab.experiment('Comments', function () {
+lab.experiment('Comments and stickers tests', function () {
   lab.beforeEach({timeout: 10000}, function (done) {
     TestUtils.resetDatabase(done);
   });
@@ -294,6 +294,37 @@ lab.experiment('Comments', function () {
     });
   });
 
+  lab.test('Client successfully received stickers', (done) => {
+    createUserAndStream(bob, testStream, (user, stream) => {
+      var account = TestUtils.copyObj(Authenticator.generateUserToken(user),
+                                      ['userId', 'username', 'password']);
+      account.scope = Authenticator.SCOPE.USER;
+      return Iron.sealAsync(account, ServerConfig.cookiePassword, Iron.defaults)
+      .then((sealed) => {
+        var client = io.connect('http://localhost:3000', options);
+
+        client.once('connect', () => {
+          client.once('identify', (msg) => {
+            Code.expect(msg).to.equal('OK');
+            client.emit('join', stream.appInstance);
+          });
+          client.once('join', (msg) => {
+            Code.expect(msg.message).to.equal('OK');
+            Code.expect(msg.room).to.equal(stream.appInstance);
+            client.emit('sticker');
+          });
+          client.once('sticker', (sticker) => {
+            Code.expect(sticker.alias).to.equal(user.alias);
+            Code.expect(sticker.room).to.equal(stream.appInstance);
+            done();
+          });
+
+          client.emit('identify', `sid-worldscope=${sealed}`);
+        });
+      });
+    });
+  });
+
   lab.test('No comments for client in other rooms', {timeout: 5000}, (done) => {
     Service.createNewUser(bob).then((user) => {
       var account = TestUtils.copyObj(Authenticator.generateUserToken(user),
@@ -308,8 +339,13 @@ lab.experiment('Comments', function () {
           client.once('identify', (msg) => {
             Code.expect(msg).to.equal('OK');
             client.emit('comment', testComment);
+            client.emit('sticker');
           });
           client.once('comment', (comment) => {
+            Code.expect(true).to.be.false();
+            done();
+          });
+          client.once('sticker', (sticker) => {
             Code.expect(true).to.be.false();
             done();
           });
