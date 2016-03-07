@@ -42,12 +42,11 @@ const Users = module.exports = {
 
     ctrl.data = UserModel.list().then(parse);
   },
-  view: function (ctrl) {
-    return [m('h1', 'Users'),
-      m(DataDisplay, {
-        names: ctrl.names(),
-        data: ctrl.data
-      })
-    ];
-  }
+  view: (ctrl) => [
+    m('h1', 'Users'),
+    m(DataDisplay, {
+      names: ctrl.names(),
+      data: ctrl.data
+    })
+  ]
 };

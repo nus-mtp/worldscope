@@ -124,28 +124,26 @@ Admin.view = function () {
 
   let admin = Admin.admin();
   return [
-    m('div.row', mz.text, [
-      m('h1', Admin.title),
-      m('form.col s12', {onsubmit: Admin.action}, [
-        m('div.input-field col s12',
-            getLabelledInput('Username', 'username', 'text', admin.username)
-        ),
-        m('div.input-field col s12',
-            getLabelledInput('Password', 'password', 'password', admin.password)
-        ),
-        m('div.input-field col s12',
-            getLabelledInput('Email', 'email', 'text', admin.email)
-        ),
-        m('div.row', [
-          m('div.col s12 m4 l2 grey-text', 'Permissions:'),
-          getPermissionCheckbox('Access to Metrics', 'metrics', permissionsWrapper.metrics),
-          getPermissionCheckbox('Access to Streams', 'streams', permissionsWrapper.streams),
-          getPermissionCheckbox('Access to Users', 'users', permissionsWrapper.users),
-          getPermissionCheckbox('Access to Admins', 'admins', permissionsWrapper.admins),
-          getPermissionCheckbox('Access to Settings', 'settings', permissionsWrapper.settings)
-        ]),
-        m('button.btn col s12', {type: 'submit'}, Admin.title)
-      ])
+    m('h1', Admin.title),
+    m('form.col s12', Object.assign({onsubmit: Admin.action}, mz.text), [
+      m('div.input-field col s12',
+          getLabelledInput('Username', 'username', 'text', admin.username)
+      ),
+      m('div.input-field col s12',
+          getLabelledInput('Password', 'password', 'password', admin.password)
+      ),
+      m('div.input-field col s12',
+          getLabelledInput('Email', 'email', 'text', admin.email)
+      ),
+      m('div.row', [
+        m('div.col s12 m4 l2 grey-text', 'Permissions:'),
+        getPermissionCheckbox('Access to Metrics', 'metrics', permissionsWrapper.metrics),
+        getPermissionCheckbox('Access to Streams', 'streams', permissionsWrapper.streams),
+        getPermissionCheckbox('Access to Users', 'users', permissionsWrapper.users),
+        getPermissionCheckbox('Access to Admins', 'admins', permissionsWrapper.admins),
+        getPermissionCheckbox('Access to Settings', 'settings', permissionsWrapper.settings)
+      ]),
+      m('button.btn col s12', {type: 'submit'}, Admin.title)
     ])
   ];
 };

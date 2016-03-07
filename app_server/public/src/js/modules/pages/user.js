@@ -43,25 +43,23 @@ User.view = function () {
 
   let user = User.user();
   return [
-    m('div.row', mz.text, [
-      m('h1', 'Edit User'),
-      m('form.col s12', {onsubmit: User.update}, [
-        m('div.input-field col s12',
-            getLabelledInput('Username', 'username', 'text', user.username,
-                {disabled: true})
-        ),
-        m('div.input-field col s12',
-            getLabelledInput('Alias', 'alias', 'text', user.alias)
-        ),
-        m('div.input-field col s12',
-            getLabelledInput('Email', 'email', 'text', user.email)
-        ),
-        m('div.input-field col s12',
-            getLabelledInput('Description', 'desc', 'text', user.description,
-                {className: 'materialize-textarea'})
-        ),
-        m('button.btn col s12', {type: 'submit'}, 'Edit User')
-      ])
+    m('h1', 'Edit User'),
+    m('form.col s12', Object.assign({onsubmit: User.update}, mz.text), [
+      m('div.input-field col s12',
+          getLabelledInput('Username', 'username', 'text', user.username,
+              {disabled: true})
+      ),
+      m('div.input-field col s12',
+          getLabelledInput('Alias', 'alias', 'text', user.alias)
+      ),
+      m('div.input-field col s12',
+          getLabelledInput('Email', 'email', 'text', user.email)
+      ),
+      m('div.input-field col s12',
+          getLabelledInput('Description', 'desc', 'text', user.description,
+              {className: 'materialize-textarea'})
+      ),
+      m('button.btn col s12', {type: 'submit'}, 'Edit User')
     ])
   ];
 };
