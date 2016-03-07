@@ -1,5 +1,16 @@
+html {
+  height:100%;
+}
+
 body {
+  height: inherit;
   background-image: url("../img/crossword.png");
+
+  #container {
+    display: flex;
+    flex-flow: row wrap;
+    height: inherit;
+  }
 }
 
 #login {
@@ -7,15 +18,19 @@ body {
 }
 
 #content {
-  margin-left: 170px;
+  flex: 1;
+  height: inherit;
+  overflow: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
 
   h1 {
     height: 4.5rem;
     padding-top: 1.5rem;
     padding-left: 4rem;
     margin-top: 0;
-    margin-left: -0.75rem;
-    margin-right: -0.75rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
 
     background-color: $primary-color;
     color: #FFFFFF;

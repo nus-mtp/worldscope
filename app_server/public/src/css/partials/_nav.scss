@@ -3,67 +3,73 @@ $nav-secondary-focus-color: color("teal", "accent-4");
 $nav-secondary-bg-color: color("teal", "lighten-4");
 
 #nav {
-  position: fixed;
-  height: 100%;
   width: 160px;
-  padding-left: 0;
-  padding-right: 0;
-  background-color: $nav-primary-bg-color;
+  height: inherit;
+  overflow-x: hidden;
+  overflow-y: hidden;
 
-  // inactive, 1st level
-  ul li {
-    padding-top: 0.5em;
+  > ul {
+    width: inherit;
+    height: inherit;
+    overflow-y: auto;
+    margin-top: 0;
+    background-color: $nav-primary-bg-color;
 
-    a {
-      display: block;
-      height: 2em;
-      padding: 0 0.75em;
-
-      font-size: 1rem;
-      text-align: left;
-      font-weight: 500;
-      color: #FFFFFF;
-      opacity: $opacity-light-on-dark-secondary;
-
-      i, span {
-        vertical-align: middle;
-      }
-
-      &:hover {
-        opacity: $opacity-light-on-dark-primary
-      }
-    }
-
-    // inactive, 2nd level
-    ul li a {
-      text-align: right;
-      opacity: $opacity-dark-on-light-secondary;
-
-      &:hover {
-        opacity: $opacity-dark-on-light-primary
-      }
-    }
-
-    // active, 1st level
-    &.active {
-      background-color: $nav-secondary-focus-color;
+    // inactive, 1st level
+    li {
+      padding-top: 0.5em;
 
       a {
-        color: #000000;
-      }
+        display: block;
+        height: 2em;
+        padding: 0 0.75em;
 
-      // active, 2nd level
-      ul li {
-        background-color: $nav-secondary-bg-color;
+        font-size: 1rem;
+        text-align: left;
+        font-weight: 500;
+        color: #FFFFFF;
+        opacity: $opacity-light-on-dark-secondary;
 
-        a {
-          font-weight: normal;
+        i, span {
+          vertical-align: middle;
         }
 
-        &.active {
+        &:hover {
+          opacity: $opacity-light-on-dark-primary
+        }
+      }
+
+      // inactive, 2nd level
+      ul li a {
+        text-align: right;
+        opacity: $opacity-dark-on-light-secondary;
+
+        &:hover {
+          opacity: $opacity-dark-on-light-primary
+        }
+      }
+
+      // active, 1st level
+      &.active {
+        background-color: $nav-secondary-focus-color;
+
+        a {
+          color: #000000;
+        }
+
+        // active, 2nd level
+        ul li {
+          background-color: $nav-secondary-bg-color;
+
           a {
-            font-weight: bold;
-            opacity: $opacity-dark-on-light-primary;
+            font-weight: normal;
+          }
+
+          &.active {
+            a {
+              font-weight: bold;
+              opacity: $opacity-dark-on-light-primary;
+            }
           }
         }
       }
