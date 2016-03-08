@@ -26,6 +26,13 @@ Class.registerRoutes = function () {
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.createNewComment});
+
+  this.server.route({method: 'GET', path: '/{id}',
+                     config: {
+                       validate: streamIdValidator,
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
+                     handler: this.getListOfCommentsForStream});
 };
 
 Class.createNewComment = function (request, reply) {
@@ -49,6 +56,21 @@ Class.createNewComment = function (request, reply) {
     });
 };
 
+Class.getListOfCommentsForStream = function (request, reply) {
+  logger.debug('Get list of comments for: %s', request.params.id);
+
+  var streamId = request.params.id;
+
+  Service.getListOfCommentsForStream(streamId)
+    .then((result) => {
+      if (result instanceof Error) {
+        return reply(Boom.badRequest(result.message));
+      }
+
+      return reply(result);
+    });
+};
+
 exports.register = function (server, options, next) {
   var commentController = new CommentController(server, options);
   server.bind(commentController);
@@ -68,5 +90,11 @@ var singleCommentValidator = {
       message: Joi.string().required(),
       time: Joi.number()
     })
+  }
+};
+
+var streamIdValidator = {
+  params: {
+    id: Joi.string().guid().required()
   }
 };

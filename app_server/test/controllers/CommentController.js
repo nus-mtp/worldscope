@@ -40,6 +40,14 @@ var commentPayload = {
   }
 };
 
+var commentPayload2 = {
+  streamId: '',
+  comment: {
+    message: 'this is a second random message',
+    time: 1457431915187
+  }
+};
+
 lab.experiment('CommentController Tests', function() {
 
   lab.beforeEach({timeout: 10000}, function(done) {
@@ -61,15 +69,14 @@ lab.experiment('CommentController Tests', function() {
     }
 
     Service.createNewUser(bob).then((user) => user.userId)
-    .then(function(userId) {
-      testAccount.userId = userId;
-      Router.inject({method: 'POST', url: '/api/streams',
-                     credentials: testAccount,
-                     payload: streamPayload}, function(res) {
-        injectNewComment(res.result.streamId);
+      .then(function(userId) {
+        testAccount.userId = userId;
+        Router.inject({method: 'POST', url: '/api/streams',
+                       credentials: testAccount,
+                       payload: streamPayload}, function(res) {
+          injectNewComment(res.result.streamId);
+        });
       });
-    });
-
   });
 
   lab.test('Create comment invalid empty string', function(done) {
@@ -97,15 +104,14 @@ lab.experiment('CommentController Tests', function() {
     }
 
     Service.createNewUser(bob).then((user) => user.userId)
-    .then(function(userId) {
-      testAccount.userId = userId;
-      Router.inject({method: 'POST', url: '/api/streams',
-                     credentials: testAccount,
-                     payload: streamPayload}, function(res) {
-        injectNewComment(res.result.streamId);
+      .then(function(userId) {
+        testAccount.userId = userId;
+        Router.inject({method: 'POST', url: '/api/streams',
+                       credentials: testAccount,
+                       payload: streamPayload}, function(res) {
+          injectNewComment(res.result.streamId);
+        });
       });
-    });
-
   });
 
   lab.test('Create comment invalid unauthorised', function(done) {
@@ -118,7 +124,7 @@ lab.experiment('CommentController Tests', function() {
                      url: '/api/comments',
                      payload: commentPayload}, function(res) {
 
-        Code.expect(res.result.statusCode).to.be.equal(400);
+        Code.expect(res.result.statusCode).to.be.equal(401);
         done();
       });
     }
@@ -132,6 +138,66 @@ lab.experiment('CommentController Tests', function() {
         injectNewComment(res.result.streamId);
       });
     });
+  });
+
+  lab.test('Get list of comments', function(done) {
+
+    function injectNewComment(streamId) {
+      commentPayload.streamId = streamId;
+
+      Router.inject({method: 'POST',
+                     url: '/api/comments',
+                     credentials: testAccount,
+                     payload: commentPayload}, function(res) {
+        injectSecondComment(streamId);
+
+      });
+    }
+
+    function injectSecondComment(streamId) {
+      commentPayload2.streamId = streamId;
+
+      Router.inject({method: 'POST',
+                     url: '/api/comments',
+                     credentials: testAccount,
+                     payload: commentPayload2}, function(res) {
+        injectRetrieveComments(streamId);
+      });
+    }
+
+    function injectRetrieveComments(streamId) {
+
+      Router.inject({method: 'GET',
+                     url: '/api/comments/' + streamId,
+                     credentials: testAccount}, function(res) {
+        Code.expect(res.result[0].content).to.be
+          .equal(commentPayload2.comment.message);
+        Code.expect(res.result[1].content).to.be
+          .equal(commentPayload.comment.message);
+        done();
+      });
+    }
+
+    Service.createNewUser(bob).then((user) => user.userId)
+    .then(function(userId) {
+      testAccount.userId = userId;
+      Router.inject({method: 'POST', url: '/api/streams',
+                     credentials: testAccount,
+                     payload: streamPayload}, function(res) {
+        injectNewComment(res.result.streamId);
+      });
+    });
+  });
+
+  lab.test('Get list of comments invalid stream id', function(done) {
+
+    Router.inject({method: 'GET',
+                   url: '/api/comments/3388ffff-aa00-1111a222-00000044888c',
+                   credentials: testAccount}, function(res) {
+      Code.expect(res.result.statusCode).to.equal(400);
+      done();
+    });
 
   });
+
 });
