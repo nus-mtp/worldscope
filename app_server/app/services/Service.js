@@ -84,6 +84,12 @@ Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
   return UserService.deleteSubscription(subscribeFrom, subscribeTo);
 };
 
+Class.createComment = function(userId, streamId, comment) {
+  logger.debug('Comment from user %s to stream %s',
+                userId, streamId);
+
+  return UserService.createComment(userId, streamId, comment);
+};
 ///////////////////////
 
 /////// STREAM APIs ///////

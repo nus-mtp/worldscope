@@ -223,4 +223,25 @@ Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
     });
 };
 
+ /**
+ * @param  {string} userId
+ * @param  {string} streamId
+ * @param  {Object} commentObj
+ * @param  {string} commentObj.content
+ * @return {Promise<Sequelize.Comment>}
+ */
+Class.createComment = function(userId, streamId, comment) {
+  logger.debug('Comment from user %s to stream %s',
+                userId, streamId);
+
+  return Storage.createComment(userId, streamId, comment)
+    .then(function receiveResult(result) {
+      if (!result || result instanceof Error) {
+        return result;
+      }
+      return Utility.changeToUnixTime(result.dataValues);
+    });
+
+};
+
 module.exports = new UserService();
