@@ -49,7 +49,7 @@ var stream = {
   description: 'arbitrary description',
   appInstance: '123-123-123-123'
 };
-/*
+
 lab.experiment('UserService Tests', function () {
 
   lab.beforeEach({timeout: 10000}, function (done) {
@@ -222,7 +222,7 @@ lab.experiment('UserService Tests for View', function () {
 
     var viewPromise = userPromise
       .then((user) => Service.createNewStream(user.userId, stream))
-      .then((stream) => Service.createView(stream.owner, stream.streamId))
+      .then((stream) => Service.createView(stream.owner, stream.streamId));
 
     Promise.join(userPromise, viewPromise, function(user, view) {
       Code.expect(view.userId).to.equal(user.userId);
@@ -522,7 +522,6 @@ lab.experiment('UserService Tests for Subscriptions', function () {
   });
 
 });
-*/
 
 lab.experiment('UserService Tests for Comments', function () {
 
