@@ -133,7 +133,24 @@ exports.changeToUnixTime = function(obj) {
   obj.deletedAt === null ? null
     : obj.deletedAt = Date.parse(obj.deletedAt);
   obj.updatedAt === null ? null
-    : obj.updatedAt =Date.parse(obj.updatedAt);
+    : obj.updatedAt = Date.parse(obj.updatedAt);
+
+  return obj;
+};
+
+var changeToJavascriptTime =
+/**
+ * Changes these fields createdAt, deletedAt, updatedAt into unix time
+ * @param  {Object}
+ * @return {Object} user without sensitive credentials
+ */
+exports.changeToJavascriptTime = function(obj) {
+  obj.createdAt === null ? null
+    : obj.createdAt = new Date(obj.createdAt);
+  obj.deletedAt === null ? null
+    : obj.deletedAt = new Date(obj.deletedAt);
+  obj.updatedAt === null ? null
+    : obj.updatedAt = new Date(obj.updatedAt);
 
   return obj;
 };

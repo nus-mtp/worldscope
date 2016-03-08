@@ -234,12 +234,23 @@ Class.createComment = function(userId, streamId, comment) {
   logger.debug('Comment from user %s to stream %s',
                 userId, streamId);
 
+  comment = Utility.changeToJavascriptTime(comment);
+
   return Storage.createComment(userId, streamId, comment)
     .then(function receiveResult(result) {
       if (!result || result instanceof Error) {
         return result;
       }
       return Utility.changeToUnixTime(result.dataValues);
+    }).catch(function(err) {
+      logger.error('Unable to create comment: %j', err);
+
+      if (err.name === 'SequelizeValidationError') {
+        return new CustomError.InvalidFieldError(err.errors[0].message,
+                                                 err.errors[0].path);
+      } else {
+        return new CustomError.UnknownError();
+      }
     });
 
 };

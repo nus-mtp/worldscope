@@ -43,7 +43,8 @@ lab.experiment('Comment Model Tests', function() {
   };
 
   var comment1 = {
-    content: 'How do I live without you'
+    content: 'How do I live without you',
+    createdAt: new Date(2016-01-01)
   };
 
   lab.beforeEach({timeout: 10000}, function(done) {
