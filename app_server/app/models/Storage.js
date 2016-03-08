@@ -30,6 +30,7 @@ function Storage() {
       config.password, {
         host: config.host,
         dialect: config.dialect,
+        timezone: config.timezone,
         logging: config.logging,
         define: {
           hooks: {
@@ -610,12 +611,41 @@ Class.createComment = function(userId, streamId, commentObj) {
 
       var comment = {
         content: commentObj.content,
+        createdAt: commentObj.createdAt,
         userId: userId,
         streamId: streamId
       };
 
       return this.models.Comment.create(comment).bind(this);
     }.bind(this));
+};
+
+ /**
+ * @param  {string} streamId
+ * @return {Promise<Sequelize.Comment>}
+ */
+Class.getListOfCommentsForStream = function(streamId) {
+
+  return this.models.Stream.findOne({
+    include: [{
+      model: this.models.Comment,
+      as: 'comments'
+    }],
+    where: {
+      streamId: streamId
+    },
+    order: [[{model: this.models.Comment, as: 'comments'}, 'createdAt', 'DESC']]
+
+  }).then(function receiveResult(result) {
+    if (!result) {
+      logger.error('Stream not found');
+
+      return new CustomError.NotFoundError('Stream not found');
+    } else {
+      return result.comments; //only return the descendents
+    }
+  });
+
 };
 
 /**

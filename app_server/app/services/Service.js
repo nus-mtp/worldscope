@@ -90,6 +90,12 @@ Class.createComment = function(userId, streamId, comment) {
 
   return UserService.createComment(userId, streamId, comment);
 };
+
+Class.getListOfCommentsForStream = function(streamId) {
+  logger.debug('Get list of comments for stream %s', streamId);
+
+  return UserService.getListOfCommentsForStream(streamId);
+};
 ///////////////////////
 
 /////// STREAM APIs ///////

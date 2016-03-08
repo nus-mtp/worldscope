@@ -5,7 +5,7 @@ var Code = require('code');
 var expect = Code.expect;
 var Promise = require('bluebird');
 
-var Router = rfr('app/Router')
+var Router = rfr('app/Router');
 var Storage = rfr('app/models/Storage');
 var Service = rfr('app/services/Service');
 var CustomError = rfr('app/util/Error');
@@ -531,6 +531,16 @@ lab.experiment('UserService Tests for Comments', function () {
     createdAt: 1457431895187
   };
 
+  var comment2 = {
+    content: 'How do I breathe without you',
+    createdAt: 1457431905187
+  };
+
+  var comment3 = {
+    content: 'How do I ever',
+    createdAt: 1457431915187
+  };
+
   lab.beforeEach({timeout: 10000}, function (done) {
     TestUtils.resetDatabase(done);
   });
@@ -575,7 +585,8 @@ lab.experiment('UserService Tests for Comments', function () {
     Promise.join(userPromise, streamPromise,
       function(user, stream) {
         Service.createComment(user.userId, stream.streamId, comment1)
-          .then(() => Service.createComment(user.userId, stream.streamId, comment1))
+          .then(() => Service.createComment(user.userId, stream.streamId,
+                                            comment1))
           .then((res) => {
             expect(res.content).to.equal(comment1.content);
             expect(res.userId).to.equal(user.userId);
@@ -585,4 +596,40 @@ lab.experiment('UserService Tests for Comments', function () {
       });
   });
 
+  lab.test('Get list of comments', function(done) {
+    var userPromise = Service.createNewUser(alice);
+    var streamPromise = userPromise
+      .then((user) => Service.createNewStream(user.userId, stream));
+
+    Promise.join(userPromise, streamPromise,
+      function(user, stream) {
+        Service.createComment(user.userId, stream.streamId, comment1)
+          .then(() => Service.createComment(user.userId, stream.streamId,
+                                            comment2))
+          .then(() => Service.createComment(user.userId, stream.streamId,
+                                            comment3))
+          .then(() => Service.getListOfCommentsForStream(stream.streamId))
+          .then((res) => {
+            expect(res).to.have.length(3);
+            done();
+          });
+      });
+  });
+
+  lab.test('Get list of comments non-existing stream', function(done) {
+    var userPromise = Service.createNewUser(alice);
+    var streamPromise = userPromise
+      .then((user) => Service.createNewStream(user.userId, stream));
+
+    Promise.join(userPromise, streamPromise,
+      function(user, stream) {
+        Service.createComment(user.userId, stream.streamId, comment1)
+          .then(() => Service.getListOfCommentsForStream('3388ffff-aa00-111' +
+                                                         '1a222-00000044888c'))
+          .then((res) => {
+            expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+            done();
+          });
+      });
+  });
 });

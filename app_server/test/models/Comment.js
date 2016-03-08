@@ -44,7 +44,22 @@ lab.experiment('Comment Model Tests', function() {
 
   var comment1 = {
     content: 'How do I live without you',
-    createdAt: new Date(2016-01-01)
+    createdAt: new Date('2016-01-01')
+  };
+
+  var comment2 = {
+    content: 'I want to know',
+    createdAt: new Date('2016-01-02')
+  };
+
+  var comment3 = {
+    content: 'If you ever go',
+    createdAt: new Date('2016-01-03')
+  };
+
+  var comment4 = {
+    content: 'How do I ever, ever',
+    createdAt: new Date('2016-01-04')
   };
 
   lab.beforeEach({timeout: 10000}, function(done) {
@@ -93,7 +108,7 @@ lab.experiment('Comment Model Tests', function() {
           expect(res).to.be.an.instanceof(Error);
           done();
         });
-      });
+    });
   });
 
   lab.test('Create Comment non-existing user', function(done) {
@@ -108,7 +123,63 @@ lab.experiment('Comment Model Tests', function() {
           expect(res).to.be.an.instanceof(Error);
           done();
         });
+    });
+  });
+
+  lab.test('Get all comments for a particular stream', function(done) {
+    var userPromise = Storage.createUser(user1);
+    var streamPromise = userPromise.then((user) =>
+      Storage.createStream(user.userId, streamDetails));
+
+    Promise.join(userPromise, streamPromise,
+      function(user, stream) {
+        Storage.createComment(user.userId, stream.streamId, comment1)
+          .then(() => Storage.createComment(user.userId, stream.streamId,
+                                            comment2))
+          .then(() => Storage.createComment(user.userId, stream.streamId,
+                                            comment3))
+          .then(() => Storage.createComment(user.userId, stream.streamId,
+                                            comment4))
+          .then(() => Storage.getListOfCommentsForStream(stream.streamId))
+          .then(function(res) {
+            expect(res).to.have.length(4);
+            expect(res[0].content).to.equal(comment4.content);
+            expect(res[1].content).to.equal(comment3.content);
+            expect(res[2].content).to.equal(comment2.content);
+            expect(res[3].content).to.equal(comment1.content);
+            done();
+          });
       });
   });
 
+  lab.test('Get all comments for a stream valid empty', function(done) {
+    var userPromise = Storage.createUser(user1);
+    var streamPromise = userPromise.then((user) =>
+      Storage.createStream(user.userId, streamDetails));
+
+    Promise.join(userPromise, streamPromise,
+      function(user, stream) {
+        Storage.getListOfCommentsForStream(stream.streamId)
+          .then(function(res) {
+            expect(res).to.deep.equal([]);
+            done();
+          });
+      });
+  });
+
+  lab.test('Get all comments for a stream invalid streamId', function(done) {
+    var userPromise = Storage.createUser(user1);
+    var streamPromise = userPromise.then((user) =>
+      Storage.createStream(user.userId, streamDetails));
+
+    Promise.join(userPromise, streamPromise,
+      function(user, stream) {
+        Storage.getListOfCommentsForStream('3388ffff-aa00-1111' +
+                                           'a222-00000044888c')
+          .then(function(res) {
+            expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+            done();
+          });
+      });
+  });
 });

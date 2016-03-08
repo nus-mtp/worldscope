@@ -22,8 +22,8 @@ var Class = CommentController.prototype;
 Class.registerRoutes = function () {
   this.server.route({method: 'POST', path: '/',
                      config: {
-                      validate: singleCommentValidator,
-                      auth: {scope: Authenticator.SCOPE.ALL}
+                       validate: singleCommentValidator,
+                       auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.createNewComment});
 };

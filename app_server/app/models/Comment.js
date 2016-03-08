@@ -3,7 +3,7 @@
  * @module Comment
  */
 
-module.exports = function(sequelize, DataTypes){
+module.exports = function(sequelize, DataTypes) {
   var Comment = sequelize.define('Comment', {
     commentId: {
       type: DataTypes.UUID,

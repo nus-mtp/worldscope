@@ -223,12 +223,12 @@ Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
     });
 };
 
- /**
+/**
  * @param  {string} userId
  * @param  {string} streamId
  * @param  {Object} commentObj
  * @param  {string} commentObj.content
- * @return {Promise<Sequelize.Comment>}
+ * @return {Promise<Comment>}
  */
 Class.createComment = function(userId, streamId, comment) {
   logger.debug('Comment from user %s to stream %s',
@@ -253,6 +253,28 @@ Class.createComment = function(userId, streamId, comment) {
       }
     });
 
+};
+
+/**
+ * @param  {string} streamId
+ * @return {Promise<Array<Comment>>}
+ */
+Class.getListOfCommentsForStream = function(streamId) {
+  logger.debug('Get list of comments for stream %s', streamId);
+
+  return Storage.getListOfCommentsForStream(streamId)
+    .then(function receiveResult(result) {
+      if (!result || result instanceof Error) {
+        return new CustomError.NotFoundError('Stream not found');
+      }
+
+      return result.map((res) => {
+        res = Utility.changeToUnixTime(res.dataValues);
+        delete res.deletedAt;
+        return res;
+      });
+
+    });
 };
 
 module.exports = new UserService();
