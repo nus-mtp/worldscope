@@ -2,6 +2,7 @@
 
 const m = require('mithril');
 
+const Alert = require('../components/alert');
 const StreamModel = require('../models/stream');
 const datetime = require('../utils/dateFormat');
 
@@ -16,7 +17,16 @@ const initPlayer = function () {
   let player = new shaka.player.Player(video);
   window.player = player;
 
-  player.addEventListener('error', function(event) {
+  player.addEventListener('error', function(error) {
+    Alert.setError({
+      shaka: true,
+      message: error.detail.message,
+      type: error.detail.status,
+      context: {
+        title: Stream.stream.title,
+        key: 'stream'
+      }
+    });
     console.error(event);
   });
 
@@ -50,7 +60,8 @@ Stream.view = function () {
           width: '100%',
           height: 'auto',
           controls: true,
-          preload: 'none'
+          autoplay: false,
+          preload: 'metadata'
         })),
     m('div.col s12 m6 l4', [
       m('div.row', [

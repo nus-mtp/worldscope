@@ -124,6 +124,10 @@ const validationErrors = {
     ipVersion: 'must be a valid ip address of one of the following versions {{version}} with a {{cidr}} CIDR.'
   }
 };
+
+const shakaErrors = {
+  404: ', "{{title}}", is not found.'
+};
 /* eslint-enable max-len */
 
 const formatContextError = function (msg, ctx) {
@@ -136,7 +140,7 @@ const formatContextError = function (msg, ctx) {
   });
 };
 
-const interpretValidationErrors = function (details) {
+const interpretCustomError = function (details) {
   return details.map(function(error) {
     let errMsg = error.type.split('.').reduce((prev, cur) => prev[cur], validationErrors);
 
@@ -157,8 +161,8 @@ const errorInterpreter = module.exports = {
   interpret: function (err) {
     let msg = err.message;
 
-    if (err.validation && err.details) {
-      msg = formatErrors(interpretValidationErrors(err.details));
+    if ((err.validation || err.shaka) && err.details) {
+      msg = formatErrors(interpretCustomError(err.details));
     } else if (err.network) {
       msg = ERROR_NETWORK;
     }
