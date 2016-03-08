@@ -35,7 +35,7 @@ App.routes = {
   },
   app: {
     '/metrics': {controller: () => m.route('/metrics/overview')},
-    '/metrics/overview': blank,
+    '/metrics/overview': navPage(require('./pages/metrics')),
     '/metrics/realtime': blank,
     '/metrics/demographics': blank,
 
