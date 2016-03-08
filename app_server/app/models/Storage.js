@@ -516,7 +516,7 @@ Class.createSubscription = function(subscribeFrom, subscribeTo) {
         if (!res || res.length === 0) {
           logger.error('Duplicate Subscription');
 
-          return new Error('Duplicate Subscription');
+          return new CustomError.DuplicateEntryError('Duplicate Subscription');
         }
         return res[0][0];
       });
@@ -540,6 +540,29 @@ Class.getSubscriptions = function(userId) {
       return res;
     });
   });
+};
+
+/**
+ * @param  {string} userId
+ * @return {Promise<Integer>}
+ */
+Class.getNumberOfSubscriptions = function(userId) {
+  var userPromise = this.models.User.findById(userId);
+
+  return userPromise.then(function(user) {
+    if (user === null) {
+      logger.error('User cannot be found');
+
+      return new CustomError.NotFoundError('User not found');
+    }
+
+    return this.models.Subscription.count({
+      where: {
+        subscriber: userId
+      }
+    });
+
+  }.bind(this));
 };
 
 /**
