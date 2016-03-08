@@ -91,7 +91,7 @@ lab.experiment('Subscription Model Tests', function() {
             Storage.createSubscription(subscription.subscriber,
                                        subscription.subscribeTo))
           .then(function(res) {
-            expect(res).to.be.an.instanceof(Error);
+            expect(res).to.be.an.instanceof(CustomError.DuplicateEntryError);
             expect(res.message).to.be.equal('Duplicate Subscription');
             done();
           });
@@ -104,7 +104,6 @@ lab.experiment('Subscription Model Tests', function() {
     userPromise1.then(function(user1) {
       Storage.createSubscription(user1.userId, user1.userId)
         .then(function(res) {
-          console.log(res);
           expect(res).to.be.an.instanceof(CustomError.NotFoundError);
           expect(res.message).to.be.equal('User not found');
           done();
