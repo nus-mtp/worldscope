@@ -14,6 +14,7 @@ var Service = rfr('app/services/Service');
 var logger = Utility.createLogger(__filename);
 
 function UserController(server, options) {
+  server.app.service = Service;
   this.server = server;
   this.options = options;
   this.defaultPlatform = SocialMediaAdapter.PLATFORMS.FACEBOOK;

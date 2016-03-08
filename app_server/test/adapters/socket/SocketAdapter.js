@@ -1,3 +1,4 @@
+'use strict';
 var rfr = require('rfr');
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
@@ -16,6 +17,12 @@ var SocketAdapter = rfr('app/adapters/socket/SocketAdapter');
 var options ={
   transports: ['websocket'],
   'force new connection': true
+};
+
+var testStream = {
+  title: 'this is a title from stream service',
+  description: 'arbitrary description',
+  appInstance: '123-123-123-123'
 };
 
 var bob = {
@@ -235,6 +242,117 @@ lab.experiment('Room join and leave', function () {
             done();
           });
           client.emit('identify', `sid-worldscope=${sealed}`);
+        });
+      });
+    });
+  });
+});
+
+lab.experiment('Comments and stickers tests', function () {
+  lab.beforeEach({timeout: 10000}, function (done) {
+    TestUtils.resetDatabase(done);
+  });
+
+  function createUserAndStream(user, stream, cb) {
+    let userPromise = Service.createNewUser(user);
+    let streamPromise = userPromise.then((newUser) => {
+      return Service.createNewStream(newUser.userId, stream);
+    });
+    return Promise.join(userPromise, streamPromise, cb);
+  }
+
+  lab.test('Client successfully received comments', (done) => {
+    createUserAndStream(bob, testStream, (user, stream) => {
+      var account = TestUtils.copyObj(Authenticator.generateUserToken(user),
+                                      ['userId', 'username', 'password']);
+      account.scope = Authenticator.SCOPE.USER;
+      return Iron.sealAsync(account, ServerConfig.cookiePassword, Iron.defaults)
+      .then((sealed) => {
+        var client = io.connect('http://localhost:3000', options);
+
+        client.once('connect', () => {
+          let testComment = 'Hello';
+          client.once('identify', (msg) => {
+            Code.expect(msg).to.equal('OK');
+            client.emit('join', stream.appInstance);
+          });
+          client.once('join', (msg) => {
+            Code.expect(msg.message).to.equal('OK');
+            Code.expect(msg.room).to.equal(stream.appInstance);
+            client.emit('comment', testComment);
+          });
+          client.once('comment', (comment) => {
+            Code.expect(comment.message).to.equal(testComment);
+            Code.expect(comment.alias).to.equal(user.alias);
+            Code.expect(comment.room).to.equal(stream.appInstance);
+            done();
+          });
+
+          client.emit('identify', `sid-worldscope=${sealed}`);
+        });
+      });
+    });
+  });
+
+  lab.test('Client successfully received stickers', (done) => {
+    createUserAndStream(bob, testStream, (user, stream) => {
+      var account = TestUtils.copyObj(Authenticator.generateUserToken(user),
+                                      ['userId', 'username', 'password']);
+      account.scope = Authenticator.SCOPE.USER;
+      return Iron.sealAsync(account, ServerConfig.cookiePassword, Iron.defaults)
+      .then((sealed) => {
+        var client = io.connect('http://localhost:3000', options);
+
+        client.once('connect', () => {
+          client.once('identify', (msg) => {
+            Code.expect(msg).to.equal('OK');
+            client.emit('join', stream.appInstance);
+          });
+          client.once('join', (msg) => {
+            Code.expect(msg.message).to.equal('OK');
+            Code.expect(msg.room).to.equal(stream.appInstance);
+            client.emit('sticker');
+          });
+          client.once('sticker', (sticker) => {
+            Code.expect(sticker.alias).to.equal(user.alias);
+            Code.expect(sticker.room).to.equal(stream.appInstance);
+            done();
+          });
+
+          client.emit('identify', `sid-worldscope=${sealed}`);
+        });
+      });
+    });
+  });
+
+  lab.test('No comments for client in other rooms', {timeout: 5000}, (done) => {
+    Service.createNewUser(bob).then((user) => {
+      var account = TestUtils.copyObj(Authenticator.generateUserToken(user),
+                                      ['userId', 'username', 'password']);
+      account.scope = Authenticator.SCOPE.USER;
+      return Iron.sealAsync(account, ServerConfig.cookiePassword, Iron.defaults)
+      .then((sealed) => {
+        var client = io.connect('http://localhost:3000', options);
+
+        client.once('connect', () => {
+          let testComment = 'Hello';
+          client.once('identify', (msg) => {
+            Code.expect(msg).to.equal('OK');
+            client.emit('comment', testComment);
+            client.emit('sticker');
+          });
+          client.once('comment', (comment) => {
+            Code.expect(true).to.be.false();
+            done();
+          });
+          client.once('sticker', (sticker) => {
+            Code.expect(true).to.be.false();
+            done();
+          });
+          client.emit('identify', `sid-worldscope=${sealed}`);
+          setTimeout(() => {
+            done();
+          }, 1000);
         });
       });
     });

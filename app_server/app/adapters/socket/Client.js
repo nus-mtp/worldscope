@@ -27,12 +27,17 @@ util.inherits(Client, EventEmitter);
 var Class = Client.prototype;
 
 Client.EVENT_COMMENT = Class.EVENT_COMMENT = 'comment';
+Client.EVENT_STICKER = Class.EVENT_STICKER = 'sticker';
 Client.EVENT_DISCONNECT = Class.EVENT_DISCONNECT = 'disconnect';
 Client.EVENT_JOIN = Class.EVENT_JOIN = 'join';
 Client.EVENT_LEAVE = Class.EVENT_LEAVE = 'leave';
 
 Class.getUserId = function getUserId() {
   return this.credentials['userId'];
+};
+
+Class.getAlias = function getAlias() {
+  return this.credentials['alias'];
 };
 
 Class.getCredentials = function getCredentials() {
@@ -99,13 +104,18 @@ Class.broadcastLeaveMessage = function(room) {
  * @param room {Room}
  */
 Class.broadcastToRoom = function(event, message, room) {
+  let currentTime = Date.now();
   let msgToOthers = {
+    time: currentTime,
     userId: this.getUserId(),
+    alias: this.getAlias(),
     room: room.getName(),
     message: message
   };
   let msgToSelf = {
+    time: currentTime,
     userId: 'me',
+    alias: this.getAlias(),
     room: room.getName(),
     message: message
   };
@@ -152,6 +162,10 @@ Class.handleSocketEvents = function handleSocketEvents(socket) {
   socket.on(this.EVENT_COMMENT, (comment) => {
     this.broadcastToStreamRooms(this.EVENT_COMMENT, comment);
     this.emit(this.EVENT_COMMENT, comment);
+  });
+  socket.on(this.EVENT_STICKER, (sticker) => {
+    this.broadcastToStreamRooms(this.EVENT_STICKER, sticker);
+    this.emit(this.EVENT_STICKER, sticker);
   });
   socket.on(this.EVENT_DISCONNECT, () => {
     this.emit(this.EVENT_DISCONNECT);

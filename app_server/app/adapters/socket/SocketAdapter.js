@@ -56,17 +56,9 @@ Class.__handleIdentifyEvent = function(socket) {
           logger.error(result);
           return socket.emit('identify', 'ERR');
         }
-
-        try {
-          this.roomsManager.addClient(new Client(socket, credentials));
-          socket.emit('identify', 'OK');
-        } catch (err) {
-          logger.error(err);
-          socket.emit('identify', 'ERR');
-        }
+        return this.__createNewClient(socket, credentials);
       });
-    })
-    .catch((err) => {
+    }).catch((err) => {
       logger.error(err);
       socket.emit('identify', 'ERR');
     });
@@ -99,6 +91,28 @@ Class.createNewRoom = function(roomName) {
  */
 Class.closeRoom = function(roomName) {
   this.roomsManager.removeRoom(roomName);
+};
+
+/**
+ * @param socket {Socket}
+ * @param credentials {Object}
+ */
+Class.__createNewClient = function(socket, credentials) {
+  return this.server.app.service.getUserById(credentials.userId)
+  .then((user) => {
+    if (!user || user instanceof Error) {
+      throw new Error('Error creating Client for socket. '
+                      + `User ${credentials.userId} not found`);
+    }
+    credentials.alias = user.alias;
+    return new Client(socket, credentials);
+  }).then((client) => {
+    this.roomsManager.addClient(client);
+    socket.emit('identify', 'OK');
+  }).catch((err) => {
+    logger.error(err);
+    socket.emit('identify', 'ERR');
+  });
 };
 
 var socketAdapter = new SocketAdapter();

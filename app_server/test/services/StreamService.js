@@ -362,8 +362,7 @@ lab.experiment('StreamService Tests', function() {
       });
   });
 
-  lab.test('End stream valid', function(done) {
-
+  lab.test('End stream valid', {timeout: 5000}, function(done) {
     Service.createNewUser(bob).then(function(user) {
       return Service.createNewStream(user.userId, testStream);
     }).then(function(stream) {
