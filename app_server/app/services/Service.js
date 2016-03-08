@@ -70,9 +70,21 @@ Class.getSubscriptions = function(userId) {
   return UserService.getSubscriptions(userId);
 };
 
+Class.getNumberOfSubscriptions = function(userId) {
+  logger.debug('Getting number of subscriptions for user %s', userId);
+
+  return UserService.getNumberOfSubscriptions(userId);
+};
+
 Class.getSubscribers = function(userId) {
   logger.debug('Getting subscribers for user %s', userId);
   return UserService.getSubscribers(userId);
+};
+
+Class.getNumberOfSubscribers = function(userId) {
+  logger.debug('Getting number of subscribers for user %s', userId);
+  //change later
+  return UserService.getNumberOfSubscriptions(userId);
 };
 
 Class.deleteSubscription = function(subscribeFrom, subscribeTo) {

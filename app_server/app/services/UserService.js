@@ -189,6 +189,25 @@ Class.getSubscriptions = function(userId) {
 };
 
 /**
+ * Gets number of subscriptions that a user has
+ * @param userId {string}
+ * @return {Promise<Number>}
+ */
+Class.getNumberOfSubscriptions = function(userId) {
+  logger.debug('Getting subscriptions for user %s', userId);
+
+  return Storage.getNumberOfSubscriptions(userId)
+    .then(function receiveResult(result) {
+      if (result >= 0 || result instanceof Error) {
+        return result;
+      } else {
+        logger.error('Error getting number of subscriptions');
+        return new CustomError.UnknownError();
+      }
+    });
+};
+
+/**
  * Gets the list of subscriptions that a user has subscribed to.
  * @param userId {string}
  * @return {Promise<List<User>> || Error}

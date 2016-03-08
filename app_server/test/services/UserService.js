@@ -49,7 +49,7 @@ var stream = {
   description: 'arbitrary description',
   appInstance: '123-123-123-123'
 };
-
+/*
 lab.experiment('UserService Tests', function () {
 
   lab.beforeEach({timeout: 10000}, function (done) {
@@ -332,7 +332,7 @@ lab.experiment('UserService Tests for View', function () {
         });
     });
 });
-
+*/
 lab.experiment('UserService Tests for Subscriptions', function () {
 
   lab.beforeEach({timeout: 10000}, function (done) {
@@ -425,6 +425,47 @@ lab.experiment('UserService Tests for Subscriptions', function () {
       .then(function(res) {
         expect(res).to.be.an.instanceof(CustomError.NotFoundError);
         expect(res.message).to.be.equal('User not found');
+        done();
+      });
+  });
+
+  lab.test('Get Number of Subscriptions valid', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+    var userPromise2 = Service.createNewUser(bob);
+    var userPromise3 = Service.createNewUser(carlos);
+
+    var setUpRelations =
+      Promise.join(userPromise1, userPromise2, userPromise3,
+        function(user1, user2, user3) {
+          return Service.createSubscription(user1.userId, user2.userId)
+            .then(() => Service.createSubscription(user1.userId, user3.userId));
+        });
+
+    setUpRelations.then(function(subscription) {
+      Service.getNumberOfSubscriptions(subscription.subscriber)
+        .then((res) => {
+          expect(res).to.equal(2);
+          done();
+        });
+    });
+  });
+
+  lab.test('Get Number of Subscriptions valid zero', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+
+    userPromise1.then((user) =>
+      Service.getNumberOfSubscriptions(user.userId))
+        .then((res) => {
+          console.log(res);
+          expect(res).to.equal(0);
+          done();
+        });
+  });
+
+  lab.test('Get Number of Subscriptions invalid', function(done) {
+    Service.getNumberOfSubscriptions('3388ffff-aa00-1111a222-00000044888c')
+      .then((res) => {
+        expect(res).to.be.an.instanceof(CustomError.NotFoundError);
         done();
       });
   });
@@ -522,7 +563,7 @@ lab.experiment('UserService Tests for Subscriptions', function () {
   });
 
 });
-
+/*
 lab.experiment('UserService Tests for Comments', function () {
 
   var comment1 = {
@@ -632,3 +673,4 @@ lab.experiment('UserService Tests for Comments', function () {
       });
   });
 });
+*/
