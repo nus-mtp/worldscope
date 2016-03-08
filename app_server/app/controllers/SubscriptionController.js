@@ -36,11 +36,23 @@ Class.registerRoutes = function() {
                      },
                      handler: this.getSubscriptions});
 
+  this.server.route({method: 'GET', path: '/statistics',
+                     config: {
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
+                     handler: this.getNumberOfSubscriptions});
+
   this.server.route({method: 'GET', path: '/subscribers/{id}',
                      config: {
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.getSubscribers});
+
+  this.server.route({method: 'GET', path: '/subscribers/{id}/statistics',
+                     config: {
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
+                     handler: this.getNumberOfSubscribers});
 
   this.server.route({method: 'DELETE', path: '/{id}',
                      config: {
@@ -91,6 +103,22 @@ Class.getSubscriptions = function(request, reply) {
     });
 };
 
+Class.getNumberOfSubscriptions = function(request, reply) {
+  logger.debug('Get list of subscriptions');
+
+  var userId = request.auth.credentials.userId;
+
+  Service.getNumberOfSubscriptions(userId)
+    .then(function receiveResult(result) {
+      if (result instanceof Error) {
+        logger.error('Could not retrieve number of subscriptions');
+        return reply(Boom.badRequest(result.message));
+      }
+
+      return reply(result);
+    });
+};
+
 Class.getSubscribers = function(request, reply) {
   logger.debug('Get list of subscribers');
 
@@ -100,6 +128,22 @@ Class.getSubscribers = function(request, reply) {
     .then(function receiveResult(result) {
       if (result instanceof Error) {
         logger.error('Could not retrieve list of subscribers');
+        return reply(Boom.badRequest(result.message));
+      }
+
+      return reply(result);
+    });
+};
+
+Class.getNumberOfSubscribers = function(request, reply) {
+  logger.debug('Get list of subscriptions');
+
+  var userId = request.auth.credentials.userId;
+
+  Service.getSubscriptions(userId)
+    .then(function receiveResult(result) {
+      if (result instanceof Error) {
+        logger.error('Could not retrieve list of subscriptions');
         return reply(Boom.badRequest(result.message));
       }
 
