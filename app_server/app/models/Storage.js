@@ -585,6 +585,29 @@ Class.getSubscribers = function(userId) {
 };
 
 /**
+ * @param  {string} userId
+ * @return {Promise<Integer>}
+ */
+Class.getNumberOfSubscribers = function(userId) {
+  var userPromise = this.models.User.findById(userId);
+
+  return userPromise.then(function(user) {
+    if (user === null) {
+      logger.error('User cannot be found');
+
+      return new CustomError.NotFoundError('User not found');
+    }
+
+    return this.models.Subscription.count({
+      where: {
+        subscribeTo: userId
+      }
+    });
+
+  }.bind(this));
+};
+
+/**
  * @param  {string} subscribeFrom - userId of one who is subscribing
  * @param  {string} subscribeTo - userId of the one being subscribed to
  * @return {Promise<Boolean>}

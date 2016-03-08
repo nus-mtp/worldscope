@@ -250,6 +250,47 @@ lab.experiment('Subscription Model Tests', function() {
       });
   });
 
+  lab.test('Get Number of Subscribers valid', function(done) {
+    var userPromise1 = Storage.createUser(user1);
+    var userPromise2 = Storage.createUser(user2);
+    var userPromise3 = Storage.createUser(user3);
+
+    var createUsers = Promise.join(userPromise1, userPromise2, userPromise3,
+      function(user1, user2, user3) {
+        return Storage.createSubscription(user1.userId, user2.userId)
+          .then(function(res) {
+            return Storage.createSubscription(user1.userId, user3.userId);
+          });
+      });
+
+    createUsers.then(function(subscription) {
+      Storage.getNumberOfSubscribers(subscription.subscribeTo)
+        .then(function(res) {
+          expect(res).to.be.equal(1);
+          done();
+        });
+    });
+  });
+
+  lab.test('Get Number of Subscribers valid zero', function(done) {
+    var userPromise1 = Storage.createUser(user1);
+
+    userPromise1.then(function(user) {
+      Storage.getNumberOfSubscribers(user.userId).then(function(res) {
+        expect(res).to.be.equal(0);
+        done();
+      });
+    });
+  });
+
+  lab.test('Get Number of Subscribers invalid userId', function(done) {
+    Storage.getNumberOfSubscribers('3388ffff-aa00-1111a222-00000044888c')
+      .then(function(res) {
+        expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+        done();
+    });
+  });
+
   lab.test('Delete Subscription valid', function(done) {
     var userPromise1 = Storage.createUser(user1);
     var userPromise2 = Storage.createUser(user2);

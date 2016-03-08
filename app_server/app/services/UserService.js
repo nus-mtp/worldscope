@@ -229,6 +229,25 @@ Class.getSubscribers = function(userId) {
 };
 
 /**
+ * Gets number of subscribers that a user has
+ * @param userId {string}
+ * @return {Promise<Number>}
+ */
+Class.getNumberOfSubscribers = function(userId) {
+  logger.debug('Getting subscribers for user %s', userId);
+
+  return Storage.getNumberOfSubscribers(userId)
+    .then(function receiveResult(result) {
+      if (result >= 0 || result instanceof Error) {
+        return result;
+      } else {
+        logger.error('Error getting number of subscribers');
+        return new CustomError.UnknownError();
+      }
+    });
+};
+
+/**
  * @param  {string} subscribeFrom - userId of one who is subscribing
  * @param  {string} subscribeTo - userId of the one being subscribed to
  * @return {Promise<Boolean>}

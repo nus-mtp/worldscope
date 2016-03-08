@@ -44,12 +44,14 @@ Class.registerRoutes = function() {
 
   this.server.route({method: 'GET', path: '/subscribers/{id}',
                      config: {
+                       validate: singleSubscriptionValidator,
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.getSubscribers});
 
   this.server.route({method: 'GET', path: '/subscribers/{id}/statistics',
                      config: {
+                       validate: singleSubscriptionValidator,
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.getNumberOfSubscribers});
@@ -127,7 +129,7 @@ Class.getSubscribers = function(request, reply) {
   Service.getSubscribers(userId)
     .then(function receiveResult(result) {
       if (result instanceof Error) {
-        logger.error('Could not retrieve list of subscribers');
+        logger.error('Could not retrieve number of subscribers');
         return reply(Boom.badRequest(result.message));
       }
 
@@ -136,11 +138,11 @@ Class.getSubscribers = function(request, reply) {
 };
 
 Class.getNumberOfSubscribers = function(request, reply) {
-  logger.debug('Get list of subscriptions');
+  logger.debug('Get number of subscribers');
 
-  var userId = request.auth.credentials.userId;
+  var userId = request.params.id;
 
-  Service.getSubscriptions(userId)
+  Service.getNumberOfSubscribers(userId)
     .then(function receiveResult(result) {
       if (result instanceof Error) {
         logger.error('Could not retrieve list of subscriptions');

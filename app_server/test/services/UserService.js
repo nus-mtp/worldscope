@@ -500,6 +500,46 @@ lab.experiment('UserService Tests for Subscriptions', function () {
       });
   });
 
+  lab.test('Get Number of Subscribers valid', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+    var userPromise2 = Service.createNewUser(bob);
+    var userPromise3 = Service.createNewUser(carlos);
+
+    var setUpRelations =
+      Promise.join(userPromise1, userPromise2, userPromise3,
+        function(user1, user2, user3) {
+          return Service.createSubscription(user1.userId, user2.userId)
+            .then(() => Service.createSubscription(user1.userId, user3.userId));
+        });
+
+    setUpRelations.then(function(subscription) {
+      Service.getNumberOfSubscribers(subscription.subscribeTo)
+        .then((res) => {
+          expect(res).to.equal(1);
+          done();
+        });
+    });
+  });
+
+  lab.test('Get Number of Subscribers valid zero', function(done) {
+    var userPromise1 = Service.createNewUser(alice);
+
+    userPromise1.then((user) =>
+      Service.getNumberOfSubscribers(user.userId))
+        .then((res) => {
+          expect(res).to.equal(0);
+          done();
+        });
+  });
+
+  lab.test('Get Number of Subscribers invalid', function(done) {
+    Service.getNumberOfSubscribers('3388ffff-aa00-1111a222-00000044888c')
+      .then((res) => {
+        expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+        done();
+      });
+  });
+
   lab.test('Delete Subscription valid', function(done) {
     var userPromise1 = Service.createNewUser(alice);
     var userPromise2 = Service.createNewUser(bob);

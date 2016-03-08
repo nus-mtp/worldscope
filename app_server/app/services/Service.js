@@ -83,8 +83,8 @@ Class.getSubscribers = function(userId) {
 
 Class.getNumberOfSubscribers = function(userId) {
   logger.debug('Getting number of subscribers for user %s', userId);
-  //change later
-  return UserService.getNumberOfSubscriptions(userId);
+
+  return UserService.getNumberOfSubscribers(userId);
 };
 
 Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
