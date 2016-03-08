@@ -13,7 +13,7 @@ var Utility = rfr('app/util/Utility');
 var CustomError = rfr('app/util/Error');
 var logger = Utility.createLogger(__filename);
 
-var modelNames = ['User', 'Stream', 'View', 'Subscription'];
+var modelNames = ['User', 'Stream', 'View', 'Subscription', 'Comment'];
 
 /**
  * Initialises the database connection and load the models written in
@@ -30,6 +30,7 @@ function Storage() {
       config.password, {
         host: config.host,
         dialect: config.dialect,
+        timezone: config.timezone,
         logging: config.logging,
         define: {
           hooks: {
@@ -583,6 +584,70 @@ Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
       });
     });
 };
+
+/************************************************************************
+ *                                                                       *
+ *                           COMMENT API                                 *
+ *                                                                       *
+ *************************************************************************/
+ /**
+ * @param  {string} userId
+ * @param  {string} streamId
+ * @param  {Object} commentObj
+ * @param  {string} commentObj.content
+ * @return {Promise<Sequelize.Comment>}
+ */
+Class.createComment = function(userId, streamId, commentObj) {
+  var userPromise = this.models.User.findById(userId);
+  var streamPromise = this.models.Stream.findById(streamId);
+
+  return Promise.join(userPromise, streamPromise,
+    function(user, stream) {
+      if (user === null || stream === null) {
+        logger.error('Either user or stream cannot be found');
+
+        return new CustomError.NotFoundError('User or stream not found');
+      }
+
+      var comment = {
+        content: commentObj.content,
+        createdAt: commentObj.createdAt,
+        userId: userId,
+        streamId: streamId
+      };
+
+      return this.models.Comment.create(comment).bind(this);
+    }.bind(this));
+};
+
+ /**
+ * @param  {string} streamId
+ * @return {Promise<Sequelize.Comment>}
+ */
+Class.getListOfCommentsForStream = function(streamId) {
+
+  return this.models.Stream.findOne({
+    include: [{
+      model: this.models.Comment,
+      as: 'comments'
+    }],
+    where: {
+      streamId: streamId
+    },
+    order: [[{model: this.models.Comment, as: 'comments'}, 'createdAt', 'DESC']]
+
+  }).then(function receiveResult(result) {
+    if (!result) {
+      logger.error('Stream not found');
+
+      return new CustomError.NotFoundError('Stream not found');
+    } else {
+      return result.comments; //only return the descendents
+    }
+  });
+
+};
+
 /**
  * Check if the fields to be changed match the fields available in object
  * @private

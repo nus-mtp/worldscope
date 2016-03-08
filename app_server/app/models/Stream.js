@@ -69,6 +69,10 @@ module.exports = function(sequelize, DataTypes) {
           as: 'Viewer',
           foreignKey: 'streamId'
         });
+        Stream.hasMany(models.Comment, {
+          as: 'comments',
+          foreignKey: 'streamId'
+        });
       }
     }
   });

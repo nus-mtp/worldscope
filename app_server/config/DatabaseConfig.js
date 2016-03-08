@@ -8,6 +8,7 @@ var config = {
   password: '',
   host: 'localhost',
   dialect: 'mysql',
+  timezone: '+08:00',
   logging: false
 };
 
