@@ -1,7 +1,7 @@
 const m = require('mithril');
 
-const UserModel = require('../models/user');
 const DataDisplay = require('../components/datadisplay');
+const UserModel = require('../models/user');
 
 const platformImg = {
   facebook: '/admin/img/facebook.png'

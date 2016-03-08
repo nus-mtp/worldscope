@@ -1,8 +1,7 @@
 const m = require('mithril');
 
-const mz = require('../utils/mzInit');
-
 const UserModel = require('../models/user');
+const mz = require('../utils/mzInit');
 
 const User = module.exports = {};
 

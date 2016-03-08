@@ -1,8 +1,7 @@
 const m = require('mithril');
 
-const StreamModel = require('../models/stream');
 const DataDisplay = require('../components/datadisplay');
-
+const StreamModel = require('../models/stream');
 const datetime = require('../utils/dateFormat');
 
 const Streams = module.exports = {};

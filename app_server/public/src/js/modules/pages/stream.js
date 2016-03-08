@@ -3,7 +3,6 @@
 const m = require('mithril');
 
 const StreamModel = require('../models/stream');
-
 const datetime = require('../utils/dateFormat');
 
 const Stream = module.exports = {};

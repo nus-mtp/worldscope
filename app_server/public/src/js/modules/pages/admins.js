@@ -1,7 +1,7 @@
 const m = require('mithril');
 
-const AdminModel = require('../models/admin');
 const DataDisplay = require('../components/datadisplay');
+const AdminModel = require('../models/admin');
 
 const Admins = module.exports = {
   controller: function () {

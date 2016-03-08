@@ -1,8 +1,7 @@
 const m = require('mithril');
 
-const mz = require('../utils/mzInit');
-
 const AdminModel = require('../models/admin');
+const mz = require('../utils/mzInit');
 
 const Admin = module.exports = {};
 
