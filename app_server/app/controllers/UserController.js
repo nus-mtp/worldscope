@@ -92,6 +92,12 @@ Class.registerRoutes = function() {
   this.server.route({method: 'GET', path: '/logout',
                      config: {auth: false},
                      handler: this.logout});
+
+  this.server.route({method: 'GET', path: '/metrics',
+                     config: {
+                       auth: {scope: Authenticator.SCOPE.ADMIN.METRICS}
+                     },
+                     handler: this.getUsersMetrics});
 };
 
 /* Routes handlers */
@@ -197,6 +203,18 @@ Class.login = function(request, reply) {
 Class.logout = function(request, reply) {
   request.cookieAuth.clear();
   return reply({status: 'OK'});
+};
+
+Class.getUsersMetrics = function(request, reply) {
+  Service.getNumberOfUsers().then(function(userCount) {
+    if (userCount !== 0 && (!userCount || userCount instanceof Error)) {
+      return reply(Boom.badRequest('Unable to get user count'));
+    }
+
+    return reply({
+      count: userCount
+    });
+  });
 };
 
 /* Validator for routes */
