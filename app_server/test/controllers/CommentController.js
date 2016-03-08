@@ -168,7 +168,7 @@ lab.experiment('CommentController Tests', function() {
     function injectRetrieveComments(streamId) {
 
       Router.inject({method: 'GET',
-                     url: '/api/comments/' + streamId,
+                     url: '/api/comments/streams/' + streamId,
                      credentials: testAccount}, function(res) {
         Code.expect(res.result[0].content).to.be
           .equal(commentPayload2.comment.message);
@@ -192,7 +192,8 @@ lab.experiment('CommentController Tests', function() {
   lab.test('Get list of comments invalid stream id', function(done) {
 
     Router.inject({method: 'GET',
-                   url: '/api/comments/3388ffff-aa00-1111a222-00000044888c',
+                   url: '/api/comments/streams/' +
+                        '3388ffff-aa00-1111a222-00000044888c',
                    credentials: testAccount}, function(res) {
       Code.expect(res.result.statusCode).to.equal(400);
       done();

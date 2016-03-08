@@ -27,7 +27,7 @@ Class.registerRoutes = function () {
                      },
                      handler: this.createNewComment});
 
-  this.server.route({method: 'GET', path: '/{id}',
+  this.server.route({method: 'GET', path: '/streams/{id}',
                      config: {
                        validate: streamIdValidator,
                        auth: {scope: Authenticator.SCOPE.ALL}
