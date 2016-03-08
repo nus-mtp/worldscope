@@ -156,13 +156,15 @@ Class.endStream = function(request, reply) {
 var singleStreamValidator = {
   params: {
     id: Joi.string().guid().required()
-  }
+  },
+  failAction: Utility.addValidationDetailsForJoi
 };
 
 var singleStreamPayloadValidator = {
   payload: {
     streamId: Joi.string().guid().required()
-  }
+  },
+  failAction: Utility.addValidationDetailsForJoi
 };
 
 var streamCreatePayloadValidator = {
@@ -177,14 +179,16 @@ var streamListParamsValidator = {
     state: Joi.any().valid('live', 'done', 'all').default('live'),
     sort: Joi.any().valid('time', 'viewers', 'title').default('time'),
     order: Joi.any().valid('desc', 'asc').default('desc')
-  }
+  },
+  failAction: Utility.addValidationDetailsForJoi
 };
 
 var streamControlStopValidator = {
   payload: {
     appInstance: Joi.string().required(),
     streamId: Joi.string().required()
-  }
+  },
+  failAction: Utility.addValidationDetailsForJoi
 };
 /* End of validators */
 

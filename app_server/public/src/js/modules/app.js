@@ -3,9 +3,9 @@ const m = require('mithril');
 const App = module.exports = {};
 
 const Nav = require('./components/nav');
-const ErrorDisplay = require('./components/errordisplay');
+const Alert = require('./components/alert');
 
-const templatePage = (content) => m('div#container', [ErrorDisplay, content]);
+const templatePage = (content) => m('div#container', [Alert, content]);
 
 const wrapView = function (wrapper, vElement) {
   let wrappedElement = Object.assign({}, vElement);
@@ -61,15 +61,29 @@ App.routes = {
 };
 
 // Used when logged in
+// Also extends error handling in m.request with a default action.
+// The default action can also be used via errorCallback(error, defaultCallback)
+// where defaultCallback takes in error as its only parameter.
 App.request = function (originalOptions) {
   let options = Object.assign({}, originalOptions);
 
-  options.config = options.config || function (xhr) {
-    xhr.setRequestHeader(App.CSRF_HEADER,
-        window.localStorage.getItem(App.CSRF_HEADER));
-  };
+  if (App.isLoggedIn()) {
+    options.config = options.config || function (xhr) {
+      xhr.setRequestHeader(App.CSRF_HEADER,
+          window.localStorage.getItem(App.CSRF_HEADER));
+    };
+  }
 
-  return m.request(options);
+  let request = m.prop(options.initialValue);
+  let showError = (err) => Alert.setError(err);
+  request.then = (resolve, reject) =>
+      m.request(options).then(
+          resolve,
+          function (err) {
+            err = err || {network: true}; // if server is unavailable
+            reject ? reject(err, showError) : showError(err);
+          });
+  return request;
 };
 
 // TODO: Separate into Authentication module

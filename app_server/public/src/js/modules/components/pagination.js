@@ -63,7 +63,7 @@ const getPagination = function () {
   });
   pages.push(getPageIndicator(currentPage + 1, '>'));
 
-  return pages.length > 2 ? pages : []; // if there are pages
+  return pages.length > 3 ? pages : []; // if there are pages
 };
 
 Pagination.controller = function (args) {
