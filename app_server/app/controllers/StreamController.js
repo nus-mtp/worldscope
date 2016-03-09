@@ -61,6 +61,13 @@ Class.registerRoutes = function() {
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.createStream});
+
+  this.server.route({method: 'DELETE', path: '/{id}', //for admins only
+                     config: {
+                       validate: singleStreamValidator,
+                       auth: {scope: Authenticator.SCOPE.ADMIN.ADMINS}
+                     },
+                     handler: this.deleteStream});
 };
 
 /* Routes handlers */
@@ -147,6 +154,20 @@ Class.endStream = function(request, reply) {
       return reply(Boom.badRequest(res.message));
     }
     return reply({status: 'OK', message: ''}).code(200);
+  });
+};
+
+Class.deleteStream = function(request, reply) {
+  logger.debug('Ending a stream %s', request.params.id);
+
+  var streamId = request.params.id;
+
+  Service.deleteStream(streamId)
+  .then(function(res) {
+    if (!res || res instanceof Error) {
+      return reply(Boom.badRequest(res.message));
+    }
+    return reply({status: 'OK'});
   });
 };
 

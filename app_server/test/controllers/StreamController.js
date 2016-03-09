@@ -27,10 +27,41 @@ var bob = {
   description: 'bam bam bam'
 };
 
+var rootAdminPermissions = [
+  Authenticator.SCOPE.ADMIN.METRICS,
+  Authenticator.SCOPE.ADMIN.STREAMS,
+  Authenticator.SCOPE.ADMIN.USERS,
+  Authenticator.SCOPE.ADMIN.ADMINS,
+  Authenticator.SCOPE.ADMIN.SETTINGS,
+  Authenticator.SCOPE.ADMIN.DEFAULT
+];
+
+var adminAccount = {
+  userId: 1, username: 'alice', password: 'abc', scope: rootAdminPermissions
+};
+
+var admin = {
+  username: 'Admin Alice',
+  password: 'generated'
+};
+
 var streamPayload = {
   title: 'this is the title',
   description: 'this is the description of the stream'
 };
+
+var streamInfo = {
+  title: 'this is the title',
+  description: 'this is the description of the stream',
+  appInstance: 'generated'
+};
+
+var streamInfo2 = {
+  title: 'abc def is the title',
+  description: 'this is the description of the stream',
+  appInstance: 'generated2'
+};
+
 
 lab.experiment('StreamController Tests', function() {
   lab.beforeEach({timeout: 10000}, function(done) {
@@ -153,12 +184,6 @@ lab.experiment('StreamController Tests', function() {
   });
 
   lab.test('Get stream by streamId valid', function(done) {
-    var streamInfo = {
-      title: 'this is the title',
-      description: 'this is the description of the stream',
-      appInstance: 'generated'
-    };
-
     Service.createNewUser(bob).then(function(user) {
       return user.userId;
     }).then(function(userId) {
@@ -211,19 +236,6 @@ lab.experiment('StreamController Tests', function() {
   });
 
   lab.test('Get list of streams valid sort by title asc', function(done) {
-
-    var streamInfo = {
-      title: 'this is the title',
-      description: 'this is the description of the stream',
-      appInstance: 'generated'
-    };
-
-    var streamInfo2 = {
-      title: 'abc def is the title',
-      description: 'this is the description of the stream',
-      appInstance: 'generated2'
-    };
-
     Service.createNewUser(bob).then(function(user) {
       testAccount.userId = user.userId;
       return user.userId;
@@ -245,19 +257,6 @@ lab.experiment('StreamController Tests', function() {
   });
 
   lab.test('Get list of streams valid sort by title desc', function(done) {
-
-    var streamInfo = {
-      title: 'this is the title',
-      description: 'this is the description of the stream',
-      appInstance: 'generated'
-    };
-
-    var streamInfo2 = {
-      title: 'abc def is the title',
-      description: 'this is the description of the stream',
-      appInstance: 'generated2'
-    };
-
     Service.createNewUser(bob).then(function(user) {
       testAccount.userId = user.userId;
       return user.userId;
@@ -288,16 +287,8 @@ lab.experiment('StreamController Tests', function() {
   });
 
   lab.test('End stream valid', function(done) {
-
-    var streamInfo = {
-      title: 'this is the title',
-      description: 'this is the description of the stream',
-      appInstance: 'generated'
-    };
-
     Service.createNewUser(bob).then(function(user) {
       testAccount.userId = user.userId;
-
       return user.userId;
     }).then(function(userId) {
       return Service.createNewStream(userId, streamInfo);
@@ -325,12 +316,6 @@ lab.experiment('StreamController Tests', function() {
   });
 
   lab.test('End stream invalid not stream owner', function(done) {
-    var streamInfo = {
-      title: 'this is the title',
-      description: 'this is the description of the stream',
-      appInstance: 'generated'
-    };
-
     Service.createNewUser(bob).then(function(user) {
       return user.userId;
     }).then(function(userId) {
@@ -346,8 +331,56 @@ lab.experiment('StreamController Tests', function() {
         done();
       });
     });
-
   });
+
+  lab.test('Delete stream valid', function(done) {
+    Service.createNewAdmin(admin).then(function(user) {
+      adminAccount.userId = user.userId
+      return user;
+    }).then(function(user) {
+      return Service.createNewStream(user.userId, streamInfo);
+    }).then(function(stream) {
+      Router.inject({method: 'DELETE',
+                     url: '/api/streams/' + stream.streamId,
+                     credentials: adminAccount}, function(res) {
+        Code.expect(res.result.status).to.equal('OK');
+        done();
+      });
+    });
+  });
+
+  lab.test('Delete stream invalid forbidden not admin', function(done) {
+    Service.createNewUser(bob).then(function(user) {
+      testAccount.userId = user.userId;
+      return user.userId;
+    }).then(function(userId) {
+      return Service.createNewStream(userId, streamInfo);
+    }).then(function(stream) {
+      Router.inject({method: 'DELETE',
+                     url: '/api/streams/' + stream.streamId,
+                     credentials: testAccount}, function(res) {
+        Code.expect(res.result.statusCode).to.equal(403);
+        done();
+      });
+    });
+  });
+
+  lab.test('Delete stream non-existing stream', function(done) {
+    Service.createNewAdmin(admin).then(function(user) {
+      adminAccount.userId = user.userId
+      return user;
+    }).then(function(user) {
+      return Service.createNewStream(user.userId, streamInfo);
+    }).then(function(stream) {
+      Router.inject({method: 'DELETE',
+                     url: '/api/streams/3388ffff-aa00-1111a222-00000044888c',
+                     credentials: adminAccount}, function(res) {
+        Code.expect(res.result.statusCode).to.equal(400);
+        done();
+      });
+    });
+  });
+
 });
 
 lab.experiment('StreamController Control Tests', () => {

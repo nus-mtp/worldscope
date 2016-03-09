@@ -5,7 +5,7 @@
 
 var rfr = require('rfr');
 
-var Router = rfr('app/Router');
+//var Router = rfr('app/Router');
 var CustomError = rfr('app/util/Error');
 var Utility = rfr('app/util/Utility');
 var Storage = rfr('app/models/Storage');
