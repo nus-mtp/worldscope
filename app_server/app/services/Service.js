@@ -120,6 +120,11 @@ Class.getListOfStreams = function(filters) {
   return StreamService.getListOfStreams(filters);
 };
 
+Class.getStreamsFromSubscriptions = function(userId) {
+  logger.debug('Getting list of streams for user: %s', userId);
+  return StreamService.getStreamsFromSubscriptions(userId);
+};
+
 Class.updateStream = function(streamId, attributes) {
   logger.debug('Updating stream %s with attributes: %j', streamId, attributes);
   return StreamService.updateStream(streamId, attributes);

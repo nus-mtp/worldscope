@@ -5,7 +5,7 @@
 
 var rfr = require('rfr');
 
-//var Router = rfr('app/Router');
+var Router = rfr('app/Router');
 var CustomError = rfr('app/util/Error');
 var Utility = rfr('app/util/Utility');
 var Storage = rfr('app/models/Storage');
@@ -70,6 +70,27 @@ Class.getListOfStreams = function(filters) {
   logger.debug('Getting list of streams with filters: %j', filters);
 
   return Storage.getListOfStreams(filters)
+    .then(function receiveResult(results) {
+      if (results) {
+        return results.map((singleStream) =>
+          Utility.formatStreamObject(singleStream, 'view'));
+      } else {
+        return new CustomError.NotFoundError('Stream not found');
+      }
+    }).catch(function(err) {
+      logger.error(err);
+      return null;
+    });
+};
+
+/**
+ * Gets a list of streams from a user's subscriptions
+ * @param userId {string}
+ */
+Class.getStreamsFromSubscriptions = function(userId) {
+  logger.debug('Getting streams from subscriptions for user %s', userId);
+
+  return Storage.getStreamsFromSubscriptions(userId)
     .then(function receiveResult(results) {
       if (results) {
         return results.map((singleStream) =>

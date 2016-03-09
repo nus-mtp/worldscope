@@ -413,7 +413,11 @@ Class.getStreamsFromSubscriptions = function(userId) {
         as: 'streams',
         where: {
           live: true
-        }
+        },
+        include: [{
+          model: this.models.User,
+          as: 'streamer'
+        }]
       }]
     }],
     where: {
@@ -425,6 +429,11 @@ Class.getStreamsFromSubscriptions = function(userId) {
       'createdAt', 'DESC'
     ]]
   }).then((user) => {
+    if (user === null) {
+      logger.debug('User not found or no streams from subscriptions %s',
+                   userId);
+      return [];
+    }
     var subscriptions = user.Subscriptions;
     var streams = subscriptions.map((singleUser) => singleUser.streams);
     var merged = [].concat.apply([], streams);

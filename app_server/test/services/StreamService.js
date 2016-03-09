@@ -3,6 +3,7 @@ var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var Code = require('code');
 var expect = Code.expect;
+var Promise = require('bluebird');
 
 var Storage = rfr('app/models/Storage');
 var Service = rfr('app/services/Service');
@@ -30,6 +31,17 @@ lab.experiment('StreamService Tests', function() {
     createdAt: new Date('2015-01-01'),
     endedAt: new Date('2015-01-02'),
     live: false
+  };
+
+  var alice = {
+    username: 'Alice',
+    alias: 'Alice in the wonderland',
+    email: 'alice@apple.com',
+    password: 'generated',
+    accessToken: 'anaccesstoken',
+    platformType: 'facebook',
+    platformId: '45454545454',
+    description: 'nil'
   };
 
   var bob = {
@@ -315,6 +327,56 @@ lab.experiment('StreamService Tests', function() {
       Code.expect(result[0].streamer.username).to.be.equal(bob.username);
       done();
     });
+  });
+
+  lab.test('Get streams from subscriptions valid', function(done) {
+    var userPromise1 = Service.createNewUser(bob);
+    var userPromise2 = Service.createNewUser(alice);
+
+    Promise.join(userPromise1, userPromise2,
+      function(bob, alice){
+        return Service.createSubscription(bob.userId, alice.userId)
+        .then((subscription) => {
+          return Service.createNewStream(alice.userId, testStream);
+        }).then((stream) => {
+          return Service.createNewStream(alice.userId, testStream2);
+        }).then((stream) => {
+          return Service.getStreamsFromSubscriptions(bob.userId);
+        }).then((res) => {
+          Code.expect(res[0].title).to.be.equal(testStream2.title);
+          Code.expect(res[1].title).to.be.equal(testStream.title);
+          done();
+        });
+      });
+  });
+
+  lab.test('Get streams from subscriptions valid no streams from subscribers',
+    function(done) {
+    var userPromise1 = Service.createNewUser(bob);
+    var userPromise2 = Service.createNewUser(alice);
+
+    Promise.join(userPromise1, userPromise2,
+      function(bob, alice) {
+        return Service.createSubscription(bob.userId, alice.userId)
+        .then((subscription) => {
+          return Service.getStreamsFromSubscriptions(bob.userId);
+        }).then((res) => {
+          Code.expectl(res).to.be.deep.equal([]);
+          done();
+        });
+      });
+  });
+
+  lab.test('Get streams from subscriptions valid no subscribers',
+    function(done) {
+      var userPromise1 = Service.createNewUser(bob);
+
+      userPromise1.then((user) => {
+        return Service.getStreamsFromSubscriptions(user.userId).then((res) => {
+          Code.expectl(res).to.be.deep.equal([]);
+          done();
+        });
+      });
   });
 
   lab.test('Update Stream valid', function(done) {
