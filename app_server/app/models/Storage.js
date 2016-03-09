@@ -399,6 +399,40 @@ Class.getListOfStreams = function(originalFilters) {
 };
 
 /**
+ * Return a list of streams from subscriptions
+ * @param  {string} userId
+ * @return {Promise<List<Sequelize.object>>} - a list of streams
+ */
+Class.getStreamsFromSubscriptions = function(userId) {
+  return this.models.User.findOne({
+    include: [{
+      model: this.models.User,
+      as: 'Subscriptions',
+      include: [{
+        model: this.models.Stream,
+        as: 'streams',
+        where: {
+          live: true
+        }
+      }]
+    }],
+    where: {
+      userId: userId
+    },
+    order: [[
+      {model: this.models.User, as:'Subscriptions'},
+      {model: this.models.Stream, as:'streams'},
+      'createdAt', 'DESC'
+    ]]
+  }).then((user) => {
+    var subscriptions = user.Subscriptions;
+    var streams = subscriptions.map((singleUser) => singleUser.streams);
+    var merged = [].concat.apply([], streams);
+    return merged;
+  });
+};
+
+/**
  * @param  {string}
  * @param  {object} newAttributes
  * @param  {string} newAttributes.username
