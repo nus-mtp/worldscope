@@ -334,7 +334,7 @@ lab.experiment('StreamService Tests', function() {
     var userPromise2 = Service.createNewUser(alice);
 
     Promise.join(userPromise1, userPromise2,
-      function(bob, alice){
+      function(bob, alice) {
         return Service.createSubscription(bob.userId, alice.userId)
         .then((subscription) => {
           return Service.createNewStream(alice.userId, testStream);
@@ -352,20 +352,20 @@ lab.experiment('StreamService Tests', function() {
 
   lab.test('Get streams from subscriptions valid no streams from subscribers',
     function(done) {
-    var userPromise1 = Service.createNewUser(bob);
-    var userPromise2 = Service.createNewUser(alice);
+      var userPromise1 = Service.createNewUser(bob);
+      var userPromise2 = Service.createNewUser(alice);
 
-    Promise.join(userPromise1, userPromise2,
-      function(bob, alice) {
-        return Service.createSubscription(bob.userId, alice.userId)
-        .then((subscription) => {
-          return Service.getStreamsFromSubscriptions(bob.userId);
-        }).then((res) => {
-          Code.expectl(res).to.be.deep.equal([]);
-          done();
+      Promise.join(userPromise1, userPromise2,
+        function(bob, alice) {
+          return Service.createSubscription(bob.userId, alice.userId)
+          .then((subscription) => {
+            return Service.getStreamsFromSubscriptions(bob.userId);
+          }).then((res) => {
+            Code.expectl(res).to.be.deep.equal([]);
+            done();
+          });
         });
-      });
-  });
+    });
 
   lab.test('Get streams from subscriptions valid no subscribers',
     function(done) {
@@ -377,7 +377,7 @@ lab.experiment('StreamService Tests', function() {
           done();
         });
       });
-  });
+    });
 
   lab.test('Update Stream valid', function(done) {
     var updates = {

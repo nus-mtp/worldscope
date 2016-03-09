@@ -41,6 +41,12 @@ Class.registerRoutes = function() {
                      },
                      handler: this.getStreamById});
 
+  this.server.route({method: 'GET', path: '/subscriptions',
+                     config: {
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
+                     handler: this.getStreamsFromSubscriptions});
+
   this.server.route({method: 'POST', path: '/control/stop',
                      config: {
                        validate: streamControlStopValidator,
@@ -124,6 +130,20 @@ Class.getListOfStreams = function(request, reply) {
   };
 
   Service.getListOfStreams(filters).then(function(listStreams) {
+    if (!listStreams || listStreams instanceof Error) {
+      return reply(Boom.notFound('Stream not found'));
+    }
+
+    return reply(listStreams);
+  });
+};
+
+Class.getStreamsFromSubscriptions = function(request, reply) {
+  logger.debug('Getting list of streams from subscriptions');
+
+  var userId = request.auth.credentials.userId;
+
+  Service.getStreamsFromSubscriptions(userId).then(function(listStreams) {
     if (!listStreams || listStreams instanceof Error) {
       return reply(Boom.notFound('Stream not found'));
     }

@@ -467,7 +467,7 @@ lab.experiment('Stream Tests: streams from subscriptions', function() {
       userDetails, userDetails2,
       {username: 'Carlos popz', password: 'asdf', email: 'carlos@gmail.com'},
       {username: 'Delen popz', password: 'asdf', email: 'delen@gmail.com'}
-    ]).then(() => Storage.getListOfUsers({order: 'asc'}))
+    ]).then(() => Storage.getListOfUsers({order: 'asc'}));
 
     // set up subscriptions
     var subscriptionPromise = userPromise.then((users) => {
@@ -514,7 +514,7 @@ lab.experiment('Stream Tests: streams from subscriptions', function() {
           expect(res[0].title).to.be.equal(streamDetails4.title);
           done();
         });
-    })
+    });
   });
 
 });

@@ -398,8 +398,7 @@ lab.experiment('SubscriptionController Tests', function() {
     function querySubscribers(user) {
       Router.inject({method: 'GET',
                      url: '/api/subscriptions/subscribers/' +
-                     user.userId + '/statistics'},
-                     function(res) {
+                     user.userId + '/statistics'}, function(res) {
         Code.expect(res.result.statusCode).to.be.equal(401);
         done();
       });

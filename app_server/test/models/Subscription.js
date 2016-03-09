@@ -198,7 +198,7 @@ lab.experiment('Subscription Model Tests', function() {
       .then(function(res) {
         expect(res).to.be.an.instanceof(CustomError.NotFoundError);
         done();
-    });
+      });
   });
 
   lab.test('Get Subscribers valid', function(done) {
@@ -288,7 +288,7 @@ lab.experiment('Subscription Model Tests', function() {
       .then(function(res) {
         expect(res).to.be.an.instanceof(CustomError.NotFoundError);
         done();
-    });
+      });
   });
 
   lab.test('Delete Subscription valid', function(done) {

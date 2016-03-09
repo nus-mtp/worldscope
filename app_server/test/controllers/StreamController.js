@@ -3,6 +3,7 @@ var rfr = require('rfr');
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var Code = require('code');
+var Promise = require('bluebird');
 var util = require('util');
 var Hapi = require('hapi');
 
@@ -25,6 +26,17 @@ var bob = {
   platformType: 'facebook',
   platformId: '1238943948',
   description: 'bam bam bam'
+};
+
+var alice = {
+  username: 'Alice',
+  alias: 'Alice in the wonderland',
+  email: 'alice@apple.com',
+  password: 'generated',
+  accessToken: 'anaccesstoken',
+  platformType: 'facebook',
+  platformId: '45454545454',
+  description: 'nil'
 };
 
 var rootAdminPermissions = [
@@ -335,7 +347,7 @@ lab.experiment('StreamController Tests', function() {
 
   lab.test('Delete stream valid', function(done) {
     Service.createNewAdmin(admin).then(function(user) {
-      adminAccount.userId = user.userId
+      adminAccount.userId = user.userId;
       return user;
     }).then(function(user) {
       return Service.createNewStream(user.userId, streamInfo);
@@ -367,7 +379,7 @@ lab.experiment('StreamController Tests', function() {
 
   lab.test('Delete stream non-existing stream', function(done) {
     Service.createNewAdmin(admin).then(function(user) {
-      adminAccount.userId = user.userId
+      adminAccount.userId = user.userId;
       return user;
     }).then(function(user) {
       return Service.createNewStream(user.userId, streamInfo);
@@ -380,6 +392,81 @@ lab.experiment('StreamController Tests', function() {
       });
     });
   });
+
+  lab.test('Get streams from subscriptions valid', function(done) {
+    var userPromise1 = Service.createNewUser(bob);
+    var userPromise2 = Service.createNewUser(alice);
+
+    function queryStreams() {
+      Router.inject({method: 'GET',
+                     url: '/api/streams/subscriptions',
+                     credentials: testAccount}, function(res) {
+        Code.expect(res.result).to.have.length(2);
+        Code.expect(res.result[0].description)
+          .to.equal(streamInfo.description);
+        Code.expect(res.result[1].description)
+          .to.equal(streamInfo2.description);
+        done();
+      });
+    }
+
+    Promise.join(userPromise1, userPromise2,
+      function(bob, alice) {
+        testAccount.userId = bob.userId;
+        return Service.createSubscription(bob.userId, alice.userId)
+        .then((subscription) => {
+          return Service.createNewStream(alice.userId, streamInfo);
+        }).then((stream) => {
+          return Service.createNewStream(alice.userId, streamInfo2);
+        }).then((stream) => queryStreams());
+      });
+  });
+
+  lab.test('Get streams from subscriptions valid no streams from subscriptions',
+    function(done) {
+      var userPromise1 = Service.createNewUser(bob);
+      var userPromise2 = Service.createNewUser(alice);
+
+      function queryStreams() {
+        Router.inject({method: 'GET',
+                       url: '/api/streams/subscriptions',
+                       credentials: testAccount}, function(res) {
+          Code.expect(res.result).to.deep.equal([]);
+          done();
+        });
+      }
+
+      Promise.join(userPromise1, userPromise2,
+        function(bob, alice) {
+          testAccount.userId = bob.userId;
+          return Service.createSubscription(bob.userId, alice.userId)
+            .then((subscription) => queryStreams());
+        });
+    });
+
+  lab.test('Get streams from subscriptions valid no subscriptions',
+    function(done) {
+      var userPromise1 = Service.createNewUser(bob);
+      var userPromise2 = Service.createNewUser(alice);
+
+      function queryStreams() {
+        Router.inject({method: 'GET',
+                       url: '/api/streams/subscriptions',
+                       credentials: testAccount}, function(res) {
+          Code.expect(res.result).to.deep.equal([]);
+          done();
+        });
+      }
+
+      Promise.join(userPromise1, userPromise2,
+        function(bob, alice) {
+          testAccount.userId = bob.userId;
+          return Service.createNewStream(alice.userId, streamInfo)
+          .then((stream) => {
+            return Service.createNewStream(alice.userId, streamInfo2);
+          }).then((stream) => queryStreams());
+        });
+    });
 
 });
 

@@ -424,8 +424,8 @@ Class.getStreamsFromSubscriptions = function(userId) {
       userId: userId
     },
     order: [[
-      {model: this.models.User, as:'Subscriptions'},
-      {model: this.models.Stream, as:'streams'},
+      {model: this.models.User, as: 'Subscriptions'},
+      {model: this.models.Stream, as: 'streams'},
       'createdAt', 'DESC'
     ]]
   }).then((user) => {
@@ -470,7 +470,7 @@ Class.deleteStream = function(streamId) {
           return true; // sucesss
         }
       });
-    };
+    }
 
     logger.error('Unable to delete stream %s', streamId);
     return false;
