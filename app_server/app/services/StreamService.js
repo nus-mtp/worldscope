@@ -5,6 +5,7 @@
 
 var rfr = require('rfr');
 
+var Router = rfr('app/Router');
 var CustomError = rfr('app/util/Error');
 var Utility = rfr('app/util/Utility');
 var Storage = rfr('app/models/Storage');
@@ -135,6 +136,19 @@ Class.endStream = function(userId, streamId) {
       return new CustomError.NotFoundError('Stream not found');
     }
   });
+};
+
+Class.deleteStream = function(streamId) {
+  logger.debug('Deleting stream: %s', streamId);
+
+  return Storage.deleteStream(streamId)
+    .then((res) => {
+      if (res === false) {
+        return new CustomError.NotFoundError('Stream not found');
+      }
+
+      return res;
+    })
 };
 
 Class.stopStream = function(appName, appInstance, streamId) {

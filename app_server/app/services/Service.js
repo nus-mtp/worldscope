@@ -135,6 +135,11 @@ Class.stopStream = function(appName, appInstance, streamId) {
   return StreamService.stopStream(appName, appInstance, streamId);
 };
 
+Class.deleteStream = function(streamId) {
+  logger.debug('Deleting stream entry %s, streamId');
+  return StreamService.deleteStream(streamId);
+};
+
 /////// ADMIN APIs ///////
 Class.getListOfAdmins = function(filters) {
   logger.debug('Getting list of admins with filters: %j', filters);

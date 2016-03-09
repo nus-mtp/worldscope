@@ -417,4 +417,32 @@ lab.experiment('Stream Model Tests', function() {
       });
   });
 
+  lab.test('Delete stream valid', function(done) {
+
+    Storage.createUser(userDetails).then(function(user) {
+      return user.userId;
+    }).then(function(userId) {
+      return Storage.createStream(userId, streamDetails);
+    }).then(function(stream) {
+      return Storage.deleteStream(stream.streamId);
+    }).then(function(res) {
+      expect(res).to.be.true();
+      done();
+    });
+  });
+
+  lab.test('Delete stream invalid non-existing stream', function(done) {
+
+    Storage.createUser(userDetails).then(function(user) {
+      return user.userId;
+    }).then(function(userId) {
+      return Storage.createStream(userId, streamDetails);
+    }).then(function(stream) {
+      return Storage.deleteStream('3388ffff-aa00-1111a222-00000044888c');
+    }).then(function(res) {
+      expect(res).to.be.false();
+      done();
+    });
+  });
+
 });

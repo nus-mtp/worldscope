@@ -414,6 +414,26 @@ Class.updateStream = function(streamId, newAttributes) {
   });
 };
 
+/**
+ * Delete stream, removes the entry
+ * @param  {string} stringId
+ * @return {Boolean} true or false
+ */
+Class.deleteStream = function(streamId) {
+  return this.getStreamById(streamId).then(function(stream) {
+    if (stream !== null) {
+      return stream.destroy().then(function(res) {
+        if (res.streamId === streamId) {
+          return true; // sucesss
+        }
+      });
+    };
+
+    logger.error('Unable to delete stream %s', streamId);
+    return false;
+  });
+};
+
 /************************************************************************
  *                                                                       *
  *                              VIEW API                                 *

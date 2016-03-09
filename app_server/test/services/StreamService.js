@@ -401,4 +401,26 @@ lab.experiment('StreamService Tests', function() {
     });
   });
 
+  lab.test('Delete stream valid', function(done) {
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, testStream);
+    }).then(function(stream) {
+      return Service.deleteStream(stream.streamId);
+    }).then(function(res) {
+      Code.expect(res).to.be.an.true();
+      done();
+    });
+  });
+
+  lab.test('Delete stream invalid streamId', function(done) {
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, testStream);
+    }).then(function(stream) {
+      return Service.deleteStream('3388ffff-aa00-1111a222-00000044888c');
+    }).then(function(res) {
+      Code.expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+      Code.expect(res.message).to.be.equal('Stream not found');
+      done();
+    });
+  });
 });
