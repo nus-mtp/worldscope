@@ -10,7 +10,7 @@ var Utility = rfr('app/util/Utility');
 
 var logger = Utility.createLogger(__filename);
 
-function Room(name, type) {
+function Room(name, type, streamId) {
   if (!name) {
     logger.error('Room name is invalid');
     throw new Error('Room name must be provided');
@@ -23,6 +23,7 @@ function Room(name, type) {
 
   this.__name = name;
   this.__type = type;
+  this.__streamId = streamId;
   this.__clients = {}; // A map from client's socket.io id to Client object
 }
 
@@ -35,6 +36,8 @@ Room.ROOM_TYPES = Class.ROOM_TYPES = {
 Class.getName = function() { return this.__name; };
 
 Class.getType = function() { return this.__type; };
+
+Class.getStreamId = function() { return this.__streamId; };
 
 Class.getClients = function() { return this.__clients; };
 

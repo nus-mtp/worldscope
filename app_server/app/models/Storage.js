@@ -3,6 +3,7 @@
  * internals.
  * @module Storage
  */
+'use strict';
 var rfr = require('rfr');
 var Promise = require('bluebird');
 var Sequelize = require('sequelize');
@@ -603,10 +604,15 @@ Class.createComment = function(userId, streamId, commentObj) {
 
   return Promise.join(userPromise, streamPromise,
     function(user, stream) {
-      if (user === null || stream === null) {
-        logger.error('Either user or stream cannot be found');
-
-        return new CustomError.NotFoundError('User or stream not found');
+      if (user === null) {
+        let errMsg = `User ${userId} cannot be found`;
+        logger.error(errMsg);
+        return new CustomError.NotFoundError(errMsg);
+      }
+      if (stream === null) {
+        let errMsg = `Stream ${streamId} cannot be found`;
+        logger.error(errMsg);
+        return new CustomError.NotFoundError(errMsg);
       }
 
       var comment = {

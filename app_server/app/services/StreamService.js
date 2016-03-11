@@ -29,12 +29,12 @@ function StreamService() {
 var Class = StreamService.prototype;
 
 Class.createNewStream = function(userId, streamAttributes) {
-  logger.debug('Creating new stream: %j', streamAttributes);
+  logger.info('Creating new stream: %j', streamAttributes);
 
   return Storage.createStream(userId, streamAttributes)
     .then((result) => {
       if (result) {
-        initializeChatRoomForStream(streamAttributes);
+        initializeChatRoomForStream(result);
         return Utility.formatStreamObject(result, 'stream');
       }
 
@@ -173,7 +173,8 @@ Class.createChatRoomsForLiveStreams = function() {
  * @param streamAttributes {object}
  */
 function initializeChatRoomForStream(streamAttributes) {
-  let room = SocketAdapter.createNewRoom(streamAttributes.appInstance);
+  let room = SocketAdapter.createNewRoom(streamAttributes.appInstance,
+                                         streamAttributes.streamId);
   if (!room || room instanceof Error) {
     logger.error('Unable to create new chat room for stream %s',
                  streamAttributes.title);

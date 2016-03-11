@@ -51,7 +51,7 @@ Class.addClient = function(client) {
 };
 
 /**
- * Add a client to a socket.io room
+ * Adds a client to a socket.io room
  * @param client {Client}
  * @param roomName {string}
  */
@@ -69,7 +69,7 @@ Class.__addClientToRoom = function(client, roomName) {
 };
 
 /**
- * Add a client to a socket.io room
+ * Removes  a client to a socket.io room
  * @param client {Client}
  * @param roomName {string}
  */
@@ -86,15 +86,15 @@ Class.__removeClientFromRoom = function(client, roomName) {
   return room.removeClient(client);
 };
 
-Class.createNewRoom = function(roomName) {
+Class.createNewRoom = function(roomName, streamId) {
   if (this.rooms[roomName]) {
     let errorMsg = `Room ${roomName} already exists`;
     logger.error(errorMsg);
     return new Error(errorMsg);
   }
 
-  logger.info(`Creating room ${roomName}`);
-  var newRoom = new Room(roomName, Room.ROOM_TYPES.STREAM);
+  logger.info(`Creating room ${roomName}/${streamId}`);
+  var newRoom = new Room(roomName, Room.ROOM_TYPES.STREAM, streamId);
   this.rooms[roomName] = newRoom;
   return newRoom;
 };
@@ -122,6 +122,7 @@ Class.__removeClient = function(client) {
               client.getUserId(), client.getSocketId());
   this.__removeClientFromUsersList(client);
   this.__removeClientFromRooms(client);
+  client.__disconnect__();
 };
 
 Class.__removeClientFromUsersList = function(client) {
@@ -140,26 +141,41 @@ Class.__removeClientFromRooms = function(client) {
   }
 };
 
+/**
+ * Should only be used for testing
+ */
+Class.__reset__ = function() {
+  for (var userId in this.users) {
+    for (var socketId in this.users[userId]) {
+      let client = this.users[userId][socketId];
+      this.__removeClient(client);
+    }
+  }
+  this.rooms = {};
+  this.users = {};
+};
+
 /*
  * Register handler for events emitted by a Client
  * @param client {Client}
  */
 Class.__handleClientEvents = function(client) {
-  client.on(Client.EVENT_COMMENT, (comment) => {
+  client.on(Client.EVENT_COMMENT, (msg) => {
     try {
       logger.debug('Receive %s event from %s',
                    Client.EVENT_COMMENT, client.getUserId());
-      this.requestInjector.createComment(client.getCredentials(), comment);
+      this.requestInjector.createComment(client.getCredentials(), msg)
+      .catch((err) => logger.error('Failed to store comment: %s', err));
     } catch (e) {
       logger.error(e);
     }
   });
 
-  client.on(Client.EVENT_STICKER, (sticker) => {
+  client.on(Client.EVENT_STICKER, (msg) => {
     try {
       logger.debug('Receive %s event from %s',
                    Client.EVENT_STICKER, client.getUserId());
-      this.requestInjector.updateStickers(client.getCredentials(), sticker);
+      this.requestInjector.updateStickers(client.getCredentials(), msg);
     } catch (e) {
       logger.error(e);
     }

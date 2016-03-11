@@ -82,8 +82,8 @@ Class.__extractCookieData = function(cookie) {
  * @param roomName {string}
  * @return {Room}
  */
-Class.createNewRoom = function(roomName) {
-  return this.roomsManager.createNewRoom(roomName);
+Class.createNewRoom = function(roomName, streamId) {
+  return this.roomsManager.createNewRoom(roomName, streamId);
 };
 
 /**
@@ -113,6 +113,13 @@ Class.__createNewClient = function(socket, credentials) {
     logger.error(err);
     socket.emit('identify', 'ERR');
   });
+};
+
+/**
+ * Should only be used for testing
+ */
+Class.__reset__ = function() {
+  this.roomsManager.__reset__();
 };
 
 var socketAdapter = new SocketAdapter();

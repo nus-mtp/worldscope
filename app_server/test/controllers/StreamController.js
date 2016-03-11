@@ -54,6 +54,8 @@ lab.experiment('StreamController Tests', function() {
         Code.expect(res.result.streamer.username).to.equal(bob.username);
         Code.expect(roomsManager.__getRoom(res.result.appInstance))
         .to.not.be.null();
+        Code.expect(roomsManager.__getRoom(res.result.appInstance)
+                    .getStreamId()).to.equal(res.result.streamId);
 
         done();
       });
@@ -70,6 +72,8 @@ lab.experiment('StreamController Tests', function() {
       Code.expect(res.result.streamer.username).to.equal(bob.username);
       Code.expect(roomsManager.__getRoom(res.result.appInstance))
       .to.not.be.null();
+      Code.expect(roomsManager.__getRoom(res.result.appInstance).getStreamId())
+      .to.equal(res.result.streamId);
 
       Router.inject({method: 'POST', url: '/api/streams',
                     credentials: testAccount,
@@ -86,6 +90,8 @@ lab.experiment('StreamController Tests', function() {
       Code.expect(res.result.streamer.username).to.equal(bob.username);
       Code.expect(roomsManager.__getRoom(res.result.appInstance))
       .to.not.be.null();
+      Code.expect(roomsManager.__getRoom(res.result.appInstance).getStreamId())
+      .to.equal(res.result.streamId);
       done();
     }
 
