@@ -55,12 +55,12 @@ lab.experiment('CommentController Tests', function() {
   });
 
   lab.test('Create comment valid', function(done) {
-
     function injectNewComment(streamId) {
       commentPayload.streamId = streamId;
       Router.inject({method: 'POST',
                      url: '/api/comments',
                      credentials: testAccount,
+                     allowInternals: true,
                      payload: commentPayload}, function(res) {
 
         Code.expect(res.result.status).to.be.equal('OK');
@@ -96,6 +96,7 @@ lab.experiment('CommentController Tests', function() {
       Router.inject({method: 'POST',
                      url: '/api/comments',
                      credentials: testAccount,
+                     allowInternals: true,
                      payload: commentPayload}, function(res) {
 
         Code.expect(res.result.statusCode).to.be.equal(400);
@@ -122,6 +123,7 @@ lab.experiment('CommentController Tests', function() {
 
       Router.inject({method: 'POST',
                      url: '/api/comments',
+                     allowInternals: true,
                      payload: commentPayload}, function(res) {
 
         Code.expect(res.result.statusCode).to.be.equal(401);
@@ -148,6 +150,7 @@ lab.experiment('CommentController Tests', function() {
       Router.inject({method: 'POST',
                      url: '/api/comments',
                      credentials: testAccount,
+                     allowInternals: true,
                      payload: commentPayload}, function(res) {
         injectSecondComment(streamId);
 
@@ -160,6 +163,7 @@ lab.experiment('CommentController Tests', function() {
       Router.inject({method: 'POST',
                      url: '/api/comments',
                      credentials: testAccount,
+                     allowInternals: true,
                      payload: commentPayload2}, function(res) {
         injectRetrieveComments(streamId);
       });

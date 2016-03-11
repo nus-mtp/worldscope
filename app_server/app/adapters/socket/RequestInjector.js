@@ -26,7 +26,7 @@ RequestInjector.prototype.API_PATHS = {
  * @return {Promise}
  */
 Class.createComment = function(credentials, comment) {
-  return new Promise((function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     var options = {
       'method': 'POST',
       'url': this.API_PATHS.CREATE_COMMENT,
@@ -39,7 +39,7 @@ Class.createComment = function(credentials, comment) {
     this.server.inject(options, function (res) {
       resolve(res);
     });
-  }).bind(this));
+  });
 };
 
 Class.updateStickers = function(credentials, sticker) {

@@ -23,7 +23,8 @@ Class.registerRoutes = function () {
   this.server.route({method: 'POST', path: '/',
                      config: {
                        validate: singleCommentValidator,
-                       auth: {scope: Authenticator.SCOPE.ALL}
+                       auth: {scope: Authenticator.SCOPE.ALL},
+                       isInternal: true
                      },
                      handler: this.createNewComment});
 
@@ -35,8 +36,8 @@ Class.registerRoutes = function () {
                      handler: this.getListOfCommentsForStream});
 };
 
-Class.createNewComment = function (request, reply) {
-  logger.debug(request.auth.credentials.userId + ' say ' +
+Class.createNewComment = function(request, reply) {
+  logger.debug(request.auth.credentials.userId + ' says ' +
                request.payload.comment);
 
   var userId = request.auth.credentials.userId;
@@ -56,7 +57,7 @@ Class.createNewComment = function (request, reply) {
     });
 };
 
-Class.getListOfCommentsForStream = function (request, reply) {
+Class.getListOfCommentsForStream = function(request, reply) {
   logger.debug('Get list of comments for: %s', request.params.id);
 
   var streamId = request.params.id;
