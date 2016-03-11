@@ -17,32 +17,46 @@ function RequestInjector(server) {
 
 var Class = RequestInjector.prototype;
 
-RequestInjector.prototype.API_PATHS = {
+RequestInjector.API_PATHS = Class.API_PATHS = {
   CREATE_COMMENT: '/api/comments'
 };
 
 /**
  * Create a new comment in the main pipeline
+ * @param credentials {Object} {userId: <string>}
+ * @param msg {Object} {data: <comment>, streamId: <string>}
  * @return {Promise}
  */
-Class.createComment = function(credentials, comment) {
+Class.createComment = function(credentials, msg) {
   return new Promise((resolve, reject) => {
     var options = {
-      'method': 'POST',
-      'url': this.API_PATHS.CREATE_COMMENT,
-      'credentials': credentials,
-      'payload': {'comment': comment},
-      'allowInternals': true
+      method: 'POST',
+      url: RequestInjector.API_PATHS.CREATE_COMMENT,
+      credentials: credentials,
+      payload: {
+        streamId: msg.streamId,
+        comment: {
+          message: msg.message.message,
+          time: msg.message.time
+        }
+      },
+      allowInternals: true
     };
 
-    logger.debug('Making %s request to %s', options.method, options.url);
-    this.server.inject(options, function (res) {
-      resolve(res);
+    logger.debug('Making internal request: %s', JSON.stringify(options)),
+    this.server.inject(options, function(res) {
+      res = JSON.parse(res.payload);
+      if (res.status === 'OK') {
+        resolve(res);
+      } else {
+        logger.error('Error requesting interal route %s', options.url);
+        reject(res);
+      }
     });
   });
 };
 
-Class.updateStickers = function(credentials, sticker) {
+Class.updateStickers = function(credentials, msg) {
   return true;
 };
 

@@ -145,21 +145,22 @@ Class.__removeClientFromRooms = function(client) {
  * @param client {Client}
  */
 Class.__handleClientEvents = function(client) {
-  client.on(Client.EVENT_COMMENT, (comment) => {
+  client.on(Client.EVENT_COMMENT, (msg) => {
     try {
       logger.debug('Receive %s event from %s',
                    Client.EVENT_COMMENT, client.getUserId());
-      this.requestInjector.createComment(client.getCredentials(), comment);
+      this.requestInjector.createComment(client.getCredentials(), msg)
+      .catch((err) => logger.error('Failed to store comment: %s', err));
     } catch (e) {
       logger.error(e);
     }
   });
 
-  client.on(Client.EVENT_STICKER, (sticker) => {
+  client.on(Client.EVENT_STICKER, (msg) => {
     try {
       logger.debug('Receive %s event from %s',
                    Client.EVENT_STICKER, client.getUserId());
-      this.requestInjector.updateStickers(client.getCredentials(), sticker);
+      this.requestInjector.updateStickers(client.getCredentials(), msg);
     } catch (e) {
       logger.error(e);
     }

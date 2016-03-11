@@ -173,7 +173,8 @@ Class.createChatRoomsForLiveStreams = function() {
  * @param streamAttributes {object}
  */
 function initializeChatRoomForStream(streamAttributes) {
-  let room = SocketAdapter.createNewRoom(streamAttributes.appInstance);
+  let room = SocketAdapter.createNewRoom(streamAttributes.appInstance,
+                                         streamAttributes.streamId);
   if (!room || room instanceof Error) {
     logger.error('Unable to create new chat room for stream %s',
                  streamAttributes.title);

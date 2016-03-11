@@ -20,6 +20,9 @@ function Client(socket, credentials) {
   this.credentials = credentials;
   this.rooms = {}; // A map from room's name to Room object
 
+  delete this.credentials['username'];
+  delete this.credentials['password'];
+
   this.handleSocketEvents(socket);
 }
 util.inherits(Client, EventEmitter);
@@ -121,6 +124,7 @@ Class.broadcastToRoom = function(event, message, room) {
   };
   this.socket.to(room.getName()).emit(event, msgToOthers);
   this.socket.emit(event, msgToSelf);
+  return msgToOthers;
 };
 
 /**
@@ -131,21 +135,37 @@ Class.broadcastToRoom = function(event, message, room) {
  */
 Class.broadcastToStreamRooms = function(event, msg) {
   if (!this.rooms || this.rooms.length === 0) {
-    var err = util.format('@%s: no room to broadcast message to',
+    let err = util.format('@%s: no room to broadcast message to',
                           this.getSocketId());
     logger.error(err);
     return new Error(err);
   }
 
   for (var roomName in this.rooms) {
-    var room = this.rooms[roomName];
+    let room = this.rooms[roomName];
     if (room.getType() !== Room.ROOM_TYPES.STREAM) {
       continue;
     }
     logger.debug('%s comments in #%s: %s',
                  this.getSocketId(), room.getName(), msg);
-    this.broadcastToRoom(event, msg, room);
+    let msgToRoom = this.broadcastToRoom(event, msg, room);
+    this.__emitInternalRoomBroadcastEvent(event, msgToRoom, room);
   }
+};
+
+/**
+ * Emits an internal event (as an EventEmitter object) with attached
+ * information on the stream associated with the event and the message data
+ * @param event {string}
+ * @param msg {Object}
+ * @param room {Room}
+ */
+Class.__emitInternalRoomBroadcastEvent = function(event, msg, room) {
+  let data = {
+    streamId: room.getStreamId(),
+    message: msg,
+  };
+  this.emit(event, data);
 };
 
 Class.equals = function(otherClient) {
@@ -161,11 +181,9 @@ Class.equals = function(otherClient) {
 Class.handleSocketEvents = function handleSocketEvents(socket) {
   socket.on(this.EVENT_COMMENT, (comment) => {
     this.broadcastToStreamRooms(this.EVENT_COMMENT, comment);
-    this.emit(this.EVENT_COMMENT, comment);
   });
   socket.on(this.EVENT_STICKER, (sticker) => {
     this.broadcastToStreamRooms(this.EVENT_STICKER, sticker);
-    this.emit(this.EVENT_STICKER, sticker);
   });
   socket.on(this.EVENT_DISCONNECT, () => {
     this.emit(this.EVENT_DISCONNECT);
