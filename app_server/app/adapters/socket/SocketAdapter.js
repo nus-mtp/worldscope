@@ -82,8 +82,8 @@ Class.__extractCookieData = function(cookie) {
  * @param roomName {string}
  * @return {Room}
  */
-Class.createNewRoom = function(roomName) {
-  return this.roomsManager.createNewRoom(roomName);
+Class.createNewRoom = function(roomName, streamId) {
+  return this.roomsManager.createNewRoom(roomName, streamId);
 };
 
 /**

@@ -86,7 +86,7 @@ Class.__removeClientFromRoom = function(client, roomName) {
   return room.removeClient(client);
 };
 
-Class.createNewRoom = function(roomName) {
+Class.createNewRoom = function(roomName, streamId) {
   if (this.rooms[roomName]) {
     let errorMsg = `Room ${roomName} already exists`;
     logger.error(errorMsg);
@@ -94,7 +94,7 @@ Class.createNewRoom = function(roomName) {
   }
 
   logger.info(`Creating room ${roomName}`);
-  var newRoom = new Room(roomName, Room.ROOM_TYPES.STREAM);
+  var newRoom = new Room(roomName, Room.ROOM_TYPES.STREAM, streamId);
   this.rooms[roomName] = newRoom;
   return newRoom;
 };

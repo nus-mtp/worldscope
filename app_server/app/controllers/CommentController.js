@@ -39,7 +39,6 @@ Class.registerRoutes = function () {
 Class.createNewComment = function(request, reply) {
   logger.debug(request.auth.credentials.userId + ' says ' +
                request.payload.comment);
-
   var userId = request.auth.credentials.userId;
   var streamId = request.payload.streamId;
   var comment = {
