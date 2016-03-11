@@ -87,6 +87,11 @@ Class.__leaveRoom__ = function(room) {
   return true;
 };
 
+Class.__disconnect__ = function(room) {
+  this.socket.disconnect();
+  this.rooms = {};
+};
+
 Class.__isInRoom = function(roomName) {
   return this.rooms[roomName] instanceof Room;
 };

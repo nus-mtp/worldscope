@@ -250,6 +250,7 @@ lab.experiment('Room join and leave', function () {
 
 lab.experiment('Comments and stickers tests', function () {
   lab.beforeEach({timeout: 10000}, function (done) {
+    SocketAdapter.__reset__();
     TestUtils.resetDatabase(done);
   });
 
@@ -286,6 +287,48 @@ lab.experiment('Comments and stickers tests', function () {
             Code.expect(comment.alias).to.equal(user.alias);
             Code.expect(comment.room).to.equal(stream.appInstance);
             done();
+          });
+
+          client.emit('identify', `sid-worldscope=${sealed}`);
+        });
+      });
+    });
+  });
+
+  lab.test('New comments are stored in database', {timeout: 3000}, (done) => {
+    createUserAndStream(bob, testStream, (user, stream) => {
+      var account = TestUtils.copyObj(Authenticator.generateUserToken(user),
+                                      ['userId', 'username', 'password']);
+      account.scope = Authenticator.SCOPE.USER;
+      return Iron.sealAsync(account, ServerConfig.cookiePassword, Iron.defaults)
+      .then((sealed) => {
+        var client = io.connect('http://localhost:3000', options);
+
+        client.once('connect', () => {
+          let testComment = 'Hello';
+          client.once('identify', (msg) => {
+            Code.expect(msg).to.equal('OK');
+            client.emit('join', stream.appInstance);
+          });
+          client.once('join', (msg) => {
+            Code.expect(msg.message).to.equal('OK');
+            client.emit('comment', testComment);
+          });
+          client.once('comment', (comment) => {
+            Code.expect(comment.message).to.equal(testComment);
+            setTimeout(() => {
+              Service.getListOfCommentsForStream(stream.streamId)
+              .then((comments) => {
+                for (var i in comments) {
+                  let comment = comments[i];
+                  if (comment.userId === user.userId &&
+                      comment.streamId === stream.streamId &&
+                      comment.content === testComment) {
+                    done();
+                  }
+                }
+              });
+            }, 500);
           });
 
           client.emit('identify', `sid-worldscope=${sealed}`);

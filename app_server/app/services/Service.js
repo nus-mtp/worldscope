@@ -62,38 +62,32 @@ Class.getTotalNumberOfUsersViewedStream = function(streamId) {
 Class.createSubscription = function(subscribeFrom, subscribeTo) {
   logger.debug('Subscribing from user %s to user %s',
                 subscribeFrom, subscribeTo);
-
   return UserService.createSubscription(subscribeFrom, subscribeTo);
 };
 
 Class.getSubscriptions = function(userId) {
   logger.debug('Getting subscriptions for user %s', userId);
-
   return UserService.getSubscriptions(userId);
 };
 
 Class.getSubscribers = function(userId) {
   logger.debug('Getting subscribers for user %s', userId);
-
   return UserService.getSubscribers(userId);
 };
 
 Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
   logger.debug('Deleting subscription');
-
   return UserService.deleteSubscription(subscribeFrom, subscribeTo);
 };
 
 Class.createComment = function(userId, streamId, comment) {
   logger.debug('Comment from user %s to stream %s',
                 userId, streamId);
-
   return UserService.createComment(userId, streamId, comment);
 };
 
 Class.getListOfCommentsForStream = function(streamId) {
   logger.debug('Get list of comments for stream %s', streamId);
-
   return UserService.getListOfCommentsForStream(streamId);
 };
 ///////////////////////

@@ -115,6 +115,13 @@ Class.__createNewClient = function(socket, credentials) {
   });
 };
 
+/**
+ * Should only be used for testing
+ */
+Class.__reset__ = function() {
+  this.roomsManager.__reset__();
+};
+
 var socketAdapter = new SocketAdapter();
 
 module.exports = socketAdapter;

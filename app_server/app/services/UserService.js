@@ -252,7 +252,6 @@ Class.createComment = function(userId, streamId, comment) {
         return new CustomError.UnknownError();
       }
     });
-
 };
 
 /**

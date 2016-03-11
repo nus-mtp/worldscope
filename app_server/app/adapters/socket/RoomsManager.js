@@ -51,7 +51,7 @@ Class.addClient = function(client) {
 };
 
 /**
- * Add a client to a socket.io room
+ * Adds a client to a socket.io room
  * @param client {Client}
  * @param roomName {string}
  */
@@ -69,7 +69,7 @@ Class.__addClientToRoom = function(client, roomName) {
 };
 
 /**
- * Add a client to a socket.io room
+ * Removes  a client to a socket.io room
  * @param client {Client}
  * @param roomName {string}
  */
@@ -93,7 +93,7 @@ Class.createNewRoom = function(roomName, streamId) {
     return new Error(errorMsg);
   }
 
-  logger.info(`Creating room ${roomName}`);
+  logger.info(`Creating room ${roomName}/${streamId}`);
   var newRoom = new Room(roomName, Room.ROOM_TYPES.STREAM, streamId);
   this.rooms[roomName] = newRoom;
   return newRoom;
@@ -122,6 +122,7 @@ Class.__removeClient = function(client) {
               client.getUserId(), client.getSocketId());
   this.__removeClientFromUsersList(client);
   this.__removeClientFromRooms(client);
+  client.__disconnect__();
 };
 
 Class.__removeClientFromUsersList = function(client) {
@@ -138,6 +139,20 @@ Class.__removeClientFromRooms = function(client) {
   for (var roomName in rooms) {
     this.__removeClientFromRoom(client, roomName);
   }
+};
+
+/**
+ * Should only be used for testing
+ */
+Class.__reset__ = function() {
+  for (var userId in this.users) {
+    for (var socketId in this.users[userId]) {
+      let client = this.users[userId][socketId];
+      this.__removeClient(client);
+    }
+  }
+  this.rooms = {};
+  this.users = {};
 };
 
 /*
