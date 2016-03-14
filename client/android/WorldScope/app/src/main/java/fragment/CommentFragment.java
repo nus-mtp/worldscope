@@ -20,6 +20,9 @@ import android.view.View.OnClickListener;
 import com.litmus.worldscope.R;
 import com.litmus.worldscope.utility.WorldScopeSocketService;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,20 +97,20 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
 
         sendButton = (ImageButton) view.findViewById(R.id.send_button);
 
-        commentEditText = (EditText) view.findViewById(R.id.comment_edit_text);
+        commentEditText = (EditText) view.findViewById(R.id.commentEditText);
 
         // Get commentListView
         commentListView = (ListView) view.findViewById(R.id.commentListView);
-
-        commentListView.setEnabled(false);
-
-        commentListView.setOnItemClickListener(null);
 
         commentsList = new ArrayList<>();
 
         commentArrayAdapter = new CommentArrayAdapter(context, commentsList);
 
         commentListView.setAdapter(commentArrayAdapter);
+
+        // Register as a listener
+        Log.d(TAG, "Registering as socket listener");
+        WorldScopeSocketService.registerListener(this);
 
         // Setup Send button
         setUpButton();
@@ -119,7 +122,8 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
         OnClickListener btnListener = new OnClickListener() {
             public void onClick(View v) {
 
-                if(commentEditText.getText().toString() != null) {
+                if(commentEditText.getText().toString() != null && commentEditText.getText().toString().length() != 0) {
+                    Log.d(TAG, "Sending: " + commentEditText.getText().toString());
                     sendMessage(commentEditText.getText().toString());
                     commentEditText.setText("");
                 }
@@ -135,7 +139,14 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
 
     private void addToCommentList(WorldScopeComment comment) {
         commentsList.add(comment);
-        commentListView.setSelection(commentArrayAdapter.getCount() - 1);
+
+        if(this.getActivity() != null) {
+            this.getActivity().runOnUiThread(new Runnable() {
+                public void run() {
+                    commentListView.setSelection(commentArrayAdapter.getCount() - 1);
+                }
+            });
+        }
     }
 
     @Override
@@ -152,6 +163,7 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
     @Override
     public void onDetach() {
         super.onDetach();
+        WorldScopeSocketService.unregisterListener(this);
         listener = null;
     }
 
@@ -174,9 +186,29 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
     public void onJoinEventEmitted(String data) {
         Log.d(TAG, "Join event emitted: " + data);
     }
+
     @Override
     public void onCommentEventEmitted(String data) {
-        Log.d(TAG, "Comment event emitted: " + data);
+        Log.d(TAG, "Comment event received: " + data);
+        try {
+            JSONObject json = new JSONObject(data);
+            String alias = json.getString("alias");
+            String time = json.getString("time");
+            String message = json.getString("message");
+            String room = json.getString("room");
+
+            // Check if room is correct before adding into comment list, prevent duplicates
+            if(!room.equals(roomId)) {
+                Log.d(TAG, "Message received from other rooms");
+                Log.d(TAG, room + " | " + roomId);
+                Log.d(TAG, json.toString());
+            } else {
+                addToCommentList(new WorldScopeComment(alias, message, time));
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -188,6 +220,7 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
     public void joinRoom(String roomId, String alias) {
         this.roomId = roomId;
         this.alias = alias;
+        Log.d(TAG, "Joining room: " + roomId);
         WorldScopeSocketService.emitJoin(roomId);
     }
 
@@ -233,6 +266,15 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
             userCommentTextView.setText(buildHTMLComment(comment), TextView.BufferType.SPANNABLE);
 
             return rowView;
+        }
+
+        // Turn off touch from ListView
+        public boolean areAllItemsEnabled() {
+            return false;
+        }
+
+        public boolean isEnabled(int position) {
+            return false;
         }
 
         private android.text.Spanned buildHTMLComment(WorldScopeComment comment) {
