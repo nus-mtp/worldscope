@@ -36,10 +36,8 @@ public class LoginActivityTest extends TestCase{
 
     @Test
     public void testRedirectToMainActivity() {
-        String testUserName = "testUserName";
-        WorldScopeUser mockUser = new WorldScopeUser();
         Instrumentation.ActivityMonitor am = InstrumentationRegistry.getInstrumentation().addMonitor(MainActivity.class.getName(), null, true);
-        facebookLoginActivity.redirectToMainActivity(mockUser);
+        facebookLoginActivity.redirectToMainActivity();
         assertEquals(1, am.getHits());
     }
 }
