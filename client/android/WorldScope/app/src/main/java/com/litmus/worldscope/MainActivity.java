@@ -43,7 +43,8 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
             FacebookWrapper.FacebookWrapperProfilePictureCallback,
-            WorldScopeSocketService.OnIdentifyEventListener {
+            WorldScopeSocketService.OnIdentifyEventListener,
+            WorldScopeAPIService.OnUserRequestListener {
 
     private final String TAG = "MainActivity";
 
@@ -93,14 +94,6 @@ public class MainActivity extends AppCompatActivity
         // Set the title of the toolbar
         setToolbarTitle();
 
-        // Get user information from intent coming from LoginActivity
-        loginUser = getLoginUserFromWorldScopeAPIService();
-        if(loginUser != null) {
-            showLoginToast(loginUser.getAlias());
-        } else {
-            Log.d(TAG, "Unable to get user");
-        }
-
         // Set FAB to redirect to StreamActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -133,8 +126,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Load user information into Drawer after it is loaded
-        loadUserInfoIntoDrawer();
+        // Get user information
+        getUserInformation();
         return true;
     }
 
@@ -164,19 +157,11 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    // Checks if a user exists in the intent and sets state accordingly before returning the user
-    private WorldScopeUser getLoginUserFromWorldScopeAPIService() {
-        WorldScopeUser user = WorldScopeAPIService.getUser();
-        // If user is in Intent
-        if(user != null) {
-            Log.d(TAG, "" + user.toString());
-            // Set boolean to load user
-            userIsLoaded = true;
-        } else {
-            userIsLoaded = false;
-        }
-
-        return user;
+    // Clean up listener
+    @Override
+    public void onStop() {
+        WorldScopeSocketService.unregisterListener(this);
+        super.onStop();
     }
 
     private void showLoginToast(String alias) {
@@ -244,6 +229,7 @@ public class MainActivity extends AppCompatActivity
 
     protected void redirectToViewActivity() {
         Intent intent = new Intent(this, ViewActivity.class);
+        intent.putExtra("alias", loginUser.getAlias());
         startActivity(intent);
     }
 
@@ -252,15 +238,21 @@ public class MainActivity extends AppCompatActivity
 
     protected void redirectToStreamActivity() {
         Intent intent = new Intent(this, StreamActivity.class);
+        intent.putExtra("alias", loginUser.getAlias());
         startActivity(intent);
     }
 
 
     // Query Facebook graph API for profile picture and loads Alias and picture into Drawer
 
-    private void loadUserInfoIntoDrawer() {
-        if(!userIsLoaded) {
-            return;
+    private void loadUserInfo(WorldScopeUser user) {
+
+        loginUser = user;
+
+        if(loginUser != null) {
+            showLoginToast(loginUser.getAlias());
+        } else {
+            Log.d(TAG, "Unable to get user");
         }
 
         TextView alias = (TextView) findViewById(R.id.drawerAlias);
@@ -395,4 +387,14 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, "Socket.IO emitted 'identify' event with data: " + data);
     }
 
+    // Overide WorldScopeAPIService.UserRequest
+    @Override
+    public void getUser(WorldScopeUser user) {
+        loadUserInfo(user);
+    }
+
+    public void getUserInformation() {
+        WorldScopeAPIService.registerRequestUser(context);
+        WorldScopeAPIService.requestUser();
+    }
 }
