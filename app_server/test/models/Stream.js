@@ -15,6 +15,7 @@ var streamDetails = {
   title: 'I am going to dance',
   appInstance: 'appInstance',
   roomId: '123',
+  totalViewers: 2
 };
 
 // a more recent stream
@@ -22,6 +23,7 @@ var streamDetails2 = {
   title: 'zzz hello, look at me! More recent!',
   appInstance: 'another appInstance',
   roomId: '546',
+  totalViewers: 7,
   createdAt: new Date('2016-12-12')
 };
 
@@ -35,11 +37,12 @@ var streamDetails3 = {
   endedAt: new Date('2014-12-25')
 };
 
-// live and oldest stream
+// live and older stream
 var streamDetails4 = {
   title: 'this is a very long stream',
   appInstance: 'another instance',
   roomId: '46',
+  totalViewers: 9,
   createdAt: new Date('2016-01-01')
 };
 
@@ -277,6 +280,76 @@ lab.experiment('Stream Model Tests', function() {
           expect(res[0].streamer.username).to.equal(userDetails.username);
           expect(res[1].title).to.equal(streamDetails.title);
           expect(res[1].streamer.username).to.equal(userDetails2.username);
+          done();
+        });
+      });
+  });
+
+  lab.test('Get list of live streams sorted by viewers asc', function(done) {
+    var filters = {
+      state: 'live',
+      sort: 'viewers',
+      order: 'asc'
+    };
+
+    var userPromise = Storage.createUser(userDetails);
+    var userPromise2 = Storage.createUser(userDetails2);
+
+    var streamPromise = userPromise.then(function(user) {
+      return Storage.createStream(user.userId, streamDetails4)
+        .then(function(stream) {
+          return Storage.createStream(user.userId, streamDetails2);
+        });
+    });
+
+    var streamPromise2 = userPromise2.then(function(user2) {
+      return Storage.createStream(user2.userId, streamDetails);
+    });
+
+    Promise.join(streamPromise, streamPromise2,
+      function() {
+        Storage.getListOfStreams(filters).then(function(res) {
+          expect(res[0].title).to.equal(streamDetails.title);
+          expect(res[0].streamer.username).to.equal(userDetails2.username);
+          expect(res[1].title).to.equal(streamDetails2.title);
+          expect(res[1].streamer.username).to.equal(userDetails.username);
+          expect(res[2].title).to.equal(streamDetails4.title);
+          expect(res[2].streamer.username).to.equal(userDetails.username);
+          done();
+        });
+      });
+  });
+
+  lab.test('Get list of live streams sorted by viewers desc', function(done) {
+    var filters = {
+      state: 'live',
+      sort: 'viewers',
+      order: 'desc'
+    };
+
+    var userPromise = Storage.createUser(userDetails);
+    var userPromise2 = Storage.createUser(userDetails2);
+
+    var streamPromise = userPromise.then(function(user) {
+      return Storage.createStream(user.userId, streamDetails4)
+        .then(function(stream) {
+          return Storage.createStream(user.userId, streamDetails2);
+        });
+    });
+
+    var streamPromise2 = userPromise2.then(function(user2) {
+      return Storage.createStream(user2.userId, streamDetails);
+    });
+
+    Promise.join(streamPromise, streamPromise2,
+      function() {
+        Storage.getListOfStreams(filters).then(function(res) {
+          expect(res[0].title).to.equal(streamDetails4.title);
+          expect(res[0].streamer.username).to.equal(userDetails.username);
+          expect(res[1].title).to.equal(streamDetails2.title);
+          expect(res[1].streamer.username).to.equal(userDetails.username);
+          expect(res[2].title).to.equal(streamDetails.title);
+          expect(res[2].streamer.username).to.equal(userDetails2.username);
           done();
         });
       });

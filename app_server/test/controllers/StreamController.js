@@ -65,13 +65,15 @@ var streamPayload = {
 var streamInfo = {
   title: 'this is the title',
   description: 'this is the description of the stream',
-  appInstance: 'generated'
+  appInstance: 'generated',
+  totalViewers: 1,
 };
 
 var streamInfo2 = {
   title: 'abc def is the title',
   description: 'this is the description of the stream',
-  appInstance: 'generated2'
+  appInstance: 'generated2',
+  totalViewers: 2
 };
 
 
@@ -287,6 +289,56 @@ lab.experiment('StreamController Tests', function() {
         done();
       });
     });
+  });
+
+  lab.test('Get list of streams valid sort by viewers desc', function(done) {
+
+    function injectionHandler(res) {
+      Router.inject({method: 'GET', url: '/api/streams?sort=viewers&order=desc',
+                    credentials: testAccount}, function(res) {
+        Code.expect(res.result).to.have.length(2);
+        Code.expect(res.result[0].title).to.equal(streamInfo2.title);
+        Code.expect(res.result[0].streamer.username).to.equal(bob.username);
+        Code.expect(res.result[1].title).to.equal(streamInfo.title);
+        Code.expect(res.result[1].streamer.username).to.equal(bob.username);
+        done();
+      });
+    }
+
+    Service.createNewUser(bob).then(function(user) {
+      testAccount.userId = user.userId;
+      return user.userId;
+    }).then(function(userId) {
+      return Service.createNewStream(userId, streamInfo);
+    }).then(function(stream) {
+      return Service.createNewStream(stream.owner, streamInfo2);
+    }).then(injectionHandler);
+
+  });
+
+  lab.test('Get list of streams valid sort by viewers asc', function(done) {
+
+    function injectionHandler(res) {
+      Router.inject({method: 'GET', url: '/api/streams?sort=viewers&order=asc',
+                    credentials: testAccount}, function(res) {
+        Code.expect(res.result).to.have.length(2);
+        Code.expect(res.result[0].title).to.equal(streamInfo.title);
+        Code.expect(res.result[0].streamer.username).to.equal(bob.username);
+        Code.expect(res.result[1].title).to.equal(streamInfo2.title);
+        Code.expect(res.result[1].streamer.username).to.equal(bob.username);
+        done();
+      });
+    }
+
+    Service.createNewUser(bob).then(function(user) {
+      testAccount.userId = user.userId;
+      return user.userId;
+    }).then(function(userId) {
+      return Service.createNewStream(userId, streamInfo);
+    }).then(function(stream) {
+      return Service.createNewStream(stream.owner, streamInfo2);
+    }).then(injectionHandler);
+
   });
 
   lab.test('Get list of streams invalid query params', function(done) {

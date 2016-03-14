@@ -369,7 +369,6 @@ Class.getStreamById = function(streamId) {
  * @return {Promise<List<Sequelize.object>>} - a list of streams
  */
 Class.getListOfStreams = function(originalFilters) {
-  // TODO: viewers
 
   var filters = mapParams(originalFilters);
 
@@ -790,10 +789,11 @@ function isFieldsMatched(user, options, fn) {
 function mapParams(filters) {
 
   var filterMap = {
-    'desc': 'DESC',
-    'asc': 'ASC',
     'time': 'createdAt',
     'title': 'title',
+    'viewers': 'totalViewers',
+    'desc': 'DESC',
+    'asc': 'ASC',
     'all': {$or: [{'live': true}, {'live': false}]},
     'live': true,
     'done': false
