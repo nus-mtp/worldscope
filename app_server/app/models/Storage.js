@@ -494,12 +494,12 @@ Class.createView = function(userId, streamId) {
   return Promise.join(userPromise, streamPromise,
     function(user, stream) {
       if (user === null) {
-        var errMsg = `User ${userId} cannot be found`;
+        var errMsg = 'User cannot be found';
         logger.error(errMsg);
         return new CustomError.NotFoundError(errMsg);
 
       } else if (stream === null) {
-        var errMsg = `Stream ${streamId} cannot be found`;
+        var errMsg = 'Stream cannot be found';
         logger.error(errMsg);
         return new CustomError.NotFoundError(errMsg);
       }

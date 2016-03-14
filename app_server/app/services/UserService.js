@@ -88,21 +88,12 @@ Class.getNumberOfUsers = function() {
 ///// VIEW RELATED ////
 Class.createView = function(userId, streamId) {
   return Storage.createView(userId, streamId).then(function(res) {
-    if (!res) {
+    if (res instanceof Error) {
       logger.error('Unable to create view');
-
-      return new CustomError.NotFoundError('Stream not found');
+      return res;
     }
+
     return res.dataValues;
-
-  }).catch(function(err) {
-    logger.error('Unable to create view: %j', err);
-
-    if (err.name === 'TypeError') {
-      return new CustomError.NotFoundError('User not found');
-    } else {
-      return new CustomError.UnknownError();
-    }
   });
 };
 

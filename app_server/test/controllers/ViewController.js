@@ -9,7 +9,6 @@ var Authenticator = rfr('app/policies/Authenticator');
 var Utility = rfr('app/util/Utility');
 var Service = rfr('app/services/Service');
 var TestUtils = rfr('test/TestUtils');
-var Router = rfr('app/Router.js');
 
 var testAccount = {userId: 1, username: 'bob', password: 'abc',
                    scope: Authenticator.SCOPE.USER};
@@ -72,7 +71,7 @@ lab.experiment('ViewController Tests', function() {
                      credentials: testAccount}, function(res) {
 
         Code.expect(res.result.statusCode).to.equal(400);
-        Code.expect(res.result.message).to.equal('Stream not found');
+        Code.expect(res.result.message).to.equal('Stream cannot be found');
         done();
       });
     });
@@ -88,7 +87,7 @@ lab.experiment('ViewController Tests', function() {
                      credentials: testAccount}, function(res) {
 
         Code.expect(res.result.statusCode).to.equal(400);
-        Code.expect(res.result.message).to.equal('User not found');
+        Code.expect(res.result.message).to.equal('User cannot be found');
         done();
       });
     });
