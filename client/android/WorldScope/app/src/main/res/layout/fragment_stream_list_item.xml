@@ -11,7 +11,8 @@
     android:focusableInTouchMode="false"
     android:clickable="false"
     android:focusable="false"
-    android:descendantFocusability="blocksDescendants">
+    android:descendantFocusability="blocksDescendants"
+    android:gravity="center">
 
     <RelativeLayout
         android:layout_width="96dp"
@@ -139,5 +140,14 @@
 
     </LinearLayout>
 
+    <ImageButton
+        android:layout_width="32dip"
+        android:layout_height="fill_parent"
+        android:id="@+id/follow_button"
+        android:src="@drawable/ic_heart_hollow"
+        android:scaleType="fitCenter"
+        android:background="#00000000"
+        android:layout_gravity="bottom"
+        android:longClickable="true" />
 
 </LinearLayout>

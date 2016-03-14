@@ -2,6 +2,7 @@ package fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -190,8 +192,11 @@ public class StreamRefreshListFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            // Declared final for accessibility within inner class of Follow button's onClick callback
             // Get the item to display from data given position
-            WorldScopeViewStream stream = data.get(position);
+            final WorldScopeViewStream stream = data.get(position);
+            final int itemPos = position;
+            final ViewHolder viewHolder;
 
             /**
              * Implement viewHolder pattern to cache the view to reduce calls to findViewById(),
@@ -203,7 +208,6 @@ public class StreamRefreshListFragment extends Fragment {
              *
              * Check if convertView is null, if null then inflate and set viewHolder
              */
-            ViewHolder viewHolder;
             if(convertView == null) {
                 LayoutInflater inflater = LayoutInflater.from(getContext());
                 convertView = inflater.inflate(R.layout.fragment_stream_list_item, parent, false);
@@ -215,6 +219,8 @@ public class StreamRefreshListFragment extends Fragment {
                 viewHolder.createdAtTextView = (TextView) convertView.findViewById(R.id.startTime);
                 viewHolder.totalViewerTextView = (TextView) convertView.findViewById(R.id.numOfViewers);
 
+                viewHolder.followButton = (ImageButton) convertView.findViewById(R.id.follow_button);
+
                 // Access convertView's XML elements now using viewHolder
                 convertView.setTag(viewHolder);
             } else {
@@ -223,9 +229,19 @@ public class StreamRefreshListFragment extends Fragment {
 
             // Set text data into the view
             viewHolder.titleTextView.setText(stream.getTitle());
-            //viewHolder.ownerTextView.setText(stream.getOwner().getAlias());
+            viewHolder.ownerTextView.setText(stream.getOwner());
             viewHolder.createdAtTextView.setText(formatDate(stream.getCreatedAt()));
             viewHolder.totalViewerTextView.setText(String.valueOf(stream.getTotalViewers()));
+
+            // Set callback for follow button
+            viewHolder.followButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "Follow button clicked on position: " + itemPos);
+                    Log.d(TAG, "API follow: " + stream.getOwner());
+                    viewHolder.followButton.setImageResource(R.drawable.ic_heart_full);
+                }
+            });
 
             // Use Picasso to set thumbnail image
             Picasso.with(viewHolder.thumbnailImageView.getContext())
@@ -247,5 +263,6 @@ public class StreamRefreshListFragment extends Fragment {
         TextView ownerTextView;
         TextView createdAtTextView;
         TextView totalViewerTextView;
+        ImageButton followButton;
     }
 }
