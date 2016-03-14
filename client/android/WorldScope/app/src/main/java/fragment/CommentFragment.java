@@ -35,7 +35,8 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class CommentFragment extends Fragment implements WorldScopeSocketService.OnJoinEventListener,
-        WorldScopeSocketService.OnCommentEventListener {
+        WorldScopeSocketService.OnCommentEventListener,
+        WorldScopeSocketService.OnLeaveEventListener {
 
     private static String TAG = "CommentFragment";
 
@@ -163,6 +164,7 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
     @Override
     public void onDetach() {
         super.onDetach();
+        WorldScopeSocketService.emitLeave(roomId);
         WorldScopeSocketService.unregisterListener(this);
         listener = null;
     }
@@ -209,6 +211,11 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onLeaveEventEmitted(String data) {
+        Log.d(TAG, "Leave event emitted: " + data);
     }
 
 

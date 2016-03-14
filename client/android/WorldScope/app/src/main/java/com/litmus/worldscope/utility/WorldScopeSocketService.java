@@ -26,10 +26,13 @@ public class WorldScopeSocketService {
     private static ArrayList<OnIdentifyEventListener> identifyEventListeners = new ArrayList<>();
     private static ArrayList<OnJoinEventListener> joinEventListeners = new ArrayList<>();
     private static ArrayList<OnCommentEventListener> commentEventListeners = new ArrayList<>();
+    private static ArrayList<OnLeaveEventListener> leaveEventListeners = new ArrayList<>();
 
     // Event names
     private static String EVENT_IDENTIFY = "identify";
+    private static String EVENT_JOIN = "join";
     private static String EVENT_COMMENT = "comment";
+    private static String EVENT_LEAVE = "leave";
 
 
     // Connect to Socket.IO in App Server
@@ -47,22 +50,24 @@ public class WorldScopeSocketService {
 
     private static void startListening() {
         socket.on(EVENT_IDENTIFY, onIdentifyEvent);
+        socket.on(EVENT_JOIN, onJoinEvent);
         socket.on(EVENT_COMMENT, onCommentEvent);
+        socket.on(EVENT_LEAVE, onLeaveEvent);
     }
 
     // Emits an identify event, payload should be the current cookie
     public static void emitIdentify(String data) {
         if(isInitialized) {
             Log.d(TAG, "Emitting identify with: " + data);
-            socket.emit("identify", data);
+            socket.emit(EVENT_IDENTIFY, data);
         }
     }
 
-    // Emits a comment event, payload should be the comment
+    // Emits a comment event, payload should be the appInstance/roomId
     public static void emitJoin(String data) {
         if(isInitialized) {
             Log.d(TAG, "Emitting join with: " + data);
-            socket.emit("join", data);
+            socket.emit(EVENT_JOIN, data);
         }
     }
 
@@ -70,7 +75,15 @@ public class WorldScopeSocketService {
     public static void emitComment(String data) {
         if(isInitialized) {
             Log.d(TAG, "Emitting comment with: " + data);
-            socket.emit("comment", data);
+            socket.emit(EVENT_COMMENT, data);
+        }
+    }
+
+    // Emits a comment event, payload should be the appInstance/roomId
+    public static void emitLeave(String data) {
+        if(isInitialized) {
+            Log.d(TAG, "Emitting leave with: " + data);
+            socket.emit(EVENT_LEAVE, data);
         }
     }
 
@@ -97,40 +110,54 @@ public class WorldScopeSocketService {
             return true;
         }
 
+        if(listener instanceof OnLeaveEventListener) {
+            Log.d(TAG, "Leave listener added");
+            leaveEventListeners.add((OnLeaveEventListener)listener);
+            return true;
+        }
+
         return false;
     }
 
     // Adds the object as a listener if it is valid
-    public static boolean unregisterListener(Object listener) {
+    public static void unregisterListener(Object listener) {
         Log.d(TAG, "Unregistering: " + listener);
 
         if(listener instanceof OnIdentifyEventListener) {
             Log.d(TAG, "Removing Identify listener");
-            return identifyEventListeners.remove(listener);
-        }
-
-        if(listener instanceof OnCommentEventListener) {
-            Log.d(TAG, "Removing Comment listener");
-            return commentEventListeners.remove(listener);
+            identifyEventListeners.remove(listener);
         }
 
         if(listener instanceof OnJoinEventListener) {
             Log.d(TAG, "Removing Join listener");
-            return joinEventListeners.remove(listener);
+            joinEventListeners.remove(listener);
         }
-        return false;
+
+        if(listener instanceof OnCommentEventListener) {
+            Log.d(TAG, "Removing Comment listener");
+            commentEventListeners.remove(listener);
+        }
+
+        if(listener instanceof OnLeaveEventListener) {
+            Log.d(TAG, "Removing Leave listener");
+            leaveEventListeners.remove(listener);
+        }
     }
 
     public interface OnIdentifyEventListener {
         void onIdentifyEventEmitted(String data);
     }
 
+    public interface OnJoinEventListener {
+        void onJoinEventEmitted(String data);
+    }
+
     public interface OnCommentEventListener {
         void onCommentEventEmitted(String data);
     }
 
-    public interface OnJoinEventListener {
-        void onJoinEventEmitted(String data);
+    public interface OnLeaveEventListener {
+        void onLeaveEventEmitted(String data);
     }
 
     // Generate an instance of the Emitter.Listener for identify
@@ -147,7 +174,7 @@ public class WorldScopeSocketService {
         }
     };
 
-    // Generate an instance of the Emitter.Listener for comment
+    // Generate an instance of the Emitter.Listener for join
     private static Emitter.Listener onJoinEvent = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
@@ -171,6 +198,19 @@ public class WorldScopeSocketService {
             Log.d(TAG, "Passing comment event to " + commentEventListeners.size() + " listeners");
             for (OnCommentEventListener listener: commentEventListeners) {
                 listener.onCommentEventEmitted(data);
+            }
+        }
+    };
+
+    // Generate an instance of the Emitter.Listener for leave
+    private static Emitter.Listener onLeaveEvent = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            String data = args[0].toString();
+            Log.d(TAG, "Socket adapter received leave event: " + data);
+            Log.d(TAG, "Passing leave event to " + leaveEventListeners.size() + " listeners");
+            for (OnLeaveEventListener listener: leaveEventListeners) {
+                listener.onLeaveEventEmitted(data);
             }
         }
     };
