@@ -53,7 +53,6 @@ public class StreamVideoControlFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
         view = inflater.inflate(R.layout.fragment_stream_video_control, container, false);
 
         // Hide view until stream is created
@@ -66,20 +65,21 @@ public class StreamVideoControlFragment extends Fragment {
         recordDrawable = getResources().getDrawable(R.drawable.ic_record_button);
         pauseDrawable= getResources().getDrawable(R.drawable.ic_pause);
 
-        // Add functionality to recordButton
+        // Get record button
         fabRecordButton = (FloatingActionButton) view.findViewById(R.id.fabRecordButton);
 
-        // Add click functionality to the confirmStopStream Button
+        // Add click functionality to the button
         fabRecordButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if(isBlocked) {
                     Log.d(TAG, "Controls are block");
                     return;
                 }
-
                 isRecording = changeRecordButtonState(isRecording);
-
                 listener.onStreamRecordButtonShortPress();
+
+                // Keep controls alive again
+                restartHideButtonTimerTask();
             }
         });
 
@@ -101,28 +101,14 @@ public class StreamVideoControlFragment extends Fragment {
                 isBlocked = true;
 
                 listener.onStreamRecordButtonLongPress();
+
+                // Keep controls alive again
+                restartHideButtonTimerTask();
                 return true;
             }
         });
 
         return view;
-    }
-
-    /**
-     * If button is recording, change icon into "||" icon
-     * else change it into the "O" icon
-     * @param isRecording
-     */
-    private boolean changeRecordButtonState(boolean isRecording) {
-
-        // If previously is recording (icon is pause), change to play
-        if(isRecording) {
-            fabRecordButton.setImageDrawable(recordDrawable);
-        } else {
-            fabRecordButton.setImageDrawable(pauseDrawable);
-        }
-
-        return !isRecording;
     }
 
     @Override
@@ -143,6 +129,23 @@ public class StreamVideoControlFragment extends Fragment {
         if(timer != null) {
             timer.cancel();
         }
+    }
+
+    /**
+     * If button is recording, change icon into "||" icon
+     * else change it into the "O" icon
+     * @param isRecording
+     */
+    private boolean changeRecordButtonState(boolean isRecording) {
+
+        // If previously is recording (icon is pause), change to play
+        if(isRecording) {
+            fabRecordButton.setImageDrawable(recordDrawable);
+        } else {
+            fabRecordButton.setImageDrawable(pauseDrawable);
+        }
+
+        return !isRecording;
     }
 
     public void unBlockControls() {
