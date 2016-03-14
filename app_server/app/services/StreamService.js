@@ -5,7 +5,7 @@
 
 var rfr = require('rfr');
 
-//var Router = rfr('app/Router');
+var Router = rfr('app/Router');
 var CustomError = rfr('app/util/Error');
 var Utility = rfr('app/util/Utility');
 var Storage = rfr('app/models/Storage');
@@ -146,7 +146,8 @@ Class.endStream = function(userId, streamId) {
       return new CustomError.NotAuthorisedError('Not authorised to end stream');
     }
 
-    return Storage.updateStream(streamId, {live: false})
+    return Storage.updateTotalViews(streamId)
+    .then(() => Storage.updateStream(streamId, {live: false}))
     .then((res) => {
       closeChatRoomForStream(stream.appInstance);
       return 'Success';

@@ -435,6 +435,29 @@ lab.experiment('StreamService Tests', function() {
     });
   });
 
+  lab.test('End stream and view count updated', {timeout: 5000},
+    function(done) {
+
+      function checkNumberOfViewers() {
+        Storage.getListOfStreams({state: 'all', sort: 'title', order: 'asc'})
+          .then(function(streams) {
+            Code.expect(streams[0].totalViewers).to.equal(1);
+            done();
+          });
+      }
+
+      Service.createNewUser(bob).then(function(user) {
+        return Service.createNewStream(user.userId, testStream);
+      }).then(function(stream) {
+        return Service.createView(stream.owner, stream.streamId);
+      }).then(function(view) {
+        return Service.endStream(view.userId, view.streamId);
+      }).then(function(res) {
+        Code.expect(res).to.equal('Success');
+        checkNumberOfViewers();
+      });
+    });
+
   lab.test('End stream invalid streamId', function(done) {
 
     Service.createNewUser(bob).then(function(user) {

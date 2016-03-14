@@ -497,9 +497,8 @@ Class.createView = function(userId, streamId) {
         var errMsg = `User ${userId} cannot be found`;
         logger.error(errMsg);
         return new CustomError.NotFoundError(errMsg);
-      }
 
-      else if (stream === null) {
+      } else if (stream === null) {
         var errMsg = `Stream ${streamId} cannot be found`;
         logger.error(errMsg);
         return new CustomError.NotFoundError(errMsg);
@@ -560,21 +559,26 @@ Class.getTotalNumberOfUsersViewedStream = function(streamId) {
 };
 
 /**
- * @param  {string} userId
  * @param  {string} streamId
- * @param  {object} newAttributes
  * @return {Promise<Sequelize.View>}
  */
-/*Class.updateView = function(userId, streamId, newAttributes) {
-  var userPromise = this.models.User.findById(userId);
+Class.updateTotalViews = function(streamId) {
   var streamPromise = this.models.Stream.findById(streamId);
 
-  return this.getStreamById(streamId).then(function(stream) {
-    return stream.update(newAttributes, {
-      fields: Object.keys(newAttributes)
-    });
+  return streamPromise.then((stream) => {
+    if (stream === null) {
+      var errMsg = `Stream ${streamId} cannot be found`;
+      logger.error(errMsg);
+      return new CustomError.NotFoundError(errMsg);
+    }
+
+    return this.getTotalNumberOfUsersViewedStream(streamId)
+      .then((numViewers) => {
+        return stream.update({totalViewers: numViewers});
+      });
   });
-};*/
+
+};
 
 /************************************************************************
  *                                                                       *
