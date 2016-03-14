@@ -361,7 +361,7 @@ lab.experiment('StreamService Tests', function() {
           .then((subscription) => {
             return Service.getStreamsFromSubscriptions(bob.userId);
           }).then((res) => {
-            Code.expectl(res).to.be.deep.equal([]);
+            Code.expect(res).to.be.deep.equal([]);
             done();
           });
         });
@@ -373,7 +373,7 @@ lab.experiment('StreamService Tests', function() {
 
       userPromise1.then((user) => {
         return Service.getStreamsFromSubscriptions(user.userId).then((res) => {
-          Code.expectl(res).to.be.deep.equal([]);
+          Code.expect(res).to.be.deep.equal([]);
           done();
         });
       });

@@ -493,15 +493,33 @@ Class.createView = function(userId, streamId) {
 
   return Promise.join(userPromise, streamPromise,
     function(user, stream) {
-      return user.addView(stream).then((view) => view[0][0])
-        .catch(err => null);
-    });
+      if (user === null) {
+        var errMsg = `User ${userId} cannot be found`;
+        logger.error(errMsg);
+        return new CustomError.NotFoundError(errMsg);
+      }
+
+      else if (stream === null) {
+        var errMsg = `Stream ${streamId} cannot be found`;
+        logger.error(errMsg);
+        return new CustomError.NotFoundError(errMsg);
+      }
+
+      return this.models.View.create({
+        userId: userId,
+        streamId: streamId
+      }).then((view) => {
+        return view;
+      }).catch(err => {
+        logger.error('Error creating view ', err);
+        return new CustomError.UnknownError();
+      });
+    }.bind(this));
 };
 
 /**
  * @param  {string} streamId
- * @return {Promise<Sequelize.Stream>} - a Stream object with a list of
- *                                       embedded users
+ * @return {Promise<Sequelize.Stream>} - a list of users
  */
 Class.getListOfUsersViewingStream = function(streamId) {
   return this.models.Stream.findOne({
@@ -527,12 +545,17 @@ Class.getListOfUsersViewingStream = function(streamId) {
   });
 };
 
+/**
+ * Returns the unique number of users who have viewed this stream
+ * @param  {string} streamId
+ * @return {Promise<Integer>}
+ */
 Class.getTotalNumberOfUsersViewedStream = function(streamId) {
-  return this.models.View.count({
+  return this.models.View.aggregate('userId',  'count', {
     where: {
       streamId: streamId,
-      endedAt: null //either null or removed, depending live or not
-    }
+    },
+    distinct: true
   });
 };
 
