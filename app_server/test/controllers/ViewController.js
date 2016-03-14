@@ -9,6 +9,7 @@ var Authenticator = rfr('app/policies/Authenticator');
 var Utility = rfr('app/util/Utility');
 var Service = rfr('app/services/Service');
 var TestUtils = rfr('test/TestUtils');
+var Router = rfr('app/Router.js');
 
 var testAccount = {userId: 1, username: 'bob', password: 'abc',
                    scope: Authenticator.SCOPE.USER};
