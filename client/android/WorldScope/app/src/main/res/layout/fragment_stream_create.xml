@@ -151,7 +151,7 @@
                 android:layout_height="wrap_content"
                 android:text="Stream"
                 android:layout_weight="1"
-                android:background="#EB8A3A"
+                android:background="@color/colorPrimary"
                 android:textColor="#FFFFFF" />
 
         </LinearLayout>
