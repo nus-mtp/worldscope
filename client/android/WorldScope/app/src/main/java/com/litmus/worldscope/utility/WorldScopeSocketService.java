@@ -61,6 +61,7 @@ public class WorldScopeSocketService {
     // Emits a comment event, payload should be the comment
     public static void emitJoin(String data) {
         if(isInitialized) {
+            Log.d(TAG, "Emitting join with: " + data);
             socket.emit("join", data);
         }
     }
@@ -68,28 +69,55 @@ public class WorldScopeSocketService {
     // Emits a comment event, payload should be the comment
     public static void emitComment(String data) {
         if(isInitialized) {
+            Log.d(TAG, "Emitting comment with: " + data);
             socket.emit("comment", data);
         }
     }
 
     // Adds the object as a listener if it is valid
-    public static boolean registerListener(Context listener) {
+    public static boolean registerListener(Object listener) {
+
+        Log.d(TAG, "Registering: " + listener);
 
         if(listener instanceof OnIdentifyEventListener) {
+            Log.d(TAG, "Identify listener added");
             identifyEventListeners.add((OnIdentifyEventListener)listener);
             return true;
         }
 
         if(listener instanceof OnCommentEventListener) {
+            Log.d(TAG, "Comment listener added");
             commentEventListeners.add((OnCommentEventListener)listener);
             return true;
         }
 
         if(listener instanceof OnJoinEventListener) {
+            Log.d(TAG, "Join listener added");
             joinEventListeners.add((OnJoinEventListener)listener);
             return true;
         }
 
+        return false;
+    }
+
+    // Adds the object as a listener if it is valid
+    public static boolean unregisterListener(Object listener) {
+        Log.d(TAG, "Unregistering: " + listener);
+
+        if(listener instanceof OnIdentifyEventListener) {
+            Log.d(TAG, "Removing Identify listener");
+            return identifyEventListeners.remove(listener);
+        }
+
+        if(listener instanceof OnCommentEventListener) {
+            Log.d(TAG, "Removing Comment listener");
+            return commentEventListeners.remove(listener);
+        }
+
+        if(listener instanceof OnJoinEventListener) {
+            Log.d(TAG, "Removing Join listener");
+            return joinEventListeners.remove(listener);
+        }
         return false;
     }
 
@@ -110,6 +138,9 @@ public class WorldScopeSocketService {
         @Override
         public void call(final Object... args) {
             String data = args[0].toString();
+
+            Log.d(TAG, "Socket adapter received identify event: " + data);
+            Log.d(TAG, "Passing identify event to " + identifyEventListeners.size() + " listeners");
             for (OnIdentifyEventListener listener: identifyEventListeners) {
                 listener.onIdentifyEventEmitted(data);
             }
@@ -121,6 +152,9 @@ public class WorldScopeSocketService {
         @Override
         public void call(final Object... args) {
             String data = args[0].toString();
+
+            Log.d(TAG, "Socket adapter received join event: " + data);
+            Log.d(TAG, "Passing join event to " + joinEventListeners.size() + " listeners");
             for (OnJoinEventListener listener: joinEventListeners) {
                 listener.onJoinEventEmitted(data);
             }
@@ -133,6 +167,8 @@ public class WorldScopeSocketService {
         @Override
         public void call(final Object... args) {
             String data = args[0].toString();
+            Log.d(TAG, "Socket adapter received comment event: " + data);
+            Log.d(TAG, "Passing comment event to " + commentEventListeners.size() + " listeners");
             for (OnCommentEventListener listener: commentEventListeners) {
                 listener.onCommentEventEmitted(data);
             }
