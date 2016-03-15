@@ -1,6 +1,5 @@
-/*global shaka*/
-
 const m = require('mithril');
+const shaka = require('shaka-player');
 
 const StreamModel = require('../models/stream');
 
