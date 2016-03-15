@@ -45,7 +45,7 @@ const initComments = function () {
   Stream.socket.on('comment', function (res) {
     m.startComputation();
     Stream.comments().unshift({
-      user: res.userId,
+      user: res.alias || res.userId,
       msg: res.message,
       time: new Date(res.time)
     });
