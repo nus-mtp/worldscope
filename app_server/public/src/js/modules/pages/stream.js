@@ -8,7 +8,8 @@ const datetime = require('../utils/dateFormat');
 
 const Stream = module.exports = {
   stream: m.prop(),
-  comments: m.prop()
+  comments: m.prop([]),
+  socket: m.prop()
 };
 
 const MAX_COMMENTS = 1000;
@@ -39,11 +40,11 @@ const stopStream = function () {
 
 const initComments = function () {
   Stream.comments([]);
-  Stream.socket = io();
+  Stream.socket(io());
 
-  Stream.socket.emit('identify', document.cookie);
-  Stream.socket.emit('join', Stream.stream().room());
-  Stream.socket.on('comment', function (res) {
+  Stream.socket().emit('identify', document.cookie);
+  Stream.socket().emit('join', Stream.stream().room());
+  Stream.socket().on('comment', function (res) {
     m.startComputation();
     Stream.comments().unshift({
       user: res.alias || res.userId,
@@ -58,7 +59,7 @@ const initComments = function () {
 };
 
 const destroyComments = function () {
-  Stream.socket.emit('leave', Stream.stream().room());
+  Stream.socket().emit('leave', Stream.stream().room());
 };
 
 Stream.controller = function () {
