@@ -1,13 +1,20 @@
 const m = require('mithril');
 const shaka = require('shaka-player');
+const io = require('socket.io-client');
 
 const StreamModel = require('../models/stream');
 
 const datetime = require('../utils/dateFormat');
 
-const Stream = module.exports = {};
+const Stream = module.exports = {
+  socket: io()
+};
+
+const MAX_COMMENTS = 5;
+
 
 Stream.stream = m.prop();
+Stream.comments = m.prop([]);
 
 const initPlayer = function () {
   shaka.polyfill.installAll();
@@ -33,10 +40,34 @@ const stopStream = function () {
   );
 };
 
+const initComments = function () {
+  Stream.socket.emit('identify', document.cookie);
+  Stream.socket.emit('join', Stream.stream().room());
+  Stream.socket.on('comment', function (res) {
+    m.startComputation();
+    Stream.comments().unshift({
+      user: res.userId,
+      msg: res.message
+    });
+    if (Stream.comments().length > MAX_COMMENTS) {
+      Stream.comments().pop();
+    }
+    m.endComputation();
+  });
+};
+
+const destroyComments = function () {
+  Stream.socket.emit('leave', Stream.stream().room());
+};
+
 Stream.controller = function () {
   let id = m.route.param('id') || -1;
 
-  StreamModel.get(id).then(Stream.stream);
+  StreamModel.get(id).then(Stream.stream).then(initComments);
+
+  return {
+    onunload: destroyComments
+  };
 };
 
 Stream.view = function () {
@@ -70,7 +101,10 @@ Stream.view = function () {
         m('div.row', [
           m('div.col s12', stream.description()),
           m('button.btn col s12', {onclick: stopStream}, 'Stop Stream'),
-          m('div.col s12', 'comment stream here')
+          m('div.col s12',
+              Stream.comments().map((c) => m('div', [
+                  m('span', m('strong', c.user + ':')), ' ', m('span', c.msg)
+              ])))
         ])
       ])
     ])
