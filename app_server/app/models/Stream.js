@@ -65,7 +65,10 @@ module.exports = function(sequelize, DataTypes) {
           foreignKey: 'owner'
         });
         Stream.belongsToMany(models.User, {
-          through: models.View,
+          through: {
+            model: models.View,
+            unique: false
+          },
           as: 'Viewer',
           foreignKey: 'streamId'
         });

@@ -369,7 +369,6 @@ Class.getStreamById = function(streamId) {
  * @return {Promise<List<Sequelize.object>>} - a list of streams
  */
 Class.getListOfStreams = function(originalFilters) {
-  // TODO: viewers
 
   var filters = mapParams(originalFilters);
 
@@ -399,6 +398,49 @@ Class.getListOfStreams = function(originalFilters) {
 };
 
 /**
+ * Return a list of streams from subscriptions
+ * @param  {string} userId
+ * @return {Promise<List<Sequelize.object>>} - a list of streams
+ */
+Class.getStreamsFromSubscriptions = function(userId) {
+  return this.models.User.findOne({
+    include: [{
+      model: this.models.User,
+      as: 'Subscriptions',
+      include: [{
+        model: this.models.Stream,
+        as: 'streams',
+        where: {
+          live: true
+        },
+        include: [{
+          model: this.models.User,
+          as: 'streamer'
+        }]
+      }]
+    }],
+    where: {
+      userId: userId
+    },
+    order: [[
+      {model: this.models.User, as: 'Subscriptions'},
+      {model: this.models.Stream, as: 'streams'},
+      'createdAt', 'DESC'
+    ]]
+  }).then((user) => {
+    if (user === null) {
+      logger.debug('User not found or no streams from subscriptions %s',
+                   userId);
+      return [];
+    }
+    var subscriptions = user.Subscriptions;
+    var streams = subscriptions.map((singleUser) => singleUser.streams);
+    var merged = [].concat.apply([], streams);
+    return merged;
+  });
+};
+
+/**
  * @param  {string}
  * @param  {object} newAttributes
  * @param  {string} newAttributes.username
@@ -411,6 +453,26 @@ Class.updateStream = function(streamId, newAttributes) {
     return stream.update(newAttributes, {
       fields: Object.keys(newAttributes)
     });
+  });
+};
+
+/**
+ * Delete stream, removes the entry
+ * @param  {string} stringId
+ * @return {Boolean} true or false
+ */
+Class.deleteStream = function(streamId) {
+  return this.getStreamById(streamId).then(function(stream) {
+    if (stream !== null) {
+      return stream.destroy().then(function(res) {
+        if (res.streamId === streamId) {
+          return true; // sucesss
+        }
+      });
+    }
+
+    logger.error('Unable to delete stream %s', streamId);
+    return false;
   });
 };
 
@@ -431,15 +493,32 @@ Class.createView = function(userId, streamId) {
 
   return Promise.join(userPromise, streamPromise,
     function(user, stream) {
-      return user.addView(stream).then((view) => view[0][0])
-        .catch(err => null);
-    });
+      if (user === null) {
+        var errMsg = 'User cannot be found';
+        logger.error(errMsg);
+        return new CustomError.NotFoundError(errMsg);
+
+      } else if (stream === null) {
+        var errMsg = 'Stream cannot be found';
+        logger.error(errMsg);
+        return new CustomError.NotFoundError(errMsg);
+      }
+
+      return this.models.View.create({
+        userId: userId,
+        streamId: streamId
+      }).then((view) => {
+        return view;
+      }).catch(err => {
+        logger.error('Error creating view ', err);
+        return new CustomError.UnknownError();
+      });
+    }.bind(this));
 };
 
 /**
  * @param  {string} streamId
- * @return {Promise<Sequelize.Stream>} - a Stream object with a list of
- *                                       embedded users
+ * @return {Promise<Sequelize.Stream>} - a list of users
  */
 Class.getListOfUsersViewingStream = function(streamId) {
   return this.models.Stream.findOne({
@@ -465,31 +544,41 @@ Class.getListOfUsersViewingStream = function(streamId) {
   });
 };
 
+/**
+ * Returns the unique number of users who have viewed this stream
+ * @param  {string} streamId
+ * @return {Promise<Integer>}
+ */
 Class.getTotalNumberOfUsersViewedStream = function(streamId) {
-  return this.models.View.count({
+  return this.models.View.aggregate('userId',  'count', {
     where: {
       streamId: streamId,
-      endedAt: null //either null or removed, depending live or not
-    }
+    },
+    distinct: true
   });
 };
 
 /**
- * @param  {string} userId
  * @param  {string} streamId
- * @param  {object} newAttributes
  * @return {Promise<Sequelize.View>}
  */
-/*Class.updateView = function(userId, streamId, newAttributes) {
-  var userPromise = this.models.User.findById(userId);
+Class.updateTotalViews = function(streamId) {
   var streamPromise = this.models.Stream.findById(streamId);
 
-  return this.getStreamById(streamId).then(function(stream) {
-    return stream.update(newAttributes, {
-      fields: Object.keys(newAttributes)
-    });
+  return streamPromise.then((stream) => {
+    if (stream === null) {
+      var errMsg = `Stream ${streamId} cannot be found`;
+      logger.error(errMsg);
+      return new CustomError.NotFoundError(errMsg);
+    }
+
+    return this.getTotalNumberOfUsersViewedStream(streamId)
+      .then((numViewers) => {
+        return stream.update({totalViewers: numViewers});
+      });
   });
-};*/
+
+};
 
 /************************************************************************
  *                                                                       *
@@ -516,7 +605,7 @@ Class.createSubscription = function(subscribeFrom, subscribeTo) {
         if (!res || res.length === 0) {
           logger.error('Duplicate Subscription');
 
-          return new Error('Duplicate Subscription');
+          return new CustomError.DuplicateEntryError('Duplicate Subscription');
         }
         return res[0][0];
       });
@@ -544,6 +633,29 @@ Class.getSubscriptions = function(userId) {
 
 /**
  * @param  {string} userId
+ * @return {Promise<Integer>}
+ */
+Class.getNumberOfSubscriptions = function(userId) {
+  var userPromise = this.models.User.findById(userId);
+
+  return userPromise.then(function(user) {
+    if (user === null) {
+      logger.error('User cannot be found');
+
+      return new CustomError.NotFoundError('User not found');
+    }
+
+    return this.models.Subscription.count({
+      where: {
+        subscriber: userId
+      }
+    });
+
+  }.bind(this));
+};
+
+/**
+ * @param  {string} userId
  * @return {Promise<List<Sequelize.Subscription>>}
  */
 Class.getSubscribers = function(userId) {
@@ -559,6 +671,29 @@ Class.getSubscribers = function(userId) {
       return res;
     });
   });
+};
+
+/**
+ * @param  {string} userId
+ * @return {Promise<Integer>}
+ */
+Class.getNumberOfSubscribers = function(userId) {
+  var userPromise = this.models.User.findById(userId);
+
+  return userPromise.then(function(user) {
+    if (user === null) {
+      logger.error('User cannot be found');
+
+      return new CustomError.NotFoundError('User not found');
+    }
+
+    return this.models.Subscription.count({
+      where: {
+        subscribeTo: userId
+      }
+    });
+
+  }.bind(this));
 };
 
 /**
@@ -681,10 +816,11 @@ function isFieldsMatched(user, options, fn) {
 function mapParams(filters) {
 
   var filterMap = {
-    'desc': 'DESC',
-    'asc': 'ASC',
     'time': 'createdAt',
     'title': 'title',
+    'viewers': 'totalViewers',
+    'desc': 'DESC',
+    'asc': 'ASC',
     'all': {$or: [{'live': true}, {'live': false}]},
     'live': true,
     'done': false

@@ -88,21 +88,12 @@ Class.getNumberOfUsers = function() {
 ///// VIEW RELATED ////
 Class.createView = function(userId, streamId) {
   return Storage.createView(userId, streamId).then(function(res) {
-    if (!res) {
+    if (res instanceof Error) {
       logger.error('Unable to create view');
-
-      return new CustomError.NotFoundError('Stream not found');
+      return res;
     }
+
     return res.dataValues;
-
-  }).catch(function(err) {
-    logger.error('Unable to create view: %j', err);
-
-    if (err.name === 'TypeError') {
-      return new CustomError.NotFoundError('User not found');
-    } else {
-      return new CustomError.UnknownError();
-    }
   });
 };
 
@@ -189,6 +180,25 @@ Class.getSubscriptions = function(userId) {
 };
 
 /**
+ * Gets number of subscriptions that a user has
+ * @param userId {string}
+ * @return {Promise<Number>}
+ */
+Class.getNumberOfSubscriptions = function(userId) {
+  logger.debug('Getting subscriptions for user %s', userId);
+
+  return Storage.getNumberOfSubscriptions(userId)
+    .then(function receiveResult(result) {
+      if (result >= 0 || result instanceof Error) {
+        return result;
+      } else {
+        logger.error('Error getting number of subscriptions');
+        return new CustomError.UnknownError();
+      }
+    });
+};
+
+/**
  * Gets the list of subscriptions that a user has subscribed to.
  * @param userId {string}
  * @return {Promise<List<User>> || Error}
@@ -206,6 +216,25 @@ Class.getSubscribers = function(userId) {
         delete singleUser.Subscription;
         return Utility.formatUserObject(singleUser);
       });
+    });
+};
+
+/**
+ * Gets number of subscribers that a user has
+ * @param userId {string}
+ * @return {Promise<Number>}
+ */
+Class.getNumberOfSubscribers = function(userId) {
+  logger.debug('Getting subscribers for user %s', userId);
+
+  return Storage.getNumberOfSubscribers(userId)
+    .then(function receiveResult(result) {
+      if (result >= 0 || result instanceof Error) {
+        return result;
+      } else {
+        logger.error('Error getting number of subscribers');
+        return new CustomError.UnknownError();
+      }
     });
 };
 

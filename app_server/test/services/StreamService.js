@@ -3,6 +3,7 @@ var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var Code = require('code');
 var expect = Code.expect;
+var Promise = require('bluebird');
 
 var Storage = rfr('app/models/Storage');
 var Service = rfr('app/services/Service');
@@ -30,6 +31,17 @@ lab.experiment('StreamService Tests', function() {
     createdAt: new Date('2015-01-01'),
     endedAt: new Date('2015-01-02'),
     live: false
+  };
+
+  var alice = {
+    username: 'Alice',
+    alias: 'Alice in the wonderland',
+    email: 'alice@apple.com',
+    password: 'generated',
+    accessToken: 'anaccesstoken',
+    platformType: 'facebook',
+    platformId: '45454545454',
+    description: 'nil'
   };
 
   var bob = {
@@ -317,6 +329,56 @@ lab.experiment('StreamService Tests', function() {
     });
   });
 
+  lab.test('Get streams from subscriptions valid', function(done) {
+    var userPromise1 = Service.createNewUser(bob);
+    var userPromise2 = Service.createNewUser(alice);
+
+    Promise.join(userPromise1, userPromise2,
+      function(bob, alice) {
+        return Service.createSubscription(bob.userId, alice.userId)
+        .then((subscription) => {
+          return Service.createNewStream(alice.userId, testStream);
+        }).then((stream) => {
+          return Service.createNewStream(alice.userId, testStream2);
+        }).then((stream) => {
+          return Service.getStreamsFromSubscriptions(bob.userId);
+        }).then((res) => {
+          Code.expect(res[0].title).to.be.equal(testStream2.title);
+          Code.expect(res[1].title).to.be.equal(testStream.title);
+          done();
+        });
+      });
+  });
+
+  lab.test('Get streams from subscriptions valid no streams from subscribers',
+    function(done) {
+      var userPromise1 = Service.createNewUser(bob);
+      var userPromise2 = Service.createNewUser(alice);
+
+      Promise.join(userPromise1, userPromise2,
+        function(bob, alice) {
+          return Service.createSubscription(bob.userId, alice.userId)
+          .then((subscription) => {
+            return Service.getStreamsFromSubscriptions(bob.userId);
+          }).then((res) => {
+            Code.expect(res).to.be.deep.equal([]);
+            done();
+          });
+        });
+    });
+
+  lab.test('Get streams from subscriptions valid no subscribers',
+    function(done) {
+      var userPromise1 = Service.createNewUser(bob);
+
+      userPromise1.then((user) => {
+        return Service.getStreamsFromSubscriptions(user.userId).then((res) => {
+          Code.expect(res).to.be.deep.equal([]);
+          done();
+        });
+      });
+    });
+
   lab.test('Update Stream valid', function(done) {
     var updates = {
       title: 'new title',
@@ -373,6 +435,29 @@ lab.experiment('StreamService Tests', function() {
     });
   });
 
+  lab.test('End stream and view count updated', {timeout: 5000},
+    function(done) {
+
+      function checkNumberOfViewers() {
+        Storage.getListOfStreams({state: 'all', sort: 'title', order: 'asc'})
+          .then(function(streams) {
+            Code.expect(streams[0].totalViewers).to.equal(1);
+            done();
+          });
+      }
+
+      Service.createNewUser(bob).then(function(user) {
+        return Service.createNewStream(user.userId, testStream);
+      }).then(function(stream) {
+        return Service.createView(stream.owner, stream.streamId);
+      }).then(function(view) {
+        return Service.endStream(view.userId, view.streamId);
+      }).then(function(res) {
+        Code.expect(res).to.equal('Success');
+        checkNumberOfViewers();
+      });
+    });
+
   lab.test('End stream invalid streamId', function(done) {
 
     Service.createNewUser(bob).then(function(user) {
@@ -401,4 +486,26 @@ lab.experiment('StreamService Tests', function() {
     });
   });
 
+  lab.test('Delete stream valid', function(done) {
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, testStream);
+    }).then(function(stream) {
+      return Service.deleteStream(stream.streamId);
+    }).then(function(res) {
+      Code.expect(res).to.be.an.true();
+      done();
+    });
+  });
+
+  lab.test('Delete stream invalid streamId', function(done) {
+    Service.createNewUser(bob).then(function(user) {
+      return Service.createNewStream(user.userId, testStream);
+    }).then(function(stream) {
+      return Service.deleteStream('3388ffff-aa00-1111a222-00000044888c');
+    }).then(function(res) {
+      Code.expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+      Code.expect(res.message).to.be.equal('Stream not found');
+      done();
+    });
+  });
 });
