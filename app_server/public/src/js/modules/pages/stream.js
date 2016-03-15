@@ -40,7 +40,6 @@ const stopStream = function () {
 };
 
 const initComments = function () {
-  Stream.comments([]);
   Stream.socket(io());
 
   Stream.socket().emit('identify', document.cookie);
@@ -52,6 +51,7 @@ const initComments = function () {
       content: res.message,
       createdAt: res.time
     }));
+    while (Stream.comments().length > MAX_COMMENTS) {
       Stream.comments().pop();
     }
     m.endComputation();
@@ -65,7 +65,10 @@ const destroyComments = function () {
 Stream.controller = function () {
   let id = m.route.param('id') || -1;
 
-  StreamModel.get(id).then(Stream.stream).then(initComments);
+  m.sync([
+    StreamModel.get(id).then(Stream.stream),
+    CommentModel.list(id).then(Stream.comments)
+  ]).then(initComments);
 
   return {
     onunload: destroyComments
