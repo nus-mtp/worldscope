@@ -45,12 +45,19 @@ Class.__handleIdentifyEvent = function(socket) {
     Iron.unsealAsync(cookieData, ServerConfig.cookiePassword, Iron.defaults)
     .then((credentials) => {
       if (!credentials || credentials instanceof Error) {
-        logger.error('Error decryping cookie from <identify> message');
+        logger.error('Error decrypting cookie from <identify> message');
         return socket.emit('identify', 'ERR');
       }
 
       let Authenticator = this.server.app.authenticator;
-      return Authenticator.validateAccount(this.server, credentials)
+
+      let request = socket.request;
+      if (credentials.scope &&
+          credentials.scope.indexOf(Authenticator.SCOPE.ADMIN.STREAMS) > -1) {
+        request.headers['x-csrf-token'] = request.headers['cookie'];
+      }
+
+      return Authenticator.validateAccount(this.server, credentials, request)
       .then((result) => {
         if (!result || result instanceof Error) {
           logger.error(result);
