@@ -67,6 +67,26 @@ lab.experiment('UserController Tests', {timeout: 5000}, function () {
       });
   });
 
+  lab.test('Get number of users valid no users', function (done) {
+    Router.inject({url: '/api/users/all/statistics', credentials: testAccount},
+      function (res) {
+        Code.expect(res.result).to.equal(0);
+        done();
+      });
+  });
+
+  lab.test('Get number of users valid', function (done) {
+    Service.createNewUser(bob).then(() => Service.createNewUser(alice))
+    .then(() => {
+      Router.inject({url: '/api/users/all/statistics',
+                     credentials: testAccount},
+        function (res) {
+          Code.expect(res.result).to.equal(2);
+          done();
+        });
+    });
+  });
+
   lab.test('Get user by valid id', function (done) {
     Service.createNewUser(bob).then(function (result) {
       return Service.getUserById(result.userId);

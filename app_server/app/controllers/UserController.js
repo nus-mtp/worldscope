@@ -36,6 +36,12 @@ Class.registerRoutes = function() {
                      },
                      handler: this.getUserById});
 
+  this.server.route({method: 'GET', path: '/all/statistics',
+                     config: {
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
+                     handler: this.getNumberOfUsers});
+
   this.server.route({method: 'PUT', path: '/{id}',
                      config: {
                        validate: updateUserValidator,
@@ -87,6 +93,18 @@ Class.getListOfUsers = function(request, reply) {
     }
 
     return reply(users.map(Utility.formatUserObject));
+  });
+};
+
+Class.getNumberOfUsers = function(request, reply) {
+
+  Service.getNumberOfUsers().then(function receiveResult(result) {
+    if (result instanceof Error) {
+      logger.error('Could not retrieve number of users');
+      return reply(Boom.badRequest(result.message));
+    }
+
+    return reply(result);
   });
 };
 
