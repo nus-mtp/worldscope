@@ -10,8 +10,7 @@ const Stream = module.exports = {
   socket: io()
 };
 
-const MAX_COMMENTS = 5;
-
+const MAX_COMMENTS = 1000;
 
 Stream.stream = m.prop();
 Stream.comments = m.prop([]);
@@ -101,9 +100,9 @@ Stream.view = function () {
         m('div.row', [
           m('div.col s12', stream.description()),
           m('button.btn col s12', {onclick: stopStream}, 'Stop Stream'),
-          m('div.col s12',
-              Stream.comments().map((c) => m('div', [
-                  m('span', m('strong', c.user + ':')), ' ', m('span', c.msg)
+          m('div#comments.col s12',
+              Stream.comments().map((c) => m('div.comment-row', [
+                m('span', m('strong', c.user + ':')), ' ', m('span', c.msg)
               ])))
         ])
       ])
