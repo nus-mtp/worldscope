@@ -285,6 +285,44 @@ lab.experiment('Stream Model Tests', function() {
       });
   });
 
+  lab.test('Get list of live streams has subscribers', function(done) {
+    var filters = {
+      state: 'live',
+      sort: 'time',
+      order: 'desc'
+    };
+
+    var userPromise = Storage.createUser(userDetails);
+    var userPromise2 = Storage.createUser(userDetails2);
+
+    var streamPromise = userPromise.then(function(user) {
+      return Storage.createStream(user.userId, streamDetails3)
+        .then(function(stream) {
+          return Storage.createStream(user.userId, streamDetails2);
+        });
+    });
+
+    var streamPromise2 = userPromise2.then(function(user2) {
+      return Storage.createStream(user2.userId, streamDetails);
+    });
+
+    Promise.join(streamPromise, streamPromise2,
+      function(stream1, stream2) {
+        // Betty subscribe to Alex
+        return Storage.createSubscription(stream2.owner,
+                                          stream1.owner)
+        .then(function(res) {
+          Storage.getListOfStreams(filters).then(function(res) {
+            expect(res[0].streamer.Subscribers[0].userId)
+              .to.equal(stream2.owner);
+            expect(res[1].streamer.Subscribers)
+              .to.deep.equal([]);
+            done();
+          });
+        });
+      });
+  });
+
   lab.test('Get list of live streams sorted by viewers asc', function(done) {
     var filters = {
       state: 'live',

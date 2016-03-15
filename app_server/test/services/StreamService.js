@@ -171,7 +171,7 @@ lab.experiment('StreamService Tests', function() {
       order: 'asc'
     };
 
-    Service.getListOfStreams(filters).then(function(result) {
+    Service.getListOfStreams(null, filters).then(function(result) {
       Code.expect(result).to.have.length(0);
       done();
     });
@@ -191,7 +191,7 @@ lab.experiment('StreamService Tests', function() {
     }).then(function(stream) {
       return Service.createNewStream(stream.owner, testStream3);
     }).then(function() {
-      return Service.getListOfStreams(filters);
+      return Service.getListOfStreams(null, filters);
     }).then(function(result) {
       Code.expect(result).to.have.length(3);
       Code.expect(result[0].title).to.be.equal(testStream2.title);
@@ -218,7 +218,7 @@ lab.experiment('StreamService Tests', function() {
     }).then(function(stream) {
       return Service.createNewStream(stream.owner, testStream3);
     }).then(function() {
-      return Service.getListOfStreams(filters);
+      return Service.getListOfStreams(null, filters);
     }).then(function(result) {
       Code.expect(result).to.have.length(3);
       Code.expect(result[0].title).to.be.equal(testStream.title);
@@ -245,7 +245,7 @@ lab.experiment('StreamService Tests', function() {
     }).then(function(stream) {
       return Service.createNewStream(stream.owner, testStream3);
     }).then(function() {
-      return Service.getListOfStreams(filters);
+      return Service.getListOfStreams(null, filters);
     }).then(function(result) {
       Code.expect(result).to.have.length(2);
       Code.expect(result[0].title).to.be.equal(testStream.title);
@@ -270,7 +270,7 @@ lab.experiment('StreamService Tests', function() {
     }).then(function(stream) {
       return Service.createNewStream(stream.owner, testStream3);
     }).then(function() {
-      return Service.getListOfStreams(filters);
+      return Service.getListOfStreams(null, filters);
     }).then(function(result) {
       Code.expect(result).to.have.length(2);
       Code.expect(result[0].title).to.be.equal(testStream2.title);
@@ -295,7 +295,7 @@ lab.experiment('StreamService Tests', function() {
     }).then(function(stream) {
       return Service.createNewStream(stream.owner, testStream3);
     }).then(function() {
-      return Service.getListOfStreams(filters);
+      return Service.getListOfStreams(null, filters);
     }).then(function(result) {
       Code.expect(result).to.have.length(2);
       Code.expect(result[0].title).to.be.equal(testStream2.title);
@@ -320,13 +320,40 @@ lab.experiment('StreamService Tests', function() {
     }).then(function(stream) {
       return Service.createNewStream(stream.owner, testStream3);
     }).then(function() {
-      return Service.getListOfStreams(filters);
+      return Service.getListOfStreams(null, filters);
     }).then(function(result) {
       Code.expect(result).to.have.length(1);
       Code.expect(result[0].title).to.be.equal(testStream3.title);
       Code.expect(result[0].streamer.username).to.be.equal(bob.username);
       done();
     });
+  });
+
+  lab.test('getListOfStreams valid isSubscribe field', function(done) {
+    var filters = {
+      state: 'all',
+      sort: 'title',
+      order: 'asc'
+    };
+
+    var userPromise1 = Service.createNewUser(bob);
+    var userPromise2 = Service.createNewUser(alice);
+
+    Promise.join(userPromise1, userPromise2,
+      function(bob, alice) {
+        return Service.createSubscription(alice.userId, bob.userId).then(function() {
+          return Service.createNewStream(bob.userId, testStream);
+        }).then(function(stream) {
+          return Service.createNewStream(stream.owner, testStream2);
+        }).then(function() {
+          return Service.getListOfStreams(alice.userId, filters);
+        }).then(function(result) {
+          Code.expect(result[0].title).to.be.equal(testStream2.title);
+          Code.expect(result[0].streamer.username).to.be.equal(bob.username);
+          Code.expect(result[0].streamer.isSubscribe).to.be.true();
+          done();
+        });
+      });
   });
 
   lab.test('Get streams from subscriptions valid', function(done) {

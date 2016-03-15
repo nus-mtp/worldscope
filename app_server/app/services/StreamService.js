@@ -65,14 +65,37 @@ Class.getStreamById = function(streamId) {
   });
 };
 
-Class.getListOfStreams = function(filters) {
-  logger.debug('Getting list of streams with filters: %j', filters);
+Class.getListOfStreams = function(userId, filters) {
+  logger.debug('Getting list of streams for user %s with filters: %j',
+               userId, filters);
 
   return Storage.getListOfStreams(filters)
     .then(function receiveResult(results) {
       if (results) {
-        return results.map((singleStream) =>
+        results = results.map((singleStream) =>
           Utility.formatStreamObject(singleStream, 'view'));
+        if (!userId) {
+          return results.map((stream) => {
+            delete stream.streamer.Subscribers;
+            return stream;
+          });
+        }
+
+        // Allocate isSubscribeField
+        for (var i = 0; i < results.length; i++) {
+          var aStream = results[i];
+
+          var subscriberIds = aStream.streamer.Subscribers.map((user) => user.userId);
+          if (subscriberIds.indexOf(userId) > -1) {
+            aStream.streamer.isSubscribe = true;
+          } else {
+            aStream.streamer.isSubscribe = false;
+          }
+
+          delete aStream.streamer.Subscribers;
+
+        }
+        return results;
       } else {
         return new CustomError.NotFoundError('Stream not found');
       }
@@ -194,11 +217,14 @@ Class.createChatRoomsForLiveStreams = function() {
     sort: 'title',
     order: 'desc'
   };
-  this.getListOfStreams(filters)
+  this.getListOfStreams(null, filters)
   .then((liveStreams) => {
     for (var i in liveStreams) {
       initializeChatRoomForStream(liveStreams[i]);
     }
+  })
+  .catch((err) => {
+    logger.error('Error getting list of live streams to create rooms', err);
   });
 };
 
@@ -208,11 +234,16 @@ Class.createChatRoomsForLiveStreams = function() {
  * @param streamAttributes {object}
  */
 function initializeChatRoomForStream(streamAttributes) {
-  let room = SocketAdapter.createNewRoom(streamAttributes.appInstance,
-                                         streamAttributes.streamId);
-  if (!room || room instanceof Error) {
+  try {
+    let room = SocketAdapter.createNewRoom(streamAttributes.appInstance,
+                                           streamAttributes.streamId);
+    if (!room || room instanceof Error) {
+      logger.error('Unable to create new chat room for stream %s',
+                   streamAttributes.title);
+    }
+  } catch(e) {
     logger.error('Unable to create new chat room for stream %s',
-                 streamAttributes.title);
+                 e.message);
   }
 }
 
@@ -221,11 +252,16 @@ function initializeChatRoomForStream(streamAttributes) {
  * @param appInstance {string}
  */
 function closeChatRoomForStream(appInstance) {
-  if (!SocketAdapter.isInitialized) {
-    logger.error('SocketAdapter is not isInitialized');
-    return;
+  try {
+    if (!SocketAdapter.isInitialized) {
+      logger.error('SocketAdapter is not isInitialized');
+      return;
+    }
+    SocketAdapter.closeRoom(appInstance);
+  } catch(e) {
+    logger.error('Unable to close new chat room for stream %s',
+                 e.message);
   }
-  SocketAdapter.closeRoom(appInstance);
 }
 
 module.exports = new StreamService();

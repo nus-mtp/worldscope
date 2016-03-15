@@ -376,7 +376,11 @@ Class.getListOfStreams = function(originalFilters) {
     return this.models.Stream.findAll({
       include: [{
         model: this.models.User,
-        as: 'streamer'
+        as: 'streamer',
+        include: [{
+          model: this.models.User,
+          as: 'Subscribers'
+        }]
       }],
       where: {
         live: filters.state
@@ -387,7 +391,11 @@ Class.getListOfStreams = function(originalFilters) {
     return this.models.Stream.findAll({
       include: [{
         model: this.models.User,
-        as: 'streamer'
+        as: 'streamer',
+        include: [{
+          model: this.models.User,
+          as: 'Subscribers'
+        }]
       }],
       where: {
         live: filters.state
