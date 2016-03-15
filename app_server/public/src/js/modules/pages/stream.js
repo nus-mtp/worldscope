@@ -7,13 +7,11 @@ const StreamModel = require('../models/stream');
 const datetime = require('../utils/dateFormat');
 
 const Stream = module.exports = {
-  socket: io()
+  stream: m.prop(),
+  comments: m.prop()
 };
 
 const MAX_COMMENTS = 1000;
-
-Stream.stream = m.prop();
-Stream.comments = m.prop([]);
 
 const initPlayer = function () {
   shaka.polyfill.installAll();
@@ -40,6 +38,9 @@ const stopStream = function () {
 };
 
 const initComments = function () {
+  Stream.comments([]);
+  Stream.socket = io();
+
   Stream.socket.emit('identify', document.cookie);
   Stream.socket.emit('join', Stream.stream().room());
   Stream.socket.on('comment', function (res) {
