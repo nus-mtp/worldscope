@@ -2,6 +2,7 @@ const m = require('mithril');
 const shaka = require('shaka-player');
 const io = require('socket.io-client');
 
+const CommentModel = require('../models/comment');
 const StreamModel = require('../models/stream');
 
 const datetime = require('../utils/dateFormat');
@@ -46,12 +47,11 @@ const initComments = function () {
   Stream.socket().emit('join', Stream.stream().room());
   Stream.socket().on('comment', function (res) {
     m.startComputation();
-    Stream.comments().unshift({
-      user: res.alias || res.userId,
-      msg: res.message,
-      time: new Date(res.time)
-    });
-    if (Stream.comments().length > MAX_COMMENTS) {
+    Stream.comments().unshift(new CommentModel({
+      userId: res.alias || res.userId,
+      content: res.message,
+      createdAt: res.time
+    }));
       Stream.comments().pop();
     }
     m.endComputation();
@@ -105,9 +105,9 @@ Stream.view = function () {
           m('button.btn col s12', {onclick: stopStream}, 'Stop Stream'),
           m('div#comments.col s12',
               Stream.comments().map((c) => m('div.comment-row', [
-                '[' + datetime.toShortTime(c.time) + '] ',
-                m('strong', c.user + ':'),
-                ' ' + c.msg
+                '[' + datetime.toShortTime(c.time()) + '] ',
+                m('strong', c.user() + ':'),
+                ' ' + c.msg()
               ])))
         ])
       ])
