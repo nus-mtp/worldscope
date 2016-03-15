@@ -46,7 +46,8 @@ const initComments = function () {
     m.startComputation();
     Stream.comments().unshift({
       user: res.userId,
-      msg: res.message
+      msg: res.message,
+      time: new Date(res.time)
     });
     if (Stream.comments().length > MAX_COMMENTS) {
       Stream.comments().pop();
@@ -102,7 +103,9 @@ Stream.view = function () {
           m('button.btn col s12', {onclick: stopStream}, 'Stop Stream'),
           m('div#comments.col s12',
               Stream.comments().map((c) => m('div.comment-row', [
-                m('span', m('strong', c.user + ':')), ' ', m('span', c.msg)
+                '[' + datetime.toShortTime(c.time) + '] ',
+                m('strong', c.user + ':'),
+                ' ' + c.msg
               ])))
         ])
       ])
