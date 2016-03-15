@@ -111,7 +111,6 @@ lab.experiment('UserController Tests', {timeout: 5000}, function () {
       Router.inject({url: '/api/users/me',
                      credentials: credentials},
                     function (res) {
-                      console.log(res.result);
                       Code.expect(res.result.username).to.equal(bob.username);
                       done();
                     });
