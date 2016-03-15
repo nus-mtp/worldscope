@@ -10,7 +10,7 @@ const Stream = module.exports = function (data) {
   this.room = m.prop(data.roomId);
   this.title = m.prop(data.title);
   this.startDateTime = m.prop(new Date(data.createdAt));
-  this.endDateTime = m.prop(new Date(data.endedAt));
+  this.endDateTime = m.prop(data.endedAt ? new Date(data.endedAt) : null);
   this.viewers = m.prop(data.totalViewers);
   this.stickers = m.prop(data.totalStickers);
   this.live = m.prop(data.live);

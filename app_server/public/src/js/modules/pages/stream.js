@@ -63,7 +63,9 @@ Stream.view = function () {
           m('div.row col s9', [
             m('div.col s12', stream.user().alias()),
             m('div.col s12', 'Start: ' + datetime.toShortDateTime(stream.startDateTime())),
-            m('div.col s12', 'End: ' + datetime.toShortDateTime(stream.endDateTime()))
+            stream.endDateTime() ?
+                m('div.col s12', 'End: ' + datetime.toShortDateTime(stream.endDateTime())) :
+                null
           ])
         ]),
         m('div.row', [
