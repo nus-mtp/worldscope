@@ -244,8 +244,11 @@ lab.experiment('StreamController Tests', function() {
   lab.test('Get list of streams valid default params empty', function(done) {
     Router.inject({method: 'GET', url: '/api/streams',
                    credentials: testAccount}, function(res) {
-      Code.expect(res.result).to.have.length(0);
-      done();
+      Service.createNewUser(bob).then(function(user) {
+        testAccount.userId = user.userId;
+        Code.expect(res.result).to.have.length(0);
+        done();
+      });
     });
   });
 
@@ -337,10 +340,10 @@ lab.experiment('StreamController Tests', function() {
       return Service.createNewStream(userId, streamInfo);
     }).then(function(stream) {
       return Service.createNewStream(stream.owner, streamInfo2);
-    }).then(injectionHandler)
+    }).then(injectionHandler);
   });
 
-  lab.test('Get list of streams valid isSubscribe false', function(done) {
+  lab.test('Get list of streams valid isSubscribed false', function(done) {
     Service.createNewUser(bob).then(function(user) {
       testAccount.userId = user.userId;
       return user.userId;
@@ -354,16 +357,16 @@ lab.experiment('StreamController Tests', function() {
         Code.expect(res.result).to.have.length(2);
         Code.expect(res.result[0].title).to.equal(streamInfo2.title);
         Code.expect(res.result[0].streamer.username).to.equal(bob.username);
-        Code.expect(res.result[0].streamer.isSubscribe).to.be.false();
+        Code.expect(res.result[0].streamer.isSubscribed).to.be.false();
         Code.expect(res.result[1].title).to.equal(streamInfo.title);
         Code.expect(res.result[1].streamer.username).to.equal(bob.username);
-        Code.expect(res.result[1].streamer.isSubscribe).to.be.false();
+        Code.expect(res.result[1].streamer.isSubscribed).to.be.false();
         done();
       });
     });
   });
 
-  lab.test('Get list of streams valid isSubscribe true', function(done) {
+  lab.test('Get list of streams valid isSubscribed true', function(done) {
 
     var userPromise1 = Service.createNewUser(bob);
     var userPromise2 = Service.createNewUser(alice);
@@ -382,10 +385,10 @@ lab.experiment('StreamController Tests', function() {
           Code.expect(res.result).to.have.length(2);
           Code.expect(res.result[0].title).to.equal(streamInfo2.title);
           Code.expect(res.result[0].streamer.username).to.equal(bob.username);
-          Code.expect(res.result[0].streamer.isSubscribe).to.be.true();
+          Code.expect(res.result[0].streamer.isSubscribed).to.be.true();
           Code.expect(res.result[1].title).to.equal(streamInfo.title);
           Code.expect(res.result[1].streamer.username).to.equal(bob.username);
-          Code.expect(res.result[1].streamer.isSubscribe).to.be.true();
+          Code.expect(res.result[1].streamer.isSubscribed).to.be.true();
           done();
         });
       });

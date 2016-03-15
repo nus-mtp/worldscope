@@ -74,6 +74,8 @@ Class.getListOfStreams = function(userId, filters) {
       if (results) {
         results = results.map((singleStream) =>
           Utility.formatStreamObject(singleStream, 'view'));
+
+        // Remove unneeded list of subscribers
         if (!userId) {
           return results.map((stream) => {
             delete stream.streamer.Subscribers;
@@ -81,20 +83,9 @@ Class.getListOfStreams = function(userId, filters) {
           });
         }
 
-        // Allocate isSubscribeField
-        for (var i = 0; i < results.length; i++) {
-          var aStream = results[i];
+        // Allocate isSubscribedField
+        results = addIsSubscribedField(userId, results);
 
-          var subscriberIds = aStream.streamer.Subscribers.map((user) => user.userId);
-          if (subscriberIds.indexOf(userId) > -1) {
-            aStream.streamer.isSubscribe = true;
-          } else {
-            aStream.streamer.isSubscribe = false;
-          }
-
-          delete aStream.streamer.Subscribers;
-
-        }
         return results;
       } else {
         return new CustomError.NotFoundError('Stream not found');
@@ -241,7 +232,7 @@ function initializeChatRoomForStream(streamAttributes) {
       logger.error('Unable to create new chat room for stream %s',
                    streamAttributes.title);
     }
-  } catch(e) {
+  } catch (e) {
     logger.error('Unable to create new chat room for stream %s',
                  e.message);
   }
@@ -258,10 +249,31 @@ function closeChatRoomForStream(appInstance) {
       return;
     }
     SocketAdapter.closeRoom(appInstance);
-  } catch(e) {
+  } catch (e) {
     logger.error('Unable to close new chat room for stream %s',
                  e.message);
   }
 }
+
+/**
+ * Add isSubscribedField = true if userId is in subscribers
+ * @param userId  {string}
+ * @param results {Object}
+ */
+var addIsSubscribedField = function(userId, results) {
+  for (var i = 0; i < results.length; i++) {
+    var aStream = results[i];
+
+    var subscriberIds = aStream.streamer.Subscribers.map((user) => user.userId);
+    if (subscriberIds.indexOf(userId) > -1) {
+      aStream.streamer.isSubscribed = true;
+    } else {
+      aStream.streamer.isSubscribed = false;
+    }
+
+    delete aStream.streamer.Subscribers;
+  }
+  return results;
+};
 
 module.exports = new StreamService();

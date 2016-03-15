@@ -329,7 +329,7 @@ lab.experiment('StreamService Tests', function() {
     });
   });
 
-  lab.test('getListOfStreams valid isSubscribe field', function(done) {
+  lab.test('getListOfStreams valid isSubscribed true', function(done) {
     var filters = {
       state: 'all',
       sort: 'title',
@@ -341,7 +341,8 @@ lab.experiment('StreamService Tests', function() {
 
     Promise.join(userPromise1, userPromise2,
       function(bob, alice) {
-        return Service.createSubscription(alice.userId, bob.userId).then(function() {
+        return Service.createSubscription(alice.userId, bob.userId)
+        .then(function() {
           return Service.createNewStream(bob.userId, testStream);
         }).then(function(stream) {
           return Service.createNewStream(stream.owner, testStream2);
@@ -350,7 +351,7 @@ lab.experiment('StreamService Tests', function() {
         }).then(function(result) {
           Code.expect(result[0].title).to.be.equal(testStream2.title);
           Code.expect(result[0].streamer.username).to.be.equal(bob.username);
-          Code.expect(result[0].streamer.isSubscribe).to.be.true();
+          Code.expect(result[0].streamer.isSubscribed).to.be.true();
           done();
         });
       });
