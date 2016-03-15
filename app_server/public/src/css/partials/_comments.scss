@@ -1,0 +1,17 @@
+$comment-line-height: 1.2rem;
+
+#comments {
+  line-height: $comment-line-height;
+  height: $comment-line-height * 15;
+  overflow: auto;
+  margin-top: $comment-line-height;
+
+  .comment-row {
+    margin-bottom: $comment-line-height / 2;
+
+    a {
+      color: #000000;
+      font-weight: bold;
+    }
+  }
+}
