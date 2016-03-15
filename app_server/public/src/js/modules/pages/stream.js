@@ -47,7 +47,8 @@ const initComments = function () {
   Stream.socket().on('comment', function (res) {
     m.startComputation();
     Stream.comments().unshift(new CommentModel({
-      userId: res.alias || res.userId,
+      userId: res.userId,
+      alias: res.alias,
       content: res.message,
       createdAt: res.time
     }));
@@ -109,7 +110,7 @@ Stream.view = function () {
           m('div#comments.col s12',
               Stream.comments().map((c) => m('div.comment-row', [
                 '[' + datetime.toShortTime(c.time()) + '] ',
-                m('strong', c.user() + ':'),
+                m('a[href="/users/view/' + c.userId() + '"]', {config: m.route}, c.user() + ':'),
                 ' ' + c.msg()
               ])))
         ])
