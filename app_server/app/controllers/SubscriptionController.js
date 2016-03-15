@@ -48,6 +48,11 @@ Class.registerRoutes = function() {
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.getSubscribers});
+  this.server.route({method: 'GET', path: '/subscribers/me',
+                     config: {
+                       auth: {scope: Authenticator.SCOPE.USER}
+                     },
+                     handler: this.getSubscribersToSelf});
 
   this.server.route({method: 'GET', path: '/subscribers/{id}/statistics',
                      config: {
@@ -135,6 +140,12 @@ Class.getSubscribers = function(request, reply) {
 
       return reply(result);
     });
+};
+
+Class.getSubscribersToSelf = function(request, reply) {
+  logger.debug('Get list of subscribers to self');
+  request.params.id = request.auth.credentials.userId;
+  return this.getSubscribers(request, reply);
 };
 
 Class.getNumberOfSubscribers = function(request, reply) {

@@ -35,6 +35,11 @@ Class.registerRoutes = function() {
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.getUserById});
+  this.server.route({method: 'GET', path: '/me',
+                     config: {
+                       auth: {scope: Authenticator.SCOPE.USER}
+                     },
+                     handler: this.getSelf});
 
   this.server.route({method: 'GET', path: '/all/statistics',
                      config: {
@@ -80,6 +85,11 @@ Class.getUserById = function(request, reply) {
     user = Utility.formatUserObject(user);
     return reply(user);
   });
+};
+
+Class.getSelf = function(request, reply) {
+  request.params.id = request.auth.credentials.userId;
+  return this.getUserById(request, reply);
 };
 
 Class.getListOfUsers = function(request, reply) {
