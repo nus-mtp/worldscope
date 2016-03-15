@@ -115,9 +115,10 @@ Class.getStreamById = function(streamId) {
   return StreamService.getStreamById(streamId);
 };
 
-Class.getListOfStreams = function(filters) {
-  logger.debug('Getting list of streams with filters: %j', filters);
-  return StreamService.getListOfStreams(filters);
+Class.getListOfStreams = function(userId, filters) {
+  logger.debug('Getting list of streams with for user %s, filters: %j',
+               userId, filters);
+  return StreamService.getListOfStreams(userId, filters);
 };
 
 Class.getStreamsFromSubscriptions = function(userId) {
