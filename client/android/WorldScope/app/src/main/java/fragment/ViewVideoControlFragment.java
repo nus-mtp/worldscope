@@ -25,7 +25,7 @@ import java.util.TimerTask;
 public class ViewVideoControlFragment extends Fragment {
 
 
-    private final String TAG = "StreamVideoControl";
+    private static final String TAG = "StreamVideoControl";
 
     private Drawable playDrawable;
     private Drawable pauseDrawable;

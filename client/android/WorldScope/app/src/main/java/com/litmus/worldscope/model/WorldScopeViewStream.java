@@ -8,7 +8,7 @@ import android.util.Log;
  * Stream object model returned from WorldScope App Server for viewing of streams
  */
 public class WorldScopeViewStream extends WorldScopeStream implements Parcelable {
-    private String TAG = "WorldScopeViewStream";
+    private static final String TAG = "WorldScopeViewStream";
 
     private String viewLink;
     private String thumbnailLink;

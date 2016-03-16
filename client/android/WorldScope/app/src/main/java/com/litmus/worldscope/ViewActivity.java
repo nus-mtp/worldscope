@@ -53,9 +53,8 @@ public class ViewActivity extends AppCompatActivity implements
         // Get commentFragment
         commentFragment = (CommentFragment) sfm.findFragmentById(R.id.commentFragment);
 
-        // Join room
         // Join room and show comment UI
-        commentFragment.joinRoom(viewStream.getAppInstance(), getIntent().getStringExtra("alias"));
+        commentFragment.setupRoom(viewStream.getAppInstance(), viewStream.getStreamId(), getIntent().getStringExtra("alias"));
         commentFragment.initialize();
 
         Log.d(TAG, "Room: " + viewStream.toString());

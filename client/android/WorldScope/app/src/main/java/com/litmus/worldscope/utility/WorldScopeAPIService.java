@@ -17,7 +17,7 @@ import retrofit2.http.Query;
 
 public class WorldScopeAPIService {
 
-    private static String TAG = "WorldScopeAPIService";
+    private static final String TAG = "WorldScopeAPIService";
 
     // Server address
     public static final String WorldScopeURL = "http://54.179.170.132:3000";
@@ -76,11 +76,6 @@ public class WorldScopeAPIService {
         @POST(streamsRoute)
         Call<Object> postStreamEnd(@Body PostStreamEndRequest body);
 
-/*        /api/streams/control/end
-
-        body {
-            streamId: streamId
-        }*/
 
     }
 

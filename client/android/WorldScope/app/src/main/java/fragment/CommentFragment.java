@@ -123,7 +123,7 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
         OnClickListener btnListener = new OnClickListener() {
             public void onClick(View v) {
 
-                if(commentEditText.getText().toString() != null && commentEditText.getText().toString().length() != 0) {
+                if(commentEditText.getText() != null && !commentEditText.getText().toString().isEmpty()) {
                     Log.d(TAG, "Sending: " + commentEditText.getText().toString());
                     sendMessage(commentEditText.getText().toString());
                     commentEditText.setText("");
@@ -276,10 +276,12 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
         }
 
         // Turn off touch from ListView
+        @Override
         public boolean areAllItemsEnabled() {
             return false;
         }
 
+        @Override
         public boolean isEnabled(int position) {
             return false;
         }

@@ -79,7 +79,7 @@ public class WorldScopeSocketService {
         }
     }
 
-    // Emits a comment event, payload should be the appInstance/roomId
+    // Emits a leave event, payload should be the appInstance/roomId
     public static void emitLeave(String data) {
         if(isInitialized) {
             Log.d(TAG, "Emitting leave with: " + data);
@@ -119,7 +119,7 @@ public class WorldScopeSocketService {
         return false;
     }
 
-    // Adds the object as a listener if it is valid
+    // Removes the object as a listener of socket service
     public static void unregisterListener(Object listener) {
         Log.d(TAG, "Unregistering: " + listener);
 
