@@ -2,9 +2,9 @@ const m = require('mithril');
 const shaka = require('shaka-player');
 const io = require('socket.io-client');
 
+const Alert = require('../components/alert');
 const CommentModel = require('../models/comment');
 const StreamModel = require('../models/stream');
-
 const datetime = require('../utils/dateFormat');
 
 const Stream = module.exports = {
@@ -22,7 +22,16 @@ const initPlayer = function () {
   let player = new shaka.player.Player(video);
   window.player = player;
 
-  player.addEventListener('error', function(event) {
+  player.addEventListener('error', function(error) {
+    Alert.setError({
+      shaka: true,
+      message: error.detail.message,
+      type: error.detail.status,
+      context: {
+        title: Stream.stream.title,
+        key: 'stream'
+      }
+    });
     console.error(event);
   });
 
@@ -80,40 +89,40 @@ Stream.view = function () {
   let stream = Stream.stream();
 
   return [
-    m('div.row', [
-      m('h1', stream.title()),
-      m('div.col s12 m6 l4',
-          m('video#video', {
-            config: () => initPlayer(),
-            width: '100%',
-            height: 'auto',
-            controls: true,
-            preload: 'none'})),
-      m('div.col s12 m6 l4', [
-        m('div.row', [
-          m('div.col s6', 'Viewers: ' + stream.viewers()),
-          m('div.col s6', 'Stickers: ' + stream.stickers())
-        ]),
-        m('div.row', [
-          m('div.col s3', 'user-image-here'),
-          m('div.row col s9', [
-            m('div.col s12', stream.user().alias()),
-            m('div.col s12', 'Start: ' + datetime.toShortDateTime(stream.startDateTime())),
-            stream.endDateTime() ?
-                m('div.col s12', 'End: ' + datetime.toShortDateTime(stream.endDateTime())) :
-                null
-          ])
-        ]),
-        m('div.row', [
-          m('div.col s12', stream.description()),
-          m('button.btn col s12', {onclick: stopStream}, 'Stop Stream'),
-          m('div#comments.col s12',
-              Stream.comments().map((c) => m('div.comment-row', [
-                '[' + datetime.toShortTime(c.time()) + '] ',
-                m('a[href="/users/view/' + c.userId() + '"]', {config: m.route}, c.user() + ':'),
-                ' ' + c.msg()
-              ])))
+    m('h1', stream.title()),
+    m('div.col s12 m6 l4',
+        m('video#video', {
+          config: () => initPlayer(),
+          width: '100%',
+          height: 'auto',
+          controls: true,
+          autoplay: false,
+          preload: 'metadata'
+        })),
+    m('div.col s12 m6 l4', [
+      m('div.row', [
+        m('div.col s6', 'Viewers: ' + stream.viewers()),
+        m('div.col s6', 'Stickers: ' + stream.stickers())
+      ]),
+      m('div.row', [
+        m('div.col s3', 'user-image-here'),
+        m('div.row col s9', [
+          m('div.col s12', stream.user().alias()),
+          m('div.col s12', 'Start: ' + datetime.toShortDateTime(stream.startDateTime())),
+          stream.endDateTime() ?
+              m('div.col s12', 'End: ' + datetime.toShortDateTime(stream.endDateTime())) :
+              null
         ])
+      ]),
+      m('div.row', [
+        m('div.col s12', stream.description()),
+        m('button.btn col s12', {onclick: stopStream}, 'Stop Stream'),
+        m('div#comments.col s12',
+            Stream.comments().map((c) => m('div.comment-row', [
+              '[' + datetime.toShortTime(c.time()) + '] ',
+              m('a[href="/users/view/' + c.userId() + '"]', {config: m.route}, c.user() + ':'),
+              ' ' + c.msg()
+            ])))
       ])
     ])
   ];

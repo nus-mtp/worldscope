@@ -1,10 +1,9 @@
 const m = require('mithril');
 
-const mz = require('../utils/mzInit');
-
+const DataTable = require('../components/datatable');
 const ItemsCount = require('../components/itemscount');
 const Pagination = require('../components/pagination');
-const DataTable = require('../components/datatable');
+const mz = require('../utils/mzInit');
 
 const DataDisplay = module.exports = {
   currentPage: m.prop(),

@@ -1,10 +1,9 @@
 const m = require('mithril');
 
-const mz = require('../utils/mzInit');
-
 const App = require('../app');
-const AdminModel = require('../models/admin');
 const Alert = require('../components/alert');
+const AdminModel = require('../models/admin');
+const mz = require('../utils/mzInit');
 
 const Login = module.exports = {
   controller: function () {
