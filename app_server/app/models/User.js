@@ -126,7 +126,10 @@ module.exports = function(sequelize, DataTypes) {
           foreignKey: 'owner'
         });
         User.belongsToMany(models.Stream, {
-          through: models.View,
+          through: {
+            model: models.View,
+            unique: false
+          },
           as: 'View',
           foreignKey: 'userId'
         });
@@ -139,6 +142,10 @@ module.exports = function(sequelize, DataTypes) {
           through: models.Subscription,
           as: 'Subscribers', // noob
           foreignKey: 'subscribeTo' // pro
+        });
+        User.hasMany(models.Comment, {
+          as: 'comments',
+          foreignKey: 'userId'
         });
       }
     }

@@ -41,6 +41,12 @@ Class.registerRoutes = function() {
                      },
                      handler: this.getStreamById});
 
+  this.server.route({method: 'GET', path: '/subscriptions',
+                     config: {
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
+                     handler: this.getStreamsFromSubscriptions});
+
   this.server.route({method: 'POST', path: '/control/stop',
                      config: {
                        validate: streamControlStopValidator,
@@ -61,6 +67,13 @@ Class.registerRoutes = function() {
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.createStream});
+
+  this.server.route({method: 'DELETE', path: '/{id}', //for admins only
+                     config: {
+                       validate: singleStreamValidator,
+                       auth: {scope: Authenticator.SCOPE.ADMIN.ADMINS}
+                     },
+                     handler: this.deleteStream});
 };
 
 /* Routes handlers */
@@ -125,6 +138,20 @@ Class.getListOfStreams = function(request, reply) {
   });
 };
 
+Class.getStreamsFromSubscriptions = function(request, reply) {
+  logger.debug('Getting list of streams from subscriptions');
+
+  var userId = request.auth.credentials.userId;
+
+  Service.getStreamsFromSubscriptions(userId).then(function(listStreams) {
+    if (!listStreams || listStreams instanceof Error) {
+      return reply(Boom.notFound('Stream not found'));
+    }
+
+    return reply(listStreams);
+  });
+};
+
 Class.controlStopStream = function(request, reply) {
   Service.stopStream(ServerConfig.mediaServer.appName,
                      request.payload.appInstance,
@@ -147,6 +174,20 @@ Class.endStream = function(request, reply) {
       return reply(Boom.badRequest(res.message));
     }
     return reply({status: 'OK', message: ''}).code(200);
+  });
+};
+
+Class.deleteStream = function(request, reply) {
+  logger.debug('Ending a stream %s', request.params.id);
+
+  var streamId = request.params.id;
+
+  Service.deleteStream(streamId)
+  .then(function(res) {
+    if (!res || res instanceof Error) {
+      return reply(Boom.badRequest(res.message));
+    }
+    return reply({status: 'OK'});
   });
 };
 

@@ -29,12 +29,12 @@ function StreamService() {
 var Class = StreamService.prototype;
 
 Class.createNewStream = function(userId, streamAttributes) {
-  logger.debug('Creating new stream: %j', streamAttributes);
+  logger.info('Creating new stream: %j', streamAttributes);
 
   return Storage.createStream(userId, streamAttributes)
     .then((result) => {
       if (result) {
-        initializeChatRoomForStream(streamAttributes);
+        initializeChatRoomForStream(result);
         return Utility.formatStreamObject(result, 'stream');
       }
 
@@ -69,6 +69,27 @@ Class.getListOfStreams = function(filters) {
   logger.debug('Getting list of streams with filters: %j', filters);
 
   return Storage.getListOfStreams(filters)
+    .then(function receiveResult(results) {
+      if (results) {
+        return results.map((singleStream) =>
+          Utility.formatStreamObject(singleStream, 'view'));
+      } else {
+        return new CustomError.NotFoundError('Stream not found');
+      }
+    }).catch(function(err) {
+      logger.error(err);
+      return null;
+    });
+};
+
+/**
+ * Gets a list of streams from a user's subscriptions
+ * @param userId {string}
+ */
+Class.getStreamsFromSubscriptions = function(userId) {
+  logger.debug('Getting streams from subscriptions for user %s', userId);
+
+  return Storage.getStreamsFromSubscriptions(userId)
     .then(function receiveResult(results) {
       if (results) {
         return results.map((singleStream) =>
@@ -124,7 +145,8 @@ Class.endStream = function(userId, streamId) {
       return new CustomError.NotAuthorisedError('Not authorised to end stream');
     }
 
-    return Storage.updateStream(streamId, {live: false})
+    return Storage.updateTotalViews(streamId)
+    .then(() => Storage.updateStream(streamId, {live: false}))
     .then((res) => {
       closeChatRoomForStream(stream.appInstance);
       return 'Success';
@@ -135,6 +157,19 @@ Class.endStream = function(userId, streamId) {
       return new CustomError.NotFoundError('Stream not found');
     }
   });
+};
+
+Class.deleteStream = function(streamId) {
+  logger.debug('Deleting stream: %s', streamId);
+
+  return Storage.deleteStream(streamId)
+    .then((res) => {
+      if (res === false) {
+        return new CustomError.NotFoundError('Stream not found');
+      }
+
+      return res;
+    });
 };
 
 Class.stopStream = function(appName, appInstance, streamId) {
@@ -173,7 +208,8 @@ Class.createChatRoomsForLiveStreams = function() {
  * @param streamAttributes {object}
  */
 function initializeChatRoomForStream(streamAttributes) {
-  let room = SocketAdapter.createNewRoom(streamAttributes.appInstance);
+  let room = SocketAdapter.createNewRoom(streamAttributes.appInstance,
+                                         streamAttributes.streamId);
   if (!room || room instanceof Error) {
     logger.error('Unable to create new chat room for stream %s',
                  streamAttributes.title);

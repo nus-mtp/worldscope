@@ -62,28 +62,46 @@ Class.getTotalNumberOfUsersViewedStream = function(streamId) {
 Class.createSubscription = function(subscribeFrom, subscribeTo) {
   logger.debug('Subscribing from user %s to user %s',
                 subscribeFrom, subscribeTo);
-
   return UserService.createSubscription(subscribeFrom, subscribeTo);
 };
 
 Class.getSubscriptions = function(userId) {
   logger.debug('Getting subscriptions for user %s', userId);
-
   return UserService.getSubscriptions(userId);
+};
+
+Class.getNumberOfSubscriptions = function(userId) {
+  logger.debug('Getting number of subscriptions for user %s', userId);
+
+  return UserService.getNumberOfSubscriptions(userId);
 };
 
 Class.getSubscribers = function(userId) {
   logger.debug('Getting subscribers for user %s', userId);
-
   return UserService.getSubscribers(userId);
+};
+
+Class.getNumberOfSubscribers = function(userId) {
+  logger.debug('Getting number of subscribers for user %s', userId);
+
+  return UserService.getNumberOfSubscribers(userId);
 };
 
 Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
   logger.debug('Deleting subscription');
-
   return UserService.deleteSubscription(subscribeFrom, subscribeTo);
 };
 
+Class.createComment = function(userId, streamId, comment) {
+  logger.debug('Comment from user %s to stream %s',
+                userId, streamId);
+  return UserService.createComment(userId, streamId, comment);
+};
+
+Class.getListOfCommentsForStream = function(streamId) {
+  logger.debug('Get list of comments for stream %s', streamId);
+  return UserService.getListOfCommentsForStream(streamId);
+};
 ///////////////////////
 
 /////// STREAM APIs ///////
@@ -102,6 +120,11 @@ Class.getListOfStreams = function(filters) {
   return StreamService.getListOfStreams(filters);
 };
 
+Class.getStreamsFromSubscriptions = function(userId) {
+  logger.debug('Getting list of streams for user: %s', userId);
+  return StreamService.getStreamsFromSubscriptions(userId);
+};
+
 Class.updateStream = function(streamId, attributes) {
   logger.debug('Updating stream %s with attributes: %j', streamId, attributes);
   return StreamService.updateStream(streamId, attributes);
@@ -115,6 +138,11 @@ Class.endStream = function(userId, streamId) {
 Class.stopStream = function(appName, appInstance, streamId) {
   logger.debug(`Stopping stream: ${appName}/${appInstance}/${streamId}`);
   return StreamService.stopStream(appName, appInstance, streamId);
+};
+
+Class.deleteStream = function(streamId) {
+  logger.debug('Deleting stream entry %s, streamId');
+  return StreamService.deleteStream(streamId);
 };
 
 /////// ADMIN APIs ///////

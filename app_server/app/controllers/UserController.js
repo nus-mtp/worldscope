@@ -35,6 +35,17 @@ Class.registerRoutes = function() {
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
                      handler: this.getUserById});
+  this.server.route({method: 'GET', path: '/me',
+                     config: {
+                       auth: {scope: Authenticator.SCOPE.USER}
+                     },
+                     handler: this.getSelf});
+
+  this.server.route({method: 'GET', path: '/all/statistics',
+                     config: {
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
+                     handler: this.getNumberOfUsers});
 
   this.server.route({method: 'PUT', path: '/{id}',
                      config: {
@@ -76,6 +87,11 @@ Class.getUserById = function(request, reply) {
   });
 };
 
+Class.getSelf = function(request, reply) {
+  request.params.id = request.auth.credentials.userId;
+  return this.getUserById(request, reply);
+};
+
 Class.getListOfUsers = function(request, reply) {
   var filters = {
     order: request.query.order
@@ -87,6 +103,18 @@ Class.getListOfUsers = function(request, reply) {
     }
 
     return reply(users.map(Utility.formatUserObject));
+  });
+};
+
+Class.getNumberOfUsers = function(request, reply) {
+
+  Service.getNumberOfUsers().then(function receiveResult(result) {
+    if (result instanceof Error) {
+      logger.error('Could not retrieve number of users');
+      return reply(Boom.badRequest(result.message));
+    }
+
+    return reply(result);
   });
 };
 

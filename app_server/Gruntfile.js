@@ -73,10 +73,6 @@ module.exports = function(grunt) {
           {
             src: './node_modules/materialize-css/dist/js/materialize.min.js',
             dest: './public/js/materialize.js'
-          },
-          {
-            src: './node_modules/shaka-player/shaka-player.compiled.js',
-            dest: './public/js/shaka.js'
           }
         ]
       }

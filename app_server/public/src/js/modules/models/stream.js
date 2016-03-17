@@ -7,10 +7,10 @@ const Stream = module.exports = function (data) {
   this.appInstance = m.prop(data.appInstance);
   this.link = m.prop(data.viewLink);
   this.thumbnail = m.prop(data.thumbnailLink);
-  this.room = m.prop(data.roomId);
+  this.room = m.prop(data.appInstance);
   this.title = m.prop(data.title);
   this.startDateTime = m.prop(new Date(data.createdAt));
-  this.endDateTime = m.prop(new Date(data.endedAt));
+  this.endDateTime = m.prop(data.endedAt ? new Date(data.endedAt) : null);
   this.viewers = m.prop(data.totalViewers);
   this.stickers = m.prop(data.totalStickers);
   this.live = m.prop(data.live);

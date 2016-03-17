@@ -3,6 +3,7 @@ var rfr = require('rfr');
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
 var Code = require('code');
+var Promise = require('bluebird');
 var util = require('util');
 var Hapi = require('hapi');
 
@@ -27,10 +28,54 @@ var bob = {
   description: 'bam bam bam'
 };
 
+var alice = {
+  username: 'Alice',
+  alias: 'Alice in the wonderland',
+  email: 'alice@apple.com',
+  password: 'generated',
+  accessToken: 'anaccesstoken',
+  platformType: 'facebook',
+  platformId: '45454545454',
+  description: 'nil'
+};
+
+var rootAdminPermissions = [
+  Authenticator.SCOPE.ADMIN.METRICS,
+  Authenticator.SCOPE.ADMIN.STREAMS,
+  Authenticator.SCOPE.ADMIN.USERS,
+  Authenticator.SCOPE.ADMIN.ADMINS,
+  Authenticator.SCOPE.ADMIN.SETTINGS,
+  Authenticator.SCOPE.ADMIN.DEFAULT
+];
+
+var adminAccount = {
+  userId: 1, username: 'alice', password: 'abc', scope: rootAdminPermissions
+};
+
+var admin = {
+  username: 'Admin Alice',
+  password: 'generated'
+};
+
 var streamPayload = {
   title: 'this is the title',
   description: 'this is the description of the stream'
 };
+
+var streamInfo = {
+  title: 'this is the title',
+  description: 'this is the description of the stream',
+  appInstance: 'generated',
+  totalViewers: 1,
+};
+
+var streamInfo2 = {
+  title: 'abc def is the title',
+  description: 'this is the description of the stream',
+  appInstance: 'generated2',
+  totalViewers: 2
+};
+
 
 lab.experiment('StreamController Tests', function() {
   lab.beforeEach({timeout: 10000}, function(done) {
@@ -54,6 +99,8 @@ lab.experiment('StreamController Tests', function() {
         Code.expect(res.result.streamer.username).to.equal(bob.username);
         Code.expect(roomsManager.__getRoom(res.result.appInstance))
         .to.not.be.null();
+        Code.expect(roomsManager.__getRoom(res.result.appInstance)
+                    .getStreamId()).to.equal(res.result.streamId);
 
         done();
       });
@@ -70,6 +117,8 @@ lab.experiment('StreamController Tests', function() {
       Code.expect(res.result.streamer.username).to.equal(bob.username);
       Code.expect(roomsManager.__getRoom(res.result.appInstance))
       .to.not.be.null();
+      Code.expect(roomsManager.__getRoom(res.result.appInstance).getStreamId())
+      .to.equal(res.result.streamId);
 
       Router.inject({method: 'POST', url: '/api/streams',
                     credentials: testAccount,
@@ -86,6 +135,8 @@ lab.experiment('StreamController Tests', function() {
       Code.expect(res.result.streamer.username).to.equal(bob.username);
       Code.expect(roomsManager.__getRoom(res.result.appInstance))
       .to.not.be.null();
+      Code.expect(roomsManager.__getRoom(res.result.appInstance).getStreamId())
+      .to.equal(res.result.streamId);
       done();
     }
 
@@ -147,12 +198,6 @@ lab.experiment('StreamController Tests', function() {
   });
 
   lab.test('Get stream by streamId valid', function(done) {
-    var streamInfo = {
-      title: 'this is the title',
-      description: 'this is the description of the stream',
-      appInstance: 'generated'
-    };
-
     Service.createNewUser(bob).then(function(user) {
       return user.userId;
     }).then(function(userId) {
@@ -205,19 +250,6 @@ lab.experiment('StreamController Tests', function() {
   });
 
   lab.test('Get list of streams valid sort by title asc', function(done) {
-
-    var streamInfo = {
-      title: 'this is the title',
-      description: 'this is the description of the stream',
-      appInstance: 'generated'
-    };
-
-    var streamInfo2 = {
-      title: 'abc def is the title',
-      description: 'this is the description of the stream',
-      appInstance: 'generated2'
-    };
-
     Service.createNewUser(bob).then(function(user) {
       testAccount.userId = user.userId;
       return user.userId;
@@ -239,19 +271,6 @@ lab.experiment('StreamController Tests', function() {
   });
 
   lab.test('Get list of streams valid sort by title desc', function(done) {
-
-    var streamInfo = {
-      title: 'this is the title',
-      description: 'this is the description of the stream',
-      appInstance: 'generated'
-    };
-
-    var streamInfo2 = {
-      title: 'abc def is the title',
-      description: 'this is the description of the stream',
-      appInstance: 'generated2'
-    };
-
     Service.createNewUser(bob).then(function(user) {
       testAccount.userId = user.userId;
       return user.userId;
@@ -272,6 +291,56 @@ lab.experiment('StreamController Tests', function() {
     });
   });
 
+  lab.test('Get list of streams valid sort by viewers desc', function(done) {
+
+    function injectionHandler(res) {
+      Router.inject({method: 'GET', url: '/api/streams?sort=viewers&order=desc',
+                    credentials: testAccount}, function(res) {
+        Code.expect(res.result).to.have.length(2);
+        Code.expect(res.result[0].title).to.equal(streamInfo2.title);
+        Code.expect(res.result[0].streamer.username).to.equal(bob.username);
+        Code.expect(res.result[1].title).to.equal(streamInfo.title);
+        Code.expect(res.result[1].streamer.username).to.equal(bob.username);
+        done();
+      });
+    }
+
+    Service.createNewUser(bob).then(function(user) {
+      testAccount.userId = user.userId;
+      return user.userId;
+    }).then(function(userId) {
+      return Service.createNewStream(userId, streamInfo);
+    }).then(function(stream) {
+      return Service.createNewStream(stream.owner, streamInfo2);
+    }).then(injectionHandler);
+
+  });
+
+  lab.test('Get list of streams valid sort by viewers asc', function(done) {
+
+    function injectionHandler(res) {
+      Router.inject({method: 'GET', url: '/api/streams?sort=viewers&order=asc',
+                    credentials: testAccount}, function(res) {
+        Code.expect(res.result).to.have.length(2);
+        Code.expect(res.result[0].title).to.equal(streamInfo.title);
+        Code.expect(res.result[0].streamer.username).to.equal(bob.username);
+        Code.expect(res.result[1].title).to.equal(streamInfo2.title);
+        Code.expect(res.result[1].streamer.username).to.equal(bob.username);
+        done();
+      });
+    }
+
+    Service.createNewUser(bob).then(function(user) {
+      testAccount.userId = user.userId;
+      return user.userId;
+    }).then(function(userId) {
+      return Service.createNewStream(userId, streamInfo);
+    }).then(function(stream) {
+      return Service.createNewStream(stream.owner, streamInfo2);
+    }).then(injectionHandler);
+
+  });
+
   lab.test('Get list of streams invalid query params', function(done) {
     Router.inject({method: 'GET', url: '/api/streams?order=lol',
                    credentials: testAccount}, function(res) {
@@ -282,16 +351,8 @@ lab.experiment('StreamController Tests', function() {
   });
 
   lab.test('End stream valid', function(done) {
-
-    var streamInfo = {
-      title: 'this is the title',
-      description: 'this is the description of the stream',
-      appInstance: 'generated'
-    };
-
     Service.createNewUser(bob).then(function(user) {
       testAccount.userId = user.userId;
-
       return user.userId;
     }).then(function(userId) {
       return Service.createNewStream(userId, streamInfo);
@@ -319,12 +380,6 @@ lab.experiment('StreamController Tests', function() {
   });
 
   lab.test('End stream invalid not stream owner', function(done) {
-    var streamInfo = {
-      title: 'this is the title',
-      description: 'this is the description of the stream',
-      appInstance: 'generated'
-    };
-
     Service.createNewUser(bob).then(function(user) {
       return user.userId;
     }).then(function(userId) {
@@ -340,8 +395,131 @@ lab.experiment('StreamController Tests', function() {
         done();
       });
     });
-
   });
+
+  lab.test('Delete stream valid', function(done) {
+    Service.createNewAdmin(admin).then(function(user) {
+      adminAccount.userId = user.userId;
+      return user;
+    }).then(function(user) {
+      return Service.createNewStream(user.userId, streamInfo);
+    }).then(function(stream) {
+      Router.inject({method: 'DELETE',
+                     url: '/api/streams/' + stream.streamId,
+                     credentials: adminAccount}, function(res) {
+        Code.expect(res.result.status).to.equal('OK');
+        done();
+      });
+    });
+  });
+
+  lab.test('Delete stream invalid forbidden not admin', function(done) {
+    Service.createNewUser(bob).then(function(user) {
+      testAccount.userId = user.userId;
+      return user.userId;
+    }).then(function(userId) {
+      return Service.createNewStream(userId, streamInfo);
+    }).then(function(stream) {
+      Router.inject({method: 'DELETE',
+                     url: '/api/streams/' + stream.streamId,
+                     credentials: testAccount}, function(res) {
+        Code.expect(res.result.statusCode).to.equal(403);
+        done();
+      });
+    });
+  });
+
+  lab.test('Delete stream non-existing stream', function(done) {
+    Service.createNewAdmin(admin).then(function(user) {
+      adminAccount.userId = user.userId;
+      return user;
+    }).then(function(user) {
+      return Service.createNewStream(user.userId, streamInfo);
+    }).then(function(stream) {
+      Router.inject({method: 'DELETE',
+                     url: '/api/streams/3388ffff-aa00-1111a222-00000044888c',
+                     credentials: adminAccount}, function(res) {
+        Code.expect(res.result.statusCode).to.equal(400);
+        done();
+      });
+    });
+  });
+
+  lab.test('Get streams from subscriptions valid', function(done) {
+    var userPromise1 = Service.createNewUser(bob);
+    var userPromise2 = Service.createNewUser(alice);
+
+    function queryStreams() {
+      Router.inject({method: 'GET',
+                     url: '/api/streams/subscriptions',
+                     credentials: testAccount}, function(res) {
+        Code.expect(res.result).to.have.length(2);
+        Code.expect(res.result[0].description)
+          .to.equal(streamInfo.description);
+        Code.expect(res.result[1].description)
+          .to.equal(streamInfo2.description);
+        done();
+      });
+    }
+
+    Promise.join(userPromise1, userPromise2,
+      function(bob, alice) {
+        testAccount.userId = bob.userId;
+        return Service.createSubscription(bob.userId, alice.userId)
+        .then((subscription) => {
+          return Service.createNewStream(alice.userId, streamInfo);
+        }).then((stream) => {
+          return Service.createNewStream(alice.userId, streamInfo2);
+        }).then((stream) => queryStreams());
+      });
+  });
+
+  lab.test('Get streams from subscriptions valid no streams from subscriptions',
+    function(done) {
+      var userPromise1 = Service.createNewUser(bob);
+      var userPromise2 = Service.createNewUser(alice);
+
+      function queryStreams() {
+        Router.inject({method: 'GET',
+                       url: '/api/streams/subscriptions',
+                       credentials: testAccount}, function(res) {
+          Code.expect(res.result).to.deep.equal([]);
+          done();
+        });
+      }
+
+      Promise.join(userPromise1, userPromise2,
+        function(bob, alice) {
+          testAccount.userId = bob.userId;
+          return Service.createSubscription(bob.userId, alice.userId)
+            .then((subscription) => queryStreams());
+        });
+    });
+
+  lab.test('Get streams from subscriptions valid no subscriptions',
+    function(done) {
+      var userPromise1 = Service.createNewUser(bob);
+      var userPromise2 = Service.createNewUser(alice);
+
+      function queryStreams() {
+        Router.inject({method: 'GET',
+                       url: '/api/streams/subscriptions',
+                       credentials: testAccount}, function(res) {
+          Code.expect(res.result).to.deep.equal([]);
+          done();
+        });
+      }
+
+      Promise.join(userPromise1, userPromise2,
+        function(bob, alice) {
+          testAccount.userId = bob.userId;
+          return Service.createNewStream(alice.userId, streamInfo)
+          .then((stream) => {
+            return Service.createNewStream(alice.userId, streamInfo2);
+          }).then((stream) => queryStreams());
+        });
+    });
+
 });
 
 lab.experiment('StreamController Control Tests', () => {

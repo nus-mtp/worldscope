@@ -11,43 +11,54 @@ var logger = Utility.createLogger(__filename);
 var Storage = rfr('app/models/Storage.js');
 var TestUtils = rfr('test/TestUtils');
 
+var streamDetails = {
+  title: 'I am going to dance',
+  appInstance: 'appInstance',
+  roomId: '123',
+  totalViewers: 2
+};
+
+// a more recent stream
+var streamDetails2 = {
+  title: 'zzz hello, look at me! More recent!',
+  appInstance: 'another appInstance',
+  roomId: '546',
+  totalViewers: 7,
+  createdAt: new Date('2016-12-12')
+};
+
+// ended and oldest stream
+var streamDetails3 = {
+  title: 'this is an ended stream',
+  appInstance: 'third appInstance',
+  roomId: '555',
+  live: false,
+  createdAt: new Date('2014-12-12'),
+  endedAt: new Date('2014-12-25')
+};
+
+// live and older stream
+var streamDetails4 = {
+  title: 'this is a very long stream',
+  appInstance: 'another instance',
+  roomId: '46',
+  totalViewers: 9,
+  createdAt: new Date('2016-01-01')
+};
+
+var userDetails = {
+  username: 'Alex Chan',
+  email: 'alex@gmail.com',
+  password: 'secretpass',
+};
+
+var userDetails2 = {
+  username: 'Betty Pro',
+  email: 'betty@gmail.com',
+  password: 'secretpass',
+};
+
 lab.experiment('Stream Model Tests', function() {
-
-  var streamDetails = {
-    title: 'I am going to dance',
-    appInstance: 'appInstance',
-    roomId: '123',
-  };
-
-  // a more recent stream
-  var streamDetails2 = {
-    title: 'zzz hello, look at me! More recent!',
-    appInstance: 'another appInstance',
-    roomId: '546',
-    createdAt: new Date('2016-12-12')
-  };
-
-  // ended and oldest stream
-  var streamDetails3 = {
-    title: 'this is an ended stream',
-    appInstance: 'third appInstance',
-    roomId: '555',
-    live: false,
-    createdAt: new Date('2014-12-12'),
-    endedAt: new Date('2014-12-25')
-  };
-
-  var userDetails = {
-    username: 'Alex Chan',
-    email: 'alex@gmail.com',
-    password: 'secretpass',
-  };
-
-  var userDetails2 = {
-    username: 'Betty Pro',
-    email: 'betty@gmail.com',
-    password: 'secretpass',
-  };
 
   lab.beforeEach({timeout: 10000}, function(done) {
     // Delete database, run before every single test
@@ -274,6 +285,76 @@ lab.experiment('Stream Model Tests', function() {
       });
   });
 
+  lab.test('Get list of live streams sorted by viewers asc', function(done) {
+    var filters = {
+      state: 'live',
+      sort: 'viewers',
+      order: 'asc'
+    };
+
+    var userPromise = Storage.createUser(userDetails);
+    var userPromise2 = Storage.createUser(userDetails2);
+
+    var streamPromise = userPromise.then(function(user) {
+      return Storage.createStream(user.userId, streamDetails4)
+        .then(function(stream) {
+          return Storage.createStream(user.userId, streamDetails2);
+        });
+    });
+
+    var streamPromise2 = userPromise2.then(function(user2) {
+      return Storage.createStream(user2.userId, streamDetails);
+    });
+
+    Promise.join(streamPromise, streamPromise2,
+      function() {
+        Storage.getListOfStreams(filters).then(function(res) {
+          expect(res[0].title).to.equal(streamDetails.title);
+          expect(res[0].streamer.username).to.equal(userDetails2.username);
+          expect(res[1].title).to.equal(streamDetails2.title);
+          expect(res[1].streamer.username).to.equal(userDetails.username);
+          expect(res[2].title).to.equal(streamDetails4.title);
+          expect(res[2].streamer.username).to.equal(userDetails.username);
+          done();
+        });
+      });
+  });
+
+  lab.test('Get list of live streams sorted by viewers desc', function(done) {
+    var filters = {
+      state: 'live',
+      sort: 'viewers',
+      order: 'desc'
+    };
+
+    var userPromise = Storage.createUser(userDetails);
+    var userPromise2 = Storage.createUser(userDetails2);
+
+    var streamPromise = userPromise.then(function(user) {
+      return Storage.createStream(user.userId, streamDetails4)
+        .then(function(stream) {
+          return Storage.createStream(user.userId, streamDetails2);
+        });
+    });
+
+    var streamPromise2 = userPromise2.then(function(user2) {
+      return Storage.createStream(user2.userId, streamDetails);
+    });
+
+    Promise.join(streamPromise, streamPromise2,
+      function() {
+        Storage.getListOfStreams(filters).then(function(res) {
+          expect(res[0].title).to.equal(streamDetails4.title);
+          expect(res[0].streamer.username).to.equal(userDetails.username);
+          expect(res[1].title).to.equal(streamDetails2.title);
+          expect(res[1].streamer.username).to.equal(userDetails.username);
+          expect(res[2].title).to.equal(streamDetails.title);
+          expect(res[2].streamer.username).to.equal(userDetails2.username);
+          done();
+        });
+      });
+  });
+
   lab.test('Get list of done streams', function(done) {
     var filters = {
       state: 'done',
@@ -415,6 +496,98 @@ lab.experiment('Stream Model Tests', function() {
         expect(err).to.be.an.instanceof(Error);
         done();
       });
+  });
+
+  lab.test('Delete stream valid', function(done) {
+
+    Storage.createUser(userDetails).then(function(user) {
+      return user.userId;
+    }).then(function(userId) {
+      return Storage.createStream(userId, streamDetails);
+    }).then(function(stream) {
+      return Storage.deleteStream(stream.streamId);
+    }).then(function(res) {
+      expect(res).to.be.true();
+      done();
+    });
+  });
+
+  lab.test('Delete stream invalid non-existing stream', function(done) {
+
+    Storage.createUser(userDetails).then(function(user) {
+      return user.userId;
+    }).then(function(userId) {
+      return Storage.createStream(userId, streamDetails);
+    }).then(function(stream) {
+      return Storage.deleteStream('3388ffff-aa00-1111a222-00000044888c');
+    }).then(function(res) {
+      expect(res).to.be.false();
+      done();
+    });
+  });
+
+});
+
+lab.experiment('Stream Tests: streams from subscriptions', function() {
+
+  lab.before({timeout: 10000}, function(done) {
+    TestUtils.resetDatabase(done);
+  });
+
+  lab.test('Get Streams from subscriptions valid', function(done) {
+    // create users
+    var userPromise = Storage.models.User.bulkCreate([
+      userDetails, userDetails2,
+      {username: 'Carlos popz', password: 'asdf', email: 'carlos@gmail.com'},
+      {username: 'Delen popz', password: 'asdf', email: 'delen@gmail.com'}
+    ]).then(() => Storage.getListOfUsers({order: 'asc'}));
+
+    // set up subscriptions
+    var subscriptionPromise = userPromise.then((users) => {
+      return Storage.createSubscription(users[0].userId, users[1].userId)
+      .then(() =>
+        Storage.createSubscription(users[1].userId, users[2].userId))
+      .then(() =>
+        Storage.createSubscription(users[0].userId, users[2].userId))
+      .then(() =>
+        Storage.createSubscription(users[0].userId, users[3].userId));
+    });
+
+    // set up streams
+    var streamPromise1 = userPromise.then((users) =>
+      Storage.createStream(users[1].userId, streamDetails));
+
+    var streamPromise2 = userPromise.then((users) =>
+      Storage.createStream(users[1].userId, streamDetails3)); //ended
+
+    var streamPromise3 = userPromise.then((users) =>
+      Storage.createStream(users[2].userId, streamDetails4)); //oldest
+
+    var streamPromise4 = userPromise.then((users) =>
+      Storage.createStream(users[3].userId, streamDetails2)); //most recent
+
+    Promise.join(subscriptionPromise, streamPromise1, streamPromise2,
+                 streamPromise3, streamPromise4,
+      function(subscription, stream1, stream2, stream3, stream4) {
+        var userId = subscription.subscriber; // first user
+        Storage.getStreamsFromSubscriptions(userId).then(function(res) {
+          expect(res[0].title).to.be.equal(streamDetails2.title);
+          expect(res[1].title).to.be.equal(streamDetails.title);
+          expect(res[2].title).to.be.equal(streamDetails4.title);
+          done();
+        });
+      });
+  });
+
+  lab.test('Get Streams from subscriptions valid', function(done) {
+    Storage.getUserByUsername(userDetails2.username).then((user) => {
+      return Storage.getStreamsFromSubscriptions(user.userId)
+        .then(function(res) {
+          expect(res).to.have.length(1);
+          expect(res[0].title).to.be.equal(streamDetails4.title);
+          done();
+        });
+    });
   });
 
 });

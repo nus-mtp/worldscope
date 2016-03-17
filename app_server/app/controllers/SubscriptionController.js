@@ -36,11 +36,30 @@ Class.registerRoutes = function() {
                      },
                      handler: this.getSubscriptions});
 
-  this.server.route({method: 'GET', path: '/subscribers/{id}',
+  this.server.route({method: 'GET', path: '/statistics',
                      config: {
                        auth: {scope: Authenticator.SCOPE.ALL}
                      },
+                     handler: this.getNumberOfSubscriptions});
+
+  this.server.route({method: 'GET', path: '/subscribers/{id}',
+                     config: {
+                       validate: singleSubscriptionValidator,
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
                      handler: this.getSubscribers});
+  this.server.route({method: 'GET', path: '/subscribers/me',
+                     config: {
+                       auth: {scope: Authenticator.SCOPE.USER}
+                     },
+                     handler: this.getSubscribersToSelf});
+
+  this.server.route({method: 'GET', path: '/subscribers/{id}/statistics',
+                     config: {
+                       validate: singleSubscriptionValidator,
+                       auth: {scope: Authenticator.SCOPE.ALL}
+                     },
+                     handler: this.getNumberOfSubscribers});
 
   this.server.route({method: 'DELETE', path: '/{id}',
                      config: {
@@ -91,6 +110,22 @@ Class.getSubscriptions = function(request, reply) {
     });
 };
 
+Class.getNumberOfSubscriptions = function(request, reply) {
+  logger.debug('Get list of subscriptions');
+
+  var userId = request.auth.credentials.userId;
+
+  Service.getNumberOfSubscriptions(userId)
+    .then(function receiveResult(result) {
+      if (result instanceof Error) {
+        logger.error('Could not retrieve number of subscriptions');
+        return reply(Boom.badRequest(result.message));
+      }
+
+      return reply(result);
+    });
+};
+
 Class.getSubscribers = function(request, reply) {
   logger.debug('Get list of subscribers');
 
@@ -99,7 +134,29 @@ Class.getSubscribers = function(request, reply) {
   Service.getSubscribers(userId)
     .then(function receiveResult(result) {
       if (result instanceof Error) {
-        logger.error('Could not retrieve list of subscribers');
+        logger.error('Could not retrieve number of subscribers');
+        return reply(Boom.badRequest(result.message));
+      }
+
+      return reply(result);
+    });
+};
+
+Class.getSubscribersToSelf = function(request, reply) {
+  logger.debug('Get list of subscribers to self');
+  request.params.id = request.auth.credentials.userId;
+  return this.getSubscribers(request, reply);
+};
+
+Class.getNumberOfSubscribers = function(request, reply) {
+  logger.debug('Get number of subscribers');
+
+  var userId = request.params.id;
+
+  Service.getNumberOfSubscribers(userId)
+    .then(function receiveResult(result) {
+      if (result instanceof Error) {
+        logger.error('Could not retrieve list of subscriptions');
         return reply(Boom.badRequest(result.message));
       }
 

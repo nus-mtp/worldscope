@@ -72,7 +72,7 @@ lab.experiment('ViewController Tests', function() {
                      credentials: testAccount}, function(res) {
 
         Code.expect(res.result.statusCode).to.equal(400);
-        Code.expect(res.result.message).to.equal('Stream not found');
+        Code.expect(res.result.message).to.equal('Stream cannot be found');
         done();
       });
     });
@@ -88,7 +88,7 @@ lab.experiment('ViewController Tests', function() {
                      credentials: testAccount}, function(res) {
 
         Code.expect(res.result.statusCode).to.equal(400);
-        Code.expect(res.result.message).to.equal('User not found');
+        Code.expect(res.result.message).to.equal('User cannot be found');
         done();
       });
     });

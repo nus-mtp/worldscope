@@ -1,3 +1,4 @@
+'use strict';
 var rfr = require('rfr');
 var Lab = require('lab');
 var lab = exports.lab = Lab.script();
@@ -176,6 +177,78 @@ lab.experiment('SubscriptionController Tests', function() {
     });
   });
 
+  lab.test('Get number of subscriptions valid', function(done) {
+    var userPromise1 = Service.createNewUser(bob);
+    var userPromise2 = Service.createNewUser(alice);
+    var userPromise3 = Service.createNewUser(carlos);
+
+    // Second Subscription
+    function subscribePromise(user3) {
+      Router.inject({method: 'POST',
+                     url: '/api/subscriptions/' + user3.userId,
+                     credentials: testAccount}, (res) => {
+        querySubscriptions();
+      });
+    }
+
+    function querySubscriptions() {
+      Router.inject({method: 'GET',
+                     url: '/api/subscriptions/statistics',
+                     credentials: testAccount}, function(res) {
+        Code.expect(res.result).to.be.equal(2);
+        done();
+      });
+    }
+
+    // First subscription
+    Promise.join(userPromise1, userPromise2, userPromise3,
+      function(user1, user2, user3) {
+        testAccount.userId = user1.userId;
+        Router.inject({method: 'POST',
+                        url: '/api/subscriptions/' + user2.userId,
+                        credentials: testAccount}, (res) => {
+          subscribePromise(user3);
+        });
+      });
+  });
+
+  lab.test('Get number of subscriptions valid zero', function(done) {
+    var userPromise1 = Service.createNewUser(bob);
+
+    function querySubscriptions() {
+      Router.inject({method: 'GET',
+                     url: '/api/subscriptions/statistics',
+                     credentials: testAccount}, function(res) {
+        Code.expect(res.result).to.be.equal(0);
+        done();
+      });
+    }
+
+    userPromise1.then((user) => {
+      testAccount.userId = user.userId;
+      querySubscriptions();
+    });
+
+  });
+
+  lab.test('Get number of subscriptions unauthorized', function(done) {
+    var userPromise1 = Service.createNewUser(bob);
+
+    function querySubscriptions() {
+      Router.inject({method: 'GET',
+                     url: '/api/subscriptions/statistics'}, function(res) {
+        Code.expect(res.result.statusCode).to.be.equal(401);
+        done();
+      });
+    }
+
+    userPromise1.then((user) => {
+      testAccount.userId = user.userId;
+      querySubscriptions();
+    });
+
+  });
+
   lab.test('Get subscribers valid', function(done) {
     var userPromise1 = Service.createNewUser(bob);
     var userPromise2 = Service.createNewUser(alice);
@@ -212,6 +285,47 @@ lab.experiment('SubscriptionController Tests', function() {
           subscribePromise(user2, user3);
         });
       });
+  });
+
+  lab.test('Get self subscribers valid', function(done) {
+    var userPromise1 = Service.createNewUser(bob);
+    var userPromise2 = Service.createNewUser(alice);
+    var userPromise3 = Service.createNewUser(carlos);
+
+    // First subscription
+    Promise.join(userPromise1, userPromise2, userPromise3,
+      (user1, user2, user3) => {
+        testAccount.userId = user1.userId;
+        Router.inject({method: 'POST',
+                        url: '/api/subscriptions/' + user2.userId,
+                        credentials: testAccount}, (res) => {
+          subscribePromise(user2, user3);
+        });
+      });
+
+    // Second subscription
+    function subscribePromise(user2, user3) {
+      testAccount.userId = user3.userId;
+      Router.inject({method: 'POST',
+                     url: '/api/subscriptions/' + user2.userId,
+                     credentials: testAccount}, (res) => {
+        querySubscribers(user2);
+      });
+    }
+
+    function querySubscribers(user2) {
+      let credentials = TestUtils.copyObj(user2,
+                                          ['userId', 'username', 'password']);
+      credentials.scope = Authenticator.SCOPE.USER;
+      Router.inject({method: 'GET',
+                     url: '/api/subscriptions/subscribers/me',
+                     credentials: credentials}, (res) => {
+        Code.expect(res.result).to.have.length(2);
+        Code.expect(res.result[0].username).to.equal(bob.username);
+        Code.expect(res.result[1].username).to.equal(carlos.username);
+        done();
+      });
+    }
   });
 
   lab.test('Get subscribers valid empty', function(done) {
@@ -262,6 +376,81 @@ lab.experiment('SubscriptionController Tests', function() {
           deleteSubscription(user2);
         });
       });
+  });
+
+  lab.test('Get number of subscribers valid', function(done) {
+    var userPromise1 = Service.createNewUser(bob);
+    var userPromise2 = Service.createNewUser(alice);
+    var userPromise3 = Service.createNewUser(carlos);
+
+    // Second Subscription
+    function subscribePromise(user3) {
+      Router.inject({method: 'POST',
+                     url: '/api/subscriptions/' + user3.userId,
+                     credentials: testAccount}, (res) => {
+        querySubscribers(user3);
+      });
+    }
+
+    function querySubscribers(user3) {
+      Router.inject({method: 'GET',
+                     url: '/api/subscriptions/subscribers/' +
+                           user3.userId + '/statistics',
+                     credentials: testAccount}, function(res) {
+        Code.expect(res.result).to.be.equal(1);
+        done();
+      });
+    }
+
+    // First subscription
+    Promise.join(userPromise1, userPromise2, userPromise3,
+      function(user1, user2, user3) {
+        testAccount.userId = user1.userId;
+        Router.inject({method: 'POST',
+                        url: '/api/subscriptions/' + user2.userId,
+                        credentials: testAccount}, (res) => {
+          subscribePromise(user3);
+        });
+      });
+  });
+
+  lab.test('Get number of subscribers valid zero', function(done) {
+    var userPromise1 = Service.createNewUser(bob);
+
+    function querySubscribers(user) {
+      Router.inject({method: 'GET',
+                     url: '/api/subscriptions/subscribers/' +
+                     user.userId + '/statistics',
+                     credentials: testAccount}, function(res) {
+        Code.expect(res.result).to.be.equal(0);
+        done();
+      });
+    }
+
+    userPromise1.then((user) => {
+      testAccount.userId = user.userId;
+      querySubscribers(user);
+    });
+
+  });
+
+  lab.test('Get number of subscribers unauthorized', function(done) {
+    var userPromise1 = Service.createNewUser(bob);
+
+    function querySubscribers(user) {
+      Router.inject({method: 'GET',
+                     url: '/api/subscriptions/subscribers/' +
+                     user.userId + '/statistics'}, function(res) {
+        Code.expect(res.result.statusCode).to.be.equal(401);
+        done();
+      });
+    }
+
+    userPromise1.then((user) => {
+      testAccount.userId = user.userId;
+      querySubscribers(user);
+    });
+
   });
 
   lab.test('Delete subscription non-existent subscription', function(done) {
