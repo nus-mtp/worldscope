@@ -286,6 +286,10 @@ Class.createChatRoomsForLiveStreams = function() {
   });
 };
 
+Class.getLiveStreamsStats = function() {
+  let rooms = SocketAdapter.getRooms();
+};
+
 /**
  * Creates a new chat room for a new stream and add the streamer to that room
  * @param userId {string}

@@ -7,6 +7,7 @@ var rfr = require('rfr');
 var querystring = require('querystring');
 var Promise = require('bluebird');
 var Wreck = require('wreck');
+var Xml2Json = Promise.promisifyAll(require('xml2js'));
 
 var Utility = rfr('app/util/Utility');
 
@@ -51,6 +52,21 @@ Class.__makePOST = function(path, data) {
   });
 };
 
+Class.__makeGET = function(path) {
+  let url = `http://${this.host}${path}`;
+
+  logger.info(`Requesting: ${url}`);
+  return this.wreck.getAsync(url)
+  .spread((res, payload) => {
+    let response = payload.toString('utf8');
+    logger.debug('Response from media server: ', response);
+    return response;
+  }).catch((err) => {
+    logger.error('Unable to request media server at %s: ', url, err);
+    return err;
+  });
+};
+
 Class.stopStream = function(appName, appInstance, streamName) {
   let data = {
     stop: 1,
@@ -71,5 +87,20 @@ Class.stopStream = function(appName, appInstance, streamName) {
     }
   });
 };
+
+Class.getConnectionCounts = function(appName) {
+  return this.__makeGET('/connectioncounts')
+  .then((response) => {
+    if (!response || response instanceof Error) {
+      return new Error('Failed to request media server ' + response);
+    }
+
+    return Xml2Json.parseStringAsync(response, {
+      valueProcessors: [Xml2Json.processors.parseNumbers],
+      trim: true,
+      explicitArray: false
+    });
+  });
+}; 
 
 module.exports = MediaServerAdapter;

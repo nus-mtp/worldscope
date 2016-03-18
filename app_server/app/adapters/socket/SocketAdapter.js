@@ -100,6 +100,10 @@ Class.closeRoom = function(roomName) {
   this.roomsManager.removeRoom(roomName);
 };
 
+Class.getRooms = function() {
+  return this.roomsManager.getRooms();
+};
+
 /**
  * @param socket {Socket}
  * @param credentials {Object}
