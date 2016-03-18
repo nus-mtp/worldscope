@@ -565,7 +565,8 @@ lab.experiment('UserService Tests for Subscriptions', function () {
       function(user1, user2) {
         Service.deleteSubscription(user1.userId, user2.userId)
           .then(function(res) {
-            expect(res).to.be.false();
+            expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+            expect(res.message).to.equal('Subscription not found');
             done();
           });
       });

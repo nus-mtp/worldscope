@@ -720,9 +720,7 @@ Class.getSubscribers = function(userId) {
       return err;
     }
 
-    return user.getSubscribers({order: [['username', 'ASC']]}).then(res => {
-      return res;
-    });
+    return user.getSubscribers({order: [['username', 'ASC']]});
   });
 };
 

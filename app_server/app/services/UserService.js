@@ -241,13 +241,16 @@ Class.getNumberOfSubscribers = function(userId) {
 /**
  * @param  {string} subscribeFrom - userId of one who is subscribing
  * @param  {string} subscribeTo - userId of the one being subscribed to
- * @return {Promise<Boolean>}
+ * @return {Promise<True> | Error}
  */
 Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
   logger.debug('Delete subscriptions');
 
   return Storage.deleteSubscription(subscribeFrom, subscribeTo)
     .then(function receiveResult(result) {
+      if (!result) {
+        return new CustomError.NotFoundError('Subscription');
+      }
       return result;
     });
 };

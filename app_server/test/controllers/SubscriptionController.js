@@ -416,6 +416,11 @@ lab.experiment('SubscriptionController Tests', function() {
   lab.test('Get number of subscribers valid zero', function(done) {
     var userPromise1 = Service.createNewUser(bob);
 
+    userPromise1.then((user) => {
+      testAccount.userId = user.userId;
+      querySubscribers(user);
+    });
+
     function querySubscribers(user) {
       Router.inject({method: 'GET',
                      url: '/api/subscriptions/subscribers/' +
@@ -425,11 +430,6 @@ lab.experiment('SubscriptionController Tests', function() {
         done();
       });
     }
-
-    userPromise1.then((user) => {
-      testAccount.userId = user.userId;
-      querySubscribers(user);
-    });
 
   });
 
@@ -455,22 +455,23 @@ lab.experiment('SubscriptionController Tests', function() {
     var userPromise1 = Service.createNewUser(bob);
     var userPromise2 = Service.createNewUser(alice);
 
-    function deleteSubscription(user2) {
-      Router.inject({method: 'DELETE',
-                     url: '/api/subscriptions/' + user2.userId,
-                     credentials: testAccount}, function(res) {
-
-        Code.expect(res.result.status).to.equal('Unsuccessful');
-        done();
-      });
-    }
-
     Promise.join(userPromise1, userPromise2,
       function(user1, user2) {
         testAccount.userId = user1.userId;
         deleteSubscription(user2);
 
       });
+
+    function deleteSubscription(user2) {
+      Router.inject({method: 'DELETE',
+                     url: '/api/subscriptions/' + user2.userId,
+                     credentials: testAccount}, function(res) {
+        Code.expect(res.result.statusCode).to.equal(400);
+        Code.expect(res.result.message).to.equal('Subscription not found');
+        done();
+      });
+    }
+
   });
 
   lab.test('Delete subscription invalid user', function(done) {
@@ -481,7 +482,8 @@ lab.experiment('SubscriptionController Tests', function() {
                      url: '/api/subscriptions/' + TestUtils.invalidId,
                      credentials: testAccount}, function(res) {
 
-        Code.expect(res.result.status).to.equal('Unsuccessful');
+        Code.expect(res.result.statusCode).to.equal(400);
+        Code.expect(res.result.message).to.equal('User not found');
         done();
       });
     });
@@ -490,6 +492,16 @@ lab.experiment('SubscriptionController Tests', function() {
   lab.test('Delete subscriber valid', function(done) {
     var userPromise1 = Service.createNewUser(bob);
     var userPromise2 = Service.createNewUser(alice);
+
+    Promise.join(userPromise1, userPromise2,
+      function(user1, user2) {
+        testAccount.userId = user1.userId;
+        Router.inject({method: 'POST',
+                        url: '/api/subscriptions/' + user2.userId,
+                        credentials: testAccount}, (res) => {
+          deleteSubscription(user1, user2);
+        });
+      });
 
     function deleteSubscription(user1, user2) {
       testAccount.userId = user2.userId;
@@ -501,16 +513,6 @@ lab.experiment('SubscriptionController Tests', function() {
         done();
       });
     }
-
-    Promise.join(userPromise1, userPromise2,
-      function(user1, user2) {
-        testAccount.userId = user1.userId;
-        Router.inject({method: 'POST',
-                        url: '/api/subscriptions/' + user2.userId,
-                        credentials: testAccount}, (res) => {
-          deleteSubscription(user1, user2);
-        });
-      });
   });
 
   lab.test('Delete subscriber non-existent subscription', function(done) {
@@ -529,7 +531,8 @@ lab.experiment('SubscriptionController Tests', function() {
                      url: '/api/subscriptions/subscribers/' + user2.userId,
                      credentials: testAccount}, function(res) {
 
-        Code.expect(res.result.status).to.equal('Unsuccessful');
+        Code.expect(res.result.statusCode).to.equal(400)
+        Code.expect(res.result.message).to.equal('Subscription not found');
         done();
       });
     }
@@ -544,34 +547,11 @@ lab.experiment('SubscriptionController Tests', function() {
                      TestUtils.invalidId,
                      credentials: testAccount}, function(res) {
 
-        Code.expect(res.result.status).to.equal('Unsuccessful');
+        Code.expect(res.result.statusCode).to.equal(400)
+        Code.expect(res.result.message).to.equal('User not found');
         done();
       });
     });
   });
 
-  lab.test('Delete subscriber invalid authorised', function(done) {
-    var userPromise1 = Service.createNewUser(bob);
-    var userPromise2 = Service.createNewUser(alice);
-
-    Promise.join(userPromise1, userPromise2,
-      function(user1, user2) {
-        testAccount.userId = user1.userId;
-        Router.inject({method: 'POST',
-                        url: '/api/subscriptions/' + user2.userId,
-                        credentials: testAccount}, (res) => {
-          deleteSubscription(user1, user2);
-        });
-      });
-
-    function deleteSubscription(user1, user2) {
-      Router.inject({method: 'DELETE',
-                     url: '/api/subscriptions/subscribers/' + user1.userId,
-                     credentials: testAccount}, function(res) {
-
-        Code.expect(res.result.status).to.equal('Unsuccessful');
-        done();
-      });
-    }
-  });
 });
