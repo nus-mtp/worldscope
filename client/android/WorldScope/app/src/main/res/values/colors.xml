@@ -3,8 +3,8 @@
     <color name="black">#000000</color>
 
     <!-- Colors for theme -->
-    <color name="colorPrimary">#EB8A3A</color>
-    <color name="colorPrimaryDark">#A24D06</color>
+    <color name="colorPrimary">#ED4242</color>
+    <color name="colorPrimaryDark">#D42929</color>
     <color name="colorAccent">#238D8D</color>
 
     <color name="black_overlay">#66000000</color>

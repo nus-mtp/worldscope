@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import fragment.CommentFragment;
@@ -20,6 +21,7 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
     private static final String TAG = "StreamActivity";
     private String streamWhenReadyTag = "streamWhenReady";
     private String isRecordingTag = "isRecordingTag";
+    private String alias;
     private StreamVideoFragment.StreamVideoControls control;
     private StreamCreateFragment streamCreateFragment;
     private StreamVideoControlFragment streamVideoControlFragment;
@@ -37,6 +39,8 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
             savedInstanceState.getBoolean(streamWhenReadyTag);
             savedInstanceState.getBoolean(isRecordingTag);
         }
+
+        alias = getIntent().getStringExtra("alias");
 
         setContentView(R.layout.activity_stream);
         sfm = getSupportFragmentManager();
@@ -66,6 +70,14 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
         return gestureDetector.onTouchEvent(event);
     }
 
+    // Override to intercept all touch events, required as listView was consuming touch events
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        gestureDetector.onTouchEvent(event);
+        return super.dispatchTouchEvent(event);
+    }
+
+
     /**
      * Implementing StreamVideoFragment
      */
@@ -83,7 +95,7 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
      */
 
     @Override
-    public void onStreamCreationSuccess(String rtmpLink, String appInstance, String alias) {
+    public void onStreamCreationSuccess(String rtmpLink, String appInstance) {
         Log.d(TAG, rtmpLink);
 
         // Find streamVideoFragment and set the rtmp link from streamCreateFragment
@@ -109,6 +121,7 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
     @Override
     public void onCancelStreamButtonClicked() {
         control.destroyStreamer();
+
         redirectToMainActivity();
     }
 
@@ -151,7 +164,18 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
         startActivity(intent);
     }
 
-    // For CommentFragment TODO: Update
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)  {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0 && isRecording) {
+            streamCreateFragment.confirmStreamTermination();
+            return true;
+        }
+
+        return super.onKeyDown(keyCode, event);
+    }
+
+    // For CommentFragment
+    // TODO: Update
     @Override
     public void onFragmentInteraction() {
 
@@ -173,5 +197,4 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
             return true;
         }
     }
-
 }

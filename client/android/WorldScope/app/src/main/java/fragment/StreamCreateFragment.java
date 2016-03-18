@@ -39,6 +39,7 @@ public class StreamCreateFragment extends Fragment {
     private static final boolean DO_NOT_TERMINATE_STREAM = false;
 
     private Context context;
+    private WorldScopeCreatedStream createdStream;
     private OnStreamCreateFragmentListener listener;
     private EditText titleInput;
     private EditText descriptionInput;
@@ -160,7 +161,8 @@ public class StreamCreateFragment extends Fragment {
         }
 
         // Instantiate an instance of the call with the parameters
-        Call<WorldScopeCreatedStream> call = new WorldScopeRestAPI(context).buildWorldScopeAPIService()
+        Call<WorldScopeCreatedStream> call = new WorldScopeRestAPI(context)
+                .buildWorldScopeAPIService()
                 .postStream(new WorldScopeAPIService.PostStreamRequest(title, description));
         // Make call to create stream
         call.enqueue(new Callback<WorldScopeCreatedStream>() {
@@ -170,13 +172,47 @@ public class StreamCreateFragment extends Fragment {
                     Log.d(TAG, "Success!");
                     Log.d(TAG, "" + response.body().toString());
 
+                    // Save an instance of the createdStream
+                    createdStream = response.body();
+
                     listener.onStreamCreationSuccess(response.body().getStreamLink(),
-                            response.body().getAppInstance(),
-                            WorldScopeAPIService.getUser().getAlias());
+                            response.body().getAppInstance());
 
                     hideStreamCreateView();
                     Toast toast = Toast.makeText(context, STREAM_STARTED_MESSAGE, Toast.LENGTH_LONG);
                     toast.show();
+                } else {
+                    Log.d(TAG, "Failure" + response.code() + ": " + response.message());
+                    Toast toast = Toast.makeText(context, STREAM_FAILED_MESSAGE, Toast.LENGTH_LONG);
+                    toast.show();
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d(TAG, "Failure: " + t.getMessage());
+                Toast toast = Toast.makeText(context, STREAM_FAILED_MESSAGE, Toast.LENGTH_LONG);
+                toast.show();
+            }
+        });
+    }
+
+    // Create a POST request to server to end stream
+    private void endStream() {
+        String streamId = createdStream.getStreamId();
+
+        // Instantiate an instance of the call with the parameters
+        Call<Object> call = new WorldScopeRestAPI(context)
+                .buildWorldScopeAPIService()
+                .postStreamEnd(new WorldScopeAPIService.PostStreamEndRequest(streamId));
+
+        // Make call to create stream
+        call.enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Response<Object> response) {
+                if (response.isSuccess()) {
+                    Log.d(TAG, "Successfully updated API Server to end stream");
+                    Log.d(TAG, "" + response.body().toString());
                 } else {
                     Log.d(TAG, "Failure" + response.code() + ": " + response.message());
                     Toast toast = Toast.makeText(context, STREAM_FAILED_MESSAGE, Toast.LENGTH_LONG);
@@ -200,7 +236,9 @@ public class StreamCreateFragment extends Fragment {
 
     // Stop the ongoing stream
     private void stopStream() {
-        // TODO: Implement stop stream to App Server
+        // Update API Server
+        endStream();
+
         listener.onStreamTerminationResolved(TERMINATE_STREAM);
     }
 
@@ -221,7 +259,7 @@ public class StreamCreateFragment extends Fragment {
      */
     public interface OnStreamCreateFragmentListener {
         // Implement to receive update upon stream creation success
-        void onStreamCreationSuccess(String rtmpLink, String appInstance, String alias);
+        void onStreamCreationSuccess(String rtmpLink, String appInstance);
 
         // Implement to handle CancelStreamButton
         void onCancelStreamButtonClicked();

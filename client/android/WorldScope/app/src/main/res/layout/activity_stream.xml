@@ -15,19 +15,20 @@
 
     <fragment
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="200dip"
         android:name="fragment.CommentFragment"
         android:id="@+id/commentFragment"
-        tools:layout="@layout/fragment_comment" />
+        tools:layout="@layout/fragment_comment"
+        android:layout_gravity="bottom" />
 
     <fragment
-        android:layout_width="91dp"
-        android:layout_height="wrap_content"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
         android:name="fragment.StreamVideoControlFragment"
         android:id="@+id/streamVideoControlFragment"
-        android:layout_gravity="right|bottom"
         tools:layout="@layout/fragment_stream_video_control"
-        android:layout_marginBottom="60dp" />
+        android:layout_marginBottom="60dp"
+        android:layout_gravity="bottom|right" />
 
     <fragment
         android:layout_width="fill_parent"

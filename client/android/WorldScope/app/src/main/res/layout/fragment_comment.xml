@@ -1,69 +1,53 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_gravity="bottom"
     tools:context="fragment.CommentFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <ListView
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:id="@+id/commentListView"
+        android:divider="#00000000"
+        android:stackFromBottom="true"
+        android:layout_gravity="bottom"
+        android:layout_weight="1"
+        android:scrollbarThumbVertical="@drawable/white_scroll_style"/>
 
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom">
+        android:layout_gravity="bottom"
+        android:background="#64000000"
+        android:weightSum="1">
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="200dp"
-            android:layout_gravity="bottom"
-            android:layout_weight="0.1">
-
-            <ListView
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:id="@+id/commentListView"
-                android:divider="#00000000"
-                android:stackFromBottom="true"
-                android:layout_gravity="bottom" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
+        <EditText
+            android:id="@+id/commentEditText"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom">
+            android:hint="Type a comment..."
+            android:textColorHint="#ffffff"
+            android:textColor="#ffffff"
+            android:layout_gravity="right|bottom"
+            android:backgroundTint="#00ffffff"
+            android:background="#64000000"
+            android:textSize="14dp"
+            android:layout_weight="0.8"
+            android:editable="false"
+            android:inputType="textMultiLine"
+            android:maxLines="3"
+            android:padding="12dp" />
 
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:layout_weight="0.85"
-                android:background="#64000000">
-
-                <EditText
-                    android:id="@+id/comment_edit_text"
-                    android:layout_width="fill_parent"
-                    android:layout_height="45dp"
-                    android:hint="Type a comment..."
-                    android:textColorHint="#ffffff"
-                    android:textColor="#ffffff"
-                    android:layout_gravity="right|bottom"
-                    android:backgroundTint="#00ffffff"
-                    android:background="#64000000"
-                    android:paddingLeft="8dp" />
-            </LinearLayout>
-
-            <ImageButton
-                android:layout_width="0dp"
-                android:layout_height="45dp"
-                android:id="@+id/send_button"
-                android:src="@drawable/ic_send"
-                android:layout_weight="0.15"
-                android:layout_gravity="bottom"
-                android:background="#64000000" />
-        </LinearLayout>
+        <ImageButton
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:id="@+id/send_button"
+            android:src="@drawable/ic_send"
+            android:layout_weight="0.2"
+            android:background="#00000000"
+            android:layout_gravity="bottom" />
     </LinearLayout>
-
-</FrameLayout>
+</LinearLayout>

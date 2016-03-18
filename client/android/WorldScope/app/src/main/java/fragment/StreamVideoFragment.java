@@ -309,8 +309,15 @@ public class StreamVideoFragment extends Fragment {
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 
             Camera.Parameters camParams = camera.getParameters();
-            List<Camera.Size> sizes = camParams.getSupportedPreviewSizes();
+
+            // Enable auto focus
+            if (camParams.getSupportedFocusModes().contains(
+                    Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+                camParams.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+            }
+
             // Sort the list in ascending order
+            List<Camera.Size> sizes = camParams.getSupportedPreviewSizes();
             Collections.sort(sizes, new Comparator<Camera.Size>() {
 
                 public int compare(final Camera.Size a, final Camera.Size b) {

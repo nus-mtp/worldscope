@@ -2,11 +2,14 @@ package com.litmus.worldscope.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 /**
  * Stream object model returned from WorldScope App Server for viewing of streams
  */
 public class WorldScopeViewStream extends WorldScopeStream implements Parcelable {
+    private static final String TAG = "WorldScopeViewStream";
+
     private String viewLink;
     private String thumbnailLink;
 
@@ -29,6 +32,7 @@ public class WorldScopeViewStream extends WorldScopeStream implements Parcelable
 
 
     protected WorldScopeViewStream(Parcel in) {
+        this.setAppInstance(in.readString());
         viewLink = in.readString();
         thumbnailLink = in.readString();
     }
@@ -40,6 +44,8 @@ public class WorldScopeViewStream extends WorldScopeStream implements Parcelable
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        Log.d(TAG, this.toString());
+        dest.writeString(this.getAppInstance());
         dest.writeString(viewLink);
         dest.writeString(thumbnailLink);
     }

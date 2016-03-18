@@ -2,10 +2,10 @@ package fragment;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -45,7 +45,7 @@ public class ViewVideoFragment extends Fragment implements
     private SurfaceView surfaceView;
     private View shutterView;
     private AspectRatioFrameLayout videoFrame;
-    private boolean viewing;
+    private boolean isPlaying;
 
 
     public ViewVideoFragment() {
@@ -85,6 +85,7 @@ public class ViewVideoFragment extends Fragment implements
         litmusPlayer.addPlayerEventsListener(this);
         shutterView = view.findViewById(R.id.shutter);
         videoFrame = (AspectRatioFrameLayout) view.findViewById(R.id.video_frame);
+        isPlaying = true;
         litmusPlayer.setPlayWhenReady(true);
     }
 
@@ -110,6 +111,7 @@ public class ViewVideoFragment extends Fragment implements
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        litmusPlayer.release();
     }
 
 
@@ -117,9 +119,17 @@ public class ViewVideoFragment extends Fragment implements
     @Override
     public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
                                    float pixelWidthHeightRatio) {
-        //Do nothing for now
+
+        Log.d(TAG, "Video width: " + height + ", video height: " + width);
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        int deviceHeight = displaymetrics.heightPixels;
+        int deviceWidth = displaymetrics.widthPixels;
+
+        surfaceView.setLayoutParams(new android.widget.FrameLayout.LayoutParams(deviceWidth, deviceHeight));
+
         shutterView.setVisibility(View.GONE);
-        videoFrame.setAspectRatio(height == 0 ? 1 : (width * pixelWidthHeightRatio) / height);
+        //videoFrame.setAspectRatio(height == 0 ? 1 : (width * pixelWidthHeightRatio) / height);
     }
 
     // Implementation of SurfaceHolder Callback
@@ -146,24 +156,10 @@ public class ViewVideoFragment extends Fragment implements
         }
     }
 
-    private void addRecordButtonCallback() {
-        // Automatically start stream
-        viewing = true;
-        final FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.viewFab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Toggle the state
-                viewing = !viewing;
-                if (!viewing) {
-                    fab.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_stop));
-                    litmusPlayer.setPlayWhenReady(true);
-                } else {
-                    fab.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_play_arrow));
-                    litmusPlayer.setPlayWhenReady(false);
-                }
-            }
-        });
+    // Function to toggle play / pause
+    public void togglePause() {
+        isPlaying = !isPlaying;
+        litmusPlayer.setPlayWhenReady(isPlaying);
     }
 
     /**

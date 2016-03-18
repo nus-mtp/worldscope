@@ -143,7 +143,7 @@ public class DashRendererBuilder implements ManifestFetcher.ManifestCallback<Med
         TrackRenderer[] renderers = new TrackRenderer[LitmusPlayer.RENDERER_COUNT];
         renderers[LitmusPlayer.TYPE_VIDEO] = videoRenderer;
         renderers[LitmusPlayer.TYPE_AUDIO] = audioRenderer;
-        this.player.onRenderers(renderers);
+        player.onRenderers(renderers);
         Log.d(TAG, "Renderer ready to push");
         player.readyToPushSurface(LitmusPlayer.RENDERER_READY);
     }

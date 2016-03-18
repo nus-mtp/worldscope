@@ -90,13 +90,13 @@ public class LitmusPlayer implements
     // Constructor for Litmus player
     public LitmusPlayer(Context context, String mpdLink, String userAgent) {
         // Prepare player
-        preparePlayer();
+        preparePlayer(mpdLink);
         // Start dashRendererBuilder
         dashRendererBuilder = new DashRendererBuilder(this, context, mpdLink, userAgent, drmCallback);
     }
 
     // Function to set variables for litmus player
-    private void preparePlayer() {
+    private void preparePlayer(String mpdLink) {
         this.mpdLink = mpdLink;
         player = ExoPlayer.Factory.newInstance(RENDERER_COUNT, MIN_BUFFER_MS, MIN_REBUFFER_MS);
         drmCallback = new WidevineTestMediaDrmCallback(mpdLink);
@@ -202,6 +202,7 @@ public class LitmusPlayer implements
     }
 
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+        Log.d(TAG, "Player state changed, playWhenReady: " + playWhenReady + ", playbackState: " + playbackState);
     }
 
     public void onPlayWhenReadyCommitted() {
@@ -215,6 +216,9 @@ public class LitmusPlayer implements
 
     // Function to be called when renderers are ready in DashRendererBuilder
     public void onRenderers(TrackRenderer[] renderers) {
+
+        Log.d(TAG, "Number of renderers: " + RENDERER_COUNT);
+
         for (int i = 0; i < RENDERER_COUNT; i++) {
             if (renderers[i] == null) {
                 // Convert a null renderer to a dummy renderer.
@@ -256,7 +260,7 @@ public class LitmusPlayer implements
     // Implement for MediaCodecVideoTrackRenderer.EventListener
     @Override
     public void onDroppedFrames(int count, long elapsed) {
-        Log.i(TAG, "ONDROPPEDFRAMES");
+        Log.i(TAG, "Dropped frames: " + count + " for " + elapsed + " time");
     }
 
     @Override

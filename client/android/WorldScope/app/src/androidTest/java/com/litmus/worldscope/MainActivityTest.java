@@ -52,8 +52,8 @@ public class MainActivityTest extends TestCase{
     @Test
     public void testRedirectToFacebookLoginActivity() {
         Instrumentation.ActivityMonitor am = InstrumentationRegistry.getInstrumentation()
-                .addMonitor(FacebookLoginActivity.class.getName(), null, true);
-        mainActivity.redirectToFacebookLoginActivity(IS_LOGOUT_ATTEMPT);
+                .addMonitor(LoginActivity.class.getName(), null, true);
+        mainActivity.redirectToLoginActivity(IS_LOGOUT_ATTEMPT);
         assertEquals(1, am.getHits());
     }
 }

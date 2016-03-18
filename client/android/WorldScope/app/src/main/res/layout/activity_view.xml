@@ -13,5 +13,24 @@ tools:context="com.litmus.worldscope.ViewActivity">
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         tools:layout="@layout/fragment_view_video" />
+
+    <fragment
+        android:layout_width="fill_parent"
+        android:layout_height="200dip"
+        android:name="fragment.CommentFragment"
+        android:id="@+id/commentFragment"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        tools:layout="@layout/fragment_comment" />
+
+    <fragment
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:name="fragment.ViewVideoControlFragment"
+        android:id="@+id/viewVideoControlFragment"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        tools:layout="@layout/fragment_view_video_control"
+        android:layout_marginBottom="60dp" />
 </RelativeLayout>
 

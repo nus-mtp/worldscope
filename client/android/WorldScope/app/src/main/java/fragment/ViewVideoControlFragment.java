@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -11,7 +12,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Vibrator;
 
 import com.litmus.worldscope.R;
 
@@ -19,28 +19,26 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link StreamVideoControlFragment.OnStreamVideoControlFragmentListener} interface
- * to handle interaction events.
+ * ViewVideoControlFragment contains the button to pause or continue a stream
+ * Auto disappear within three seconds unless timer is reset
  */
-public class StreamVideoControlFragment extends Fragment {
+public class ViewVideoControlFragment extends Fragment {
 
-    private final String TAG = "StreamVideoControl";
 
-    private Drawable recordDrawable;
+    private static final String TAG = "StreamVideoControl";
+
+    private Drawable playDrawable;
     private Drawable pauseDrawable;
 
     private View view;
-    private OnStreamVideoControlFragmentListener listener;
-    private FloatingActionButton fabRecordButton;
-    private boolean isBlocked;
-    private boolean isRecording;
+    private OnViewVideoControlFragmentListener listener;
+    private FloatingActionButton fabPauseButton;
     private boolean isShown;
+    private boolean isWatching;
     private Timer timer;
     private TimerTask timerTask;
 
-    public StreamVideoControlFragment() {
+    public ViewVideoControlFragment() {
         // Required empty public constructor
     }
 
@@ -53,60 +51,29 @@ public class StreamVideoControlFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        view = inflater.inflate(R.layout.fragment_stream_video_control, container, false);
+        view =  inflater.inflate(R.layout.fragment_view_video_control, container, false);
 
-        // Hide view until stream is created
-        view.setVisibility(View.GONE);
+        //Get drawable icons for pause button
+        playDrawable = getResources().getDrawable(R.drawable.ic_play_arrow);
+        pauseDrawable = getResources().getDrawable(R.drawable.ic_pause);
 
-        // Initialize recording
-        isRecording = false;
+        // Get pause button
+        fabPauseButton = (FloatingActionButton) view.findViewById(R.id.fabPauseButton);
 
-        // Get drawable icons for record button
-        recordDrawable = getResources().getDrawable(R.drawable.ic_record_button);
-        pauseDrawable= getResources().getDrawable(R.drawable.ic_pause);
+        // Set to watching state
+        isWatching = true;
 
-        // Get record button
-        fabRecordButton = (FloatingActionButton) view.findViewById(R.id.fabRecordButton);
-
-        // Add click functionality to the button
-        fabRecordButton.setOnClickListener(new View.OnClickListener() {
+        // Add functionality to pauseButton
+        fabPauseButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(isBlocked) {
-                    Log.d(TAG, "Controls are block");
-                    return;
-                }
-                isRecording = changeRecordButtonState(isRecording);
-                listener.onStreamRecordButtonShortPress();
-
+                isWatching = changePauseButtonState(isWatching);
+                listener.onViewPauseButtonPress();
                 // Keep controls alive again
                 restartHideButtonTimerTask();
             }
         });
 
-        // Add long press functionality to the confirmStopStream Button
-        fabRecordButton.setOnLongClickListener(new View.OnLongClickListener() {
-            public boolean onLongClick(View v) {
-
-                if(isBlocked) {
-                   Log.d(TAG, "Controls are block");
-                   return true;
-                }
-
-                // Feedback to show long click engaged
-                Vibrator vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
-                // Vibrate for 300 milliseconds
-                vibrator.vibrate(500);
-
-                // Block the UI controls until stop stream is resolved
-                isBlocked = true;
-
-                listener.onStreamRecordButtonLongPress();
-
-                // Keep controls alive again
-                restartHideButtonTimerTask();
-                return true;
-            }
-        });
+        setFadeButtonTimerTask();
 
         return view;
     }
@@ -114,8 +81,8 @@ public class StreamVideoControlFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnStreamVideoControlFragmentListener) {
-            listener = (OnStreamVideoControlFragmentListener) context;
+        if (context instanceof OnViewVideoControlFragmentListener) {
+            listener = (OnViewVideoControlFragmentListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -131,32 +98,16 @@ public class StreamVideoControlFragment extends Fragment {
         }
     }
 
-    /**
-     * If button is recording, change icon into "||" icon
-     * else change it into the "O" icon
-     * @param isRecording
-     */
-    private boolean changeRecordButtonState(boolean isRecording) {
+    private boolean changePauseButtonState(boolean isWatching) {
 
         // If previously is recording (icon is pause), change to play
-        if(isRecording) {
-            fabRecordButton.setImageDrawable(recordDrawable);
+        if(isWatching) {
+            fabPauseButton.setImageDrawable(playDrawable);
         } else {
-            fabRecordButton.setImageDrawable(pauseDrawable);
+            fabPauseButton.setImageDrawable(pauseDrawable);
         }
 
-        return !isRecording;
-    }
-
-    public void unBlockControls() {
-        isBlocked = false;
-    }
-
-    public void startStreaming() {
-        // Start recording
-        isRecording = true;
-        showControls();
-        setFadeButtonTimerTask();
+        return !isWatching;
     }
 
     // Initialize and run hide controls every 5 secs
@@ -242,11 +193,8 @@ public class StreamVideoControlFragment extends Fragment {
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnStreamVideoControlFragmentListener {
-        // Pause the video stream
-        void onStreamRecordButtonShortPress();
-
-        // Stop the video stream
-        void onStreamRecordButtonLongPress();
+    public interface OnViewVideoControlFragmentListener {
+        // TODO: Update argument type and name
+        void onViewPauseButtonPress();
     }
 }
