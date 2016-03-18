@@ -720,8 +720,14 @@ Class.getSubscribers = function(userId) {
       return err;
     }
 
-    return user.getSubscribers({order: [['username', 'ASC']]});
-  });
+    return user.getSubscribers({
+      include: [{
+        model: this.models.User,
+        as: 'Subscribers'
+      }],
+      order: [['username', 'ASC']]
+    });
+  }.bind(this));
 };
 
 /**

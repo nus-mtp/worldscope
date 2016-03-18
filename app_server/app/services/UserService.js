@@ -213,7 +213,7 @@ Class.getSubscribers = function(userId) {
       }
       return result.map((singleUser) => {
         singleUser = singleUser.dataValues;
-        delete singleUser.Subscription;
+        singleUser = addIsSubscribedField(userId, singleUser);
         return Utility.formatUserObject(singleUser);
       });
     });
@@ -308,6 +308,26 @@ Class.getListOfCommentsForStream = function(streamId) {
       });
 
     });
+};
+
+/**
+ * Add isSubscribedField = true if given userId is in subscribers of given user
+ * @param userId  {string}
+ * @param singleUser {Object}
+ */
+var addIsSubscribedField = function(userId, singleUser) {
+  var subscribers = singleUser.Subscribers;
+  var subscriberIds = subscribers.map((user) => user.userId);
+
+  if (subscriberIds.indexOf(userId) > -1) {
+    singleUser.isSubscribed = true;
+  } else {
+    singleUser.isSubscribed = false;
+  }
+
+  delete singleUser.Subscription;
+  delete singleUser.Subscribers;
+  return singleUser;
 };
 
 module.exports = new UserService();

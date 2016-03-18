@@ -454,7 +454,6 @@ lab.experiment('UserService Tests for Subscriptions', function () {
     userPromise1.then((user) =>
       Service.getNumberOfSubscriptions(user.userId))
         .then((res) => {
-          console.log(res);
           expect(res).to.equal(0);
           done();
         });
@@ -476,13 +475,16 @@ lab.experiment('UserService Tests for Subscriptions', function () {
     Promise.join(userPromise1, userPromise2, userPromise3,
       function(user1, user2, user3) {
         Service.createSubscription(user1.userId, user3.userId)
+          .then(() => Service.createSubscription(user3.userId, user2.userId))
           .then(() => Service.createSubscription(user2.userId, user3.userId))
-          .then(function(subscription) {
+          .then((subscription) => {
             Service.getSubscribers(subscription.subscribeTo)
-              .then(function(res) {
+              .then((res) => {
                 expect(res).to.have.length(2);
                 expect(res[0].username).to.equal(alice.username);
+                expect(res[0].isSubscribed).to.be.false();
                 expect(res[1].username).to.equal(bob.username);
+                expect(res[1].isSubscribed).to.be.true();
                 done();
               });
           });

@@ -270,7 +270,7 @@ function closeChatRoomForStream(appInstance) {
 /**
  * Add isSubscribedField = true if userId is in subscribers
  * @param userId  {string}
- * @param results {Object}
+ * @param results {Object} an array of streams
  */
 var addIsSubscribedField = function(userId, results) {
   for (var i = 0; i < results.length; i++) {

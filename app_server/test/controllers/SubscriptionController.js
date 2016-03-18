@@ -530,8 +530,7 @@ lab.experiment('SubscriptionController Tests', function() {
       Router.inject({method: 'DELETE',
                      url: '/api/subscriptions/subscribers/' + user2.userId,
                      credentials: testAccount}, function(res) {
-
-        Code.expect(res.result.statusCode).to.equal(400)
+        Code.expect(res.result.statusCode).to.equal(400);
         Code.expect(res.result.message).to.equal('Subscription not found');
         done();
       });
@@ -546,8 +545,7 @@ lab.experiment('SubscriptionController Tests', function() {
                      url: '/api/subscriptions/subscribers/' +
                      TestUtils.invalidId,
                      credentials: testAccount}, function(res) {
-
-        Code.expect(res.result.statusCode).to.equal(400)
+        Code.expect(res.result.statusCode).to.equal(400);
         Code.expect(res.result.message).to.equal('User not found');
         done();
       });
