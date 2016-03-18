@@ -606,17 +606,20 @@ lab.experiment('UserService Tests for Comments', function () {
 
   var comment1 = {
     content: 'How do I live without you',
-    createdAt: 1457431895187
+    createdAt: 1457431895000,
+    alias: 'mariah'
   };
 
   var comment2 = {
     content: 'How do I breathe without you',
-    createdAt: 1457431905187
+    createdAt: 1457431905000,
+    alias: 'carey'
   };
 
   var comment3 = {
     content: 'How do I ever',
-    createdAt: 1457431915187
+    createdAt: 1457431915000,
+    alias: 'darren'
   };
 
   lab.beforeEach({timeout: 10000}, function (done) {

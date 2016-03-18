@@ -43,7 +43,8 @@ Class.createNewComment = function(request, reply) {
   var streamId = request.payload.streamId;
   var comment = {
     content: request.payload.comment.message,
-    createdAt: request.payload.comment.time
+    createdAt: request.payload.comment.time,
+    alias: request.payload.comment.alias,
   };
 
   Service.createComment(userId, streamId, comment)
@@ -88,7 +89,8 @@ var singleCommentValidator = {
     streamId: Joi.string().guid().required(),
     comment: Joi.object().keys({
       message: Joi.string().required(),
-      time: Joi.number()
+      time: Joi.number(),
+      alias: Joi.string().required()
     })
   }
 };

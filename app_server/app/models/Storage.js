@@ -814,6 +814,7 @@ Class.createComment = function(userId, streamId, commentObj) {
       var comment = {
         content: commentObj.content,
         createdAt: commentObj.createdAt,
+        alias: commentObj.alias,
         userId: userId,
         streamId: streamId
       };
