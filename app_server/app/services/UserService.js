@@ -193,7 +193,7 @@ Class.getNumberOfSubscriptions = function(userId) {
         return result;
       } else {
         logger.error('Error getting number of subscriptions');
-        return new CustomError.UnknownError();
+        return new CustomError.UnexpectedError();
       }
     });
 };
@@ -233,7 +233,7 @@ Class.getNumberOfSubscribers = function(userId) {
         return result;
       } else {
         logger.error('Error getting number of subscribers');
-        return new CustomError.UnknownError();
+        return new CustomError.UnexpectedError();
       }
     });
 };
@@ -278,7 +278,7 @@ Class.createComment = function(userId, streamId, comment) {
         return new CustomError.InvalidFieldError(err.errors[0].message,
                                                  err.errors[0].path);
       } else {
-        return new CustomError.UnknownError();
+        return new CustomError.UnexpectedError(err);
       }
     });
 };
@@ -293,7 +293,9 @@ Class.getListOfCommentsForStream = function(streamId) {
   return Storage.getListOfCommentsForStream(streamId)
     .then(function receiveResult(result) {
       if (!result || result instanceof Error) {
-        return new CustomError.NotFoundError('Stream not found');
+        var err = new CustomError.NotFoundError('Stream', streamId);
+        logger.error(err.message, err.details);
+        return err;
       }
 
       return result.map((res) => {

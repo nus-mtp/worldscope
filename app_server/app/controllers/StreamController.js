@@ -130,7 +130,7 @@ Class.getListOfStreams = function(request, reply) {
     order: request.query.order
   };
 
-  Service.getListOfStreams(userId, filters).then(function(listStreams) {
+  Service.getListOfStreams(filters, userId).then(function(listStreams) {
     if (!listStreams || listStreams instanceof Error) {
       return reply(Boom.notFound('Stream not found'));
     }

@@ -361,7 +361,7 @@ Class.getStreamById = function(streamId) {
 };
 
 /**
- * Return a list of streams sorted with options.
+ * Return a list of streams includes user sorted with options.
  * @param  {object} filters
  * @param  {string} filters.sort
  * @param  {string} filters.state
@@ -369,6 +369,44 @@ Class.getStreamById = function(streamId) {
  * @return {Promise<List<Sequelize.object>>} - a list of streams
  */
 Class.getListOfStreams = function(originalFilters) {
+
+  var filters = mapParams(originalFilters);
+
+  if (filters.sort !== 'createdAt') {
+    return this.models.Stream.findAll({
+      include: [{
+        model: this.models.User,
+        as: 'streamer'
+      }],
+      where: {
+        live: filters.state
+      },
+      order: [[filters.sort, filters.order], ['createdAt', 'DESC']]
+    });
+  } else {
+    return this.models.Stream.findAll({
+      include: [{
+        model: this.models.User,
+        as: 'streamer'
+      }],
+      where: {
+        live: filters.state
+      },
+      order: [[filters.sort, filters.order]]
+    });
+  }
+};
+
+/**
+ * Return a list of streams includes user, includes subscribers.
+ * Sorted with options.
+ * @param  {object} filters
+ * @param  {string} filters.sort
+ * @param  {string} filters.state
+ * @param  {object} filters.order
+ * @return {Promise<List<Sequelize.object>>} - a list of streams
+ */
+Class.getListOfStreamsForUser = function(originalFilters) {
 
   var filters = mapParams(originalFilters);
 
@@ -406,7 +444,7 @@ Class.getListOfStreams = function(originalFilters) {
 };
 
 /**
- * Return a list of streams from subscriptions
+ * Return a list of streams from user's subscriptions
  * @param  {string} userId
  * @return {Promise<List<Sequelize.object>>} - a list of streams
  */
@@ -502,24 +540,23 @@ Class.createView = function(userId, streamId) {
   return Promise.join(userPromise, streamPromise,
     function(user, stream) {
       if (user === null) {
-        var errMsg = 'User cannot be found';
-        logger.error(errMsg);
-        return new CustomError.NotFoundError(errMsg);
+        var err = new CustomError.NotFoundError('User', userId);
+        logger.error(err.message, err.details);
+        return err;
 
       } else if (stream === null) {
-        var errMsg = 'Stream cannot be found';
-        logger.error(errMsg);
-        return new CustomError.NotFoundError(errMsg);
+        var err = new CustomError.NotFoundError('Stream', streamId);
+        logger.error(err.message, streamId);
+        return err;
       }
 
       return this.models.View.create({
         userId: userId,
         streamId: streamId
-      }).then((view) => {
-        return view;
       }).catch(err => {
-        logger.error('Error creating view ', err);
-        return new CustomError.UnknownError();
+        var err = new CustomError.UnexpectedError(err);
+        logger.error(err.message);
+        return err;
       });
     }.bind(this));
 };
@@ -558,7 +595,7 @@ Class.getListOfUsersViewingStream = function(streamId) {
  * @return {Promise<Integer>}
  */
 Class.getTotalNumberOfUsersViewedStream = function(streamId) {
-  return this.models.View.aggregate('userId',  'count', {
+  return this.models.View.aggregate('userId', 'count', {
     where: {
       streamId: streamId,
     },
@@ -575,9 +612,10 @@ Class.updateTotalViews = function(streamId) {
 
   return streamPromise.then((stream) => {
     if (stream === null) {
-      var errMsg = `Stream ${streamId} cannot be found`;
-      logger.error(errMsg);
-      return new CustomError.NotFoundError(errMsg);
+      var err = new CustomError.NotFoundError('Stream', streamId);
+      logger.error(err.message, err.details);
+
+      return err;
     }
 
     return this.getTotalNumberOfUsersViewedStream(streamId)
@@ -605,15 +643,19 @@ Class.createSubscription = function(subscribeFrom, subscribeTo) {
   return Promise.join(fromPromise, toPromise,
     function(from, to) {
       if (to === null || from.userId == to.userId) {
-        logger.error('Subscription user cannot be found');
+        var err = new CustomError.NotFoundError('User');
+        logger.error(err);
 
-        return new CustomError.NotFoundError('User not found');
+        return err;
       }
+
       return from.addSubscription(to).then(res => {
         if (!res || res.length === 0) {
-          logger.error('Duplicate Subscription');
+          var err =
+            new CustomError.DuplicateEntryError('Duplicate Subscription');
+          logger.error(err.message);
 
-          return new CustomError.DuplicateEntryError('Duplicate Subscription');
+          return err;
         }
         return res[0][0];
       });
@@ -629,13 +671,13 @@ Class.getSubscriptions = function(userId) {
 
   return userPromise.then(function(user) {
     if (user === null) {
-      logger.error('User cannot be found');
+      var err = new CustomError.NotFoundError('User', userId);
+      logger.error(err.message, err.details);
 
-      return new CustomError.NotFoundError('User not found');
+      return err;
     }
-    return user.getSubscriptions({order: [['username', 'ASC']]}).then(res => {
-      return res;
-    });
+
+    return user.getSubscriptions({order: [['username', 'ASC']]});
   });
 };
 
@@ -648,9 +690,10 @@ Class.getNumberOfSubscriptions = function(userId) {
 
   return userPromise.then(function(user) {
     if (user === null) {
-      logger.error('User cannot be found');
+      var err = new CustomError.NotFoundError('User', userId);
+      logger.error(err.message, err.details);
 
-      return new CustomError.NotFoundError('User not found');
+      return err;
     }
 
     return this.models.Subscription.count({
@@ -671,10 +714,12 @@ Class.getSubscribers = function(userId) {
 
   return userPromise.then(function(user) {
     if (user === null) {
-      logger.error('User cannot be found');
+      var err = new CustomError.NotFoundError('User', userId);
+      logger.error(err.message, err.details);
 
-      return new CustomError.NotFoundError('User not found');
+      return err;
     }
+
     return user.getSubscribers({order: [['username', 'ASC']]}).then(res => {
       return res;
     });
@@ -690,9 +735,10 @@ Class.getNumberOfSubscribers = function(userId) {
 
   return userPromise.then(function(user) {
     if (user === null) {
-      logger.error('User cannot be found');
+      var err = new CustomError.NotFoundError('User', userId);
+      logger.error(err.message, userId);
 
-      return new CustomError.NotFoundError('User not found');
+      return err;
     }
 
     return this.models.Subscription.count({
@@ -716,16 +762,16 @@ Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
   return Promise.join(fromPromise, toPromise,
     function(from, to) {
       if (from === null || to === null) {
-        logger.error('User cannot be found');
+        var err = new CustomError.NotFoundError('User');
+        logger.error(err.message);
 
-        return new CustomError.NotFoundError('User not found');
+        return err;
       }
+
       return from.removeSubscription(to).then(res => {
-        if (res === 1) {
-          return true;
-        }
-        return false;
+        return res === 1 ? true : false;
       });
+
     });
 };
 
@@ -748,14 +794,17 @@ Class.createComment = function(userId, streamId, commentObj) {
   return Promise.join(userPromise, streamPromise,
     function(user, stream) {
       if (user === null) {
-        let errMsg = `User ${userId} cannot be found`;
-        logger.error(errMsg);
-        return new CustomError.NotFoundError(errMsg);
+        var err = new CustomError.NotFoundError('User');
+        logger.error(err.message, userId);
+
+        return err;
       }
+
       if (stream === null) {
-        let errMsg = `Stream ${streamId} cannot be found`;
-        logger.error(errMsg);
-        return new CustomError.NotFoundError(errMsg);
+        var err = new CustomError.NotFoundError('Stream');
+        logger.error(err.message, streamId);
+
+        return err;
       }
 
       var comment = {
@@ -787,12 +836,14 @@ Class.getListOfCommentsForStream = function(streamId) {
 
   }).then(function receiveResult(result) {
     if (!result) {
-      logger.error('Stream not found');
+      var err = new CustomError.NotFoundError('Stream', streamId);
+      logger.error(err.message, err.details);
 
-      return new CustomError.NotFoundError('Stream not found');
-    } else {
-      return result.comments; //only return the descendents
+      return err;
     }
+
+    return result.comments; //only return the descendents
+
   });
 
 };
@@ -811,7 +862,10 @@ function isFieldsMatched(user, options, fn) {
   }
 
   if (_(fieldsToChange).difference(objFields).length !== 0) {
-    throw new CustomError.InvalidColumnError('Column name undefined');
+    var errMsg = 'Column name undefined';
+    logger.error(errMsg);
+
+    throw new CustomError.InvalidColumnError(errMsg);
   } else {
     return fn();
   }

@@ -77,11 +77,13 @@ lab.experiment('Stream Model Tests', function() {
   });
 
   lab.test('Create Stream with invalid userId', function(done) {
-    Storage.createStream('123-123-123', streamDetails).catch(function(err) {
-      expect(err.name).to.equal('TypeError');
-      expect(err.message).to.equal("Cannot read property 'addStream' of null");
-      done();
-    });
+    Storage.createStream(TestUtils.invalidId, streamDetails)
+      .catch(function(err) {
+        expect(err.name).to.equal('TypeError');
+        expect(err.message)
+          .to.equal("Cannot read property 'addStream' of null");
+        done();
+      });
   });
 
   lab.test('Get Stream by Id', function(done) {
@@ -104,7 +106,7 @@ lab.experiment('Stream Model Tests', function() {
     }).then(function(userId) {
       return Storage.createStream(userId, streamDetails);
     }).then(function(stream) {
-      return Storage.getStreamById({streamId: '123-123'});
+      return Storage.getStreamById({streamId: TestUtils.invalidId});
     }).then(function(res) {
       expect(res).to.be.null();
       done();
@@ -312,11 +314,10 @@ lab.experiment('Stream Model Tests', function() {
         return Storage.createSubscription(stream2.owner,
                                           stream1.owner)
         .then(function(res) {
-          Storage.getListOfStreams(filters).then(function(res) {
+          Storage.getListOfStreamsForUser(filters, stream2.owner)
+          .then(function(res) {
             expect(res[0].streamer.Subscribers[0].userId)
               .to.equal(stream2.owner);
-            expect(res[1].streamer.Subscribers)
-              .to.deep.equal([]);
             done();
           });
         });
@@ -528,8 +529,7 @@ lab.experiment('Stream Model Tests', function() {
       totalViewers: 23123
     };
 
-    Storage.updateStream('3388ffff-aa00-1111a222-00000044888c',
-                          newStreamAttributes)
+    Storage.updateStream(TestUtils.invalidId, newStreamAttributes)
       .catch(function(err) {
         expect(err).to.be.an.instanceof(Error);
         done();
@@ -557,7 +557,7 @@ lab.experiment('Stream Model Tests', function() {
     }).then(function(userId) {
       return Storage.createStream(userId, streamDetails);
     }).then(function(stream) {
-      return Storage.deleteStream('3388ffff-aa00-1111a222-00000044888c');
+      return Storage.deleteStream(TestUtils.invalidId);
     }).then(function(res) {
       expect(res).to.be.false();
       done();

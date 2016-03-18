@@ -48,7 +48,6 @@ lab.experiment('View Model Tests', function() {
   };
 
   lab.beforeEach({timeout: 10000}, function(done) {
-    // Delete database, run before every single test
     TestUtils.resetDatabase(done);
   });
 
@@ -70,7 +69,7 @@ lab.experiment('View Model Tests', function() {
     var userPromise = Storage.createUser(user1);
 
     userPromise.then(function(user) {
-      Storage.createView(user.userId, '3388ffff-aa00-1111a222-00000044888c')
+      Storage.createView(user.userId, TestUtils.invalidId)
         .then(function(res) {
           expect(res).to.be.an.instanceof(Error);
           done();
@@ -85,11 +84,11 @@ lab.experiment('View Model Tests', function() {
 
     Promise.join(userPromise, streamPromise,
       function(user, stream) {
-        Storage.createView('3388ffff-aa00-1111a222-00000044888c',
-            stream.streamId).then(function(res) {
-              expect(res).to.be.an.instanceof(Error);
-              done();
-            });
+        Storage.createView(TestUtils.invalidId, stream.streamId)
+          .then(function(res) {
+            expect(res).to.be.an.instanceof(Error);
+            done();
+          });
       });
   });
 
@@ -122,7 +121,7 @@ lab.experiment('View Model Tests', function() {
   });
 
   lab.test('Get list of users watching a stream invalid', function(done) {
-    Storage.getListOfUsersViewingStream('3388ffff-aa00-1111a222-00000044888c')
+    Storage.getListOfUsersViewingStream(TestUtils.invalidId)
       .then(function(res) {
         expect(res).to.be.null();
         done();
@@ -178,8 +177,7 @@ lab.experiment('View Model Tests', function() {
     });
 
   lab.test('Get number of users viewed a stream invalid', function(done) {
-    Storage.getTotalNumberOfUsersViewedStream('3388ffff-aa00-' +
-                                              '1111a222-00000044888c')
+    Storage.getTotalNumberOfUsersViewedStream(TestUtils.invalidId)
       .then(function(res) {
         expect(res).to.equal(0);
         done();

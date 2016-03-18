@@ -70,8 +70,7 @@ lab.experiment('Subscription Model Tests', function() {
     var userPromise1 = Storage.createUser(user1);
 
     userPromise1.then(function(user1) {
-      Storage.createSubscription(user1.userId,
-                                 '3388ffff-aa00-1111a222-00000044888c')
+      Storage.createSubscription(user1.userId, TestUtils.invalidId)
         .then(function(res) {
           expect(res).to.be.an.instanceof(CustomError.NotFoundError);
           expect(res.message).to.be.equal('User not found');
@@ -152,7 +151,7 @@ lab.experiment('Subscription Model Tests', function() {
   });
 
   lab.test('Get Subscriptions invalid userId', function(done) {
-    Storage.getSubscriptions('3388ffff-aa00-1111a222-00000044888c')
+    Storage.getSubscriptions(TestUtils.invalidId)
       .then(function(res) {
         expect(res).to.be.an.instanceof(CustomError.NotFoundError);
         expect(res.message).to.be.equal('User not found');
@@ -194,9 +193,10 @@ lab.experiment('Subscription Model Tests', function() {
   });
 
   lab.test('Get Number of Subscriptions invalid userId', function(done) {
-    Storage.getNumberOfSubscriptions('3388ffff-aa00-1111a222-00000044888c')
+    Storage.getNumberOfSubscriptions(TestUtils.invalidId)
       .then(function(res) {
         expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+        expect(res.message).to.equal('User not found');
         done();
       });
   });
@@ -242,7 +242,7 @@ lab.experiment('Subscription Model Tests', function() {
   });
 
   lab.test('Get Subscribers invalid userId', function(done) {
-    Storage.getSubscribers('3388ffff-aa00-1111a222-00000044888c')
+    Storage.getSubscribers(TestUtils.invalidId)
       .then(function(res) {
         expect(res).to.be.an.instanceof(CustomError.NotFoundError);
         expect(res.message).to.be.equal('User not found');
@@ -284,7 +284,7 @@ lab.experiment('Subscription Model Tests', function() {
   });
 
   lab.test('Get Number of Subscribers invalid userId', function(done) {
-    Storage.getNumberOfSubscribers('3388ffff-aa00-1111a222-00000044888c')
+    Storage.getNumberOfSubscribers(TestUtils.invalidId)
       .then(function(res) {
         expect(res).to.be.an.instanceof(CustomError.NotFoundError);
         done();
@@ -295,6 +295,12 @@ lab.experiment('Subscription Model Tests', function() {
     var userPromise1 = Storage.createUser(user1);
     var userPromise2 = Storage.createUser(user2);
 
+    Promise.join(userPromise1, userPromise2,
+      function(user1, user2) {
+        Storage.createSubscription(user1.userId, user2.userId)
+          .then(deleteSubscription);
+      });
+
     function deleteSubscription(subscription) {
       Storage.deleteSubscription(subscription.subscriber,
                                  subscription.subscribeTo)
@@ -304,49 +310,44 @@ lab.experiment('Subscription Model Tests', function() {
         });
     }
 
-    Promise.join(userPromise1, userPromise2,
-      function(user1, user2) {
-        Storage.createSubscription(user1.userId, user2.userId)
-          .then(deleteSubscription);
-      });
   });
 
   lab.test('Delete Subscription invalid subscription', function(done) {
     var userPromise1 = Storage.createUser(user1);
     var userPromise2 = Storage.createUser(user2);
 
+    Promise.join(userPromise1, userPromise2,
+      function(user1, user2) {
+        deleteSubscription(user1, user2);
+      });
+
     function deleteSubscription(user1, user2) {
-      Storage.deleteSubscription(user1.userId,
-                                 user2.userId)
+      Storage.deleteSubscription(user1.userId, user2.userId)
         .then(function(res) {
           expect(res).to.be.false();
           done();
         });
     }
 
-    Promise.join(userPromise1, userPromise2,
-      function(user1, user2) {
-        deleteSubscription(user1, user2);
-      });
   });
 
   lab.test('Delete Subscription invalid user', function(done) {
     var userPromise1 = Storage.createUser(user1);
     var userPromise2 = Storage.createUser(user2);
 
-    function deleteSubscription(subscription) {
-      Storage.deleteSubscription('3388ffff-aa00-1111a222-00000044888c',
-                                 subscription.subscribeTo)
-        .then(function(res) {
-          expect(res).to.be.an.instanceof(Error);
-          done();
-        });
-    }
-
     Promise.join(userPromise1, userPromise2,
       function(user1, user2) {
         Storage.createSubscription(user1.userId, user2.userId)
           .then(deleteSubscription);
       });
+
+    function deleteSubscription(subscription) {
+      Storage.deleteSubscription(TestUtils.invalidId, subscription.subscribeTo)
+        .then(function(res) {
+          expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+          done();
+        });
+    }
   });
+
 });

@@ -29,7 +29,7 @@ function StreamService() {
 var Class = StreamService.prototype;
 
 Class.createNewStream = function(userId, streamAttributes) {
-  logger.info('Creating new stream: %j', streamAttributes);
+  logger.info('Creating new stream: ', streamAttributes);
 
   return Storage.createStream(userId, streamAttributes)
     .then((result) => {
@@ -46,9 +46,9 @@ Class.createNewStream = function(userId, streamAttributes) {
         return new CustomError.InvalidFieldError(err.errors[0].message,
                                                  err.errors[0].path);
       } else if (err.name === 'TypeError') {
-        return new CustomError.NotFoundError('User not found');
+        return new CustomError.NotFoundError('User');
       } else {
-        return new CustomError.UnknownError();
+        return new CustomError.UnexpectedError(err);
       }
     });
 };
@@ -60,35 +60,45 @@ Class.getStreamById = function(streamId) {
     if (result) {
       return Utility.formatStreamObject(result, 'view');
     } else {
-      return new CustomError.NotFoundError('Stream not found');
+      return new CustomError.NotFoundError('Stream', streamId);
     }
   });
 };
 
-Class.getListOfStreams = function(userId, filters) {
+Class.getListOfStreams = function(filters, userId) {
   logger.debug('Getting list of streams for user %s with filters: %j',
                userId, filters);
 
-  return Storage.getListOfStreams(filters)
+  // not include subscribers
+  if (!userId) {
+    return Storage.getListOfStreams(filters, userId)
+    .then(function receiveResult(results) {
+      if (results) {
+        return results.map((singleStream) =>
+          Utility.formatStreamObject(singleStream, 'view'));
+
+      } else {
+        return new CustomError.NotFoundError('Stream');
+      }
+    }).catch(function(err) {
+      logger.error(err);
+      return null;
+    });
+  }
+
+  // include subscribers
+  return Storage.getListOfStreamsForUser(filters)
     .then(function receiveResult(results) {
       if (results) {
         results = results.map((singleStream) =>
           Utility.formatStreamObject(singleStream, 'view'));
-
-        // Remove unneeded list of subscribers
-        if (!userId) {
-          return results.map((stream) => {
-            delete stream.streamer.Subscribers;
-            return stream;
-          });
-        }
 
         // Allocate isSubscribedField
         results = addIsSubscribedField(userId, results);
 
         return results;
       } else {
-        return new CustomError.NotFoundError('Stream not found');
+        return new CustomError.NotFoundError('Stream');
       }
     }).catch(function(err) {
       logger.error(err);
@@ -109,7 +119,9 @@ Class.getStreamsFromSubscriptions = function(userId) {
         return results.map((singleStream) =>
           Utility.formatStreamObject(singleStream, 'view'));
       } else {
-        return new CustomError.NotFoundError('Stream not found');
+        var err = new CustomError.NotFoundError('Stream');
+        logger.error(err.message);
+        return err;
       }
     }).catch(function(err) {
       logger.error(err);
@@ -135,11 +147,11 @@ Class.updateStream = function(streamId, updates) {
         return new CustomError.InvalidFieldError(err.errors[0].message,
                                                  err.errors[0].path);
       } else if (err.name === 'TypeError') {
-        return new CustomError.NotFoundError('Stream not found');
+        return new CustomError.NotFoundError('Stream', streamId);
       } else if (err.name === 'InvalidColumnError') {
         return err;
       } else {
-        return new CustomError.UnknownError();
+        return new CustomError.UnexpectedError(err);
       }
     });
 };
@@ -168,7 +180,7 @@ Class.endStream = function(userId, streamId) {
   }).catch((err) => {
     logger.error(err);
     if (err.name === 'TypeError') {
-      return new CustomError.NotFoundError('Stream not found');
+      return new CustomError.NotFoundError('Stream', streamId);
     }
   });
 };
@@ -179,7 +191,7 @@ Class.deleteStream = function(streamId) {
   return Storage.deleteStream(streamId)
     .then((res) => {
       if (res === false) {
-        return new CustomError.NotFoundError('Stream not found');
+        return new CustomError.NotFoundError('Stream');
       }
 
       return res;
@@ -208,7 +220,7 @@ Class.createChatRoomsForLiveStreams = function() {
     sort: 'title',
     order: 'desc'
   };
-  this.getListOfStreams(null, filters)
+  this.getListOfStreams(filters, null)
   .then((liveStreams) => {
     for (var i in liveStreams) {
       initializeChatRoomForStream(liveStreams[i]);

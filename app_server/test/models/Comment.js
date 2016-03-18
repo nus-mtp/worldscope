@@ -102,8 +102,7 @@ lab.experiment('Comment Model Tests', function() {
     var userPromise = Storage.createUser(user1);
 
     userPromise.then(function(user) {
-      Storage.createComment(user.userId,
-                            '3388ffff-aa00-1111a222-00000044888c', comment1)
+      Storage.createComment(user.userId, TestUtils.invalidId, comment1)
         .then(function(res) {
           expect(res).to.be.an.instanceof(Error);
           done();
@@ -117,8 +116,7 @@ lab.experiment('Comment Model Tests', function() {
       Storage.createStream(user.userId, streamDetails));
 
     streamPromise.then(function(stream) {
-      Storage.createComment('3388ffff-aa00-1111a222-00000044888c',
-                            stream.streamId, comment1)
+      Storage.createComment(TestUtils.invalidId, stream.streamId, comment1)
         .then(function(res) {
           expect(res).to.be.an.instanceof(Error);
           done();
@@ -174,8 +172,7 @@ lab.experiment('Comment Model Tests', function() {
 
     Promise.join(userPromise, streamPromise,
       function(user, stream) {
-        Storage.getListOfCommentsForStream('3388ffff-aa00-1111' +
-                                           'a222-00000044888c')
+        Storage.getListOfCommentsForStream(TestUtils.invalidId)
           .then(function(res) {
             expect(res).to.be.an.instanceof(CustomError.NotFoundError);
             done();

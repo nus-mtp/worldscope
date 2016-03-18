@@ -20,11 +20,11 @@ exports.InvalidColumnError = function(message) {
 };
 
 var NotFoundError =
-exports.NotFoundError = function(message, extra) {
+exports.NotFoundError = function(message, details) {
   Error.captureStackTrace(this, this.constructor);
   this.name = 'NotFoundError';
-  this.message = message;
-  this.extra = extra;
+  this.message = `${message} not found`;
+  this.details = details;
 };
 
 var NotAuthorisedError =
@@ -41,10 +41,12 @@ exports.DuplicateEntryError = function(message) {
   this.message = message;
 };
 
-var UnknownError =
-exports.UnknownError = function() {
+var UnexpectedError =
+exports.UnexpectedError = function(details) {
   Error.captureStackTrace(this, this.constructor);
-  this.name = 'UnknownError';
+  this.name = 'UnexpectedError';
+  this.message = 'An unexpected error has occured';
+  this.details = details;
 };
 
 util.inherits(InvalidFieldError, Error);
@@ -52,5 +54,5 @@ util.inherits(InvalidColumnError, Error);
 util.inherits(NotFoundError, Error);
 util.inherits(NotAuthorisedError, Error);
 util.inherits(DuplicateEntryError, Error);
-util.inherits(UnknownError, Error);
+util.inherits(UnexpectedError, Error);
 

@@ -46,7 +46,7 @@ exports.mockFacebookServer = function () {
 };
 
 /**
- * Returns a new object that has properties copied from obj 
+ * Returns a new object that has properties copied from obj
  * @param {Object} obj
  * @param {Array} properties
  */
@@ -65,3 +65,5 @@ exports.copyObj = function (obj, properties) {
 exports.isEqualOnProperties = function (obj, newObj) {
   return _.isEqual(obj, exports.copyObj(newObj, Object.keys(obj)));
 };
+
+exports.invalidId = '3388ffff-aa00-1111a222-00000044888c';
