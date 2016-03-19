@@ -79,9 +79,7 @@ Class.registerRoutes = function() {
   this.server.route({method: 'GET', path: '/statistics',
                      config: {
                        validate: streamsStatsValidator,
-                       // TODO: place this back
-                       //auth: {scope: Authenticator.SCOPE.ADMIN.ADMINS}
-                       auth: false
+                       auth: {scope: Authenticator.SCOPE.ADMIN.ADMINS}
                      },
                      handler: this.getStreamsStats});
 };
@@ -207,7 +205,7 @@ Class.getStreamsStats = function(request, reply) {
 
   let state = request.query.state; 
   if (state !== 'live') {
-    reply({});
+    return reply({});
   }
 
   Service.getLiveStreamsStats()

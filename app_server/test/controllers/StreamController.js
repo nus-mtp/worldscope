@@ -707,20 +707,9 @@ lab.experiment('StreamController Control Tests', () => {
 });
 
 lab.experiment('Streams Statistics Tests', function() {
-  lab.before({timeout: 10000}, function(done) {
+  lab.beforeEach({timeout: 10000}, function(done) {
     TestUtils.resetDatabase(done);
-  });
-
-  let mockedMediaServer = new Hapi.Server();
-  let mockedResponse = fs.readFileSync('test/res/sampleConnectionCounts.xml');
-
-  mockedMediaServer.connection({port: 8086});
-  mockedMediaServer.route({
-    method: 'GET',
-    path: '/connectioncounts',
-    handler: function (request, reply) {
-      reply(mockedResponse.toString('utf8'));
-    },
+    SocketAdapter.__reset__();
   });
 
   lab.test('Failed to connect media server', function(done) {
@@ -742,8 +731,18 @@ lab.experiment('Streams Statistics Tests', function() {
   });
 
   lab.test('Statistics for live streams', function(done) {
+    let mockedMediaServer = new Hapi.Server();
+    mockedMediaServer.connection({port: 8086});
+    let mockedResponse = fs.readFileSync('test/res/sampleConnectionCounts.xml');
+    mockedMediaServer.route({
+      method: 'GET',
+      path: '/connectioncounts',
+      handler: function (request, reply) {
+        reply(mockedResponse.toString('utf8'));
+      },
+    });
+
     mockedMediaServer.start(() => {
-      SocketAdapter.__reset__();
       Service.createNewUser(bob).then(function(user) {
         return user.userId;
       }).then((userId) => {
@@ -753,7 +752,6 @@ lab.experiment('Streams Statistics Tests', function() {
         Router.inject({method: 'GET',
                       url: '/api/streams/statistics',
                       credentials: adminAccount}, (res) => {
-          console.log('HOHOHOHOHO ' + JSON.stringify(res.result, null, 2));
           let application = res.result['WowzaStreamingEngine']['VHost']
                                       ['Application']; 
           let appInstances = application['ApplicationInstance'];
@@ -763,6 +761,87 @@ lab.experiment('Streams Statistics Tests', function() {
           Code.expect(appInstances.length).to.equal(3);
           mockedMediaServer.stop(() => done());
         });
+      });
+    });
+  });
+
+  lab.test('No Application', function(done) {
+    let mockedMediaServer = new Hapi.Server();
+    mockedMediaServer.connection({port: 8086});
+    mockedMediaServer.route({
+      method: 'GET',
+      path: '/connectioncounts',
+      handler: function (request, reply) {
+        reply('<?xml version="1.0"?>' +
+              '<WowzaStreamingEngine><VHost><Name>Host</Name>' +
+              '</VHost></WowzaStreamingEngine>');
+      },
+    });
+
+    mockedMediaServer.start(() => {
+      Router.inject({method: 'GET',
+                    url: '/api/streams/statistics',
+                    credentials: adminAccount}, (res) => {
+        let application = res.result['WowzaStreamingEngine']['VHost']
+                                    ['Application'];
+        let appInstances = application['ApplicationInstance'];
+        Code.expect(appInstances).to.be.empty();
+        mockedMediaServer.stop(() => done());
+      });
+    });
+  });
+
+  lab.test('No Application Instance', function(done) {
+    let mockedMediaServer = new Hapi.Server();
+    mockedMediaServer.connection({port: 8086});
+    mockedMediaServer.route({
+      method: 'GET',
+      path: '/connectioncounts',
+      handler: function (request, reply) {
+        reply('<?xml version="1.0"?>' +
+              '<WowzaStreamingEngine><VHost>' +
+              '<Application><Name>worldscope</Name>' +
+              '</Application></VHost></WowzaStreamingEngine>');
+      },
+    });
+
+    mockedMediaServer.start(() => {
+      Router.inject({method: 'GET',
+                    url: '/api/streams/statistics',
+                    credentials: adminAccount}, (res) => {
+        let application = res.result['WowzaStreamingEngine']['VHost']
+                                    ['Application'];
+        let appInstances = application['ApplicationInstance'];
+        Code.expect(appInstances).to.be.empty();
+        mockedMediaServer.stop(() => done());
+      });
+    });
+  });
+
+  lab.test('1 Application Instance', function(done) {
+    let mockedMediaServer = new Hapi.Server();
+    mockedMediaServer.connection({port: 8086});
+    mockedMediaServer.route({
+      method: 'GET',
+      path: '/connectioncounts',
+      handler: function (request, reply) {
+        reply('<?xml version="1.0"?>' +
+              '<WowzaStreamingEngine><VHost>' +
+              '<Application><ApplicationInstance><Name>abc</Name>' +
+              '</ApplicationInstance></Application>' +
+              '</VHost></WowzaStreamingEngine>');
+      },
+    });
+
+    mockedMediaServer.start(() => {
+      Router.inject({method: 'GET',
+                    url: '/api/streams/statistics',
+                    credentials: adminAccount}, (res) => {
+        let application = res.result['WowzaStreamingEngine']['VHost']
+                                    ['Application'];
+        let appInstances = application['ApplicationInstance'];
+        Code.expect(appInstances.length).to.equal(1);
+        mockedMediaServer.stop(() => done());
       });
     });
   });
