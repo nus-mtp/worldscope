@@ -29,7 +29,7 @@ function StreamService() {
 var Class = StreamService.prototype;
 
 Class.createNewStream = function(userId, streamAttributes) {
-  logger.info('Creating new stream: %j', streamAttributes);
+  logger.info('Creating new stream: ', streamAttributes);
 
   return Storage.createStream(userId, streamAttributes)
     .then((result) => {
@@ -46,9 +46,9 @@ Class.createNewStream = function(userId, streamAttributes) {
         return new CustomError.InvalidFieldError(err.errors[0].message,
                                                  err.errors[0].path);
       } else if (err.name === 'TypeError') {
-        return new CustomError.NotFoundError('User not found');
+        return new CustomError.NotFoundError('User');
       } else {
-        return new CustomError.UnknownError();
+        return new CustomError.UnexpectedError(err);
       }
     });
 };
@@ -60,25 +60,50 @@ Class.getStreamById = function(streamId) {
     if (result) {
       return Utility.formatStreamObject(result, 'view');
     } else {
-      return new CustomError.NotFoundError('Stream not found');
+      return new CustomError.NotFoundError('Stream', streamId);
     }
   });
 };
 
-Class.getListOfStreams = function(filters) {
-  logger.debug('Getting list of streams with filters: %j', filters);
+Class.getListOfStreams = function(filters, userId) {
+  logger.debug('Getting list of streams for user %s with filters: %j',
+               userId, filters);
 
-  return Storage.getListOfStreams(filters)
+  // not include subscribers
+  if (!userId) {
+    return Storage.getListOfStreams(filters, userId)
     .then(function receiveResult(results) {
-      if (results) {
-        return results.map((singleStream) =>
-          Utility.formatStreamObject(singleStream, 'view'));
-      } else {
-        return new CustomError.NotFoundError('Stream not found');
+      if (!results) {
+        return new CustomError.NotFoundError('Stream');
       }
+
+      return results.map((singleStream) =>
+        Utility.formatStreamObject(singleStream, 'view'));
+
     }).catch(function(err) {
-      logger.error(err);
-      return null;
+      var err = new CustomError.UnexpectedError(err);
+      logger.error(err.message);
+      return err;
+    });
+  }
+
+  // include subscribers
+  return Storage.getListOfStreamsForUser(filters)
+    .then(function receiveResult(results) {
+      if (!results) {
+        return new CustomError.NotFoundError('Stream');
+      }
+
+      results = results.map((singleStream) =>
+        Utility.formatStreamObject(singleStream, 'view'));
+
+      // Allocate isSubscribedField
+      return addIsSubscribedField(userId, results);
+
+    }).catch(function(err) {
+      var err = new CustomError.UnexpectedError(err);
+      logger.error(err.message);
+      return err;
     });
 };
 
@@ -95,7 +120,9 @@ Class.getStreamsFromSubscriptions = function(userId) {
         return results.map((singleStream) =>
           Utility.formatStreamObject(singleStream, 'view'));
       } else {
-        return new CustomError.NotFoundError('Stream not found');
+        var err = new CustomError.NotFoundError('Stream');
+        logger.error(err.message);
+        return err;
       }
     }).catch(function(err) {
       logger.error(err);
@@ -121,11 +148,11 @@ Class.updateStream = function(streamId, updates) {
         return new CustomError.InvalidFieldError(err.errors[0].message,
                                                  err.errors[0].path);
       } else if (err.name === 'TypeError') {
-        return new CustomError.NotFoundError('Stream not found');
+        return new CustomError.NotFoundError('Stream', streamId);
       } else if (err.name === 'InvalidColumnError') {
         return err;
       } else {
-        return new CustomError.UnknownError();
+        return new CustomError.UnexpectedError(err);
       }
     });
 };
@@ -154,7 +181,7 @@ Class.endStream = function(userId, streamId) {
   }).catch((err) => {
     logger.error(err);
     if (err.name === 'TypeError') {
-      return new CustomError.NotFoundError('Stream not found');
+      return new CustomError.NotFoundError('Stream', streamId);
     }
   });
 };
@@ -165,7 +192,7 @@ Class.deleteStream = function(streamId) {
   return Storage.deleteStream(streamId)
     .then((res) => {
       if (res === false) {
-        return new CustomError.NotFoundError('Stream not found');
+        return new CustomError.NotFoundError('Stream', streamId);
       }
 
       return res;
@@ -188,17 +215,74 @@ Class.stopStream = function(appName, appInstance, streamId) {
   });
 };
 
+/**
+ * @param  {string} userId
+ * @param  {string} streamId
+ * @param  {Object} commentObj
+ * @param  {string} commentObj.content
+ * @return {Promise<Comment>}
+ */
+Class.createComment = function(userId, streamId, comment) {
+  logger.debug('Comment from user %s to stream %s',
+                userId, streamId);
+
+  comment = Utility.changeToJavascriptTime(comment);
+
+  return Storage.createComment(userId, streamId, comment)
+    .then(function receiveResult(result) {
+      if (!result || result instanceof Error) {
+        return result;
+      }
+
+      return Utility.changeToUnixTime(result.dataValues);
+    }).catch(function(err) {
+      logger.error('Unable to create comment: %j', err);
+
+      if (err.name === 'SequelizeValidationError') {
+        return new CustomError.InvalidFieldError(err.errors[0].message,
+                                                 err.errors[0].path);
+      } else {
+        return new CustomError.UnexpectedError(err);
+      }
+    });
+};
+
+/**
+ * @param  {string} streamId
+ * @return {Promise<Array<Comment>>}
+ */
+Class.getListOfCommentsForStream = function(streamId) {
+  logger.debug('Get list of comments for stream %s', streamId);
+
+  return Storage.getListOfCommentsForStream(streamId)
+    .then(function receiveResult(result) {
+      if (result instanceof Error) {
+        return result;
+      }
+
+      return result.map((res) => {
+        res = Utility.changeToUnixTime(res.dataValues);
+        delete res.deletedAt;
+        return res;
+      });
+
+    });
+};
+
 Class.createChatRoomsForLiveStreams = function() {
   var filters = {
     state: 'live',
     sort: 'title',
     order: 'desc'
   };
-  this.getListOfStreams(filters)
+  this.getListOfStreams(filters, null)
   .then((liveStreams) => {
     for (var i in liveStreams) {
       initializeChatRoomForStream(liveStreams[i]);
     }
+  })
+  .catch((err) => {
+    logger.error('Error getting list of live streams to create rooms', err);
   });
 };
 
@@ -208,11 +292,16 @@ Class.createChatRoomsForLiveStreams = function() {
  * @param streamAttributes {object}
  */
 function initializeChatRoomForStream(streamAttributes) {
-  let room = SocketAdapter.createNewRoom(streamAttributes.appInstance,
-                                         streamAttributes.streamId);
-  if (!room || room instanceof Error) {
+  try {
+    let room = SocketAdapter.createNewRoom(streamAttributes.appInstance,
+                                           streamAttributes.streamId);
+    if (!room || room instanceof Error) {
+      logger.error('Unable to create new chat room for stream %s',
+                   streamAttributes.title);
+    }
+  } catch (e) {
     logger.error('Unable to create new chat room for stream %s',
-                 streamAttributes.title);
+                 e.message);
   }
 }
 
@@ -221,11 +310,37 @@ function initializeChatRoomForStream(streamAttributes) {
  * @param appInstance {string}
  */
 function closeChatRoomForStream(appInstance) {
-  if (!SocketAdapter.isInitialized) {
-    logger.error('SocketAdapter is not isInitialized');
-    return;
+  try {
+    if (!SocketAdapter.isInitialized) {
+      logger.error('SocketAdapter is not isInitialized');
+      return;
+    }
+    SocketAdapter.closeRoom(appInstance);
+  } catch (e) {
+    logger.error('Unable to close new chat room for stream %s',
+                 e.message);
   }
-  SocketAdapter.closeRoom(appInstance);
 }
+
+/**
+ * Add isSubscribedField = true if userId is in subscribers
+ * @param userId  {string}
+ * @param results {Object} an array of streams
+ */
+var addIsSubscribedField = function(userId, results) {
+  for (var i = 0; i < results.length; i++) {
+    var aStream = results[i];
+
+    var subscriberIds = aStream.streamer.Subscribers.map((user) => user.userId);
+    if (subscriberIds.indexOf(userId) > -1) {
+      aStream.streamer.isSubscribed = true;
+    } else {
+      aStream.streamer.isSubscribed = false;
+    }
+
+    delete aStream.streamer.Subscribers;
+  }
+  return results;
+};
 
 module.exports = new StreamService();

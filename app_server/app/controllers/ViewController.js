@@ -37,7 +37,7 @@ Class.registerRoutes = function() {
                      },
                      handler: this.createView});
 
-  this.server.route({method: 'GET', path: '/{id}/number',
+  this.server.route({method: 'GET', path: '/{id}/statistics',
                      config: {
                        validate: singleViewValidator,
                        auth: {scope: Authenticator.SCOPE.ALL}
@@ -71,7 +71,7 @@ Class.getListOfUsersViewingStream = function(request, reply) {
     .then(function receiveResult(result) {
       if (!result) {
         logger.error('List of users cannot be retrieved');
-        return reply(Boom.badRequest('Stream could not be found'));
+        return reply(Boom.badRequest('Stream not found'));
       }
 
       return reply(result);
@@ -87,7 +87,7 @@ Class.getTotalNumberOfUsersViewedStream = function(request, reply) {
     .then(function receiveResult(result) {
       if (!result) {
         logger.error('Number of users cannot be retrieved');
-        return reply(Boom.badRequest('Stream could not be found'));
+        return reply(Boom.badRequest('Stream not found'));
       }
 
       return reply(result);

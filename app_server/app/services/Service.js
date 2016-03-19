@@ -92,16 +92,6 @@ Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
   return UserService.deleteSubscription(subscribeFrom, subscribeTo);
 };
 
-Class.createComment = function(userId, streamId, comment) {
-  logger.debug('Comment from user %s to stream %s',
-                userId, streamId);
-  return UserService.createComment(userId, streamId, comment);
-};
-
-Class.getListOfCommentsForStream = function(streamId) {
-  logger.debug('Get list of comments for stream %s', streamId);
-  return UserService.getListOfCommentsForStream(streamId);
-};
 ///////////////////////
 
 /////// STREAM APIs ///////
@@ -115,9 +105,10 @@ Class.getStreamById = function(streamId) {
   return StreamService.getStreamById(streamId);
 };
 
-Class.getListOfStreams = function(filters) {
-  logger.debug('Getting list of streams with filters: %j', filters);
-  return StreamService.getListOfStreams(filters);
+Class.getListOfStreams = function(filters, userId) {
+  logger.debug('Getting list of streams with for user %s, filters: %j',
+               userId, filters);
+  return StreamService.getListOfStreams(filters, userId);
 };
 
 Class.getStreamsFromSubscriptions = function(userId) {
@@ -143,6 +134,17 @@ Class.stopStream = function(appName, appInstance, streamId) {
 Class.deleteStream = function(streamId) {
   logger.debug('Deleting stream entry %s, streamId');
   return StreamService.deleteStream(streamId);
+};
+
+Class.createComment = function(userId, streamId, comment) {
+  logger.debug('Comment from user %s to stream %s',
+                userId, streamId);
+  return StreamService.createComment(userId, streamId, comment);
+};
+
+Class.getListOfCommentsForStream = function(streamId) {
+  logger.debug('Get list of comments for stream %s', streamId);
+  return StreamService.getListOfCommentsForStream(streamId);
 };
 
 /////// ADMIN APIs ///////

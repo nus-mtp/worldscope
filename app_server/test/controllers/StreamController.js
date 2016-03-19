@@ -338,7 +338,57 @@ lab.experiment('StreamController Tests', function() {
     }).then(function(stream) {
       return Service.createNewStream(stream.owner, streamInfo2);
     }).then(injectionHandler);
+  });
 
+  lab.test('Get list of streams valid isSubscribed false', function(done) {
+    Service.createNewUser(bob).then(function(user) {
+      testAccount.userId = user.userId;
+      return user.userId;
+    }).then(function(userId) {
+      return Service.createNewStream(userId, streamInfo);
+    }).then(function(stream) {
+      return Service.createNewStream(stream.owner, streamInfo2);
+    }).then(function() {
+      Router.inject({method: 'GET', url: '/api/streams?sort=title&order=asc',
+                     credentials: testAccount}, function(res) {
+        Code.expect(res.result).to.have.length(2);
+        Code.expect(res.result[0].title).to.equal(streamInfo2.title);
+        Code.expect(res.result[0].streamer.username).to.equal(bob.username);
+        Code.expect(res.result[0].streamer.isSubscribed).to.be.false();
+        Code.expect(res.result[1].title).to.equal(streamInfo.title);
+        Code.expect(res.result[1].streamer.username).to.equal(bob.username);
+        Code.expect(res.result[1].streamer.isSubscribed).to.be.false();
+        done();
+      });
+    });
+  });
+
+  lab.test('Get list of streams valid isSubscribed true', function(done) {
+
+    var userPromise1 = Service.createNewUser(bob);
+    var userPromise2 = Service.createNewUser(alice);
+
+    Promise.join(userPromise1, userPromise2,
+      function(user, user2) {
+        testAccount.userId = user2.userId;
+        return Service.createSubscription(user2.userId, user.userId);
+      }).then(function(subscription) {
+        return Service.createNewStream(subscription.subscribeTo, streamInfo);
+      }).then(function(stream) {
+        return Service.createNewStream(stream.owner, streamInfo2);
+      }).then(function() {
+        Router.inject({method: 'GET', url: '/api/streams?sort=title&order=asc',
+                       credentials: testAccount}, function(res) {
+          Code.expect(res.result).to.have.length(2);
+          Code.expect(res.result[0].title).to.equal(streamInfo2.title);
+          Code.expect(res.result[0].streamer.username).to.equal(bob.username);
+          Code.expect(res.result[0].streamer.isSubscribed).to.be.true();
+          Code.expect(res.result[1].title).to.equal(streamInfo.title);
+          Code.expect(res.result[1].streamer.username).to.equal(bob.username);
+          Code.expect(res.result[1].streamer.isSubscribed).to.be.true();
+          done();
+        });
+      });
   });
 
   lab.test('Get list of streams invalid query params', function(done) {

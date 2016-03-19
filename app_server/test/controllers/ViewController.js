@@ -67,18 +67,19 @@ lab.experiment('ViewController Tests', function() {
 
     userPromise.then(function(user) {
       testAccount.userId = user.userId;
-      Router.inject({method: 'POST', url: '/api/views/' +
-                     '3388ffff-aa00-1111a222-00000044888c',
+      Router.inject({method: 'POST', url: '/api/views/' + TestUtils.invalidId,
                      credentials: testAccount}, function(res) {
 
         Code.expect(res.result.statusCode).to.equal(400);
-        Code.expect(res.result.message).to.equal('Stream cannot be found');
+        Code.expect(res.result.message).to.equal('Stream not found');
         done();
       });
     });
   });
 
   lab.test('Create view invalid userId', function(done) {
+    testAccount.userId = TestUtils.invalidId;
+
     var userPromise = Service.createNewUser(bob).then((user) => user.userId);
     var streamPromise = userPromise.then((userId) =>
       Service.createNewStream(userId, stream));
@@ -88,7 +89,7 @@ lab.experiment('ViewController Tests', function() {
                      credentials: testAccount}, function(res) {
 
         Code.expect(res.result.statusCode).to.equal(400);
-        Code.expect(res.result.message).to.equal('User cannot be found');
+        Code.expect(res.result.message).to.equal('User not found');
         done();
       });
     });
@@ -135,11 +136,10 @@ lab.experiment('ViewController Tests', function() {
   });
 
   lab.test('Get list of users viewing a stream invalid', function(done) {
-    Router.inject({method: 'GET', url: '/api/views/' +
-                   '3388ffff-aa00-1111a222-00000044888c',
+    Router.inject({method: 'GET', url: '/api/views/' + TestUtils.invalidId,
                    credentials: testAccount}, function(res) {
       Code.expect(res.result.statusCode).to.equal(400);
-      Code.expect(res.result.message).to.equal('Stream could not be found');
+      Code.expect(res.result.message).to.equal('Stream not found');
       done();
     });
   });
@@ -160,8 +160,9 @@ lab.experiment('ViewController Tests', function() {
 
     Promise.join(viewPromise1, viewPromise2,
       function(view1, view2) {
-        Router.inject({method: 'GET', url: '/api/views/' + view1.streamId +
-                       '/number',
+        var url = '/api/views/' + view1.streamId + '/statistics';
+        console.log(url);
+        Router.inject({method: 'GET', url: url,
                        credentials: testAccount}, function(res) {
           Code.expect(res.result).to.equal(2);
           done();

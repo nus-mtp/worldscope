@@ -77,11 +77,13 @@ lab.experiment('Stream Model Tests', function() {
   });
 
   lab.test('Create Stream with invalid userId', function(done) {
-    Storage.createStream('123-123-123', streamDetails).catch(function(err) {
-      expect(err.name).to.equal('TypeError');
-      expect(err.message).to.equal("Cannot read property 'addStream' of null");
-      done();
-    });
+    Storage.createStream(TestUtils.invalidId, streamDetails)
+      .catch(function(err) {
+        expect(err.name).to.equal('TypeError');
+        expect(err.message)
+          .to.equal("Cannot read property 'addStream' of null");
+        done();
+      });
   });
 
   lab.test('Get Stream by Id', function(done) {
@@ -104,7 +106,7 @@ lab.experiment('Stream Model Tests', function() {
     }).then(function(userId) {
       return Storage.createStream(userId, streamDetails);
     }).then(function(stream) {
-      return Storage.getStreamById({streamId: '123-123'});
+      return Storage.getStreamById({streamId: TestUtils.invalidId});
     }).then(function(res) {
       expect(res).to.be.null();
       done();
@@ -281,6 +283,43 @@ lab.experiment('Stream Model Tests', function() {
           expect(res[1].title).to.equal(streamDetails.title);
           expect(res[1].streamer.username).to.equal(userDetails2.username);
           done();
+        });
+      });
+  });
+
+  lab.test('Get list of live streams has subscribers', function(done) {
+    var filters = {
+      state: 'live',
+      sort: 'time',
+      order: 'desc'
+    };
+
+    var userPromise = Storage.createUser(userDetails);
+    var userPromise2 = Storage.createUser(userDetails2);
+
+    var streamPromise = userPromise.then(function(user) {
+      return Storage.createStream(user.userId, streamDetails3)
+        .then(function(stream) {
+          return Storage.createStream(user.userId, streamDetails2);
+        });
+    });
+
+    var streamPromise2 = userPromise2.then(function(user2) {
+      return Storage.createStream(user2.userId, streamDetails);
+    });
+
+    Promise.join(streamPromise, streamPromise2,
+      function(stream1, stream2) {
+        // Betty subscribe to Alex
+        return Storage.createSubscription(stream2.owner,
+                                          stream1.owner)
+        .then(function(res) {
+          Storage.getListOfStreamsForUser(filters, stream2.owner)
+          .then(function(res) {
+            expect(res[0].streamer.Subscribers[0].userId)
+              .to.equal(stream2.owner);
+            done();
+          });
         });
       });
   });
@@ -490,8 +529,7 @@ lab.experiment('Stream Model Tests', function() {
       totalViewers: 23123
     };
 
-    Storage.updateStream('3388ffff-aa00-1111a222-00000044888c',
-                          newStreamAttributes)
+    Storage.updateStream(TestUtils.invalidId, newStreamAttributes)
       .catch(function(err) {
         expect(err).to.be.an.instanceof(Error);
         done();
@@ -519,7 +557,7 @@ lab.experiment('Stream Model Tests', function() {
     }).then(function(userId) {
       return Storage.createStream(userId, streamDetails);
     }).then(function(stream) {
-      return Storage.deleteStream('3388ffff-aa00-1111a222-00000044888c');
+      return Storage.deleteStream(TestUtils.invalidId);
     }).then(function(res) {
       expect(res).to.be.false();
       done();

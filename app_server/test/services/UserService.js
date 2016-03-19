@@ -49,7 +49,7 @@ var stream = {
   description: 'arbitrary description',
   appInstance: '123-123-123-123'
 };
-/*
+
 lab.experiment('UserService Tests', function () {
 
   lab.beforeEach({timeout: 10000}, function (done) {
@@ -89,7 +89,8 @@ lab.experiment('UserService Tests', function () {
 
   lab.test('getUserByPlatform invalid platformId', function(done) {
     Service.createNewUser(bob).then(function (result) {
-      return Service.getUserByPlatform(result.platformType, 'invalidId');
+      return Service.getUserByPlatform(result.platformType,
+                                       TestUtils.invalidId);
     }).then(function(user) {
       Code.expect(user).to.be.null();
       done();
@@ -167,7 +168,7 @@ lab.experiment('UserService Tests', function () {
 
   lab.test('updateUser invalid userId', function(done) {
     Service.createNewUser(bob).then(function (result) {
-      return Service.updateUser('3388ffff-aa00-1111a222-00000044888c',
+      return Service.updateUser(TestUtils.invalidId,
                                 {description: 'blahblah'});
     }).then(function(user) {
       Code.expect(user).to.be.null();
@@ -230,14 +231,25 @@ lab.experiment('UserService Tests for View', function () {
     });
   });
 
+  lab.test('Create View valid repeated user/stream', function(done) {
+    Service.createNewUser(bob)
+      .then((user) => {
+        Service.createNewStream(user.userId, stream)
+          .then((stream) => Service.createView(stream.owner, stream.streamId))
+          .then((view) => Service.createView(view.userId, view.streamId))
+          .then((view) => {
+            Code.expect(view.userId).to.equal(user.userId);
+            done();
+          });
+      });
+  });
+
   lab.test('Create View invalid user', function(done) {
     Service.createNewUser(bob)
     .then((user) => Service.createNewStream(user.userId, stream))
-    .then((stream) => Service.createView('3388ffff-aa00-1111a222-00000044888c',
-                                          stream.streamId))
+    .then((stream) => Service.createView(TestUtils.invalidId, stream.streamId))
     .then(function(res) {
       Code.expect(res).to.be.an.instanceof(CustomError.NotFoundError);
-      Code.expect(res.message).to.be.equal('User not found');
       done();
     });
   });
@@ -246,20 +258,7 @@ lab.experiment('UserService Tests for View', function () {
     Service.createNewUser(bob)
       .then((user) => Service.createNewStream(user.userId, stream))
       .then((stream) =>
-        Service.createView(stream.owner,
-                           '3388ffff-aa00-1111a222-00000044888c'))
-      .then(function(res) {
-        Code.expect(res).to.be.an.instanceof(CustomError.NotFoundError);
-        Code.expect(res.message).to.be.equal('Stream not found');
-        done();
-      });
-  });
-
-  lab.test('Create View invalid repeated user/stream', function(done) {
-    Service.createNewUser(bob)
-      .then((user) => Service.createNewStream(user.userId, stream))
-      .then((stream) => Service.createView(stream.owner, stream.streamId))
-      .then((view) => Service.createView(view.userId, view.streamId))
+        Service.createView(stream.owner, TestUtils.invalidId))
       .then(function(res) {
         Code.expect(res).to.be.an.instanceof(CustomError.NotFoundError);
         done();
@@ -300,7 +299,7 @@ lab.experiment('UserService Tests for View', function () {
   lab.test('Get list of users watching a particular stream invalid',
     function(done) {
 
-      Service.getListOfUsersViewingStream('3388ffff-aa00-1111a222-00000044888c')
+      Service.getListOfUsersViewingStream(TestUtils.invalidId)
         .then(function(result) {
           Code.expect(result).to.be.null();
           done();
@@ -324,15 +323,14 @@ lab.experiment('UserService Tests for View', function () {
 
   lab.test('Get number of users who have watched a stream invalid',
     function(done) {
-      Service.getTotalNumberOfUsersViewedStream('3388ffff-aa00-' +
-                                                '1111a222-00000044888c')
+      Service.getTotalNumberOfUsersViewedStream(TestUtils.invalidId)
         .then(function(result) {
           Code.expect(result).to.equal(0);
           done();
         });
     });
 });
-*/
+
 lab.experiment('UserService Tests for Subscriptions', function () {
 
   lab.beforeEach({timeout: 10000}, function (done) {
@@ -358,8 +356,7 @@ lab.experiment('UserService Tests for Subscriptions', function () {
     var userPromise1 = Service.createNewUser(alice);
 
     userPromise1.then(function(user1) {
-      Service.createSubscription(user1.userId,
-                                 '3388ffff-aa00-1111a222-00000044888c')
+      Service.createSubscription(user1.userId, TestUtils.invalidId)
         .then(function(res) {
           expect(res).to.be.an.instanceof(CustomError.NotFoundError);
           expect(res.message).to.be.equal('User not found');
@@ -421,7 +418,7 @@ lab.experiment('UserService Tests for Subscriptions', function () {
   });
 
   lab.test('Get Subscriptions invalid userId', function(done) {
-    Service.getSubscriptions('3388ffff-aa00-1111a222-00000044888c')
+    Service.getSubscriptions(TestUtils.invalidId)
       .then(function(res) {
         expect(res).to.be.an.instanceof(CustomError.NotFoundError);
         expect(res.message).to.be.equal('User not found');
@@ -456,14 +453,13 @@ lab.experiment('UserService Tests for Subscriptions', function () {
     userPromise1.then((user) =>
       Service.getNumberOfSubscriptions(user.userId))
         .then((res) => {
-          console.log(res);
           expect(res).to.equal(0);
           done();
         });
   });
 
   lab.test('Get Number of Subscriptions invalid', function(done) {
-    Service.getNumberOfSubscriptions('3388ffff-aa00-1111a222-00000044888c')
+    Service.getNumberOfSubscriptions(TestUtils.invalidId)
       .then((res) => {
         expect(res).to.be.an.instanceof(CustomError.NotFoundError);
         done();
@@ -478,13 +474,16 @@ lab.experiment('UserService Tests for Subscriptions', function () {
     Promise.join(userPromise1, userPromise2, userPromise3,
       function(user1, user2, user3) {
         Service.createSubscription(user1.userId, user3.userId)
+          .then(() => Service.createSubscription(user3.userId, user2.userId))
           .then(() => Service.createSubscription(user2.userId, user3.userId))
-          .then(function(subscription) {
+          .then((subscription) => {
             Service.getSubscribers(subscription.subscribeTo)
-              .then(function(res) {
+              .then((res) => {
                 expect(res).to.have.length(2);
                 expect(res[0].username).to.equal(alice.username);
+                expect(res[0].isSubscribed).to.be.false();
                 expect(res[1].username).to.equal(bob.username);
+                expect(res[1].isSubscribed).to.be.true();
                 done();
               });
           });
@@ -492,7 +491,7 @@ lab.experiment('UserService Tests for Subscriptions', function () {
   });
 
   lab.test('Get Subscribers invalid userId', function(done) {
-    Service.getSubscribers('3388ffff-aa00-1111a222-00000044888c')
+    Service.getSubscribers(TestUtils.invalidId)
       .then(function(res) {
         expect(res).to.be.an.instanceof(CustomError.NotFoundError);
         expect(res.message).to.be.equal('User not found');
@@ -533,7 +532,7 @@ lab.experiment('UserService Tests for Subscriptions', function () {
   });
 
   lab.test('Get Number of Subscribers invalid', function(done) {
-    Service.getNumberOfSubscribers('3388ffff-aa00-1111a222-00000044888c')
+    Service.getNumberOfSubscribers(TestUtils.invalidId)
       .then((res) => {
         expect(res).to.be.an.instanceof(CustomError.NotFoundError);
         done();
@@ -545,8 +544,7 @@ lab.experiment('UserService Tests for Subscriptions', function () {
     var userPromise2 = Service.createNewUser(bob);
 
     function deleteSubscription(user1, user2) {
-      Service.deleteSubscription(user1.userId,
-                                 user2.userId)
+      Service.deleteSubscription(user1.userId, user2.userId)
         .then(function(res) {
           expect(res).to.be.true();
           done();
@@ -568,7 +566,8 @@ lab.experiment('UserService Tests for Subscriptions', function () {
       function(user1, user2) {
         Service.deleteSubscription(user1.userId, user2.userId)
           .then(function(res) {
-            expect(res).to.be.false();
+            expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+            expect(res.message).to.equal('Subscription not found');
             done();
           });
       });
@@ -578,22 +577,20 @@ lab.experiment('UserService Tests for Subscriptions', function () {
     var userPromise1 = Service.createNewUser(alice);
 
     userPromise1.then(function(user) {
-      Service.deleteSubscription('3388ffff-aa00-1111a222-00000044888c',
-                                 user.userId)
+      Service.deleteSubscription(TestUtils.invalidId, user.userId)
         .then(function(res) {
-          expect(res).to.be.an.instanceof(Error);
+          expect(res).to.be.an.instanceof(CustomError.NotFoundError);
           expect(res.message).to.equal('User not found');
           done();
         });
     });
   });
 
-  lab.test('Delete Subscription invalid subscribed user', function(done) {
+  lab.test('Delete Subscription invalid user to subscribe', function(done) {
     var userPromise1 = Service.createNewUser(alice);
 
     userPromise1.then(function(user) {
-      Service.deleteSubscription(user.userId,
-                                 '123-123')
+      Service.deleteSubscription(user.userId, TestUtils.invalidId)
         .then(function(res) {
           expect(res).to.be.an.instanceof(Error);
           expect(res.message).to.equal('User not found');
@@ -603,114 +600,3 @@ lab.experiment('UserService Tests for Subscriptions', function () {
   });
 
 });
-/*
-lab.experiment('UserService Tests for Comments', function () {
-
-  var comment1 = {
-    content: 'How do I live without you',
-    createdAt: 1457431895187
-  };
-
-  var comment2 = {
-    content: 'How do I breathe without you',
-    createdAt: 1457431905187
-  };
-
-  var comment3 = {
-    content: 'How do I ever',
-    createdAt: 1457431915187
-  };
-
-  lab.beforeEach({timeout: 10000}, function (done) {
-    TestUtils.resetDatabase(done);
-  });
-
-  lab.test('Create Comment valid', function(done) {
-    var userPromise = Service.createNewUser(alice);
-    var streamPromise = userPromise
-      .then((user) => Service.createNewStream(user.userId, stream));
-
-    Promise.join(userPromise, streamPromise,
-      function(user, stream) {
-        Service.createComment(user.userId, stream.streamId, comment1)
-          .then(function(res) {
-            expect(res.content).to.equal(comment1.content);
-            expect(res.userId).to.equal(user.userId);
-            expect(res.streamId).to.equal(stream.streamId);
-            done();
-          });
-      });
-  });
-
-  lab.test('Create Comment invalid empty string', function(done) {
-    var userPromise = Service.createNewUser(alice);
-    var streamPromise = userPromise
-      .then((user) => Service.createNewStream(user.userId, stream));
-
-    Promise.join(userPromise, streamPromise,
-      function(user, stream) {
-        Service.createComment(user.userId, stream.streamId, {content: ''})
-          .then(function(err) {
-            expect(err).to.be.an.instanceof(Error);
-            done();
-          });
-      });
-  });
-
-  lab.test('Create Comment valid duplicate', function(done) {
-    var userPromise = Service.createNewUser(alice);
-    var streamPromise = userPromise
-      .then((user) => Service.createNewStream(user.userId, stream));
-
-    Promise.join(userPromise, streamPromise,
-      function(user, stream) {
-        Service.createComment(user.userId, stream.streamId, comment1)
-          .then(() => Service.createComment(user.userId, stream.streamId,
-                                            comment1))
-          .then((res) => {
-            expect(res.content).to.equal(comment1.content);
-            expect(res.userId).to.equal(user.userId);
-            expect(res.streamId).to.equal(stream.streamId);
-            done();
-          });
-      });
-  });
-
-  lab.test('Get list of comments', function(done) {
-    var userPromise = Service.createNewUser(alice);
-    var streamPromise = userPromise
-      .then((user) => Service.createNewStream(user.userId, stream));
-
-    Promise.join(userPromise, streamPromise,
-      function(user, stream) {
-        Service.createComment(user.userId, stream.streamId, comment1)
-          .then(() => Service.createComment(user.userId, stream.streamId,
-                                            comment2))
-          .then(() => Service.createComment(user.userId, stream.streamId,
-                                            comment3))
-          .then(() => Service.getListOfCommentsForStream(stream.streamId))
-          .then((res) => {
-            expect(res).to.have.length(3);
-            done();
-          });
-      });
-  });
-
-  lab.test('Get list of comments non-existing stream', function(done) {
-    var userPromise = Service.createNewUser(alice);
-    var streamPromise = userPromise
-      .then((user) => Service.createNewStream(user.userId, stream));
-
-    Promise.join(userPromise, streamPromise,
-      function(user, stream) {
-        Service.createComment(user.userId, stream.streamId, comment1)
-          .then(() => Service.getListOfCommentsForStream('3388ffff-aa00-111' +
-                                                         '1a222-00000044888c'))
-          .then((res) => {
-            expect(res).to.be.an.instanceof(CustomError.NotFoundError);
-            done();
-          });
-      });
-  });
-});
-*/

@@ -36,7 +36,8 @@ var commentPayload = {
   streamId: '',
   comment: {
     message: 'this is a random message',
-    time: 1457431895187
+    time: 1457431895000,
+    alias: 'bobby'
   }
 };
 
@@ -44,7 +45,8 @@ var commentPayload2 = {
   streamId: '',
   comment: {
     message: 'this is a second random message',
-    time: 1457431915187
+    time: 1457431915000,
+    alias: 'bobby'
   }
 };
 
@@ -55,6 +57,16 @@ lab.experiment('CommentController Tests', function() {
   });
 
   lab.test('Create comment valid', function(done) {
+    Service.createNewUser(bob).then((user) => user.userId)
+      .then(function(userId) {
+        testAccount.userId = userId;
+        Router.inject({method: 'POST', url: '/api/streams',
+                       credentials: testAccount,
+                       payload: streamPayload}, function(res) {
+          injectNewComment(res.result.streamId);
+        });
+      });
+
     function injectNewComment(streamId) {
       commentPayload.streamId = streamId;
       Router.inject({method: 'POST',
@@ -67,7 +79,9 @@ lab.experiment('CommentController Tests', function() {
         done();
       });
     }
+  });
 
+  lab.test('Create comment invalid empty content', function(done) {
     Service.createNewUser(bob).then((user) => user.userId)
       .then(function(userId) {
         testAccount.userId = userId;
@@ -77,17 +91,14 @@ lab.experiment('CommentController Tests', function() {
           injectNewComment(res.result.streamId);
         });
       });
-  });
-
-  lab.test('Create comment invalid empty string', function(done) {
 
     function injectNewComment(streamId) {
-
       var commentPayload = {
         streamId: '',
         comment: {
           message: '',
-          time: 1457431895187
+          time: 1457431895187,
+          alias: 'bobby'
         }
       };
 
@@ -103,7 +114,9 @@ lab.experiment('CommentController Tests', function() {
         done();
       });
     }
+  });
 
+  lab.test('Create comment invalid unauthorised', function(done) {
     Service.createNewUser(bob).then((user) => user.userId)
       .then(function(userId) {
         testAccount.userId = userId;
@@ -113,12 +126,8 @@ lab.experiment('CommentController Tests', function() {
           injectNewComment(res.result.streamId);
         });
       });
-  });
-
-  lab.test('Create comment invalid unauthorised', function(done) {
 
     function injectNewComment(streamId) {
-
       commentPayload.streamId = streamId;
 
       Router.inject({method: 'POST',
@@ -130,19 +139,18 @@ lab.experiment('CommentController Tests', function() {
         done();
       });
     }
-
-    Service.createNewUser(bob).then((user) => user.userId)
-    .then(function(userId) {
-      testAccount.userId = userId;
-      Router.inject({method: 'POST', url: '/api/streams',
-                     credentials: testAccount,
-                     payload: streamPayload}, function(res) {
-        injectNewComment(res.result.streamId);
-      });
-    });
   });
 
   lab.test('Get list of comments', function(done) {
+    Service.createNewUser(bob).then((user) => user.userId)
+      .then(function(userId) {
+        testAccount.userId = userId;
+        Router.inject({method: 'POST', url: '/api/streams',
+                       credentials: testAccount,
+                       payload: streamPayload}, function(res) {
+          injectNewComment(res.result.streamId);
+        });
+      });
 
     function injectNewComment(streamId) {
       commentPayload.streamId = streamId;
@@ -165,39 +173,32 @@ lab.experiment('CommentController Tests', function() {
                      credentials: testAccount,
                      allowInternals: true,
                      payload: commentPayload2}, function(res) {
-        injectRetrieveComments(streamId);
+        retrieveComments(streamId);
       });
     }
 
-    function injectRetrieveComments(streamId) {
+    function retrieveComments(streamId) {
 
       Router.inject({method: 'GET',
                      url: '/api/comments/streams/' + streamId,
                      credentials: testAccount}, function(res) {
-        Code.expect(res.result[0].content).to.be
-          .equal(commentPayload2.comment.message);
-        Code.expect(res.result[1].content).to.be
-          .equal(commentPayload.comment.message);
+        Code.expect(res.result[0].content)
+          .to.be.equal(commentPayload2.comment.message);
+        Code.expect(res.result[0].alias)
+          .to.be.equal(commentPayload2.comment.alias);
+        Code.expect(res.result[1].content)
+          .to.be.equal(commentPayload.comment.message);
+        Code.expect(res.result[1].alias)
+          .to.be.equal(commentPayload.comment.alias);
         done();
       });
     }
-
-    Service.createNewUser(bob).then((user) => user.userId)
-    .then(function(userId) {
-      testAccount.userId = userId;
-      Router.inject({method: 'POST', url: '/api/streams',
-                     credentials: testAccount,
-                     payload: streamPayload}, function(res) {
-        injectNewComment(res.result.streamId);
-      });
-    });
   });
 
   lab.test('Get list of comments invalid stream id', function(done) {
 
     Router.inject({method: 'GET',
-                   url: '/api/comments/streams/' +
-                        '3388ffff-aa00-1111a222-00000044888c',
+                   url: '/api/comments/streams/' + TestUtils.invalidId,
                    credentials: testAccount}, function(res) {
       Code.expect(res.result.statusCode).to.equal(400);
       done();

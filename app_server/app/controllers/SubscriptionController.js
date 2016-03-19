@@ -172,9 +172,8 @@ Class.deleteSubscription = function(request, reply) {
 
   Service.deleteSubscription(userId, targetId)
     .then(function receiveResult(result) {
-
-      if (!result || result instanceof Error) {
-        return reply({'status': 'Unsuccessful'});
+      if (result instanceof Error) {
+        return reply(Boom.badRequest(result.message));
       }
 
       return reply({'status': 'OK'});
@@ -191,9 +190,8 @@ Class.deleteSubscriber = function(request, reply) {
 
   Service.deleteSubscription(targetId, userId)
     .then(function receiveResult(result) {
-
-      if (!result || result instanceof Error) {
-        return reply({'status': 'Unsuccessful'});
+      if (result instanceof Error) {
+        return reply(Boom.badRequest(result.message));
       }
 
       return reply({'status': 'OK'});

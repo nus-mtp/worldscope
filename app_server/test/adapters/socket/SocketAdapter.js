@@ -323,6 +323,7 @@ lab.experiment('Comments and stickers tests', function () {
                   let comment = comments[i];
                   if (comment.userId === user.userId &&
                       comment.streamId === stream.streamId &&
+                      comment.alias === user.alias &&
                       comment.content === testComment) {
                     done();
                   }

@@ -17,10 +17,17 @@ module.exports = function(sequelize, DataTypes) {
       validate: {
         notEmpty: true
       }
+    },
+    alias: {
+      type: DataTypes.STRING,
+      validate: {
+        notEmpty: true
+      }
     }
   }, {
     freezeTableName: true,
     paranoid: true,
+    timestamps: true,
     setterMethods: {
       createdAt: function(newDate) {
         this.setDataValue('createdAt', newDate);

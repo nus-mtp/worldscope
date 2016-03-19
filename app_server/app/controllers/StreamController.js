@@ -123,13 +123,14 @@ Class.getStreamById = function(request, reply) {
 Class.getListOfStreams = function(request, reply) {
   logger.debug('Getting list of streams');
 
+  var userId = request.auth.credentials.userId;
   var filters = {
     state: request.query.state,
     sort: request.query.sort,
     order: request.query.order
   };
 
-  Service.getListOfStreams(filters).then(function(listStreams) {
+  Service.getListOfStreams(filters, userId).then(function(listStreams) {
     if (!listStreams || listStreams instanceof Error) {
       return reply(Boom.notFound('Stream not found'));
     }

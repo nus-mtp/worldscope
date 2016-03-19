@@ -10,50 +10,51 @@ var Service = rfr('app/services/Service');
 var CustomError = rfr('app/util/Error');
 var TestUtils = rfr('test/TestUtils');
 
+var testStream = {
+  title: 'this is a title from stream service',
+  description: 'arbitrary description',
+  appInstance: '123-123-123-123'
+};
+
+var testStream2 = {
+  title: 'Its more recent title from stream service',
+  description: 'arbitrary description',
+  appInstance: '7777-777-777',
+  createdAt: new Date('2017-07-07')
+};
+
+var testStream3 = {
+  title: 'old stream, ended stream',
+  description: 'arbitrary description',
+  appInstance: '7999-777-777',
+  createdAt: new Date('2015-01-01'),
+  endedAt: new Date('2015-01-02'),
+  live: false
+};
+
+var alice = {
+  username: 'Alice',
+  alias: 'Alice in the wonderland',
+  email: 'alice@apple.com',
+  password: 'generated',
+  accessToken: 'anaccesstoken',
+  platformType: 'facebook',
+  platformId: '45454545454',
+  description: 'nil'
+};
+
+var bob = {
+  username: 'Bob',
+  alias: 'Bob the Builder',
+  email: 'bob@bubblegum.com',
+  password: 'generated',
+  accessToken: 'xyzabc',
+  platformType: 'facebook',
+  platformId: '1238943948',
+  description: 'bam bam bam'
+};
+
 lab.experiment('StreamService Tests', function() {
-  var testStream = {
-    title: 'this is a title from stream service',
-    description: 'arbitrary description',
-    appInstance: '123-123-123-123'
-  };
-
-  var testStream2 = {
-    title: 'Its more recent title from stream service',
-    description: 'arbitrary description',
-    appInstance: '7777-777-777',
-    createdAt: new Date('2017-07-07')
-  };
-
-  var testStream3 = {
-    title: 'old stream, ended stream',
-    description: 'arbitrary description',
-    appInstance: '7999-777-777',
-    createdAt: new Date('2015-01-01'),
-    endedAt: new Date('2015-01-02'),
-    live: false
-  };
-
-  var alice = {
-    username: 'Alice',
-    alias: 'Alice in the wonderland',
-    email: 'alice@apple.com',
-    password: 'generated',
-    accessToken: 'anaccesstoken',
-    platformType: 'facebook',
-    platformId: '45454545454',
-    description: 'nil'
-  };
-
-  var bob = {
-    username: 'Bob',
-    alias: 'Bob the Builder',
-    email: 'bob@bubblegum.com',
-    password: 'generated',
-    accessToken: 'xyzabc',
-    platformType: 'facebook',
-    platformId: '1238943948',
-    description: 'bam bam bam'
-  };
 
   lab.beforeEach({timeout: 10000}, function(done) {
     TestUtils.resetDatabase(done);
@@ -171,7 +172,7 @@ lab.experiment('StreamService Tests', function() {
       order: 'asc'
     };
 
-    Service.getListOfStreams(filters).then(function(result) {
+    Service.getListOfStreams(filters, null).then(function(result) {
       Code.expect(result).to.have.length(0);
       done();
     });
@@ -191,7 +192,7 @@ lab.experiment('StreamService Tests', function() {
     }).then(function(stream) {
       return Service.createNewStream(stream.owner, testStream3);
     }).then(function() {
-      return Service.getListOfStreams(filters);
+      return Service.getListOfStreams(filters, null);
     }).then(function(result) {
       Code.expect(result).to.have.length(3);
       Code.expect(result[0].title).to.be.equal(testStream2.title);
@@ -218,7 +219,7 @@ lab.experiment('StreamService Tests', function() {
     }).then(function(stream) {
       return Service.createNewStream(stream.owner, testStream3);
     }).then(function() {
-      return Service.getListOfStreams(filters);
+      return Service.getListOfStreams(filters, null);
     }).then(function(result) {
       Code.expect(result).to.have.length(3);
       Code.expect(result[0].title).to.be.equal(testStream.title);
@@ -245,7 +246,7 @@ lab.experiment('StreamService Tests', function() {
     }).then(function(stream) {
       return Service.createNewStream(stream.owner, testStream3);
     }).then(function() {
-      return Service.getListOfStreams(filters);
+      return Service.getListOfStreams(filters, null);
     }).then(function(result) {
       Code.expect(result).to.have.length(2);
       Code.expect(result[0].title).to.be.equal(testStream.title);
@@ -270,7 +271,7 @@ lab.experiment('StreamService Tests', function() {
     }).then(function(stream) {
       return Service.createNewStream(stream.owner, testStream3);
     }).then(function() {
-      return Service.getListOfStreams(filters);
+      return Service.getListOfStreams(filters, null);
     }).then(function(result) {
       Code.expect(result).to.have.length(2);
       Code.expect(result[0].title).to.be.equal(testStream2.title);
@@ -295,7 +296,7 @@ lab.experiment('StreamService Tests', function() {
     }).then(function(stream) {
       return Service.createNewStream(stream.owner, testStream3);
     }).then(function() {
-      return Service.getListOfStreams(filters);
+      return Service.getListOfStreams(filters, null);
     }).then(function(result) {
       Code.expect(result).to.have.length(2);
       Code.expect(result[0].title).to.be.equal(testStream2.title);
@@ -320,13 +321,41 @@ lab.experiment('StreamService Tests', function() {
     }).then(function(stream) {
       return Service.createNewStream(stream.owner, testStream3);
     }).then(function() {
-      return Service.getListOfStreams(filters);
+      return Service.getListOfStreams(filters, null);
     }).then(function(result) {
       Code.expect(result).to.have.length(1);
       Code.expect(result[0].title).to.be.equal(testStream3.title);
       Code.expect(result[0].streamer.username).to.be.equal(bob.username);
       done();
     });
+  });
+
+  lab.test('getListOfStreams valid isSubscribed true', function(done) {
+    var filters = {
+      state: 'all',
+      sort: 'title',
+      order: 'asc'
+    };
+
+    var userPromise1 = Service.createNewUser(bob);
+    var userPromise2 = Service.createNewUser(alice);
+
+    Promise.join(userPromise1, userPromise2,
+      function(bob, alice) {
+        return Service.createSubscription(alice.userId, bob.userId)
+        .then(function() {
+          return Service.createNewStream(bob.userId, testStream);
+        }).then(function(stream) {
+          return Service.createNewStream(stream.owner, testStream2);
+        }).then(function() {
+          return Service.getListOfStreams(filters, alice.userId);
+        }).then(function(result) {
+          Code.expect(result[0].title).to.be.equal(testStream2.title);
+          Code.expect(result[0].streamer.username).to.be.equal(bob.username);
+          Code.expect(result[0].streamer.isSubscribed).to.be.true();
+          done();
+        });
+      });
   });
 
   lab.test('Get streams from subscriptions valid', function(done) {
@@ -417,7 +446,7 @@ lab.experiment('StreamService Tests', function() {
       description: 'a description'
     };
 
-    Service.updateStream('3388ffff-aa00-1111a222-00000044888c', updates)
+    Service.updateStream(TestUtils.invalidId, updates)
       .then(function(result) {
         Code.expect(result).to.be.an.instanceof(CustomError.NotFoundError);
         done();
@@ -438,14 +467,6 @@ lab.experiment('StreamService Tests', function() {
   lab.test('End stream and view count updated', {timeout: 5000},
     function(done) {
 
-      function checkNumberOfViewers() {
-        Storage.getListOfStreams({state: 'all', sort: 'title', order: 'asc'})
-          .then(function(streams) {
-            Code.expect(streams[0].totalViewers).to.equal(1);
-            done();
-          });
-      }
-
       Service.createNewUser(bob).then(function(user) {
         return Service.createNewStream(user.userId, testStream);
       }).then(function(stream) {
@@ -456,6 +477,14 @@ lab.experiment('StreamService Tests', function() {
         Code.expect(res).to.equal('Success');
         checkNumberOfViewers();
       });
+
+      function checkNumberOfViewers() {
+        Storage.getListOfStreams({state: 'all', sort: 'title', order: 'asc'})
+          .then(function(streams) {
+            Code.expect(streams[0].totalViewers).to.equal(1);
+            done();
+          });
+      }
     });
 
   lab.test('End stream invalid streamId', function(done) {
@@ -463,8 +492,7 @@ lab.experiment('StreamService Tests', function() {
     Service.createNewUser(bob).then(function(user) {
       return Service.createNewStream(user.userId, testStream);
     }).then(function(stream) {
-      return Service.endStream(stream.owner,
-                               '3388ffff-aa00-1111a222-00000044888c');
+      return Service.endStream(stream.owner, TestUtils.invalidId);
     }).then(function(res) {
       Code.expect(res).to.be.an.instanceof(CustomError.NotFoundError);
       Code.expect(res.message).to.be.equal('Stream not found');
@@ -477,8 +505,7 @@ lab.experiment('StreamService Tests', function() {
     Service.createNewUser(bob).then(function(user) {
       return Service.createNewStream(user.userId, testStream);
     }).then(function(stream) {
-      return Service.endStream('3388ffff-aa00-1111a222-00000044888c',
-                                stream.streamId);
+      return Service.endStream(TestUtils.invalidId, stream.streamId);
     }).then(function(res) {
       Code.expect(res).to.be.an.instanceof(CustomError.NotAuthorisedError);
       Code.expect(res.message).to.be.equal('Not authorised to end stream');
@@ -501,7 +528,7 @@ lab.experiment('StreamService Tests', function() {
     Service.createNewUser(bob).then(function(user) {
       return Service.createNewStream(user.userId, testStream);
     }).then(function(stream) {
-      return Service.deleteStream('3388ffff-aa00-1111a222-00000044888c');
+      return Service.deleteStream(TestUtils.invalidId);
     }).then(function(res) {
       Code.expect(res).to.be.an.instanceof(CustomError.NotFoundError);
       Code.expect(res.message).to.be.equal('Stream not found');
@@ -509,3 +536,118 @@ lab.experiment('StreamService Tests', function() {
     });
   });
 });
+
+
+lab.experiment('UserService Tests for Comments', function () {
+
+  var comment1 = {
+    content: 'How do I live without you',
+    createdAt: 1457431895000,
+    alias: 'mariah'
+  };
+
+  var comment2 = {
+    content: 'How do I breathe without you',
+    createdAt: 1457431905000,
+    alias: 'carey'
+  };
+
+  var comment3 = {
+    content: 'How do I ever',
+    createdAt: 1457431915000,
+    alias: 'darren'
+  };
+
+  lab.beforeEach({timeout: 10000}, function (done) {
+    TestUtils.resetDatabase(done);
+  });
+
+  lab.test('Create Comment valid', function(done) {
+    var userPromise = Service.createNewUser(alice);
+    var streamPromise = userPromise
+      .then((user) => Service.createNewStream(user.userId, testStream));
+
+    Promise.join(userPromise, streamPromise,
+      function(user, stream) {
+        Service.createComment(user.userId, stream.streamId, comment1)
+          .then(function(res) {
+            expect(res.content).to.equal(comment1.content);
+            expect(res.userId).to.equal(user.userId);
+            expect(res.streamId).to.equal(stream.streamId);
+            done();
+          });
+      });
+  });
+
+  lab.test('Create Comment invalid empty string', function(done) {
+    var userPromise = Service.createNewUser(alice);
+    var streamPromise = userPromise
+      .then((user) => Service.createNewStream(user.userId, testStream));
+
+    Promise.join(userPromise, streamPromise,
+      function(user, stream) {
+        Service.createComment(user.userId, stream.streamId, {content: ''})
+          .then(function(err) {
+            expect(err).to.be.an.instanceof(Error);
+            done();
+          });
+      });
+  });
+
+  lab.test('Create Comment valid duplicate', function(done) {
+    var userPromise = Service.createNewUser(alice);
+    var streamPromise = userPromise
+      .then((user) => Service.createNewStream(user.userId, testStream));
+
+    Promise.join(userPromise, streamPromise,
+      function(user, stream) {
+        Service.createComment(user.userId, stream.streamId, comment1)
+          .then(() => Service.createComment(user.userId, stream.streamId,
+                                            comment1))
+          .then((res) => {
+            expect(res.content).to.equal(comment1.content);
+            expect(res.userId).to.equal(user.userId);
+            expect(res.streamId).to.equal(stream.streamId);
+            done();
+          });
+      });
+  });
+
+  lab.test('Get list of comments', function(done) {
+    var userPromise = Service.createNewUser(alice);
+    var streamPromise = userPromise
+      .then((user) => Service.createNewStream(user.userId, testStream));
+
+    Promise.join(userPromise, streamPromise,
+      function(user, stream) {
+        Service.createComment(user.userId, stream.streamId, comment1)
+          .then(() => Service.createComment(user.userId, stream.streamId,
+                                            comment2))
+          .then(() => Service.createComment(user.userId, stream.streamId,
+                                            comment3))
+          .then(() => Service.getListOfCommentsForStream(stream.streamId))
+          .then((res) => {
+            expect(res).to.have.length(3);
+            done();
+          });
+      });
+  });
+
+  lab.test('Get list of comments non-existing stream', function(done) {
+    var userPromise = Service.createNewUser(alice);
+    var streamPromise = userPromise
+      .then((user) => Service.createNewStream(user.userId, testStream));
+
+    Promise.join(userPromise, streamPromise,
+      function(user, stream) {
+        Service.createComment(user.userId, stream.streamId, comment1)
+          .then(() => Service.getListOfCommentsForStream(TestUtils.invalidId))
+          .then((res) => {
+            expect(res).to.be.an.instanceof(CustomError.NotFoundError);
+            done();
+          });
+      });
+  });
+});
+
+
