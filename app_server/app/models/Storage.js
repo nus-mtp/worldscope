@@ -1,4 +1,4 @@
-/*
+R/*
  * Storage class is a singleton object and acts as a facade to the storage
  * internals.
  * @module Storage
@@ -383,18 +383,19 @@ Class.getListOfStreams = function(originalFilters) {
       },
       order: [[filters.sort, filters.order], ['createdAt', 'DESC']]
     });
-  } else {
-    return this.models.Stream.findAll({
-      include: [{
-        model: this.models.User,
-        as: 'streamer'
-      }],
-      where: {
-        live: filters.state
-      },
-      order: [[filters.sort, filters.order]]
-    });
   }
+
+  return this.models.Stream.findAll({
+    include: [{
+      model: this.models.User,
+      as: 'streamer'
+    }],
+    where: {
+      live: filters.state
+    },
+    order: [[filters.sort, filters.order]]
+  });
+
 };
 
 /**
@@ -425,22 +426,23 @@ Class.getListOfStreamsForUser = function(originalFilters) {
       },
       order: [[filters.sort, filters.order], ['createdAt', 'DESC']]
     });
-  } else {
-    return this.models.Stream.findAll({
+  }
+
+  return this.models.Stream.findAll({
+    include: [{
+      model: this.models.User,
+      as: 'streamer',
       include: [{
         model: this.models.User,
-        as: 'streamer',
-        include: [{
-          model: this.models.User,
-          as: 'Subscribers'
-        }]
-      }],
-      where: {
-        live: filters.state
-      },
-      order: [[filters.sort, filters.order]]
-    });
-  }
+        as: 'Subscribers'
+      }]
+    }],
+    where: {
+      live: filters.state
+    },
+    order: [[filters.sort, filters.order]]
+  });
+
 };
 
 /**
