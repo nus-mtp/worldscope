@@ -271,7 +271,6 @@ Class.getListOfCommentsForStream = function(streamId) {
 
 Class.getLiveStreamsStats = function() {
   logger.info('Getting statistics for live streams');
-  let rooms = SocketAdapter.getRooms();
 
   return this.mediaServerAdapter.getConnectionCounts()
   .then((connectionCounts) => {
@@ -279,8 +278,69 @@ Class.getLiveStreamsStats = function() {
       return new Error(
         `Failed to get statistics for live streams ${connectionCounts}`);
     }
-    return connectionCounts;
+
+    logger.debug('ConnectionCounts from media server: ',
+                 JSON.stringify(connectionCounts, null, 2));
+    let application = this.__processApplicationStats(connectionCounts);
+    let appInstances = extractAppInstancesStats(connectionCounts);
+    return this.__processAppInstancesStats(connectionCounts, application,
+                                           appInstances);
+  }).catch((err) => {
+    logger.error('Failed to process live streams statistics', err);
+    return {};
   });
+};
+
+/**
+ * Processes the Application object from the connection counts statistics
+ * received from media server
+ * @param connectionCounts {Object}
+ */
+Class.__processApplicationStats = function(connectionCounts) {
+  let rooms = SocketAdapter.getRooms();
+  let application = connectionCounts['WowzaStreamingEngine']['VHost']
+                                    ['Application'];
+  if (!application) {
+    application = {};
+    connectionCounts['WowzaStreamingEngine']['VHost']
+                    ['Application'] = application;
+  }
+
+  application['RoomsCurrent'] = Object.keys(rooms).length;
+  application['UsersCurrent'] = SocketAdapter.getNumberOfUsers();
+  application['SocketsCurrent'] = SocketAdapter.getNumberOfClients();
+
+  if (application['ApplicationInstance'] &&
+      !(application['ApplicationInstance'] instanceof Array)) {
+    application['ApplicationInstance'] = [application['ApplicationInstance']];
+  }
+
+  return application;
+};
+
+Class.__processAppInstancesStats = function(connectionCounts, application,
+                                            appInstances) {
+  let rooms = SocketAdapter.getRooms();
+  if (!appInstances) {
+    appInstances = [];
+    application['ApplicationInstance'] = appInstances;
+  }
+
+  for (var roomName in rooms) {
+    let appInstance = appInstances[roomName];
+    if (!appInstance) {
+      logger.warn(`Room ${roomName} doesn\'t have stream on media server`);
+      appInstance = {Name: roomName};
+      appInstances[roomName] = appInstance;
+      application['ApplicationInstance'].push(appInstance);
+    }
+
+    let room = rooms[roomName];
+    appInstance['UsersCurrent'] = room.getNumberOfUsers();
+    appInstance['SocketsCurrent'] = room.getNumberOfClients();
+  }
+
+  return connectionCounts;
 };
 
 Class.createChatRoomsForLiveStreams = function() {
@@ -356,5 +416,24 @@ var addIsSubscribedField = function(userId, results) {
   }
   return results;
 };
+
+/* Extracts a map of appInstance to ApplicationInstance connection counts
+ * object from the connection counts statistics received from media server
+ * @param connectionCounts {Object}
+ */
+function extractAppInstancesStats(connectionCounts) {
+  let appInstances = connectionCounts['WowzaStreamingEngine']['VHost']
+                                     ['Application']['ApplicationInstance'];
+  if (!appInstances) {
+    return null;
+  }
+
+  let result = {};
+  for (var i in appInstances) {
+    result[appInstances[i]['Name']] = appInstances[i];
+  }
+
+  return result;
+}
 
 module.exports = new StreamService();

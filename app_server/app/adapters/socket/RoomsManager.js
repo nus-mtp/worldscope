@@ -36,6 +36,18 @@ Class.__removeUser = function(userId) {
   delete this.users[userId];
 };
 
+Class.getNumberOfUsers = function() {
+  return Object.keys(this.users).length;
+};
+
+Class.getNumberOfClients = function() {
+  let count = 0;
+  for (var userId in this.users) {
+    count += Object.keys(this.users[userId]).length;
+  }
+  return count;
+};
+
 /**
  * Add a client to the chat room system
  * @param {Client} client

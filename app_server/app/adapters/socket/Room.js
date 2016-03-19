@@ -75,4 +75,21 @@ Class.removeAllClients = function() {
   this.__clients = {};
 };
 
+Class.getNumberOfUsers = function() {
+  let users = {};
+  let count = 0;
+  for (var socketId in this.getClients()) {
+    let userId = this.getClient(socketId).getUserId(); 
+    if (!users[userId]) {
+      users[userId] = true;
+      count++;
+    }
+  }
+  return count;
+};
+
+Class.getNumberOfClients = function() {
+  return Object.keys(this.getClients()).length;
+};
+
 module.exports = Room;

@@ -133,6 +133,14 @@ Class.__reset__ = function() {
   this.roomsManager.__reset__();
 };
 
+Class.getNumberOfUsers = function() {
+  return this.roomsManager.getNumberOfUsers();
+};
+
+Class.getNumberOfClients = function() {
+  return this.roomsManager.getNumberOfClients();
+};
+
 var socketAdapter = new SocketAdapter();
 
 module.exports = socketAdapter;
