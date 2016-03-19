@@ -73,36 +73,37 @@ Class.getListOfStreams = function(filters, userId) {
   if (!userId) {
     return Storage.getListOfStreams(filters, userId)
     .then(function receiveResult(results) {
-      if (results) {
-        return results.map((singleStream) =>
-          Utility.formatStreamObject(singleStream, 'view'));
-
-      } else {
+      if (!results) {
         return new CustomError.NotFoundError('Stream');
       }
+
+      return results.map((singleStream) =>
+        Utility.formatStreamObject(singleStream, 'view'));
+
     }).catch(function(err) {
-      logger.error(err);
-      return null;
+      var err = new CustomError.UnexpectedError(err);
+      logger.error(err.message);
+      return err;
     });
   }
 
   // include subscribers
   return Storage.getListOfStreamsForUser(filters)
     .then(function receiveResult(results) {
-      if (results) {
-        results = results.map((singleStream) =>
-          Utility.formatStreamObject(singleStream, 'view'));
-
-        // Allocate isSubscribedField
-        results = addIsSubscribedField(userId, results);
-
-        return results;
-      } else {
+      if (!results) {
         return new CustomError.NotFoundError('Stream');
       }
+
+      results = results.map((singleStream) =>
+        Utility.formatStreamObject(singleStream, 'view'));
+
+        // Allocate isSubscribedField
+        return addIsSubscribedField(userId, results);
+
     }).catch(function(err) {
-      logger.error(err);
-      return null;
+      var err = new CustomError.UnexpectedError(err);
+      logger.error(err.message);
+      return err;
     });
 };
 
@@ -191,7 +192,7 @@ Class.deleteStream = function(streamId) {
   return Storage.deleteStream(streamId)
     .then((res) => {
       if (res === false) {
-        return new CustomError.NotFoundError('Stream');
+        return new CustomError.NotFoundError('Stream', streamId);
       }
 
       return res;
@@ -212,6 +213,60 @@ Class.stopStream = function(appName, appInstance, streamId) {
   }).catch((err) => {
     return err;
   });
+};
+
+/**
+ * @param  {string} userId
+ * @param  {string} streamId
+ * @param  {Object} commentObj
+ * @param  {string} commentObj.content
+ * @return {Promise<Comment>}
+ */
+Class.createComment = function(userId, streamId, comment) {
+  logger.debug('Comment from user %s to stream %s',
+                userId, streamId);
+
+  comment = Utility.changeToJavascriptTime(comment);
+
+  return Storage.createComment(userId, streamId, comment)
+    .then(function receiveResult(result) {
+      if (!result || result instanceof Error) {
+        return result;
+      }
+
+      return Utility.changeToUnixTime(result.dataValues);
+    }).catch(function(err) {
+      logger.error('Unable to create comment: %j', err);
+
+      if (err.name === 'SequelizeValidationError') {
+        return new CustomError.InvalidFieldError(err.errors[0].message,
+                                                 err.errors[0].path);
+      } else {
+        return new CustomError.UnexpectedError(err);
+      }
+    });
+};
+
+/**
+ * @param  {string} streamId
+ * @return {Promise<Array<Comment>>}
+ */
+Class.getListOfCommentsForStream = function(streamId) {
+  logger.debug('Get list of comments for stream %s', streamId);
+
+  return Storage.getListOfCommentsForStream(streamId)
+    .then(function receiveResult(result) {
+      if (result instanceof Error) {
+        return result;
+      }
+
+      return result.map((res) => {
+        res = Utility.changeToUnixTime(res.dataValues);
+        delete res.deletedAt;
+        return res;
+      });
+
+    });
 };
 
 Class.createChatRoomsForLiveStreams = function() {

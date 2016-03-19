@@ -244,11 +244,8 @@ lab.experiment('StreamController Tests', function() {
   lab.test('Get list of streams valid default params empty', function(done) {
     Router.inject({method: 'GET', url: '/api/streams',
                    credentials: testAccount}, function(res) {
-      Service.createNewUser(bob).then(function(user) {
-        testAccount.userId = user.userId;
-        Code.expect(res.result).to.have.length(0);
-        done();
-      });
+      Code.expect(res.result).to.have.length(0);
+      done();
     });
   });
 

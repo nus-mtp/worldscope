@@ -546,7 +546,7 @@ Class.createView = function(userId, streamId) {
 
       } else if (stream === null) {
         var err = new CustomError.NotFoundError('Stream', streamId);
-        logger.error(err.message, streamId);
+        logger.error(err.message, err.details);
         return err;
       }
 
@@ -867,10 +867,10 @@ function isFieldsMatched(user, options, fn) {
   }
 
   if (_(fieldsToChange).difference(objFields).length !== 0) {
-    var errMsg = 'Column name undefined';
-    logger.error(errMsg);
+    var err = new CustomError.InvalidColumnError('Column name undefined');
+    logger.error(err.message);
 
-    throw new CustomError.InvalidColumnError(errMsg);
+    throw err;
   } else {
     return fn();
   }

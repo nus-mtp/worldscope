@@ -192,8 +192,8 @@ Class.getNumberOfSubscriptions = function(userId) {
       if (result >= 0 || result instanceof Error) {
         return result;
       } else {
-        logger.error('Error getting number of subscriptions');
-        return new CustomError.UnexpectedError();
+        logger.error('Error getting number of subscriptions ', result);
+        return new CustomError.UnexpectedError(result);
       }
     });
 };
@@ -232,8 +232,8 @@ Class.getNumberOfSubscribers = function(userId) {
       if (result >= 0 || result instanceof Error) {
         return result;
       } else {
-        logger.error('Error getting number of subscribers');
-        return new CustomError.UnexpectedError();
+        logger.error('Error getting number of subscribers ', result);
+        return new CustomError.UnexpectedError(result);
       }
     });
 };
@@ -252,61 +252,6 @@ Class.deleteSubscription = function(subscribeFrom, subscribeTo) {
         return new CustomError.NotFoundError('Subscription');
       }
       return result;
-    });
-};
-
-/**
- * @param  {string} userId
- * @param  {string} streamId
- * @param  {Object} commentObj
- * @param  {string} commentObj.content
- * @return {Promise<Comment>}
- */
-Class.createComment = function(userId, streamId, comment) {
-  logger.debug('Comment from user %s to stream %s',
-                userId, streamId);
-
-  comment = Utility.changeToJavascriptTime(comment);
-
-  return Storage.createComment(userId, streamId, comment)
-    .then(function receiveResult(result) {
-      if (!result || result instanceof Error) {
-        return result;
-      }
-      return Utility.changeToUnixTime(result.dataValues);
-    }).catch(function(err) {
-      logger.error('Unable to create comment: %j', err);
-
-      if (err.name === 'SequelizeValidationError') {
-        return new CustomError.InvalidFieldError(err.errors[0].message,
-                                                 err.errors[0].path);
-      } else {
-        return new CustomError.UnexpectedError(err);
-      }
-    });
-};
-
-/**
- * @param  {string} streamId
- * @return {Promise<Array<Comment>>}
- */
-Class.getListOfCommentsForStream = function(streamId) {
-  logger.debug('Get list of comments for stream %s', streamId);
-
-  return Storage.getListOfCommentsForStream(streamId)
-    .then(function receiveResult(result) {
-      if (!result || result instanceof Error) {
-        var err = new CustomError.NotFoundError('Stream', streamId);
-        logger.error(err.message, err.details);
-        return err;
-      }
-
-      return result.map((res) => {
-        res = Utility.changeToUnixTime(res.dataValues);
-        delete res.deletedAt;
-        return res;
-      });
-
     });
 };
 
