@@ -97,8 +97,8 @@ Class.getListOfStreams = function(filters, userId) {
       results = results.map((singleStream) =>
         Utility.formatStreamObject(singleStream, 'view'));
 
-        // Allocate isSubscribedField
-        return addIsSubscribedField(userId, results);
+      // Allocate isSubscribedField
+      return addIsSubscribedField(userId, results);
 
     }).catch(function(err) {
       var err = new CustomError.UnexpectedError(err);

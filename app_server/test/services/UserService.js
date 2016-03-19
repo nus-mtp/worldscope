@@ -359,8 +359,7 @@ lab.experiment('UserService Tests for Subscriptions', function () {
       Service.createSubscription(user1.userId, TestUtils.invalidId)
         .then(function(res) {
           expect(res).to.be.an.instanceof(CustomError.NotFoundError);
-          expect(res.message)
-            .to.be.equal('User not found');
+          expect(res.message).to.be.equal('User not found');
           done();
         });
     });

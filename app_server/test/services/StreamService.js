@@ -10,50 +10,51 @@ var Service = rfr('app/services/Service');
 var CustomError = rfr('app/util/Error');
 var TestUtils = rfr('test/TestUtils');
 
+var testStream = {
+  title: 'this is a title from stream service',
+  description: 'arbitrary description',
+  appInstance: '123-123-123-123'
+};
+
+var testStream2 = {
+  title: 'Its more recent title from stream service',
+  description: 'arbitrary description',
+  appInstance: '7777-777-777',
+  createdAt: new Date('2017-07-07')
+};
+
+var testStream3 = {
+  title: 'old stream, ended stream',
+  description: 'arbitrary description',
+  appInstance: '7999-777-777',
+  createdAt: new Date('2015-01-01'),
+  endedAt: new Date('2015-01-02'),
+  live: false
+};
+
+var alice = {
+  username: 'Alice',
+  alias: 'Alice in the wonderland',
+  email: 'alice@apple.com',
+  password: 'generated',
+  accessToken: 'anaccesstoken',
+  platformType: 'facebook',
+  platformId: '45454545454',
+  description: 'nil'
+};
+
+var bob = {
+  username: 'Bob',
+  alias: 'Bob the Builder',
+  email: 'bob@bubblegum.com',
+  password: 'generated',
+  accessToken: 'xyzabc',
+  platformType: 'facebook',
+  platformId: '1238943948',
+  description: 'bam bam bam'
+};
+
 lab.experiment('StreamService Tests', function() {
-  var testStream = {
-    title: 'this is a title from stream service',
-    description: 'arbitrary description',
-    appInstance: '123-123-123-123'
-  };
-
-  var testStream2 = {
-    title: 'Its more recent title from stream service',
-    description: 'arbitrary description',
-    appInstance: '7777-777-777',
-    createdAt: new Date('2017-07-07')
-  };
-
-  var testStream3 = {
-    title: 'old stream, ended stream',
-    description: 'arbitrary description',
-    appInstance: '7999-777-777',
-    createdAt: new Date('2015-01-01'),
-    endedAt: new Date('2015-01-02'),
-    live: false
-  };
-
-  var alice = {
-    username: 'Alice',
-    alias: 'Alice in the wonderland',
-    email: 'alice@apple.com',
-    password: 'generated',
-    accessToken: 'anaccesstoken',
-    platformType: 'facebook',
-    platformId: '45454545454',
-    description: 'nil'
-  };
-
-  var bob = {
-    username: 'Bob',
-    alias: 'Bob the Builder',
-    email: 'bob@bubblegum.com',
-    password: 'generated',
-    accessToken: 'xyzabc',
-    platformType: 'facebook',
-    platformId: '1238943948',
-    description: 'bam bam bam'
-  };
 
   lab.beforeEach({timeout: 10000}, function(done) {
     TestUtils.resetDatabase(done);
@@ -564,7 +565,7 @@ lab.experiment('UserService Tests for Comments', function () {
   lab.test('Create Comment valid', function(done) {
     var userPromise = Service.createNewUser(alice);
     var streamPromise = userPromise
-      .then((user) => Service.createNewStream(user.userId, stream));
+      .then((user) => Service.createNewStream(user.userId, testStream));
 
     Promise.join(userPromise, streamPromise,
       function(user, stream) {
@@ -581,7 +582,7 @@ lab.experiment('UserService Tests for Comments', function () {
   lab.test('Create Comment invalid empty string', function(done) {
     var userPromise = Service.createNewUser(alice);
     var streamPromise = userPromise
-      .then((user) => Service.createNewStream(user.userId, stream));
+      .then((user) => Service.createNewStream(user.userId, testStream));
 
     Promise.join(userPromise, streamPromise,
       function(user, stream) {
@@ -596,7 +597,7 @@ lab.experiment('UserService Tests for Comments', function () {
   lab.test('Create Comment valid duplicate', function(done) {
     var userPromise = Service.createNewUser(alice);
     var streamPromise = userPromise
-      .then((user) => Service.createNewStream(user.userId, stream));
+      .then((user) => Service.createNewStream(user.userId, testStream));
 
     Promise.join(userPromise, streamPromise,
       function(user, stream) {
@@ -615,7 +616,7 @@ lab.experiment('UserService Tests for Comments', function () {
   lab.test('Get list of comments', function(done) {
     var userPromise = Service.createNewUser(alice);
     var streamPromise = userPromise
-      .then((user) => Service.createNewStream(user.userId, stream));
+      .then((user) => Service.createNewStream(user.userId, testStream));
 
     Promise.join(userPromise, streamPromise,
       function(user, stream) {
@@ -635,7 +636,7 @@ lab.experiment('UserService Tests for Comments', function () {
   lab.test('Get list of comments non-existing stream', function(done) {
     var userPromise = Service.createNewUser(alice);
     var streamPromise = userPromise
-      .then((user) => Service.createNewStream(user.userId, stream));
+      .then((user) => Service.createNewStream(user.userId, testStream));
 
     Promise.join(userPromise, streamPromise,
       function(user, stream) {
