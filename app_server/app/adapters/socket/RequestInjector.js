@@ -36,6 +36,7 @@ Class.createComment = function(credentials, msg) {
       payload: {
         streamId: msg.streamId,
         comment: {
+          alias: msg.message.alias,
           message: msg.message.message,
           time: msg.message.time
         }
