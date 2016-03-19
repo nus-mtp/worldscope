@@ -5,7 +5,7 @@ var Code = require('code');
 
 var SocialMediaAdapter = rfr('app/adapters/social_media/SocialMediaAdapter');
 
-lab.experiment('SocialMediaAdapter tests', function () {
+lab.experiment('SocialMediaAdapter tests', {timeout: 10000}, function () {
   lab.test('Invalid platform should throw Error', function (done) {
     Code.expect(function () {
       var adapter = new SocialMediaAdapter('bogusbook',

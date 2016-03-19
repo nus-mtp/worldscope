@@ -147,6 +147,11 @@ Class.getListOfCommentsForStream = function(streamId) {
   return StreamService.getListOfCommentsForStream(streamId);
 };
 
+Class.getLiveStreamsStats = function() {
+  logger.debug('Getting statistics for live streams');
+  return StreamService.getLiveStreamsStats();
+};
+
 /////// ADMIN APIs ///////
 Class.getListOfAdmins = function(filters) {
   logger.debug('Getting list of admins with filters: %j', filters);

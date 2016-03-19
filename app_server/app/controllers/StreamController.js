@@ -2,6 +2,7 @@
  * Stream Controller
  * @module StreamController
  */
+'use strict';
 var rfr = require('rfr');
 var Joi = require('joi');
 var Boom = require('boom');
@@ -74,6 +75,15 @@ Class.registerRoutes = function() {
                        auth: {scope: Authenticator.SCOPE.ADMIN.ADMINS}
                      },
                      handler: this.deleteStream});
+
+  this.server.route({method: 'GET', path: '/statistics',
+                     config: {
+                       validate: streamsStatsValidator,
+                       // TODO: place this back
+                       //auth: {scope: Authenticator.SCOPE.ADMIN.ADMINS}
+                       auth: false
+                     },
+                     handler: this.getStreamsStats});
 };
 
 /* Routes handlers */
@@ -192,6 +202,23 @@ Class.deleteStream = function(request, reply) {
   });
 };
 
+Class.getStreamsStats = function(request, reply) {
+  logger.info(`Getting statistics for ${request.query.state} streams`);
+
+  let state = request.query.state; 
+  if (state !== 'live') {
+    reply({});
+  }
+
+  Service.getLiveStreamsStats()
+  .then((liveStreamsStats) => {
+    if (liveStreamsStats instanceof Error) {
+      return reply(Boom.badGateway(liveStreamsStats.message));
+    }
+    return reply(liveStreamsStats);
+  });
+};
+
 /* End of route handlers */
 
 /* Validator for routes */
@@ -231,6 +258,12 @@ var streamControlStopValidator = {
     streamId: Joi.string().required()
   },
   failAction: Utility.addValidationDetailsForJoi
+};
+
+var streamsStatsValidator = {
+  query: {
+    state: Joi.any().valid('live', 'done', 'all').default('live'),
+  }
 };
 /* End of validators */
 

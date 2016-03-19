@@ -696,3 +696,27 @@ lab.experiment('StreamController Control Tests', () => {
     });
   });
 });
+
+lab.experiment('Streams Statistics Tests', function() {
+  lab.before({timeout: 10000}, function(done) {
+    TestUtils.resetDatabase(done);
+  });
+
+  lab.test('Failed to connect media server', function(done) {
+    Router.inject({method: 'GET',
+                    url: '/api/streams/statistics',
+                    credentials: adminAccount}, (res) => {
+      Code.expect(res.statusCode).to.equal(502);
+      done();
+    });
+  });
+
+  lab.test('Empty statistics for non-live streams', function(done) {
+    Router.inject({method: 'GET',
+                    url: '/api/streams/statistics?state=all',
+                    credentials: adminAccount}, (res) => {
+      Code.expect(res.result).to.be.empty();
+      done();
+    });
+  });
+});

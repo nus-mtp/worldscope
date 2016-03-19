@@ -106,6 +106,10 @@ Class.removeRoom = function(roomName) {
   delete this.rooms[roomName];
 };
 
+Class.getRooms = function() {
+  return this.rooms;
+};
+
 /**
  * @param roomName {string}
  * @return {Room}

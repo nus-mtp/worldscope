@@ -269,6 +269,20 @@ Class.getListOfCommentsForStream = function(streamId) {
     });
 };
 
+Class.getLiveStreamsStats = function() {
+  logger.info('Getting statistics for live streams');
+  let rooms = SocketAdapter.getRooms();
+
+  return this.mediaServerAdapter.getConnectionCounts()
+  .then((connectionCounts) => {
+    if (!connectionCounts || connectionCounts instanceof Error) {
+      return new Error(
+        `Failed to get statistics for live streams ${connectionCounts}`);
+    }
+    return connectionCounts;
+  });
+};
+
 Class.createChatRoomsForLiveStreams = function() {
   var filters = {
     state: 'live',
@@ -284,10 +298,6 @@ Class.createChatRoomsForLiveStreams = function() {
   .catch((err) => {
     logger.error('Error getting list of live streams to create rooms', err);
   });
-};
-
-Class.getLiveStreamsStats = function() {
-  let rooms = SocketAdapter.getRooms();
 };
 
 /**
