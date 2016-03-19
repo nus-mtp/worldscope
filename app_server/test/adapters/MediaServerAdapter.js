@@ -30,13 +30,12 @@ lab.experiment('getConnectionCounts', function () {
     mockedMediaServer.stop(() => done());
   });
 
-  lab.test('missing cookie', function (done) {
+  lab.test('Gets stats from mocked media server', function (done) {
     let adapter = new MediaServerAdapter(MediaServerConfig.host,
                                          MediaServerConfig.username,
                                          MediaServerConfig.password);
     adapter.getConnectionCounts()
     .then((result) => {
-      console.log(JSON.stringify(result, null, 2));
       Code.expect(result['WowzaStreamingEngine']).to.be.an.object();
       done();
     });

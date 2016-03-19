@@ -27,7 +27,7 @@ function MediaServerAdapter(host, username, password) {
       'Content-Type': 'application/x-www-form-urlencoded',
       'Authorization': 'Basic ' + authToken.toString('base64')
     }
-  }));
+  }), {multiArgs: true});
 }
 
 var Class = MediaServerAdapter.prototype;
@@ -59,7 +59,6 @@ Class.__makeGET = function(path) {
   return this.wreck.getAsync(url)
   .spread((res, payload) => {
     let response = payload.toString('utf8');
-    logger.debug('Response from media server: ', response);
     return response;
   }).catch((err) => {
     logger.error('Unable to request media server at %s: ', url, err);
