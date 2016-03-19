@@ -1,8 +1,12 @@
 language: node_js
 node_js:
     - "4.1"
+sudo: false
 env:
     APP_SERVER_DIR=app_server
+cache:
+  directories:
+      - $APP_SERVER_DIR/node_modules
 before_script:
   - mysql -e 'create database worldscope_db;'
 script: cd $APP_SERVER_DIR && npm install && npm run linter && npm test
