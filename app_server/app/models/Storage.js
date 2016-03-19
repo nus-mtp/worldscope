@@ -1,4 +1,4 @@
-R/*
+/*
  * Storage class is a singleton object and acts as a facade to the storage
  * internals.
  * @module Storage
