@@ -28,6 +28,7 @@ import android.widget.Toast;
 import android.util.Log;
 
 import com.litmus.worldscope.model.WorldScopeUser;
+import com.litmus.worldscope.model.WorldScopeViewStream;
 import com.litmus.worldscope.utility.FacebookWrapper;
 import com.litmus.worldscope.utility.WorldScopeAPIService;
 import com.litmus.worldscope.utility.WorldScopeRestAPI;
@@ -35,7 +36,10 @@ import com.litmus.worldscope.utility.WorldScopeSocketService;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
+import java.util.List;
+
 import fragment.StreamRefreshListFragment;
+import fragment.ViewVideoFragment;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -44,7 +48,8 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
             FacebookWrapper.FacebookWrapperProfilePictureCallback,
             WorldScopeSocketService.OnIdentifyEventListener,
-            WorldScopeAPIService.OnUserRequestListener {
+            WorldScopeAPIService.OnUserRequestListener,
+            StreamRefreshListFragment.OnStreamMenuItemSelected {
 
     private final String TAG = "MainActivity";
 
@@ -88,8 +93,11 @@ public class MainActivity extends AppCompatActivity
         // Make an identify connection
         WorldScopeSocketService.emitIdentify(WorldScopeAPIService.getCookie());
 
-        // Register this as a listener
+        // Register this as a listener of WorldScopeSocketService
         WorldScopeSocketService.registerListener(this);
+
+        // Register this as a listener of StreamRefreshListFragment.OnStreamMenuItemSelected
+        StreamRefreshListFragment.registerListener(this);
 
         // Set the title of the toolbar
         setToolbarTitle();
@@ -184,7 +192,6 @@ public class MainActivity extends AppCompatActivity
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
     }
 
     // Set up the drawer fragment and state listeners
@@ -359,7 +366,8 @@ public class MainActivity extends AppCompatActivity
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return StreamRefreshListFragment.newInstance(position + 1);
+            StreamRefreshListFragment fragment = StreamRefreshListFragment.newInstance(position + 1);
+            return fragment;
         }
 
         @Override
@@ -396,5 +404,55 @@ public class MainActivity extends AppCompatActivity
     public void getUserInformation() {
         WorldScopeAPIService.registerRequestUser(context);
         WorldScopeAPIService.requestUser();
+    }
+
+    // Implementing StreamRefreshListFragment.OnStreamMenuItemSelected
+    @Override
+    public void onFollowClicked(WorldScopeViewStream stream) {
+        Toast.makeText(context, "You have followed " + stream.getStreamer().getAlias(), Toast.LENGTH_SHORT).show();
+        Log.d(TAG, stream.toString());
+        subscribeUser(stream.getStreamer().getUserId());
+    }
+
+    @Override
+    public void onReportClicked(WorldScopeViewStream stream) {
+        Toast.makeText(context, "You have reported " + stream.getStreamer().getAlias(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onBlockClicked(WorldScopeViewStream stream) {
+        Toast.makeText(context, "You have blocked " + stream.getStreamer().getAlias(), Toast.LENGTH_SHORT).show();
+    }
+
+    // Function to make API call to subscribe to user
+    private void subscribeUser(String userId) {
+
+        if(userId == null) {
+            return;
+        }
+
+        Call<Object> call = new WorldScopeRestAPI(this)
+                .buildWorldScopeAPIService()
+                .postSubscribe(userId);
+
+        Log.d(TAG, call.toString());
+
+        call.enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Response<Object> response) {
+                if (response.isSuccess()) {
+                    Log.d(TAG, "RESPONSE SUCCESS FOR SUBSCRIPTION");
+                    Log.d(TAG, response.toString());
+                } else {
+                    Log.d(TAG, "RESPONSE FAIL");
+                    Log.d(TAG, response.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d(TAG, "NO RESPONSE");
+            }
+        });
     }
 }
