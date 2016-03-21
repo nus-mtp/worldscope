@@ -21,6 +21,7 @@ public class WorldScopeStream implements Parcelable {
     private long createdAt;
     private long deletedAt;
     private String owner;
+    private WorldScopeUser streamer;
 
     public WorldScopeStream() {
         // Default empty constructor
@@ -38,6 +39,7 @@ public class WorldScopeStream implements Parcelable {
     public long getCreatedAt() {return createdAt;}
     public long getDeletedAt() {return deletedAt;}
     public String getOwner() {return owner;}
+    public WorldScopeUser getStreamer() {return streamer;}
 
     public void setStreamId(String streamId) {this.streamId = streamId;}
     public void setAppInstance(String appInstance) {this.appInstance = appInstance;}
@@ -52,6 +54,8 @@ public class WorldScopeStream implements Parcelable {
     public void setCreatedAt(int createdAt) {this.createdAt = createdAt;}
     public void setDeletedAt(int deletedAt) {this.deletedAt = deletedAt;}
     public void setOwner(String owner) {this.owner = owner;}
+
+    public void setStreamer(WorldScopeUser streamer) {this.streamer = streamer;}
 
 
     @Override
@@ -80,9 +84,10 @@ public class WorldScopeStream implements Parcelable {
         live = in.readByte() != 0x00;
         duration = in.readString();
         description = in.readString();
-        createdAt = in.readInt();
-        deletedAt = in.readInt();
+        createdAt = in.readLong();
+        deletedAt = in.readLong();
         owner = in.readString();
+        streamer = (WorldScopeUser) in.readValue(WorldScopeUser.class.getClassLoader());
     }
 
     @Override
@@ -104,6 +109,7 @@ public class WorldScopeStream implements Parcelable {
         dest.writeLong(createdAt);
         dest.writeLong(deletedAt);
         dest.writeString(owner);
+        dest.writeValue(streamer);
     }
 
     @SuppressWarnings("unused")
