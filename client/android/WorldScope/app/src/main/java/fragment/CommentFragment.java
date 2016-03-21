@@ -4,6 +4,8 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.text.Html;
 import android.util.Log;
@@ -17,7 +19,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.view.View.OnClickListener;
 
+import com.google.gson.Gson;
 import com.litmus.worldscope.R;
+import com.litmus.worldscope.utility.WorldScopeRestAPI;
 import com.litmus.worldscope.utility.WorldScopeSocketService;
 
 import org.json.JSONException;
@@ -25,6 +29,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -51,6 +59,8 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
     private View view;
 
     private String roomId;
+
+    private String streamId;
 
     private String alias;
 
@@ -108,6 +118,8 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
         commentArrayAdapter = new CommentArrayAdapter(context, commentsList);
 
         commentListView.setAdapter(commentArrayAdapter);
+
+        getPreviousComments(streamId);
 
         // Register as a listener
         Log.d(TAG, "Registering as socket listener");
@@ -186,7 +198,6 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
 
     @Override
     public void onJoinEventEmitted(String data) {
-        Log.d(TAG, "Join event emitted: " + data);
     }
 
     @Override
@@ -223,12 +234,16 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
         showCommentUI();
     }
 
-    // Join a room
-    public void joinRoom(String roomId, String alias) {
+    // Join and retrieve previous comments in a room
+    public void setupRoom(String roomId, String streamId, String alias) {
         this.roomId = roomId;
+        this.streamId = streamId;
         this.alias = alias;
         Log.d(TAG, "Joining room: " + roomId);
         WorldScopeSocketService.emitJoin(roomId);
+
+        // Get previous comments after joining a room
+        getPreviousComments(streamId);
     }
 
     // Show the control
@@ -291,7 +306,45 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
         }
     }
 
-    private class WorldScopeComment {
+    private void getPreviousComments(String streamId) {
+
+        Log.d(TAG, "Getting comments for stream: " + streamId);
+
+        Call<List<Object>> call = new WorldScopeRestAPI(context
+        ).buildWorldScopeAPIService().getPreviousComments(streamId);
+        call.enqueue(new Callback<List<Object>>() {
+            @Override
+            public void onResponse(Response<List<Object>> response) {
+                if (response.isSuccess()) {
+                    try {
+                        for(Object rawComment: response.body()) {
+
+                            Log.d(TAG, rawComment.toString());
+                            JSONObject rawCommentJson = new JSONObject(rawComment.toString());
+                            WorldScopeComment newComment = new WorldScopeComment(rawCommentJson.get("userId").toString(),
+                                    rawCommentJson.get("content").toString(),
+                                    rawCommentJson.get("createdAt").toString());
+
+                            addToCommentList(newComment);
+                            Log.d(TAG, newComment.toString());
+                        }
+                    } catch(JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                } else {
+                    Log.d(TAG, "Response fail");
+                }
+            }
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d(TAG, "Get comments fail");
+            }
+        });
+    }
+
+    // WorldScopeComment model
+    public class WorldScopeComment {
 
         private String alias;
         private String comment;
@@ -313,6 +366,11 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
 
         public String getTimestamp() {
             return this.timestamp;
+        }
+
+        @Override
+        public String toString() {
+            return this.getAlias() + ": " + this.getComment() + " (" + this.getTimestamp() + ")";
         }
     }
 }
