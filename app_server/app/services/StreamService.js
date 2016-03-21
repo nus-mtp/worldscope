@@ -327,14 +327,14 @@ Class.__processAppInstancesStats = function(connectionCounts, application,
   }
 
   for (var roomName in rooms) {
-    let appInstance = appInstances[roomName];
-    if (!appInstance) {
+    if (!appInstances[roomName]) {
       logger.warn(`Room ${roomName} doesn\'t have stream on media server`);
-      appInstance = {Name: roomName};
-      appInstances[roomName] = appInstance;
-      application['ApplicationInstance'].push(appInstance);
+      let newAppInstance = {Name: roomName};
+      appInstances[roomName] = newAppInstance;
+      application['ApplicationInstance'].push(newAppInstance);
     }
 
+    let appInstance = appInstances[roomName];
     let room = rooms[roomName];
     appInstance['UsersCurrent'] = room.getNumberOfUsers();
     appInstance['SocketsCurrent'] = room.getNumberOfClients();

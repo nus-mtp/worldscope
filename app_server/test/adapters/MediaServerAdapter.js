@@ -22,13 +22,9 @@ lab.experiment('getConnectionCounts', function () {
     },
   });
 
-  lab.before((done) => {
-    mockedMediaServer.start(() => done());
-  });
+  lab.before((done) => mockedMediaServer.start(() => done()));
 
-  lab.after((done) => {
-    mockedMediaServer.stop(() => done());
-  });
+  lab.after((done) => mockedMediaServer.stop(() => done()));
 
   lab.test('Gets stats from mocked media server', function (done) {
     let adapter = new MediaServerAdapter(MediaServerConfig.host,

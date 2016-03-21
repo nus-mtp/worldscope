@@ -714,7 +714,7 @@ lab.experiment('Streams Statistics Tests', function() {
 
   lab.test('Failed to connect media server', function(done) {
     Router.inject({method: 'GET',
-                   url: '/api/streams/statistics',
+                   url: '/api/streams/stats',
                    credentials: adminAccount}, (res) => {
       Code.expect(res.statusCode).to.equal(502);
       done();
@@ -723,7 +723,7 @@ lab.experiment('Streams Statistics Tests', function() {
 
   lab.test('Empty statistics for non-live streams', function(done) {
     Router.inject({method: 'GET',
-                   url: '/api/streams/statistics?state=all',
+                   url: '/api/streams/stats?state=all',
                    credentials: adminAccount}, (res) => {
       Code.expect(res.result).to.be.empty();
       done();
@@ -750,7 +750,7 @@ lab.experiment('Streams Statistics Tests', function() {
                             Service.createNewStream(userId, streamInfo3)]);
       }).then((streams) => {
         Router.inject({method: 'GET',
-                      url: '/api/streams/statistics',
+                      url: '/api/streams/stats',
                       credentials: adminAccount}, (res) => {
           let application = res.result['WowzaStreamingEngine']['VHost']
                                       ['Application']; 
@@ -780,7 +780,7 @@ lab.experiment('Streams Statistics Tests', function() {
 
     mockedMediaServer.start(() => {
       Router.inject({method: 'GET',
-                    url: '/api/streams/statistics',
+                    url: '/api/streams/stats',
                     credentials: adminAccount}, (res) => {
         let application = res.result['WowzaStreamingEngine']['VHost']
                                     ['Application'];
@@ -807,7 +807,7 @@ lab.experiment('Streams Statistics Tests', function() {
 
     mockedMediaServer.start(() => {
       Router.inject({method: 'GET',
-                    url: '/api/streams/statistics',
+                    url: '/api/streams/stats',
                     credentials: adminAccount}, (res) => {
         let application = res.result['WowzaStreamingEngine']['VHost']
                                     ['Application'];
@@ -835,7 +835,7 @@ lab.experiment('Streams Statistics Tests', function() {
 
     mockedMediaServer.start(() => {
       Router.inject({method: 'GET',
-                    url: '/api/streams/statistics',
+                    url: '/api/streams/stats',
                     credentials: adminAccount}, (res) => {
         let application = res.result['WowzaStreamingEngine']['VHost']
                                     ['Application'];

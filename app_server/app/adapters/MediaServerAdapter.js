@@ -7,7 +7,7 @@ var rfr = require('rfr');
 var querystring = require('querystring');
 var Promise = require('bluebird');
 var Wreck = require('wreck');
-var Xml2Json = Promise.promisifyAll(require('xml2js'));
+var Xml2Js = Promise.promisifyAll(require('xml2js'));
 
 var Utility = rfr('app/util/Utility');
 
@@ -94,8 +94,8 @@ Class.getConnectionCounts = function(appName) {
       return new Error('Failed to request media server ' + response);
     }
 
-    return Xml2Json.parseStringAsync(response, {
-      valueProcessors: [Xml2Json.processors.parseNumbers],
+    return Xml2Js.parseStringAsync(response, {
+      valueProcessors: [Xml2Js.processors.parseNumbers],
       trim: true,
       explicitArray: false
     });

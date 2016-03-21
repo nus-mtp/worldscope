@@ -69,7 +69,7 @@ Class.removeClient = function(client) {
 
 Class.removeAllClients = function() {
   logger.info(`Removing all clients in ${this.getName()}`);
-  for (var client in this.__clients) {
+  for (let client in this.__clients) {
     this.__clients[client].__leaveRoom__(this);
   }
   this.__clients = {};
@@ -78,7 +78,7 @@ Class.removeAllClients = function() {
 Class.getNumberOfUsers = function() {
   let users = {};
   let count = 0;
-  for (var socketId in this.getClients()) {
+  for (let socketId in this.getClients()) {
     let userId = this.getClient(socketId).getUserId(); 
     if (!users[userId]) {
       users[userId] = true;

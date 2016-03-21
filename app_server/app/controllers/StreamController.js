@@ -76,10 +76,10 @@ Class.registerRoutes = function() {
                      },
                      handler: this.deleteStream});
 
-  this.server.route({method: 'GET', path: '/statistics',
+  this.server.route({method: 'GET', path: '/stats',
                      config: {
                        validate: streamsStatsValidator,
-                       auth: {scope: Authenticator.SCOPE.ADMIN.ADMINS}
+                       auth: {scope: Authenticator.SCOPE.ADMIN.METRICS}
                      },
                      handler: this.getStreamsStats});
 };
@@ -210,10 +210,8 @@ Class.getStreamsStats = function(request, reply) {
 
   Service.getLiveStreamsStats()
   .then((liveStreamsStats) => {
-    if (liveStreamsStats instanceof Error) {
-      return reply(Boom.badGateway(liveStreamsStats.message));
-    }
-    return reply(liveStreamsStats);
+    return reply(liveStreamsStats instanceof Error ?
+                 Boom.badGateway(liveStreamsStats.message) : liveStreamsStats);
   });
 };
 
