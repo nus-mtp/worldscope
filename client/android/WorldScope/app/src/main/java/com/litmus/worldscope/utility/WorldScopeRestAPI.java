@@ -76,7 +76,7 @@ public class WorldScopeRestAPI {
 
     /**
      * Returns the instance of Retrofit.Builder required to build requests
-     * @return Retrofit.Builder 
+     * @return Retrofit.Builder
      */
     private static Retrofit.Builder getRetrofitBuilderInstance() {
         if(retrofitBuilder == null) {
