@@ -95,7 +95,7 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
      */
 
     @Override
-    public void onStreamCreationSuccess(String rtmpLink, String appInstance) {
+    public void onStreamCreationSuccess(String rtmpLink, String appInstance, String streamId) {
         Log.d(TAG, rtmpLink);
 
         // Find streamVideoFragment and set the rtmp link from streamCreateFragment
@@ -114,7 +114,7 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
         streamVideoControlFragment.startStreaming();
 
         // Join room and show comment UI
-        commentFragment.joinRoom(appInstance, alias);
+        commentFragment.setupRoom(appInstance, streamId, alias);
         commentFragment.initialize();
     }
 

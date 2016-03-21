@@ -33,6 +33,7 @@ public class WorldScopeViewStream extends WorldScopeStream implements Parcelable
 
     protected WorldScopeViewStream(Parcel in) {
         this.setAppInstance(in.readString());
+        this.setStreamId(in.readString());
         viewLink = in.readString();
         thumbnailLink = in.readString();
     }
@@ -46,6 +47,7 @@ public class WorldScopeViewStream extends WorldScopeStream implements Parcelable
     public void writeToParcel(Parcel dest, int flags) {
         Log.d(TAG, this.toString());
         dest.writeString(this.getAppInstance());
+        dest.writeString(this.getStreamId());
         dest.writeString(viewLink);
         dest.writeString(thumbnailLink);
     }
