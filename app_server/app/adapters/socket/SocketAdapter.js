@@ -100,6 +100,10 @@ Class.closeRoom = function(roomName) {
   this.roomsManager.removeRoom(roomName);
 };
 
+Class.getRooms = function() {
+  return this.roomsManager.getRooms();
+};
+
 /**
  * @param socket {Socket}
  * @param credentials {Object}
@@ -127,6 +131,14 @@ Class.__createNewClient = function(socket, credentials) {
  */
 Class.__reset__ = function() {
   this.roomsManager.__reset__();
+};
+
+Class.getNumberOfUsers = function() {
+  return this.roomsManager.getNumberOfUsers();
+};
+
+Class.getNumberOfClients = function() {
+  return this.roomsManager.getNumberOfClients();
 };
 
 var socketAdapter = new SocketAdapter();

@@ -5,7 +5,7 @@ var Code = require('code');
 
 var Facebook = rfr('app/adapters/social_media/Facebook');
 
-lab.experiment('SocialMediaAdapter tests', function () {
+lab.experiment('Facebook tests', {timeout: 10000}, function () {
   lab.test('Missing appId should throw error', function (done) {
     Code.expect(function () {
       var facebook = new Facebook({accessToken: 'qwoei'});

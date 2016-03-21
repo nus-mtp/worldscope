@@ -7,6 +7,7 @@ var rfr = require('rfr');
 var querystring = require('querystring');
 var Promise = require('bluebird');
 var Wreck = require('wreck');
+var Xml2Js = Promise.promisifyAll(require('xml2js'));
 
 var Utility = rfr('app/util/Utility');
 
@@ -26,7 +27,7 @@ function MediaServerAdapter(host, username, password) {
       'Content-Type': 'application/x-www-form-urlencoded',
       'Authorization': 'Basic ' + authToken.toString('base64')
     }
-  }));
+  }), {multiArgs: true});
 }
 
 var Class = MediaServerAdapter.prototype;
@@ -45,6 +46,20 @@ Class.__makePOST = function(path, data) {
   .spread((res, payload) => {
     logger.info('Response from media server: ', payload);
     return payload;
+  }).catch((err) => {
+    logger.error('Unable to request media server at %s: ', url, err);
+    return err;
+  });
+};
+
+Class.__makeGET = function(path) {
+  let url = `http://${this.host}${path}`;
+
+  logger.info(`Requesting: ${url}`);
+  return this.wreck.getAsync(url)
+  .spread((res, payload) => {
+    let response = payload.toString('utf8');
+    return response;
   }).catch((err) => {
     logger.error('Unable to request media server at %s: ', url, err);
     return err;
@@ -71,5 +86,20 @@ Class.stopStream = function(appName, appInstance, streamName) {
     }
   });
 };
+
+Class.getConnectionCounts = function(appName) {
+  return this.__makeGET('/connectioncounts')
+  .then((response) => {
+    if (!response || response instanceof Error) {
+      return new Error('Failed to request media server ' + response);
+    }
+
+    return Xml2Js.parseStringAsync(response, {
+      valueProcessors: [Xml2Js.processors.parseNumbers],
+      trim: true,
+      explicitArray: false
+    });
+  });
+}; 
 
 module.exports = MediaServerAdapter;

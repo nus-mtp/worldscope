@@ -6,7 +6,7 @@ var Code = require('code');
 var Platform = rfr('app/adapters/social_media/Platform');
 var Facebook = rfr('app/adapters/social_media/Facebook');
 
-lab.experiment('SocialMediaAdapter tests', function () {
+lab.experiment('Platform tests', {timeout: 10000}, function () {
   lab.test('Invalid apiDomain', function (done) {
     var platform = new Platform('www.bogus.lahlahland');
     platform.__makeAPICall('/somewhere/over/the/rainbow',

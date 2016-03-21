@@ -6,7 +6,7 @@
 var rfr = require('rfr');
 var _ = require('underscore');
 var Promise = require('bluebird');
-var Wreck = Promise.promisifyAll(require('wreck'));
+var Wreck = Promise.promisifyAll(require('wreck'), {multiArgs: true});
 var util = require('util');
 
 var Utility = rfr('app/util/Utility');
