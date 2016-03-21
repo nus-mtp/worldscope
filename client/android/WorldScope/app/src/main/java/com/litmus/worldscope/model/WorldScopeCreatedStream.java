@@ -12,7 +12,7 @@ public class WorldScopeCreatedStream extends WorldScopeStream implements Parcela
     private String streamLink;
 
     public long getEndedAt() {return endedAt;}
-    public String getStreamLink() {return streamLink;};
+    public String getStreamLink() {return streamLink;}
 
     public void setEndedAt(long endedAt) {this.endedAt = endedAt;}
     public void setStreamLink(String streamLink) {this.streamLink = streamLink;}

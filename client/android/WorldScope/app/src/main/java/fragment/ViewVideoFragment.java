@@ -140,7 +140,7 @@ public class ViewVideoFragment extends Fragment implements
 
         if (litmusPlayer != null) {
             litmusPlayer.setSurface(holder.getSurface());
-            litmusPlayer.readyToPushSurface(litmusPlayer.SURFACE_READY);
+            litmusPlayer.readyToPushSurface(LitmusPlayer.SURFACE_READY);
         }
 
     }

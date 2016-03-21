@@ -47,7 +47,7 @@ public class LoginActivity extends AppCompatActivity implements FacebookLoginFra
         call.enqueue(new Callback<WorldScopeUser>() {
             @Override
             public void onResponse(Response<WorldScopeUser> response) {
-                if (response.isSuccess()) {
+                if(response.isSuccess()) {
                     Log.d(TAG, "Success!");
                     Log.d(TAG, "" + response.body().toString());
 
