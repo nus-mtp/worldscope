@@ -2,12 +2,12 @@ package fragment;
 
 import android.content.Context;
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -15,6 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,6 +56,7 @@ public class StreamRefreshListFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private WorldScopeStreamAdapter worldScopeStreamAdapter;
     private ArrayList<WorldScopeViewStream> streams;
+    private static ArrayList<OnStreamMenuItemSelected> listeners = new ArrayList<>();
 
     /**
      * Returns a new instance of this fragment for the given section
@@ -111,12 +113,17 @@ public class StreamRefreshListFragment extends Fragment {
                 WorldScopeViewStream selectedStream = streams.get(position);
                 Log.d(TAG, "Stream selected");
                 Log.d(TAG, selectedStream.toString());
-
                 redirectToViewActivity(selectedStream);
             }
         });
 
         return rootView;
+    }
+
+    public static void registerListener(Object listener) {
+        if(listener instanceof OnStreamMenuItemSelected) {
+            listeners.add((OnStreamMenuItemSelected)listener);
+        }
     }
 
     // Passes a stream into ViewActivity
@@ -145,12 +152,6 @@ public class StreamRefreshListFragment extends Fragment {
                     for (WorldScopeViewStream stream : response.body()) {
                         streams.add(stream);
                     }
-
-                    WorldScopeViewStream testStream = new WorldScopeViewStream();
-                    testStream.setViewLink("http://yt-dash-mse-test.commondatastorage.googleapis.com/media/motion-20120802-manifest.mpd");
-                    testStream.setTitle("Test");
-                    streams.add(testStream);
-
                     worldScopeStreamAdapter.notifyDataSetChanged();
 
                 } else {
@@ -173,11 +174,13 @@ public class StreamRefreshListFragment extends Fragment {
         });
     }
 
-    private class WorldScopeStreamAdapter extends ArrayAdapter<WorldScopeViewStream> {
+    private class WorldScopeStreamAdapter extends ArrayAdapter<WorldScopeViewStream>
+            implements PopupMenu.OnMenuItemClickListener {
 
         private Context context;
         private int layoutResourceId;
         private ArrayList<WorldScopeViewStream> data;
+        private WorldScopeViewStream selectedStream;
 
         public WorldScopeStreamAdapter(Context context, int layoutResourceId, ArrayList<WorldScopeViewStream> data) {
             super(context, layoutResourceId, data);
@@ -192,11 +195,12 @@ public class StreamRefreshListFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            // Declared final for accessibility within inner class of Follow button's onClick callback
+            // Declared final for accessibility within inner class of Menu button's onClick callback
             // Get the item to display from data given position
             final WorldScopeViewStream stream = data.get(position);
             final int itemPos = position;
             final ViewHolder viewHolder;
+            final PopupMenu.OnMenuItemClickListener onMenuItemClickListener = this;
 
             /**
              * Implement viewHolder pattern to cache the view to reduce calls to findViewById(),
@@ -219,7 +223,7 @@ public class StreamRefreshListFragment extends Fragment {
                 viewHolder.createdAtTextView = (TextView) convertView.findViewById(R.id.startTime);
                 viewHolder.totalViewerTextView = (TextView) convertView.findViewById(R.id.numOfViewers);
 
-                viewHolder.followButton = (ImageButton) convertView.findViewById(R.id.follow_button);
+                viewHolder.menuButton = (ImageButton) convertView.findViewById(R.id.streamMenuButton);
 
                 // Access convertView's XML elements now using viewHolder
                 convertView.setTag(viewHolder);
@@ -229,17 +233,23 @@ public class StreamRefreshListFragment extends Fragment {
 
             // Set text data into the view
             viewHolder.titleTextView.setText(stream.getTitle());
-            viewHolder.ownerTextView.setText(stream.getOwner());
             viewHolder.createdAtTextView.setText(formatDate(stream.getCreatedAt()));
             viewHolder.totalViewerTextView.setText(String.valueOf(stream.getTotalViewers()));
+            if(stream.getStreamer() != null) {
+                viewHolder.ownerTextView.setText(stream.getStreamer().getAlias());
+            }
 
-            // Set callback for follow button
-            viewHolder.followButton.setOnClickListener(new View.OnClickListener() {
+            // Set callback for menu button
+            viewHolder.menuButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "Follow button clicked on position: " + itemPos);
-                    Log.d(TAG, "API follow: " + stream.getOwner());
-                    viewHolder.followButton.setImageResource(R.drawable.ic_heart_full);
+                    Log.d(TAG, "Menu button clicked on position: " + itemPos);
+                    PopupMenu popupMenu = new PopupMenu(context, v);
+                    popupMenu.setOnMenuItemClickListener(onMenuItemClickListener);
+                    popupMenu.inflate(R.menu.stream_list_item_menu);
+                    popupMenu.show();
+                    // Set a reference for stream
+                    selectedStream = stream;
                 }
             });
 
@@ -255,6 +265,29 @@ public class StreamRefreshListFragment extends Fragment {
             PrettyTime p = new PrettyTime();
             return p.format(new Date(unixTime));
         }
+
+
+        public boolean onMenuItemClick(MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.follow_menu:
+                    for(OnStreamMenuItemSelected listener: listeners) {
+                        listener.onFollowClicked(selectedStream);
+                    }
+                    return true;
+                case R.id.abuse_menu:
+                    for(OnStreamMenuItemSelected listener: listeners) {
+                        listener.onReportClicked(selectedStream);
+                    }
+                    return true;
+                case R.id.block_menu:
+                    for(OnStreamMenuItemSelected listener: listeners) {
+                        listener.onBlockClicked(selectedStream);
+                    }
+                    return true;
+            }
+
+            return false;
+        }
     }
 
     private static class ViewHolder {
@@ -263,6 +296,12 @@ public class StreamRefreshListFragment extends Fragment {
         TextView ownerTextView;
         TextView createdAtTextView;
         TextView totalViewerTextView;
-        ImageButton followButton;
+        ImageButton menuButton;
+    }
+
+    public interface OnStreamMenuItemSelected {
+        void onFollowClicked(WorldScopeViewStream stream);
+        void onReportClicked(WorldScopeViewStream stream);
+        void onBlockClicked(WorldScopeViewStream stream);
     }
 }
