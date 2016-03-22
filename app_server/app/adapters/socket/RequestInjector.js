@@ -18,11 +18,12 @@ function RequestInjector(server) {
 var Class = RequestInjector.prototype;
 
 RequestInjector.API_PATHS = Class.API_PATHS = {
-  CREATE_COMMENT: '/api/comments'
+  CREATE_COMMENT: '/api/comments',
+  CREATE_VIEW: '/api/views'
 };
 
 /**
- * Create a new comment in the main pipeline
+ * Creates a new comment in the main pipeline
  * @param credentials {Object} {userId: <string>}
  * @param msg {Object} {data: <comment>, streamId: <string>}
  * @return {Promise}
@@ -46,12 +47,38 @@ Class.createComment = function(credentials, msg) {
 
     logger.debug('Making internal request: %s', JSON.stringify(options)),
     this.server.inject(options, function(res) {
-      res = JSON.parse(res.payload);
       if (res.status === 'OK') {
-        resolve(res);
+        resolve(res.result);
       } else {
         logger.error('Error requesting interal route %s', options.url);
-        reject(res);
+        reject(new Error(res.result));
+      }
+    });
+  });
+};
+
+/**
+ * Creates a new view in the main pipeline
+ * @param credentials {Object} {userId: <string>}
+ * @param streamId {string}
+ * @return {Promise}
+ */
+Class.createView = function(credentials, streamId) {
+  return new Promise((resolve, reject) => {
+    var options = {
+      method: 'POST',
+      url: `${RequestInjector.API_PATHS.CREATE_VIEW}/${streamId}`,
+      credentials: credentials,
+      allowInternals: true
+    };
+
+    logger.debug('Making internal request: %s', JSON.stringify(options)),
+    this.server.inject(options, function(res) {
+      if (res.statusCode === 200) {
+        resolve(res.result);
+      } else {
+        logger.error('Error requesting interal route %s', options.url);
+        reject(new Error(res.result));
       }
     });
   });

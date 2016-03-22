@@ -212,6 +212,9 @@ Class.__handleClientEvents = function(client) {
       logger.info('Client %s/%s joining room %s',
                    client.getUserId(), client.getSocketId(), roomName);
       this.__addClientToRoom(client, roomName);
+      this.requestInjector.createView(client.getCredentials(),
+                                      this.__getRoom(roomName).getStreamId())
+      .catch((err) => logger.error('Failed to create new view', err));
     } catch (e) {
       logger.error(e);
     }
