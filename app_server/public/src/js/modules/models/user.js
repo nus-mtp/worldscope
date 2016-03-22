@@ -31,7 +31,7 @@ User.update = (user) =>
       data: {
         alias: user.alias(),
         description: user.description(),
-        email: user.email()
+        email: user.email() ? user.email() : null
       },
       type: User
     });

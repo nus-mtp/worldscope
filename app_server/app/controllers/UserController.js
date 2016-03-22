@@ -203,8 +203,8 @@ var loginPayloadValidator = {
 var updateUserValidator = {
   payload: {
     alias: Joi.string(),
-    description: Joi.string(),
-    email: Joi.string()
+    description: Joi.string().allow(''),
+    email: Joi.string().allow(null)
   },
   failAction: Utility.addValidationDetailsForJoi
 };

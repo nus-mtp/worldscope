@@ -235,7 +235,7 @@ var singleStreamPayloadValidator = {
 var streamCreatePayloadValidator = {
   payload: {
     title: Joi.string().required().max(50),
-    description: Joi.string()
+    description: Joi.string().allow('')
   }
 };
 
@@ -251,7 +251,7 @@ var streamListParamsValidator = {
 var streamControlStopValidator = {
   payload: {
     appInstance: Joi.string().required(),
-    streamId: Joi.string().required()
+    streamId: Joi.string().guid().required()
   },
   failAction: Utility.addValidationDetailsForJoi
 };
