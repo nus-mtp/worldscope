@@ -254,7 +254,7 @@ lab.experiment('UserController Tests', {timeout: 5000}, function () {
   });
 });
 
-lab.experiment('UserController log in tests', {timeout: 5000}, () => {
+lab.experiment('UserController log in tests', {timeout: 10000}, () => {
   var facebookServer = TestUtils.mockFacebookServer();
 
   lab.beforeEach(function (done) {
