@@ -562,7 +562,7 @@ Class.createView = function(userId, streamId) {
           return err;
         }
 
-        return CustomError.UnexpectedError(err);
+        return new CustomError.UnexpectedError(err);
       });
     }.bind(this));
 };
