@@ -92,6 +92,24 @@ lab.experiment('View Model Tests', function() {
       });
   });
 
+  lab.test('Create view invalid duplicate views', function(done) {
+    var userPromise1 = Storage.createUser(user1);
+
+    var streamPromise1 = userPromise1
+      .then(user => Storage.createStream(user.userId, stream1));
+
+    var viewPromise1 = streamPromise1.then(function(stream) {
+      return Storage.createUser(user2)
+        .then((user) => Storage.createView(user.userId, stream.streamId))
+        .then((view) => Storage.createView(view.userId, stream.streamId));
+    });
+
+    viewPromise1.then((res) => {
+      expect(res).to.be.an.instanceof(Error);
+      done();
+    });
+  });
+
   lab.test('Get list of users watching a stream valid', function(done) {
     var userPromise1 = Storage.createUser(user1);
 
@@ -153,28 +171,6 @@ lab.experiment('View Model Tests', function() {
           });
       });
   });
-
-  lab.test('Get number of users who viewed a stream valid duplicate views',
-    function(done) {
-      var userPromise1 = Storage.createUser(user1);
-
-      var streamPromise1 = userPromise1
-        .then(user => Storage.createStream(user.userId, stream1));
-
-      var viewPromise1 = streamPromise1.then(function(stream) {
-        return Storage.createUser(user2)
-          .then((user) => Storage.createView(user.userId, stream.streamId))
-          .then((view) => Storage.createView(view.userId, stream.streamId));
-      });
-
-      viewPromise1.then((view) => {
-        Storage.getTotalNumberOfUsersViewedStream(view.streamId)
-          .then(function(res) {
-            expect(res).to.equal(1);
-            done();
-          });
-      });
-    });
 
   lab.test('Get number of users viewed a stream invalid', function(done) {
     Storage.getTotalNumberOfUsersViewedStream(TestUtils.invalidId)

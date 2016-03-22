@@ -231,14 +231,14 @@ lab.experiment('UserService Tests for View', function () {
     });
   });
 
-  lab.test('Create View valid repeated user/stream', function(done) {
+  lab.test('Create View invalid repeated user/stream', function(done) {
     Service.createNewUser(bob)
       .then((user) => {
         Service.createNewStream(user.userId, stream)
           .then((stream) => Service.createView(stream.owner, stream.streamId))
           .then((view) => Service.createView(view.userId, view.streamId))
-          .then((view) => {
-            Code.expect(view.userId).to.equal(user.userId);
+          .then((err) => {
+            Code.expect(err).to.instanceof(CustomError.DuplicateEntryError);
             done();
           });
       });
