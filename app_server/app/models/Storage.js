@@ -556,9 +556,13 @@ Class.createView = function(userId, streamId) {
         userId: userId,
         streamId: streamId
       }).catch(err => {
-        var err = new CustomError.UnexpectedError(err);
-        logger.error(err.message);
-        return err;
+        if (err.name === 'SequelizeUniqueConstraintError') {
+          var err = new CustomError.DuplicateEntryError('Duplicate View');
+          logger.error(err.message);
+          return err;
+        }
+
+        return CustomError.UnexpectedError(err);
       });
     }.bind(this));
 };

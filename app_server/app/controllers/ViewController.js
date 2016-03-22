@@ -53,7 +53,7 @@ Class.createView = function(request, reply) {
   var streamId = request.params.id;
 
   Service.createView(userId, streamId).then(function receiveResult(result) {
-    if (result instanceof CustomError.NotFoundError) {
+    if (result instanceof Error) {
       logger.error('View could not be created');
       return reply(Boom.badRequest(result.message));
     }

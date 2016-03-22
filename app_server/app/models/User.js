@@ -127,8 +127,7 @@ module.exports = function(sequelize, DataTypes) {
         });
         User.belongsToMany(models.Stream, {
           through: {
-            model: models.View,
-            unique: false
+            model: models.View
           },
           as: 'View',
           foreignKey: 'userId'

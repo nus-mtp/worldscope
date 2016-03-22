@@ -89,6 +89,7 @@ Class.getNumberOfUsers = function() {
 Class.createView = function(userId, streamId) {
   return Storage.createView(userId, streamId).then(function(res) {
     if (res instanceof Error) {
+      console.log(res);
       logger.error('Unable to create view');
       return res;
     }
