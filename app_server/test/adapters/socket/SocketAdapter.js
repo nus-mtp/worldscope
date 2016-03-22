@@ -338,6 +338,38 @@ lab.experiment('Comments and stickers tests', function () {
     });
   });
 
+  lab.test('New view is created for joining room', {timeout: 5000}, (done) => {
+    createUserAndStream(bob, testStream, (user, stream) => {
+      var account = TestUtils.copyObj(Authenticator.generateUserToken(user),
+                                      ['userId', 'username', 'password']);
+      account.scope = Authenticator.SCOPE.USER;
+      return Iron.sealAsync(account, ServerConfig.cookiePassword, Iron.defaults)
+      .then((sealed) => {
+        var client = io.connect('http://localhost:3000', options);
+
+        client.once('connect', () => {
+          let testComment = 'Hello';
+          client.once('identify', (msg) => {
+            Code.expect(msg).to.equal('OK');
+            client.emit('join', stream.appInstance);
+          });
+          client.once('join', (msg) => {
+            Code.expect(msg.message).to.equal('OK');
+            setTimeout(() => {
+              Service.getListOfUsersViewingStream(stream.streamId)
+              .then((users) => {
+                let userIds = users.map((user) => user.userId);
+                Code.expect(userIds.indexOf(user.userId)).to.be.above(-1);
+                done();
+              });
+            }, 2000);
+          });
+          client.emit('identify', `sid-worldscope=${sealed}`);
+        });
+      });
+    });
+  });
+
   lab.test('Client successfully received stickers', (done) => {
     createUserAndStream(bob, testStream, (user, stream) => {
       var account = TestUtils.copyObj(Authenticator.generateUserToken(user),
