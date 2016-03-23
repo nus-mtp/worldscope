@@ -2,10 +2,13 @@
 
 # Variables
 APPENV=local
+APP=WORLDSCOPE
 DBHOST=localhost
 DBNAME=worldscope_db
+# DBUSER must be root
 DBUSER=root
 DBPASSWD=
+NODE_VERSION=5.9.0
 
 # return 1 if global command line program installed, else 0
 function program_is_installed {
@@ -17,38 +20,61 @@ function program_is_installed {
     echo "$return_"
 }
 
-echo -e "Starting Bootstrapping process for WorldScope"
+function install_node {
+    ws_log "Installing NodeJS"
+    curl -sL https://deb.nodesource.com/setup_5.x | sudo -E bash -
+    sudo apt-get install -y nodejs
+    sudo apt-get install npm
+}
 
-echo -e "\n--- Installing MySQL ---\n"
+function remove_node {
+    ws_log "Node version outdated, removing previous versions of node"
+    sudo apt-get remove nodejs
+    sudo apt-get remove npm
+}
+
+function ws_log {
+    echo -e "\n--- $APP LOG: $1 ---\n"
+}
+
+ws_log "Starting Bootstrapping process for WorldScope"
+
+# MYSQL
+ws_log "Checking MySQL"
 if [ $(program_is_installed mysql) == 1 ]; then
-    echo "mysql is already installed"
+    ws_log "MySQL is already installed"
 else
+    ws_log "Installing MySQL"
     echo "mysql-server mysql-server/root_password password $DBPASSWD" | debconf-set-selections
     echo "mysql-server mysql-server/root_password_again password $DBPASSWD" | debconf-set-selections
     sudo apt-get -y install mysql-server-5.5
 fi
 
-echo -e "\n--- Setting up our MySQL user and db ---\n"
-if [ ! mysql -u$DBUSER -p$DBPASSWD -e "USE $DBNAME" ]; then
+ws_log "Setting up our MySQL database"
+if ! mysql -u$DBUSER -p$DBPASSWD -e "USE $DBNAME" ; then
+    ws_log "$DBNAME created"
     mysql -u$DBUSER -p$DBPASSWD -e "CREATE DATABASE $DBNAME"
     mysql -uroot -p$DBPASSWD -e "grant all privileges on $DBNAME.* to '$DBUSER'@'localhost' identified by '$DBPASSWD'"
 else
-    echo -e "worldscope_db already exists"
+    ws_log "$DBNAME already exists"
 fi
 
-echo -e "\n--- Installing NodeJS and NPM ---\n"
+# NODEJS
+ws_log "Checking NodeJS and NPM"
 if [ $(program_is_installed node) == 1 ]; then
-    echo "Node is already installed"
+    ws_log "Node is already installed, checking Node version: "
+    node -v
+    res=$(node -v | grep -c  ${NODE_VERSION})
+    if [ $res != 1 ]; then
+        remove_node
+        install_node
+    fi
 else
-    echo "Installing node"
-    curl -sL https://deb.nodesource.com/setup_5.x | sudo -E bash -
-    sudo apt-get install -y nodejs
+    install_node
 fi
 
-sudo apt-get install npm
-
-echo -e "\n--- Installing WorldScope Dependencies ---\n"
+ws_log "Installing WorldScope Dependencies"
 cd /vagrant/
 npm install
 
-echo -e "\n--- Completed ---\n"
+ws_log "Completed"
