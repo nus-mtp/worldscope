@@ -350,4 +350,23 @@ lab.experiment('Subscription Model Tests', function() {
     }
   });
 
+  lab.test('Create, Delete, Create Subscription valid', function(done) {
+    var userPromise1 = Storage.createUser(user1);
+    var userPromise2 = Storage.createUser(user2);
+
+    Promise.join(userPromise1, userPromise2,
+      function(user1, user2) {
+        Storage.createSubscription(user1.userId, user2.userId)
+          .then((subscription) => Storage.deleteSubscription(
+                                    subscription.subscriber,
+                                    subscription.subscribeTo))
+          .then(() => Storage.createSubscription(user1.userId, user2.userId))
+          .then((res) => {
+            expect(res.subscriber).to.equal(user1.userId);
+            expect(res.subscribeTo).to.equal(user2.userId);
+            done();
+          });
+      });
+  });
+
 });
