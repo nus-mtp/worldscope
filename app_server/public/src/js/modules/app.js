@@ -97,8 +97,8 @@ App.isLoggedIn = function () {
 };
 
 App.login = function (admin, csrfToken) {
-  window.localStorage.setItem('ws-user', admin.userId);
-  window.localStorage.setItem('ws-scopes', admin.permissions);
+  window.localStorage.setItem('ws-user', admin.id());
+  window.localStorage.setItem('ws-scopes', admin.permissions());
   window.localStorage.setItem(App.CSRF_HEADER, csrfToken);
   App.updateRoutes();
 };
@@ -110,6 +110,7 @@ App.logout = function () {
   App.updateRoutes();
 };
 
+App.getLoggedInUser = () => window.localStorage.getItem('ws-user');
 App.getScopes = () => window.localStorage.getItem('ws-scopes');
 
 App.updateRoutes = function () {

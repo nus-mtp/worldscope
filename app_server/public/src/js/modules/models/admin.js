@@ -16,7 +16,8 @@ Admin.login = (admin) =>
       data: {
         username: admin.username(),
         password: admin.password()
-      }
+      },
+      type: Admin
     });
 
 Admin.logout = () =>

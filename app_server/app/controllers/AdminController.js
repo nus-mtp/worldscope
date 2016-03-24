@@ -189,13 +189,28 @@ Class.updateAdmin = function(request, reply) {
 
     admin.permissions = unwrapPermissionsFromDB(admin.permissions);
 
+    var account = {
+      userId: admin.userId,
+      username: admin.username,
+      scope: admin.permissions
+    };
+
     if (particulars.password) {
-      // overwrite with unencrypted password
-      admin.password = password;
-      return reply(admin);
-    } else {
-      return reply(Utility.clearUserProfile(admin));
+      // rewrite with unencrypted password
+      account.password = admin.password = password;
     }
+
+    return updateCache(request, account, function() {
+      if (request.auth.credentials.userId === admin.userId) {
+        request.cookieAuth.set('scope', admin.permissions);
+      }
+
+      if (particulars.password) {
+        return reply(admin);
+      } else {
+        return reply(Utility.clearUserProfile(admin));
+      }
+    });
   });
 };
 
@@ -226,11 +241,13 @@ Class.login = function(request, reply) {
       ));
     }
 
+    admin.permissions = unwrapPermissionsFromDB(admin.permissions);
+
     var account = {
       userId: admin.userId,
       username: admin.username,
       password: credentials.password,
-      scope: unwrapPermissionsFromDB(admin.permissions)
+      scope: admin.permissions
     };
 
     return updateCache(request, account, function() {
@@ -288,12 +305,21 @@ var encrypt = function(password) {
 };
 
 var updateCache = function(request, account, callback) {
-  request.server.app.cache.set(account.userId, account, 0, function (err) {
-    if (err) {
-      logger.error(err);
+  request.server.app.cache.get(account.userId, function(err, cached) {
+    if (cached && cached.item) {
+      // merge with cached version, with new taking priority
+      Object.keys(cached.item)
+            .filter((k) => !account.hasOwnProperty(k))
+            .forEach((k) => account[k] = cached.item[k]);
     }
 
-    return callback();
+    request.server.app.cache.set(account.userId, account, 0, function (err) {
+      if (err) {
+        logger.error(err);
+      }
+
+      return callback();
+    });
   });
 };
 
