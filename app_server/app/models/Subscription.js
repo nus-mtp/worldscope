@@ -13,7 +13,6 @@ module.exports = function(sequelize, DataTypes) {
       primaryKey: true
     }
   }, {
-    paranoid: true,
     freezeTableName: true,
     setterMethods: {
       createdAt: function(newDate) {
