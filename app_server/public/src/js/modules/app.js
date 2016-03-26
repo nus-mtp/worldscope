@@ -13,7 +13,10 @@ const wrapView = function (wrapper, vElement) {
   return wrappedElement;
 };
 const navPage = function (page) {
-  let wrappedNav = wrapView((e) => m('div#nav', e), Nav);
+  let wrappedNav = wrapView((e) => m('div#nav', [
+    m('img', {src: '/admin/img/logo.png'}),
+    e
+  ]), Nav);
   let wrappedPage = wrapView((e) => m('div#content.row', e), page);
 
   return {
