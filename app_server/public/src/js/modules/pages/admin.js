@@ -1,5 +1,6 @@
 const m = require('mithril');
 
+const App = require('../app');
 const AdminModel = require('../models/admin');
 const mz = require('../utils/mzInit');
 
@@ -30,9 +31,13 @@ const editPage = {
   },
   action: function (e) {
     e.preventDefault();
-    AdminModel.update(Admin.admin()).then(
-        () => m.route('/admins')
-    );
+    AdminModel.update(Admin.admin()).then(function (admin) {
+      if (Admin.admin().id() === App.getLoggedInUser()) {
+        let csrfToken = document.cookie;
+        App.login(admin, csrfToken);
+      }
+      m.route('/admins');
+    });
   }
 };
 

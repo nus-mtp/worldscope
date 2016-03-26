@@ -13,7 +13,10 @@ const wrapView = function (wrapper, vElement) {
   return wrappedElement;
 };
 const navPage = function (page) {
-  let wrappedNav = wrapView((e) => m('div#nav', e), Nav);
+  let wrappedNav = wrapView((e) => m('div#nav', [
+    m('img', {src: '/admin/img/logo.png'}),
+    e
+  ]), Nav);
   let wrappedPage = wrapView((e) => m('div#content.row', e), page);
 
   return {
@@ -81,6 +84,18 @@ App.request = function (originalOptions) {
           resolve,
           function (err) {
             err = err || {network: true}; // if server is unavailable
+
+            if (err.statusCode === 403) {
+              // attempted to access unauthorized section
+              App.logout();
+              App.goToHome();
+
+              reject = null;
+              err = {unauthorized: true};
+
+              m.redraw();
+            }
+
             reject ? reject(err, showError) : showError(err);
           });
   return request;
@@ -97,8 +112,8 @@ App.isLoggedIn = function () {
 };
 
 App.login = function (admin, csrfToken) {
-  window.localStorage.setItem('ws-user', admin.userId);
-  window.localStorage.setItem('ws-scopes', admin.permissions);
+  window.localStorage.setItem('ws-user', admin.id());
+  window.localStorage.setItem('ws-scopes', admin.permissions());
   window.localStorage.setItem(App.CSRF_HEADER, csrfToken);
   App.updateRoutes();
 };
@@ -110,6 +125,7 @@ App.logout = function () {
   App.updateRoutes();
 };
 
+App.getLoggedInUser = () => window.localStorage.getItem('ws-user');
 App.getScopes = () => window.localStorage.getItem('ws-scopes');
 
 App.updateRoutes = function () {

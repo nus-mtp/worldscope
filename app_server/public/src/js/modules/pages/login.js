@@ -1,7 +1,6 @@
 const m = require('mithril');
 
 const App = require('../app');
-const Alert = require('../components/alert');
 const AdminModel = require('../models/admin');
 const mz = require('../utils/mzInit');
 

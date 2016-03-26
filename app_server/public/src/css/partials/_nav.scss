@@ -7,13 +7,21 @@ $nav-secondary-bg-color: color("teal", "lighten-4");
   height: inherit;
   overflow-x: hidden;
   overflow-y: hidden;
+  background-color: $nav-primary-bg-color;
+
+  > img {
+    display: block;
+    max-width: 50%;
+    max-height: 4.5rem - 0.5rem;
+    margin: (0.5rem / 2) auto;
+    filter: hue-rotate(-188deg) saturate(82%) brightness(122%);
+  }
 
   > ul {
     width: inherit;
     height: inherit;
     overflow-y: auto;
     margin-top: 0;
-    background-color: $nav-primary-bg-color;
 
     // inactive, 1st level
     li {
