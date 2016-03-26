@@ -28,7 +28,12 @@ Class.registerRoutes = function() {
   this.server.route({method: 'GET', path: '/',
                      config: {
                        validate: streamListParamsValidator,
-                       auth: {scope: Authenticator.SCOPE.ALL}
+                       auth: {
+                         scope: [
+                           Authenticator.SCOPE.USER,
+                           Authenticator.SCOPE.ADMIN.STREAMS
+                         ]
+                       }
                      },
                      handler: this.getListOfStreams});
 
@@ -37,49 +42,77 @@ Class.registerRoutes = function() {
                        validate: singleStreamValidator,
                        auth: {
                          mode: 'optional',
-                         scope: Authenticator.SCOPE.ALL
+                         scope: [
+                           Authenticator.SCOPE.USER,
+                           Authenticator.SCOPE.ADMIN.STREAMS
+                         ]
                        }
                      },
                      handler: this.getStreamById});
 
   this.server.route({method: 'GET', path: '/subscriptions',
                      config: {
-                       auth: {scope: Authenticator.SCOPE.ALL}
+                       auth: {
+                         scope: [
+                           Authenticator.SCOPE.USER,
+                           Authenticator.SCOPE.ADMIN.STREAMS
+                         ]
+                       }
                      },
                      handler: this.getStreamsFromSubscriptions});
 
   this.server.route({method: 'POST', path: '/control/stop',
                      config: {
                        validate: streamControlStopValidator,
-                       auth: {scope: Authenticator.SCOPE.ALL}
+                       auth: {
+                         scope: [
+                           Authenticator.SCOPE.USER,
+                           Authenticator.SCOPE.ADMIN.STREAMS
+                         ]
+                       }
                      },
                      handler: this.controlStopStream});
 
   this.server.route({method: 'POST', path: '/control/end',   // for users
                      config: {
                        validate: singleStreamPayloadValidator,
-                       auth: {scope: Authenticator.SCOPE.ALL}
+                       auth: {
+                         scope: [
+                           Authenticator.SCOPE.USER,
+                           Authenticator.SCOPE.ADMIN.STREAMS
+                         ]
+                       }
                      },
                      handler: this.endStream});
 
   this.server.route({method: 'POST', path: '/',
                      config: {
                        validate: streamCreatePayloadValidator,
-                       auth: {scope: Authenticator.SCOPE.ALL}
+                       auth: {
+                         scope: [
+                           Authenticator.SCOPE.USER,
+                           Authenticator.SCOPE.ADMIN.STREAMS
+                         ]
+                       }
                      },
                      handler: this.createStream});
 
-  this.server.route({method: 'DELETE', path: '/{id}', //for admins only
+  this.server.route({method: 'DELETE', path: '/{id}', // for admins only
                      config: {
                        validate: singleStreamValidator,
-                       auth: {scope: Authenticator.SCOPE.ADMIN.ADMINS}
+                       auth: {scope: Authenticator.SCOPE.ADMIN.STREAMS}
                      },
                      handler: this.deleteStream});
 
   this.server.route({method: 'GET', path: '/stats',
                      config: {
                        validate: streamsStatsValidator,
-                       auth: {scope: Authenticator.SCOPE.ADMIN.METRICS}
+                       auth: {
+                         scope: [
+                           Authenticator.SCOPE.ADMIN.STREAMS,
+                           Authenticator.SCOPE.ADMIN.METRICS
+                         ]
+                       }
                      },
                      handler: this.getStreamsStats});
 };
