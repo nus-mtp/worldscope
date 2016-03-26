@@ -25,14 +25,24 @@ Class.registerRoutes = function() {
   this.server.route({method: 'GET', path: '/',
                      config: {
                        validate: userListParamsValidator,
-                       auth: {scope: Authenticator.SCOPE.ALL}
+                       auth: {
+                         scope: [
+                           Authenticator.SCOPE.USER,
+                           Authenticator.SCOPE.ADMIN.USERS
+                         ]
+                       }
                      },
                      handler: this.getListOfUsers});
 
   this.server.route({method: 'GET', path: '/{id}',
                      config: {
                        validate: singleUserValidator,
-                       auth: {scope: Authenticator.SCOPE.ALL}
+                       auth: {
+                         scope: [
+                           Authenticator.SCOPE.USER,
+                           Authenticator.SCOPE.ADMIN.USERS
+                         ]
+                       }
                      },
                      handler: this.getUserById});
   this.server.route({method: 'GET', path: '/me',
@@ -43,7 +53,13 @@ Class.registerRoutes = function() {
 
   this.server.route({method: 'GET', path: '/all/statistics',
                      config: {
-                       auth: {scope: Authenticator.SCOPE.ALL}
+                       auth: {
+                         scope: [
+                           Authenticator.SCOPE.USER,
+                           Authenticator.SCOPE.ADMIN.USERS,
+                           Authenticator.SCOPE.ADMIN.METRICS
+                         ]
+                       }
                      },
                      handler: this.getNumberOfUsers});
 
@@ -57,7 +73,12 @@ Class.registerRoutes = function() {
   this.server.route({method: 'PUT', path: '/',
                      config: {
                        validate: updateUserValidator,
-                       auth: {scope: Authenticator.SCOPE.ALL}
+                       auth: {
+                         scope: [
+                           Authenticator.SCOPE.USER,
+                           Authenticator.SCOPE.ADMIN.USERS
+                         ]
+                       }
                      },
                      handler: this.updateSelf});
 
