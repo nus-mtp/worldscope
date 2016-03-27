@@ -3,6 +3,7 @@
  */
 const ERROR_UNKNOWN = 'An unknown error has occurred.';
 const ERROR_NETWORK = 'Unable to connect to the server.';
+const ERROR_UNAUTHORIZED = 'You have been logged out due to lack of access. Please try again.';
 
 /*eslint-disable max-len */
 const validationErrors = {
@@ -165,6 +166,8 @@ const errorInterpreter = module.exports = {
       msg = formatErrors(interpretCustomError(err.details));
     } else if (err.network) {
       msg = ERROR_NETWORK;
+    } else if (err.unauthorized) {
+      msg = ERROR_UNAUTHORIZED;
     }
 
     return msg;

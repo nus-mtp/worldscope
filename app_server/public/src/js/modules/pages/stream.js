@@ -20,9 +20,9 @@ const initPlayer = function () {
 
   let video = document.getElementById('video');
   let player = new shaka.player.Player(video);
-  window.player = player;
+  Stream.player = player;
 
-  player.addEventListener('error', function(error) {
+  player.addEventListener('error', function (error) {
     Alert.setError({
       shaka: true,
       message: error.detail.message,
@@ -35,11 +35,15 @@ const initPlayer = function () {
     console.error(event);
   });
 
+  loadStream();
+};
+
+const loadStream = function () {
   let mpdUrl = Stream.stream().link();
   let estimator = new shaka.util.EWMABandwidthEstimator();
   let source = new shaka.player.DashVideoSource(mpdUrl, null, estimator);
 
-  player.load(source);
+  Stream.player.load(source);
 };
 
 const stopStream = function () {
@@ -68,7 +72,8 @@ const initComments = function () {
   });
 };
 
-const destroyComments = function () {
+const destroyPage = function () {
+  Stream.player.destroy();
   Stream.socket().emit('leave', Stream.stream().room());
 };
 
@@ -81,7 +86,7 @@ Stream.controller = function () {
   ]).then(initComments);
 
   return {
-    onunload: destroyComments
+    onunload: destroyPage
   };
 };
 

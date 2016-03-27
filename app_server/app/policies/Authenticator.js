@@ -214,6 +214,7 @@ Class.validateAccount = function (server, session, request) {
         return Class.verifyUserToken(user, session.password);
       } else if (isAdminScope(session.scope)) {
         return request.headers['x-csrf-token'] === request.headers.cookie &&
+               isSimilarScope(session.scope, JSON.parse(user.permissions)) &&
                bcrypt.compareAsync(session.password, user.password);
       } else {
         return new Error(Class.ERRORS.UNKNOWN_SCOPE);
@@ -241,5 +242,11 @@ Class.validateAccount = function (server, session, request) {
 
 var isAdminScope = (scope) => Array.isArray(scope) &&
                               scope.indexOf(Class.SCOPE.ADMIN.DEFAULT) !== -1;
+var isSimilarScope = (s1, s2) => {
+  var set1 = new Set(s1);
+  var set2 = new Set(s2);
+  return set1.size === set2.size &&
+      s1.filter((s) => !set2.has(s)).length === 0;
+};
 
 module.exports = new Authenticator();
