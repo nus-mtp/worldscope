@@ -205,11 +205,7 @@ Class.updateAdmin = function(request, reply) {
         request.cookieAuth.set('scope', admin.permissions);
       }
 
-      if (particulars.password) {
-        return reply(admin);
-      } else {
-        return reply(Utility.clearUserProfile(admin));
-      }
+      return reply(admin);
     });
   });
 };
