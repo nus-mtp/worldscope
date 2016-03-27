@@ -3,7 +3,7 @@
  */
 const ERROR_UNKNOWN = 'An unknown error has occurred.';
 const ERROR_NETWORK = 'Unable to connect to the server.';
-const ERROR_UNAUTHORIZED = 'You have been logged out as you lack access to that resource.';
+const ERROR_UNAUTHORIZED = 'You have been logged out due to lack of access. Please try again.';
 
 /*eslint-disable max-len */
 const validationErrors = {

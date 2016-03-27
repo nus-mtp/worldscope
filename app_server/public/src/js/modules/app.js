@@ -85,13 +85,16 @@ App.request = function (originalOptions) {
           function (err) {
             err = err || {network: true}; // if server is unavailable
 
-            if (err.statusCode === 403) {
-              // attempted to access unauthorized section
+            if (err.statusCode === 401 ||
+                err.statusCode === 403) {
               App.logout();
               App.goToHome();
 
-              reject = null;
-              err = {unauthorized: true};
+              if (err.statusCode === 403) {
+                // attempted to access unauthorized section
+                reject = null;
+                err = {unauthorized: true};
+              }
 
               m.redraw();
             }
