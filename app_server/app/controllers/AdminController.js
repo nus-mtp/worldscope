@@ -330,8 +330,8 @@ var ensureDefaultAdminScope = function(scopes) {
   return scopes;
 };
 
-var wrapPermissionsForDB = (permissionsArr) => permissionsArr.join(';');
-var unwrapPermissionsFromDB = (permissions) => permissions.split(';');
+var wrapPermissionsForDB = (permissionsArr) => JSON.stringify(permissionsArr);
+var unwrapPermissionsFromDB = (permissions) => JSON.parse(permissions);
 
 exports.register = function(server, options, next) {
   var adminController = new AdminController(server, options);
