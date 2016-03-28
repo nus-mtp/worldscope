@@ -7,6 +7,9 @@ var winston = require('winston');
 var crypto = require('crypto');
 var util = require('util');
 
+var rfr = require('rfr');
+var MemoryLogger = rfr('app/util/MemoryLogger');
+
 exports.streamBaseUrl = 'rtmp://multimedia.worldscope.tk:1935/live';
 exports.viewBaseUrl = 'http://worldscope.tk:1935/live';
 exports.thumbnailTemplateUrl = 'http://worldscope.tk:8086/' +
@@ -54,8 +57,29 @@ exports.createLogger = function(filename) {
         level: process.env.NODE_ENV === 'development' ? 'debug' : 'info'
       }),
       new (winston.transports.File)({
+        name: 'logfile',
         timestamp: true,
         filename: 'worldscope_log.log',
+        label: getModuleName(filename)
+      }),
+      new (winston.transports.File)({
+        name: 'logstream',
+        stream: MemoryLogger.stream,
+        json: false,
+        formatter: function(msg) {
+          var item = {
+            level: msg.level,
+            message: msg.message,
+            timestamp: new Date(),
+            label: msg.label
+          };
+
+          if (Object.getOwnPropertyNames(msg.meta).length !== 0 ) {
+            item.meta = msg.meta;
+          }
+
+          return JSON.stringify(item);
+        },
         label: getModuleName(filename)
       })
     ]
