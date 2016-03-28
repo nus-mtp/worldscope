@@ -127,6 +127,16 @@ server.register({
   }
 });
 
+server.register({
+  register: rfr('app/controllers/LogController.js')
+}, {
+  routes: {prefix: '/api/log'}
+}, function (err) {
+  if (err) {
+    logger.error('Unable to register LogController: %j', err);
+  }
+});
+
 server.route({
   method: 'GET',
   path: '/',
