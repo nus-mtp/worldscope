@@ -64,7 +64,7 @@ exports.createLogger = function(filename) {
       }),
       new (winston.transports.File)({
         name: 'logstream',
-        stream: MemoryLogger.stream,
+        stream: MemoryLogger.winstonStream,
         json: false,
         formatter: function(msg) {
           var item = {

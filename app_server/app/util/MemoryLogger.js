@@ -14,9 +14,22 @@ var LogStream = function(memory) {
 };
 util.inherits(LogStream, Writable);
 
+Class.responseLog = [];
+Class.goodStream = new LogStream(Class.responseLog);
 
-LogStream.prototype._write = function(chunk, encoding, callback) {
-  this.memory.push(JSON.parse(chunk));
+Class.goodStream._write = function(chunk, encoding, callback) {
+  chunk = {
+    event: chunk.event,
+    timestamp: chunk.timestamp,
+    instance: chunk.instance,
+    method: chunk.method,
+    path: chunk.path,
+    query: chunk.query,
+    status: chunk.statusCode,
+    responseTime: chunk.responseTime
+  };
+
+  this.memory.push(chunk);
   if (this.memory > MAX_ENTRIES) {
     this.memory.pop();
   }
@@ -25,6 +38,15 @@ LogStream.prototype._write = function(chunk, encoding, callback) {
 };
 
 Class.log = [];
-Class.stream = new LogStream(Class.log);
+Class.winstonStream = new LogStream(Class.log);
+
+Class.winstonStream._write = function(chunk, encoding, callback) {
+  this.memory.push(JSON.parse(chunk));
+  if (this.memory > MAX_ENTRIES) {
+    this.memory.pop();
+  }
+
+  callback();
+};
 
 module.exports = new MemoryLogger();
