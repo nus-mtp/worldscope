@@ -542,7 +542,7 @@ lab.experiment('StreamService Tests', function() {
 });
 
 
-lab.experiment('UserService Tests for Comments', function () {
+lab.experiment('StreamService Tests for Comments', function () {
 
   var comment1 = {
     content: 'How do I live without you',
