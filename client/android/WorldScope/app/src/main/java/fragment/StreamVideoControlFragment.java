@@ -12,9 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.os.Vibrator;
-
 import com.litmus.worldscope.R;
-
 import java.util.Timer;
 import java.util.TimerTask;
 
