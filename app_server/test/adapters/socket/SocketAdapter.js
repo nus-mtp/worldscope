@@ -144,6 +144,7 @@ lab.experiment('socket.io disconnect', function () {
 lab.experiment('Room join and leave', function () {
   lab.beforeEach({timeout: 10000}, function (done) {
     TestUtils.resetDatabase(done);
+    SocketAdapter.__reset__();
   });
 
   function isUserInRoom(userId, roomName) {
@@ -170,7 +171,7 @@ lab.experiment('Room join and leave', function () {
       account.scope = Authenticator.SCOPE.USER;
       return Iron.sealAsync(account, ServerConfig.cookiePassword, Iron.defaults)
       .then((sealed) => {
-        SocketAdapter.createNewRoom('abc');
+        SocketAdapter.createNewRoom('abc', 'streamie');
         var client = io.connect('http://localhost:3000', options);
 
         client.once('connect', () => {
@@ -183,6 +184,8 @@ lab.experiment('Room join and leave', function () {
             Code.expect(msg.room).to.equal('abc');
             Code.expect(msg.userId).to.equal('me');
             Code.expect(isUserInRoom(account.userId, 'abc')).to.be.true();
+            Code.expect(SocketAdapter.getNumberOfClientsInStream('streamie'))
+            .to.equal(1);
             done();
           });
           client.emit('identify', `sid-worldscope=${sealed}`);
@@ -198,6 +201,7 @@ lab.experiment('Room join and leave', function () {
       account.scope = Authenticator.SCOPE.USER;
       return Iron.sealAsync(account, ServerConfig.cookiePassword, Iron.defaults)
       .then((sealed) => {
+        SocketAdapter.createNewRoom('abc');
         var client = io.connect('http://localhost:3000', options);
 
         client.once('connect', () => {
@@ -223,7 +227,7 @@ lab.experiment('Room join and leave', function () {
       account.scope = Authenticator.SCOPE.USER;
       return Iron.sealAsync(account, ServerConfig.cookiePassword, Iron.defaults)
       .then((sealed) => {
-        SocketAdapter.createNewRoom('abc');
+        SocketAdapter.createNewRoom('abc', 'streamie');
         var client = io.connect('http://localhost:3000', options);
 
         client.once('connect', () => {
@@ -239,6 +243,8 @@ lab.experiment('Room join and leave', function () {
             Code.expect(msg.room).to.equal('abc');
             Code.expect(msg.userId).to.equal('me');
             Code.expect(isUserInRoom(account.userId, 'abc')).to.be.false();
+            Code.expect(SocketAdapter.getNumberOfClientsInStream('streamie'))
+            .to.equal(0);
             done();
           });
           client.emit('identify', `sid-worldscope=${sealed}`);

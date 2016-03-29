@@ -47,7 +47,7 @@ Class.createComment = function(credentials, msg) {
 
     logger.debug('Making internal request: %s', JSON.stringify(options)),
     this.server.inject(options, function(res) {
-      if (res.status === 'OK') {
+      if (res.statusCode === 200) {
         resolve(res.result);
       } else {
         logger.error('Error requesting interal route %s', options.url);
