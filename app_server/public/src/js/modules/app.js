@@ -58,6 +58,7 @@ App.routes = {
     '/admins/delete/:username': navPage(require('./pages/admin')),
 
     '/settings': blank,
+    '/settings/logs': navPage(require('./pages/logs')),
 
     '/logout': require('./pages/logout')
   }

@@ -52,10 +52,10 @@ Nav.updateVisibleItems = function () {
   }
   if (contains(scopes, 'settings')) {
     nav.push({
-      name: 'Settings',
-      href: '/settings',
-      icon: 'settings',
-      sub: []
+      name: 'Settings', href: '/settings', icon: 'settings',
+      sub: [
+        {name: 'Logs', href: '/settings/logs'}
+      ]
     });
   }
 
