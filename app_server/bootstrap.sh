@@ -7,7 +7,7 @@ DBHOST=localhost
 DBNAME=worldscope_db
 # DBUSER must be root
 DBUSER=root
-DBPASSWD=
+DBPASSWD=password
 NODE_VERSION=5.9.0
 
 # return 1 if global command line program installed, else 0
