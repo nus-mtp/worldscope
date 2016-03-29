@@ -35,6 +35,7 @@
     "good": "^6.4.0",
     "good-console": "^5.1.0",
     "good-file": "^5.1.0",
+    "good-squeeze": "^3.0.0",
     "hapi": "^10.5.0",
     "hapi-auth-cookie": "^5.0.0",
     "inert": "^3.2.0",

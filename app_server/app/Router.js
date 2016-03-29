@@ -10,6 +10,8 @@ var Promise = require('bluebird');
 var Utility = rfr('app/util/Utility');
 var ServerConfig = rfr('config/ServerConfig');
 var Authenticator = rfr('app/policies/Authenticator');
+var GoodMemoryLogger = rfr('app/util/GoodMemoryLogger');
+
 
 var logger = Utility.createLogger(__filename);
 
@@ -26,6 +28,9 @@ var goodOptions = {
     reporter: require('good-file'),
     events: {ops: '*'},
     config: './process_log.log'
+  }, {
+    reporter: GoodMemoryLogger,
+    events: {log: '*', response: '*'}
   }]
 };
 
