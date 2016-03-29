@@ -24,6 +24,13 @@ Class.registerRoutes = function() {
       validate: timeValidator
     },
     handler: this.getLog});
+
+  this.server.route({method: 'GET', path: '/response',
+    config: {
+      auth: {scope: Authenticator.SCOPE.ADMIN.SETTINGS},
+      validate: timeValidator
+    },
+    handler: this.getResponseLog});
 };
 
 /* Routes handlers */
@@ -34,6 +41,16 @@ Class.getLog = function(request, reply) {
     log = log.filter((item) => after < new Date(item.timestamp).getTime());
   }
 
+  return reply(log);
+};
+
+Class.getResponseLog = function(request, reply) {
+  var after = request.query.after;
+  var log = MemoryLogger.responseLog;
+  console.log(after, log[0].timestamp, new Date(log[0].timestamp).getTime());
+  if (after) {
+    log = log.filter((item) => after < new Date(item.timestamp).getTime());
+  }
   return reply(log);
 };
 /* End of route handlers */
