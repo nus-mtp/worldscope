@@ -3,6 +3,7 @@ package com.litmus.worldscope.utility;
 import android.content.Context;
 import android.util.Log;
 
+import com.litmus.worldscope.model.WorldScopeComment;
 import com.litmus.worldscope.model.WorldScopeCreatedStream;
 import com.litmus.worldscope.model.WorldScopeUser;
 import com.litmus.worldscope.model.WorldScopeViewStream;
@@ -11,7 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -36,6 +40,7 @@ public class WorldScopeAPIService {
     private static final String loginRoute = "/api/users/login";
     private static final String logoutRoute = "/api/users/logout";
     private static final String streamsRoute = "/api/streams";
+    private static final String subscriberStreamsRoute = "/api/streams/subscriptions";
     private static final String streamsEndRoute = "/api/streams/control/end";
     private static final String subscriptionsRoute = "/api/subscriptions/{userId}";
     private static final String commentsRoute = "api/comments/streams/{streamId}";
@@ -64,6 +69,13 @@ public class WorldScopeAPIService {
          */
         @GET(streamsRoute)
         Call<List<WorldScopeViewStream>> getStreams(@Query("state") String state, @Query("sort") String sort, @Query("order") String order);
+
+        /**
+         * Method to get streams from subscribers
+         * @return streams - A list of streams
+         */
+        @GET(subscriberStreamsRoute)
+        Call<List<WorldScopeViewStream>> getSubscriberStreams();
 
         /**
          * Method to create a stream

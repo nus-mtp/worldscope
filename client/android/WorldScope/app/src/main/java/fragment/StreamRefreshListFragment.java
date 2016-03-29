@@ -7,15 +7,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,7 +53,6 @@ public class StreamRefreshListFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private WorldScopeStreamAdapter worldScopeStreamAdapter;
     private ArrayList<WorldScopeViewStream> streams;
-    private static ArrayList<OnStreamMenuItemSelected> listeners = new ArrayList<>();
 
     /**
      * Returns a new instance of this fragment for the given section
@@ -120,15 +116,17 @@ public class StreamRefreshListFragment extends Fragment {
         return rootView;
     }
 
-    public static void registerListener(Object listener) {
-        if(listener instanceof OnStreamMenuItemSelected) {
-            listeners.add((OnStreamMenuItemSelected)listener);
-        }
+    @Override
+    public void onResume() {
+        super.onResume();
+        getStreamsData();
     }
 
     // Passes a stream into ViewActivity
     private void redirectToViewActivity(WorldScopeViewStream stream) {
         Intent intent = new Intent(getActivity(), ViewActivity.class);
+
+        Log.d(TAG, stream.toString());
         intent.putExtra("stream", stream);
         startActivity(intent);
     }
@@ -136,8 +134,25 @@ public class StreamRefreshListFragment extends Fragment {
     private void getStreamsData() {
 
         // Make a call to backend to get streams
-        Log.d(TAG, "Getting Streams");
-        Call<List<WorldScopeViewStream>> call = new WorldScopeRestAPI(getActivity()).buildWorldScopeAPIService().getStreams("live", "time", "desc");
+        Log.d(TAG, "Getting Streams for " + sectionNumber + " tab");
+
+        Call<List<WorldScopeViewStream>> call;
+
+        switch(sectionNumber) {
+            case 1:
+                call = new WorldScopeRestAPI(getActivity()).buildWorldScopeAPIService().getStreams("live", "viewers", "desc");
+                break;
+            case 2:
+                call = new WorldScopeRestAPI(getActivity()).buildWorldScopeAPIService().getStreams("live", "time", "desc");
+                break;
+            case 3:
+                call = new WorldScopeRestAPI(getActivity()).buildWorldScopeAPIService().getSubscriberStreams();
+                break;
+            default:
+                Log.d(TAG, "sectionNumber not recognised, falling back to basic query");
+                call = new WorldScopeRestAPI(getActivity()).buildWorldScopeAPIService().getStreams("live", "viewers", "desc");
+                break;
+        }
         call.enqueue(new Callback<List<WorldScopeViewStream>>() {
             @Override
             public void onResponse(Response<List<WorldScopeViewStream>> response) {
@@ -150,6 +165,7 @@ public class StreamRefreshListFragment extends Fragment {
                     streams.clear();
 
                     for (WorldScopeViewStream stream : response.body()) {
+                        Log.d(TAG, "" + stream.toString());
                         streams.add(stream);
                     }
                     worldScopeStreamAdapter.notifyDataSetChanged();
@@ -174,8 +190,7 @@ public class StreamRefreshListFragment extends Fragment {
         });
     }
 
-    private class WorldScopeStreamAdapter extends ArrayAdapter<WorldScopeViewStream>
-            implements PopupMenu.OnMenuItemClickListener {
+    private class WorldScopeStreamAdapter extends ArrayAdapter<WorldScopeViewStream> {
 
         private Context context;
         private int layoutResourceId;
@@ -200,7 +215,6 @@ public class StreamRefreshListFragment extends Fragment {
             final WorldScopeViewStream stream = data.get(position);
             final int itemPos = position;
             final ViewHolder viewHolder;
-            final PopupMenu.OnMenuItemClickListener onMenuItemClickListener = this;
 
             /**
              * Implement viewHolder pattern to cache the view to reduce calls to findViewById(),
@@ -222,9 +236,7 @@ public class StreamRefreshListFragment extends Fragment {
                 viewHolder.ownerTextView = (TextView) convertView.findViewById(R.id.streamOwner);
                 viewHolder.createdAtTextView = (TextView) convertView.findViewById(R.id.startTime);
                 viewHolder.totalViewerTextView = (TextView) convertView.findViewById(R.id.numOfViewers);
-
-                viewHolder.menuButton = (ImageButton) convertView.findViewById(R.id.streamMenuButton);
-
+                viewHolder.followingImageView = (ImageView) convertView.findViewById(R.id.followingImageView);
                 // Access convertView's XML elements now using viewHolder
                 convertView.setTag(viewHolder);
             } else {
@@ -234,24 +246,17 @@ public class StreamRefreshListFragment extends Fragment {
             // Set text data into the view
             viewHolder.titleTextView.setText(stream.getTitle());
             viewHolder.createdAtTextView.setText(formatDate(stream.getCreatedAt()));
+            Log.d(TAG, stream.getTitle() + " has " + stream.getTotalViewers() + "viewers");
             viewHolder.totalViewerTextView.setText(String.valueOf(stream.getTotalViewers()));
             if(stream.getStreamer() != null) {
                 viewHolder.ownerTextView.setText(stream.getStreamer().getAlias());
             }
 
-            // Set callback for menu button
-            viewHolder.menuButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d(TAG, "Menu button clicked on position: " + itemPos);
-                    PopupMenu popupMenu = new PopupMenu(context, v);
-                    popupMenu.setOnMenuItemClickListener(onMenuItemClickListener);
-                    popupMenu.inflate(R.menu.stream_list_item_menu);
-                    popupMenu.show();
-                    // Set a reference for stream
-                    selectedStream = stream;
-                }
-            });
+            if(stream.getStreamer().getIsSubscribed()) {
+                viewHolder.followingImageView.setImageResource(R.drawable.ic_heart_full);
+            } else {
+                viewHolder.followingImageView.setImageDrawable(null);
+            }
 
             // Use Picasso to set thumbnail image
             Picasso.with(viewHolder.thumbnailImageView.getContext())
@@ -265,29 +270,6 @@ public class StreamRefreshListFragment extends Fragment {
             PrettyTime p = new PrettyTime();
             return p.format(new Date(unixTime));
         }
-
-
-        public boolean onMenuItemClick(MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.follow_menu:
-                    for(OnStreamMenuItemSelected listener: listeners) {
-                        listener.onFollowClicked(selectedStream);
-                    }
-                    return true;
-                case R.id.abuse_menu:
-                    for(OnStreamMenuItemSelected listener: listeners) {
-                        listener.onReportClicked(selectedStream);
-                    }
-                    return true;
-                case R.id.block_menu:
-                    for(OnStreamMenuItemSelected listener: listeners) {
-                        listener.onBlockClicked(selectedStream);
-                    }
-                    return true;
-            }
-
-            return false;
-        }
     }
 
     private static class ViewHolder {
@@ -296,12 +278,6 @@ public class StreamRefreshListFragment extends Fragment {
         TextView ownerTextView;
         TextView createdAtTextView;
         TextView totalViewerTextView;
-        ImageButton menuButton;
-    }
-
-    public interface OnStreamMenuItemSelected {
-        void onFollowClicked(WorldScopeViewStream stream);
-        void onReportClicked(WorldScopeViewStream stream);
-        void onBlockClicked(WorldScopeViewStream stream);
+        ImageView followingImageView;
     }
 }

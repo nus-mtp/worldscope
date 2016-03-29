@@ -2,30 +2,38 @@ package com.litmus.worldscope;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
+import com.litmus.worldscope.model.WorldScopeCreatedStream;
+
 import fragment.CommentFragment;
 import fragment.StreamCreateFragment;
 import fragment.StreamVideoControlFragment;
 import fragment.StreamVideoFragment;
+import fragment.TitleFragment;
 
 public class StreamActivity extends AppCompatActivity implements StreamVideoFragment.OnStreamVideoFragmentListener,
         StreamCreateFragment.OnStreamCreateFragmentListener,
         StreamVideoControlFragment.OnStreamVideoControlFragmentListener,
-        CommentFragment.OnCommentFragmentInteractionListener {
+        CommentFragment.OnCommentFragmentInteractionListener,
+        TitleFragment.OnTitleFragmentToggleButtonListener {
 
     private static final String TAG = "StreamActivity";
+    private static final boolean IS_STREAMER = true;
     private String streamWhenReadyTag = "streamWhenReady";
     private String isRecordingTag = "isRecordingTag";
     private String alias;
+    private String rtmpLink;
     private StreamVideoFragment.StreamVideoControls control;
     private StreamCreateFragment streamCreateFragment;
     private StreamVideoControlFragment streamVideoControlFragment;
     private CommentFragment commentFragment;
+    private TitleFragment titleFragment;
     private android.support.v4.app.FragmentManager sfm;
     private boolean streamWhenReady = false;
     private boolean isRecording = false;
@@ -54,6 +62,8 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
         streamVideoControlFragment = (StreamVideoControlFragment) sfm.findFragmentById(R.id.streamVideoControlFragment);
         // Get commentFragment
         commentFragment = (CommentFragment) sfm.findFragmentById(R.id.commentFragment);
+        // Get titleFragment
+        titleFragment = (TitleFragment) sfm.findFragmentById(R.id.titleFragment);
 
         Log.d(TAG, "Streamer activity created!");
     }
@@ -95,9 +105,10 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
      */
 
     @Override
-    public void onStreamCreationSuccess(String rtmpLink, String appInstance, String streamId) {
-        Log.d(TAG, rtmpLink);
+    public void onStreamCreationSuccess(WorldScopeCreatedStream stream) {
+        this.rtmpLink = stream.getStreamLink();
 
+        this.rtmpLink = rtmpLink;
         // Find streamVideoFragment and set the rtmp link from streamCreateFragment
         StreamVideoFragment streamVideoFragment = (StreamVideoFragment) sfm.findFragmentById(R.id.streamVideoFragment);
         streamVideoFragment.setRTMPLink(rtmpLink);
@@ -114,8 +125,14 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
         streamVideoControlFragment.startStreaming();
 
         // Join room and show comment UI
-        commentFragment.setupRoom(appInstance, streamId, alias);
+        commentFragment.setupRoom(stream.getAppInstance(), stream.getStreamId(), alias);
         commentFragment.initialize();
+
+        // Show titlebar
+        titleFragment.loadStreamDetails(IS_STREAMER, stream.getStreamer().getIsSubscribed(), stream.getStreamer().getPlatformId(),
+                stream.getStreamer().getAlias(), stream.getTitle());
+
+        titleFragment.showTitleUI();
     }
 
     @Override
@@ -196,5 +213,10 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
             streamVideoControlFragment.toggleControlVisibility();
             return true;
         }
+    }
+
+    @Override
+    public void onToggleButtonClicked() {
+        control.toggleCamera();
     }
 }
