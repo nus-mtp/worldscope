@@ -1,22 +1,29 @@
 const m = require('mithril');
 
+const DataDisplay = require('../components/datadisplay');
 const LogModel = require('../models/log');
-const datetime = require('../utils/dateFormat');
 
 const Logs = module.exports = {
   logs: m.prop()
 };
 
+const names = {
+  time: 'Timestamp',
+  level: 'Level',
+  label: 'File',
+  msg: 'Message',
+  meta: 'Metadata'
+};
+
 const parse = (logs) => logs.map(
     function (log) {
-      let msg = datetime.toShortDateTime(log.timestamp()) + ' - ' +
-          log.level() + ': [' + log.label() + '] ' + log.message();
-
-      if (log.meta()) {
-        msg += ' ' + JSON.stringify(log.meta());
-      }
-
-      return msg;
+      return {
+        time: log.timestamp().toUTCString(),
+        level: log.level(),
+        label: log.label(),
+        msg: log.message(),
+        meta: log.meta() ? JSON.stringify(log.meta()) : ''
+      };
     }
 );
 
@@ -27,8 +34,9 @@ Logs.controller = function () {
 Logs.view = function () {
   return [
     m('h1', 'Logs'),
-    m('div.col s12',
-        Logs.logs().reverse().map((l) => m('p', l))
-    )
+    m(DataDisplay, {
+      names: names,
+      data: Logs.logs
+    })
   ];
 };
