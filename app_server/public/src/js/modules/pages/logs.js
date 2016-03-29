@@ -55,8 +55,6 @@ const responseLogsPage = {
           responseTime: log.responseTime()
         };
 
-        console.log(log);
-
         return log;
       }
   ),
