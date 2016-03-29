@@ -28,7 +28,7 @@ const parse = (logs) => logs.map(
 );
 
 Logs.controller = function () {
-  Logs.logs = LogModel.list().then(parse);
+  Logs.logs = LogModel.list().then(parse).then((logs) => logs.reverse());
 };
 
 Logs.view = function () {
