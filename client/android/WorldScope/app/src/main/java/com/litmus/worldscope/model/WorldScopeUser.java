@@ -22,6 +22,7 @@ public class WorldScopeUser implements Parcelable {
     private String updatedAt;
     private String deletedAt;
     private String userName;
+    private boolean isSubscribed;
 
     public String getUserId() {return userId;}
     public String getPlatformType() {return platformType;}
@@ -35,6 +36,7 @@ public class WorldScopeUser implements Parcelable {
     public String getUpdatedAt() {return updatedAt;}
     public String getDeletedAt() {return deletedAt;}
     public String getuserName() {return userName;}
+    public boolean getIsSubscribed() {return isSubscribed;}
 
     public void setUserId(String userId) {this.userId = userId;}
     public void setPlatformType(String platformType) {this.platformType = platformType;}
@@ -45,17 +47,18 @@ public class WorldScopeUser implements Parcelable {
     public void setLocation(String location) {this.location = location;}
     public void setPermissions(String permissions) {this.permissions = permissions;}
     public void setCreatedAt(String createdAt) {this.createdAt = createdAt;}
-
     public void setUpdatedAt(String updatedAt) {this.updatedAt = updatedAt;}
     public void setDeletedAt(String deletedAt) {this.deletedAt = deletedAt;}
     public void setuserName(String userName) {this.userName = userName;}
+    public void setIsSubscribed(boolean isSubscribed) {this.isSubscribed = isSubscribed;}
 
     @Override
     public String toString() {
         return this.getUserId() + " " + this.getPlatformType() + " " + this.getPlatformId() + " "
                 + this.getAlias() + " " + this.getEmail() + " " + this.getDescription() + " "
                 + this.getLocation() + " " + this.getPermissions() + " " + this.getCreatedAt() + " "
-                + this.getUpdatedAt() + " " + this.getDeletedAt() + " " + this.getuserName();
+                + this.getUpdatedAt() + " " + this.getDeletedAt() + " " + this.getuserName() + " "
+                + this.getIsSubscribed();
     }
 
     public WorldScopeUser() {
@@ -74,6 +77,7 @@ public class WorldScopeUser implements Parcelable {
         updatedAt = in.readString();
         deletedAt = in.readString();
         userName = in.readString();
+        isSubscribed = (in.readByte() != 0);
     }
 
     @Override
@@ -95,6 +99,7 @@ public class WorldScopeUser implements Parcelable {
         dest.writeString(updatedAt);
         dest.writeString(deletedAt);
         dest.writeString(userName);
+        dest.writeByte((byte) (this.getIsSubscribed() ? 1 : 0));
     }
 
     @SuppressWarnings("unused")
