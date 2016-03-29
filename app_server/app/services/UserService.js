@@ -1,5 +1,6 @@
 var rfr = require('rfr');
 
+var SocketAdapter = rfr('app/adapters/socket/SocketAdapter');
 var Utility = rfr('app/util/Utility');
 var Storage = rfr('app/models/Storage');
 var CustomError = rfr('app/util/Error');
@@ -87,14 +88,18 @@ Class.getNumberOfUsers = function() {
 
 ///// VIEW RELATED ////
 Class.createView = function(userId, streamId) {
-  return Storage.createView(userId, streamId).then(function(res) {
-    if (res instanceof Error) {
-      console.log(res);
+  return Storage.createView(userId, streamId).then(function(view) {
+    if (view instanceof Error) {
       logger.error('Unable to create view');
-      return res;
+      return view;
     }
 
-    return res.dataValues;
+    var numClients = SocketAdapter.getNumberOfClientsInStream(streamId);
+
+    return Storage.updateStream(streamId, {totalViewers: numClients})
+      .then(function(res) {
+        return view.dataValues;
+      });
   });
 };
 
