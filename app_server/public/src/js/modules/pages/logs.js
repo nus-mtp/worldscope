@@ -7,28 +7,61 @@ const Logs = module.exports = {
   logs: m.prop([])
 };
 
-const names = {
-  time: 'Timestamp',
-  level: 'Level',
-  label: 'File',
-  msg: 'Message',
-  meta: 'Metadata'
+const logsPage = {
+  names: {
+    time: 'Timestamp',
+    level: 'Level',
+    label: 'File',
+    msg: 'Message',
+    meta: 'Metadata'
+  },
+  parse: (logs) => logs.map(
+      function (log) {
+        return {
+          time: log.timestamp().toUTCString(),
+          timestamp: log.timestamp(),
+          level: log.level(),
+          label: log.label(),
+          msg: log.message(),
+          meta: log.meta() ? JSON.stringify(log.meta()) : ''
+        };
+      }
+  ),
+  list: (after) => LogModel.list(after).then(Logs.parse).then((logs) => logs.reverse())
 };
 
-const parse = (logs) => logs.map(
-    function (log) {
-      return {
-        time: log.timestamp().toUTCString(),
-        timestamp: log.timestamp(),
-        level: log.level(),
-        label: log.label(),
-        msg: log.message(),
-        meta: log.meta() ? JSON.stringify(log.meta()) : ''
-      };
-    }
-);
+const responseLogsPage = {
+  names: {
+    time: 'Timestamp',
+    event: 'Event',
+    instance: 'Instance',
+    method: 'Method',
+    path: 'Path',
+    query: 'Query',
+    status: 'Status',
+    responseTime: 'Response Time'
+  },
+  parse: (logs) => logs.map(
+      function (log) {
+        log = {
+          time: log.timestamp().toUTCString(),
+          timestamp: log.timestamp(),
+          event: log.event(),
+          instance: log.instance(),
+          method: log.method(),
+          path: log.path(),
+          query: log.query() ? JSON.stringify(log.query()) : '',
+          status: log.status(),
+          responseTime: log.responseTime()
+        };
 
-const list = (after) => LogModel.list(after).then(parse).then((logs) => logs.reverse());
+        console.log(log);
+
+        return log;
+      }
+  ),
+  list: (after) => LogModel.listResponse(after).then(Logs.parse).then((logs) => logs.reverse())
+};
 
 const update = function () {
   let oldLogs = Logs.logs();
@@ -38,11 +71,18 @@ const update = function () {
     latest = oldLogs[0].timestamp.getTime();
   }
 
-  Logs.logs = list(latest).then((logs) => logs.concat(oldLogs));
+  Logs.logs = Logs.list(latest).then((logs) => logs.concat(oldLogs));
 };
 
 Logs.controller = function () {
-  Logs.logs = list();
+  let currentPage = m.route();
+  if (currentPage.startsWith('/settings/logs')) {
+    Object.assign(Logs, logsPage);
+  } else if (currentPage.startsWith('/settings/responses')) {
+    Object.assign(Logs, responseLogsPage);
+  }
+
+  Logs.logs = Logs.list();
 };
 
 Logs.view = function () {
@@ -50,7 +90,7 @@ Logs.view = function () {
     m('h1', 'Logs'),
     m('button.btn', {onclick: update}, 'Refresh'),
     m(DataDisplay, {
-      names: names,
+      names: Logs.names,
       data: Logs.logs
     })
   ];

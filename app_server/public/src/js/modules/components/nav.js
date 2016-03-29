@@ -54,7 +54,8 @@ Nav.updateVisibleItems = function () {
     nav.push({
       name: 'Settings', href: '/settings', icon: 'settings',
       sub: [
-        {name: 'Logs', href: '/settings/logs'}
+        {name: 'Logs', href: '/settings/logs'},
+        {name: 'Response Logs', href: '/settings/responses'}
       ]
     });
   }

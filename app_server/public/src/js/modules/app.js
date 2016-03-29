@@ -59,6 +59,7 @@ App.routes = {
 
     '/settings': blank,
     '/settings/logs': navPage(require('./pages/logs')),
+    '/settings/responses': navPage(require('./pages/logs')),
 
     '/logout': require('./pages/logout')
   }
