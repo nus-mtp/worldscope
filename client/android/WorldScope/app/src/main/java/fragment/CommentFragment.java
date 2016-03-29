@@ -4,10 +4,9 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.text.Html;
+import android.util.JsonReader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,15 +19,23 @@ import android.widget.TextView;
 import android.view.View.OnClickListener;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.litmus.worldscope.R;
+import com.litmus.worldscope.model.WorldScopeComment;
+import com.litmus.worldscope.utility.WorldScopeAPIService;
 import com.litmus.worldscope.utility.WorldScopeRestAPI;
 import com.litmus.worldscope.utility.WorldScopeSocketService;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -119,12 +126,6 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
 
         commentListView.setAdapter(commentArrayAdapter);
 
-        getPreviousComments(streamId);
-
-        // Register as a listener
-        Log.d(TAG, "Registering as socket listener");
-        WorldScopeSocketService.registerListener(this);
-
         // Setup Send button
         setUpButton();
         return view;
@@ -147,11 +148,15 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
 
     private void sendMessage(String comment) {
         WorldScopeSocketService.emitComment(comment);
-        //addToCommentList(new WorldScopeComment(alias, comment, "TIMESTAMP"));
     }
 
     private void addToCommentList(WorldScopeComment comment) {
         commentsList.add(comment);
+        Collections.sort(commentsList, new Comparator<WorldScopeComment>() {
+            public int compare(WorldScopeComment first, WorldScopeComment second) {
+                return first.getCreatedAt() < second.getCreatedAt() ? -1 : 1;
+            }
+        });
 
         if(this.getActivity() != null) {
             this.getActivity().runOnUiThread(new Runnable() {
@@ -159,6 +164,22 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
                     commentListView.setSelection(commentArrayAdapter.getCount() - 1);
                 }
             });
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Initialize Socket.IO
+        WorldScopeSocketService.initialize();
+
+        // Register this as a listener of WorldScopeSocketService
+        WorldScopeSocketService.registerListener(this);
+
+        // Make an identify connection
+        WorldScopeSocketService.emitIdentify(WorldScopeAPIService.getCookie());
+        if(roomId != null) {
+            WorldScopeSocketService.emitJoin(roomId);
         }
     }
 
@@ -174,7 +195,7 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
     }
 
     @Override
-    public void onDetach() {
+    public void onPause() {
         super.onDetach();
         WorldScopeSocketService.emitLeave(roomId);
         WorldScopeSocketService.unregisterListener(this);
@@ -206,7 +227,7 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
         try {
             JSONObject json = new JSONObject(data);
             String alias = json.getString("alias");
-            String time = json.getString("time");
+            Double time = Double.parseDouble(json.getString("time"));
             String message = json.getString("message");
             String room = json.getString("room");
 
@@ -302,7 +323,7 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
         }
 
         private android.text.Spanned buildHTMLComment(WorldScopeComment comment) {
-            return Html.fromHtml("<font color='#ffffff'><b>" + comment.getAlias() + "</b>: " + comment.getComment()+"</font>");
+            return Html.fromHtml("<font color='#ffffff'><b>" + comment.getAlias() + "</b>: " + comment.getContent()+"</font>");
         }
     }
 
@@ -310,26 +331,17 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
 
         Log.d(TAG, "Getting comments for stream: " + streamId);
 
-        Call<List<Object>> call = new WorldScopeRestAPI(context
-        ).buildWorldScopeAPIService().getPreviousComments(streamId);
-        call.enqueue(new Callback<List<Object>>() {
+        Call<List<WorldScopeComment>> call = new WorldScopeRestAPI(context)
+                .buildWorldScopeAPIService().getPreviousComments(streamId);
+        call.enqueue(new Callback<List<WorldScopeComment>>() {
             @Override
-            public void onResponse(Response<List<Object>> response) {
+            public void onResponse(Response<List<WorldScopeComment>> response) {
                 if (response.isSuccess()) {
-                    try {
-                        for(Object rawComment: response.body()) {
 
-                            Log.d(TAG, rawComment.toString());
-                            JSONObject rawCommentJson = new JSONObject(rawComment.toString());
-                            WorldScopeComment newComment = new WorldScopeComment(rawCommentJson.get("userId").toString(),
-                                    rawCommentJson.get("content").toString(),
-                                    rawCommentJson.get("createdAt").toString());
+                    for(WorldScopeComment rawComment: response.body()) {
 
-                            addToCommentList(newComment);
-                            Log.d(TAG, newComment.toString());
-                        }
-                    } catch(JSONException e) {
-                        e.printStackTrace();
+                        addToCommentList(rawComment);
+                        Log.d(TAG, rawComment.toString());
                     }
 
                 } else {
@@ -341,36 +353,5 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
                 Log.d(TAG, "Get comments fail");
             }
         });
-    }
-
-    // WorldScopeComment model
-    public class WorldScopeComment {
-
-        private String alias;
-        private String comment;
-        private String timestamp;
-
-        public WorldScopeComment(String alias, String comment, String timestamp) {
-            this.alias = alias;
-            this.comment = comment;
-            this.timestamp = timestamp;
-        }
-
-        public String getAlias() {
-            return this.alias;
-        }
-
-        public String getComment() {
-            return this.comment;
-        }
-
-        public String getTimestamp() {
-            return this.timestamp;
-        }
-
-        @Override
-        public String toString() {
-            return this.getAlias() + ": " + this.getComment() + " (" + this.getTimestamp() + ")";
-        }
     }
 }

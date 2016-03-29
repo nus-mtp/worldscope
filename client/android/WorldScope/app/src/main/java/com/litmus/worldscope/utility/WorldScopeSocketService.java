@@ -37,6 +37,12 @@ public class WorldScopeSocketService {
 
     // Connect to Socket.IO in App Server
     public static void initialize() {
+
+        if(socket != null) {
+            socket.disconnect();
+            stopListening();
+        }
+
         try {
             socket = IO.socket(WorldScopeAPIService.WorldScopeURL);
             socket.connect();
@@ -53,6 +59,13 @@ public class WorldScopeSocketService {
         socket.on(EVENT_JOIN, onJoinEvent);
         socket.on(EVENT_COMMENT, onCommentEvent);
         socket.on(EVENT_LEAVE, onLeaveEvent);
+    }
+
+    private static void stopListening() {
+        socket.off(EVENT_IDENTIFY, onIdentifyEvent);
+        socket.off(EVENT_JOIN, onJoinEvent);
+        socket.off(EVENT_COMMENT, onCommentEvent);
+        socket.off(EVENT_LEAVE, onLeaveEvent);
     }
 
     // Emits an identify event, payload should be the current cookie

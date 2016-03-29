@@ -51,8 +51,8 @@ public class WorldScopeStream implements Parcelable {
     public void setDuration(String duration) {this.duration = duration;}
     public void setDescription(String description) {this.description = description;}
 
-    public void setCreatedAt(int createdAt) {this.createdAt = createdAt;}
-    public void setDeletedAt(int deletedAt) {this.deletedAt = deletedAt;}
+    public void setCreatedAt(long createdAt) {this.createdAt = createdAt;}
+    public void setDeletedAt(long deletedAt) {this.deletedAt = deletedAt;}
     public void setOwner(String owner) {this.owner = owner;}
 
     public void setStreamer(WorldScopeUser streamer) {this.streamer = streamer;}

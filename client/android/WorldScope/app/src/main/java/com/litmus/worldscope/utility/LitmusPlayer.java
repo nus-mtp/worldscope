@@ -193,6 +193,7 @@ public class LitmusPlayer implements
     }
 
     public void release() {
+        dashRendererBuilder.destroy();
         player.release();
     }
 

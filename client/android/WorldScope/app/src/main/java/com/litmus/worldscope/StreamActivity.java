@@ -68,11 +68,51 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
         Log.d(TAG, "Streamer activity created!");
     }
 
+    // Get streamId and recording
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(streamWhenReadyTag, streamWhenReady);
-        outState.putBoolean(isRecordingTag , isRecording);
+    public void onRestart() {
+        super.onRestart();
+
+        Log.d(TAG, "onRestart");
+        isRecording = PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean("isRecording", false);
+        rtmpLink = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString("rtmpLink", "");
+        // If control is ready, start streaming, else stream when ready
+        if(control != null && isRecording == true) {
+            // Find streamVideoFragment and set the rtmp link from streamCreateFragment
+            StreamVideoFragment streamVideoFragment = (StreamVideoFragment) sfm.findFragmentById(R.id.streamVideoFragment);
+            streamVideoFragment.setRTMPLink(rtmpLink);
+            control.startStreaming();
+            Log.d(TAG, "Stream resumed");
+        } else {
+            streamWhenReady = true;
+        }
+    }
+
+    // Save streamId and recording
+    @Override
+    public void onStop() {
+        super.onStop();
+        PreferenceManager.getDefaultSharedPreferences(this).edit()
+                .putBoolean("isRecording", isRecording)
+                .putString("rtmpLink", rtmpLink)
+                .apply();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        Log.d(TAG, "END STREAM START");
+        streamCreateFragment.endStream();
+        Log.d(TAG, "END STREAM DONE");
+
+        // Remove recording state
+        PreferenceManager.getDefaultSharedPreferences(this).edit()
+                .putBoolean("isRecording", false)
+                .putString("rtmpLink", "")
+                .apply();
     }
 
     @Override

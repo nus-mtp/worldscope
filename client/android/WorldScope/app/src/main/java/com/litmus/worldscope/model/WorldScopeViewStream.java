@@ -34,6 +34,16 @@ public class WorldScopeViewStream extends WorldScopeStream implements Parcelable
     protected WorldScopeViewStream(Parcel in) {
         this.setAppInstance(in.readString());
         this.setStreamId(in.readString());
+        this.setTitle(in.readString());
+        this.setRoomId(in.readString());
+        this.setTotalStickers(in.readInt());
+        this.setTotalViewers(in.readInt());
+        this.setDuration(in.readString());
+        this.setDescription(in.readString());
+        this.setCreatedAt(in.readLong());
+        this.setDeletedAt(in.readLong());
+        this.setOwner(in.readString());
+        this.setStreamer((WorldScopeUser)in.readValue(WorldScopeUser.class.getClassLoader()));
         viewLink = in.readString();
         thumbnailLink = in.readString();
     }
@@ -45,9 +55,18 @@ public class WorldScopeViewStream extends WorldScopeStream implements Parcelable
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        Log.d(TAG, this.toString());
         dest.writeString(this.getAppInstance());
         dest.writeString(this.getStreamId());
+        dest.writeString(this.getTitle());
+        dest.writeString(this.getRoomId());
+        dest.writeInt(this.getTotalStickers());
+        dest.writeInt(this.getTotalViewers());
+        dest.writeString(this.getDuration());
+        dest.writeString(this.getDescription());
+        dest.writeLong(this.getCreatedAt());
+        dest.writeLong(this.getDeletedAt());
+        dest.writeString(this.getOwner());
+        dest.writeValue(this.getStreamer());
         dest.writeString(viewLink);
         dest.writeString(thumbnailLink);
     }

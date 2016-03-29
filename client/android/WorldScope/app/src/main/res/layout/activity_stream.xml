@@ -24,8 +24,8 @@
     <fragment
         android:id="@+id/streamVideoControlFragment"
         android:name="fragment.StreamVideoControlFragment"
-        android:layout_width="90dp"
-        android:layout_height="90dp"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:layout_gravity="bottom|right"
         android:layout_marginBottom="60dp"
         tools:layout="@layout/fragment_stream_video_control" />
@@ -37,5 +37,13 @@
         android:layout_height="fill_parent"
         android:layout_gravity="center"
         tools:layout="@layout/fragment_stream_create" />
+
+    <fragment
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:name="fragment.TitleFragment"
+        android:id="@+id/titleFragment"
+        android:layout_gravity="center_horizontal|top"
+        tools:layout="@layout/fragment_title" />
 
 </FrameLayout>

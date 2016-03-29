@@ -45,6 +45,9 @@ public class StreamVideoFragment extends Fragment {
     private final String ERROR_IMPLEMENT_ON_FRAGMENT_INTERACTION_LISTENER = " must implement OnStreamVideoFragmentListener";
     private final int MAX_SUPPORTED_IMAGE_WIDTH = 1024;
     private final int MAX_SUPPORTED_IMAGE_HEIGHT = 768;
+    private final boolean FRONT_CAMERA = true;
+    private final boolean BACK_CAMERA = false;
+
     private StreamVideoControls controls;
 
     //Change this to stream RMTP
@@ -53,10 +56,15 @@ public class StreamVideoFragment extends Fragment {
     private Context context;
 
     private FrameLayout root;
+    private FrameLayout topLayout;
 
     // States for recorder
     long startTime;
+    boolean streamWhenReady = false;
+    boolean isInitialized = false;
     boolean recording = false;
+    boolean isFrontCamera = true;
+    boolean isToggle = false;
 
     // Recorder and camera objects
     private FFmpegFrameRecorder recorder;
@@ -78,7 +86,7 @@ public class StreamVideoFragment extends Fragment {
     final int ROTATION_90 = 90;
 
     // Audio and video initial setting
-    boolean isPreviewOn = false;
+    boolean isPreviewOn;
     int sampleAudioRateInHz = 44100;
     int imageWidth = 320;
     int imageHeight = 240;
@@ -122,7 +130,6 @@ public class StreamVideoFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "Stream Video Fragment created!");
     }
 
     @Override
@@ -132,34 +139,77 @@ public class StreamVideoFragment extends Fragment {
 
         // Get the layout id
         View view = inflater.inflate(R.layout.fragment_stream_video, container, false);
-        root = (FrameLayout) view.findViewById(R.id.streamFrameLayout);
         return view;
     }
 
+    // Toggle camera
+    private void toggleCameraFromFragment() {
+        // Remove old camera instance and view
+        ((ViewGroup) getView()).removeView(topLayout);
+        // Save a previous state whether it is recording or not
+        // If recording, set isToggle to true else false
+        // If isToggle is true, initializeLayout will immediately start streaming
+        // Else it will wait
+        isToggle = recording;
+        stopRecorder();
+        destroyStreamerFromFragment();
+        // Toggle the boolean
+        isFrontCamera = !isFrontCamera;
+        isInitialized = false;
+        isPreviewOn = false;
+        initializeLayout(isToggle);
+    }
+
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
+        isInitialized = false;
+        isPreviewOn = false;
+        root = (FrameLayout) getView();
         controls = new StreamVideoControls();
         listener.streamVideoFragmentReady(controls);
         // Prevent the window from turning dark
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        initializeLayout();
+        // Set isToggle to false
+        isToggle = false;
+        initializeLayout(isToggle);
+        // If received signal from outside to stream, start streaming
+        if(streamWhenReady) {
+            startRecorder();
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        // Remove the previous view and add a new one on resume
+        ((ViewGroup) getView()).removeView(topLayout);
+        if(cameraDevice != null) {
+            cameraDevice.release();
+        }
+        stopRecorder();
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         destroyRecorder();
     }
 
     // Compute the layout size and set it to displayDimensions
-    private void initializeLayout() {
+    // If isToggle is true, there will be no outside signal to start recording
+    private void initializeLayout(boolean isToggle) {
+        final boolean startRecording = isToggle;
         root.post(new Runnable() {
             public void run() {
                 // Get actual height of the activity
                 getActualHeight();
                 // Start camera preview
                 initializeCameraPreviewLayout();
+                if(startRecording) {
+                    startRecorder();
+                }
             }
         });
     }
@@ -236,7 +286,7 @@ public class StreamVideoFragment extends Fragment {
         //Initialize the frame layout
         FrameLayout.LayoutParams frameLayoutParam;
 
-        FrameLayout topLayout = new FrameLayout(context);
+        topLayout = new FrameLayout(context);
         // Add topLayout into view
         ((ViewGroup) getView()).addView(topLayout);
 
@@ -256,25 +306,61 @@ public class StreamVideoFragment extends Fragment {
         frameLayoutParam.leftMargin = (int) (1.0 * bg_screen_bx * screenWidth / bg_width);
 
         //Set the camera to portrait mode
-        cameraDevice = Camera.open();
+        if(!isFrontCamera) {
+            cameraDevice = openCamera(BACK_CAMERA);
+            Log.d(TAG, "Opening back camera");
+        } else {
+            cameraDevice = openCamera(FRONT_CAMERA);
+            Log.d(TAG, "Opening front camera");
+        }
 
         cameraDevice.setDisplayOrientation(ROTATION_90);
 
         Log.i(TAG, "Camera open");
         cameraView = new CameraView(context, cameraDevice);
         topLayout.addView(cameraView, frameLayoutParam);
-        Log.i(TAG, "Camera preview start: OK");
+        isInitialized = true;
     }
 
     // Create the filter required to rotate the camera output to portrait
     private void initializeFilter() {
-        filter = new FFmpegFrameFilter("transpose=1:portrait", imageWidth, imageHeight);
+        Log.d(TAG, "Filter initialized, width: " + imageWidth + " height: " + imageHeight);
+        if(isFrontCamera) {
+            filter = new FFmpegFrameFilter("transpose=2:portrait", imageWidth, imageHeight);
+        } else {
+            filter = new FFmpegFrameFilter("transpose=1:portrait", imageWidth, imageHeight);
+        }
         filter.setPixelFormat(AV_PIX_FMT_NV21); // default camera format on Android
         try {
             filter.start();
         } catch(FFmpegFrameFilter.Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private Camera openCamera(boolean front) {
+        int cameraCount = 0;
+        Camera cam = null;
+        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+        cameraCount = Camera.getNumberOfCameras();
+        for (int camIdx = 0; camIdx < cameraCount; camIdx++) {
+            Camera.getCameraInfo(camIdx, cameraInfo);
+            if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT && front) {
+                try {
+                    cam = Camera.open(camIdx);
+                } catch (RuntimeException e) {
+                    Log.e(TAG, "Camera failed to open: " + e.getLocalizedMessage());
+                }
+            } else if(cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK && !front){
+                try {
+                    cam = Camera.open(camIdx);
+                } catch (RuntimeException e) {
+                    Log.e(TAG, "Camera failed to open: " + e.getLocalizedMessage());
+                }
+            }
+        }
+
+        return cam;
     }
 
     // CameraView class that contains thread to get and encode video data
@@ -290,14 +376,22 @@ public class StreamVideoFragment extends Fragment {
             holder = getHolder();
             holder.addCallback(CameraView.this);
             holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-            camera.setPreviewCallback(CameraView.this);
+        }
+
+        public Camera getCamera() {
+            return this.camera;
+        }
+
+        public void setCamera(Camera camera) {
+            this.camera = camera;
         }
 
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
             try {
-                stopPreview();
+                stopCameraPreview();
                 camera.setPreviewDisplay(holder);
+                camera.setPreviewCallback(CameraView.this);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -306,7 +400,36 @@ public class StreamVideoFragment extends Fragment {
             }
         }
 
+        @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            startCameraPreview();
+        }
+
+
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            try {
+                holder.addCallback(null);
+                camera.setPreviewCallback(null);
+            } catch (RuntimeException e) {
+                // The camera has probably just been released, ignore.
+            }
+        }
+
+        public void startCameraPreview() {
+
+            try {
+                Camera.Parameters camParams = camera.getParameters();
+            } catch (Exception e) {
+                Log.d(TAG, "Camera is released! Assigning new camera!");
+                if(!isFrontCamera) {
+                    this.camera = openCamera(BACK_CAMERA);
+                } else {
+                    this.camera = openCamera(FRONT_CAMERA);
+                }
+                this.camera.setDisplayOrientation(ROTATION_90);
+                this.camera.setPreviewCallback(CameraView.this);
+            }
 
             Camera.Parameters camParams = camera.getParameters();
 
@@ -340,36 +463,23 @@ public class StreamVideoFragment extends Fragment {
 
             camParams.setPreviewSize(imageWidth, imageHeight);
 
-            Log.v(TAG,"Setting imageWidth: " + imageWidth + " imageHeight: " + imageHeight + " frameRate: " + frameRate);
+            Log.v(TAG, "Setting imageWidth: " + imageWidth + " imageHeight: " + imageHeight + " frameRate: " + frameRate);
 
             camParams.setPreviewFrameRate(frameRate);
-            Log.v(TAG,"Preview Framerate: " + camParams.getPreviewFrameRate());
+            Log.v(TAG, "Preview Framerate: " + camParams.getPreviewFrameRate());
 
             camera.setParameters(camParams);
 
             initializeFilter();
 
-            startPreview();
-        }
-
-        @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {
-            try {
-                holder.addCallback(null);
-                camera.setPreviewCallback(null);
-            } catch (RuntimeException e) {
-                // The camera has probably just been released, ignore.
-            }
-        }
-
-        public void startPreview() {
             if (!isPreviewOn && camera != null) {
+                Log.i(TAG, "Camera preview started");
                 isPreviewOn = true;
                 camera.startPreview();
             }
         }
 
-        public void stopPreview() {
+        public void stopCameraPreview() {
             if (isPreviewOn && camera != null) {
                 isPreviewOn = false;
                 camera.stopPreview();
@@ -378,6 +488,7 @@ public class StreamVideoFragment extends Fragment {
 
         @Override
         public void onPreviewFrame(byte[] data, Camera camera) {
+            Log.v(TAG, "Preview Frame received");
             if (audioRecord == null || audioRecord.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING) {
                 startTime = System.currentTimeMillis();
                 return;
@@ -407,6 +518,7 @@ public class StreamVideoFragment extends Fragment {
                         filter.push(yuvImage);
                         Frame frame;
                         while ((frame = filter.pull()) != null) {
+                            Log.d(TAG, "Recording frame");
                             recorder.record(frame);
                         }
                     } catch(FFmpegFrameFilter.Exception e) {
@@ -455,6 +567,7 @@ public class StreamVideoFragment extends Fragment {
                     // Why?  Good question...
                     if (recording) {
                         try {
+                            Log.d(TAG, "Recording audio");
                             recorder.recordSamples(audioData);
                             //Log.v(TAG,"recording " + 1024*i + " to " + 1024*i+1024);
                         } catch (FFmpegFrameRecorder.Exception e) {
@@ -478,15 +591,18 @@ public class StreamVideoFragment extends Fragment {
 
     // Create recorder
     private void initializeRecorder() {
-        Log.w(TAG, "init recorder");
+        Log.d(TAG, "init recorder");
 
-        if (yuvImage == null) {
-            yuvImage = new Frame(imageWidth, imageHeight, Frame.DEPTH_UBYTE, 2);
-            Log.i(TAG, "create yuvImage");
+        yuvImage = new Frame(imageWidth, imageHeight, Frame.DEPTH_UBYTE, 2);
+
+        if(recorder == null) {
+            Log.i(TAG, "Creating recorder");
+            recorder = new FFmpegFrameRecorder(rtmpLink, imageWidth, imageHeight, 1);
         }
 
-        Log.i(TAG, "ffmpeg_url: " + rtmpLink);
-        recorder = new FFmpegFrameRecorder(rtmpLink, imageWidth, imageHeight, 1);
+        // In case toggling is done and image size changes
+        recorder.setImageHeight(imageHeight);
+        recorder.setImageWidth(imageWidth);
 
         // Custom format
         recorder.setFormat(VIDEO_FORMAT);
@@ -494,6 +610,7 @@ public class StreamVideoFragment extends Fragment {
         recorder.setAudioCodec(AUDIO_CODEC_AAC);
         recorder.setSampleRate(sampleAudioRateInHz);
         recorder.setFrameRate(VIDEO_FRAME_RATE);
+        recorder.setVideoOption("preset", "ultrafast");
 
         // Default format
         //recorder.setSampleRate(sampleAudioRateInHz);
@@ -502,22 +619,24 @@ public class StreamVideoFragment extends Fragment {
 
         Log.i(TAG, "recorder initialize success");
 
-        audioRecordRunnable = new AudioRecordRunnable();
-        audioThread = new Thread(audioRecordRunnable);
-        runAudioThread = true;
-        recorder.setVideoOption("preset", "ultrafast");
+        if(audioRecordRunnable == null) {
+            audioRecordRunnable = new AudioRecordRunnable();
+            audioThread = new Thread(audioRecordRunnable);
+            runAudioThread = true;
+        }
     }
-
 
     // Start recording
     private void startRecorder() {
+        Log.d(TAG, "Recorder started");
         initializeRecorder();
+
         try {
             recording = true;
             recorder.start();
             startTime = System.currentTimeMillis();
             audioThread.start();
-
+            cameraView.startCameraPreview();
         } catch (FFmpegFrameRecorder.Exception e) {
             e.printStackTrace();
         }
@@ -543,25 +662,40 @@ public class StreamVideoFragment extends Fragment {
             Log.v(TAG,"Finishing recording, calling stop and release on recorder");
             try {
                 recorder.stop();
-                recorder.release();
             } catch (FFmpegFrameRecorder.Exception e) {
                 e.printStackTrace();
             }
-            recorder = null;
-
         }
     }
 
+    private void destroyStreamerFromFragment() {
+        destroyCamera();
+        destroyRecorder();
+    }
+
     private void destroyRecorder() {
+        if(recorder != null) {
+            try {
+                recorder.stop();
+                recorder.release();
+                recorder = null;
+            } catch (FFmpegFrameRecorder.Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void destroyCamera() {
         if(cameraDevice != null) {
             Log.d(TAG, "Camera released!");
             cameraDevice.stopPreview();
             cameraView.getHolder().removeCallback(cameraView);
             cameraDevice.setPreviewCallback(null);
+            cameraView.getCamera().release();
+            cameraView.setCamera(null);
             cameraDevice.release();
             cameraDevice = null;
         }
-        runAudioThread = false;
     }
 
     public void setRTMPLink(String rtmpLink) {
@@ -574,7 +708,13 @@ public class StreamVideoFragment extends Fragment {
     public class StreamVideoControls {
 
         public void startStreaming() {
-            startRecorder();
+            if(isInitialized) {
+                Log.d(TAG, "Initialize completed");
+                startRecorder();
+            } else {
+                Log.d(TAG, "Initialize not complete, streamWhenReady");
+                streamWhenReady = true;
+            }
         }
 
         public void stopStreaming() {
@@ -582,7 +722,11 @@ public class StreamVideoFragment extends Fragment {
         }
 
         public void destroyStreamer() {
-            destroyRecorder();
+            destroyStreamerFromFragment();
+        }
+
+        public void toggleCamera() {
+            toggleCameraFromFragment();
         }
 
     }

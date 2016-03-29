@@ -175,8 +175,7 @@ public class StreamCreateFragment extends Fragment {
                     // Save an instance of the createdStream
                     createdStream = response.body();
 
-                    listener.onStreamCreationSuccess(response.body().getStreamLink(),
-                            response.body().getAppInstance(), response.body().getStreamId());
+                    listener.onStreamCreationSuccess(response.body());
 
                     hideStreamCreateView();
                     Toast toast = Toast.makeText(context, STREAM_STARTED_MESSAGE, Toast.LENGTH_LONG);
@@ -198,7 +197,7 @@ public class StreamCreateFragment extends Fragment {
     }
 
     // Create a POST request to server to end stream
-    private void endStream() {
+    public void endStream() {
         String streamId = createdStream.getStreamId();
 
         // Instantiate an instance of the call with the parameters
@@ -259,7 +258,7 @@ public class StreamCreateFragment extends Fragment {
      */
     public interface OnStreamCreateFragmentListener {
         // Implement to receive update upon stream creation success
-        void onStreamCreationSuccess(String rtmpLink, String appInstance, String streamId);
+        void onStreamCreationSuccess(WorldScopeCreatedStream stream);
 
         // Implement to handle CancelStreamButton
         void onCancelStreamButtonClicked();
