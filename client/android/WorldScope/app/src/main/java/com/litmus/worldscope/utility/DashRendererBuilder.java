@@ -32,6 +32,8 @@ import com.google.android.exoplayer.util.ManifestFetcher;
 import com.google.android.exoplayer.util.Util;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class DashRendererBuilder implements ManifestFetcher.ManifestCallback<MediaPresentationDescription>, UtcTimingElementResolver.UtcTimingCallback {
 
@@ -45,6 +47,8 @@ public class DashRendererBuilder implements ManifestFetcher.ManifestCallback<Med
     private final Context context;
     private final String userAgent;
     private final MediaDrmCallback drmCallback;
+    private boolean requireManifest;
+    private Timer timer;
 
     private MediaCodecVideoTrackRenderer videoRenderer;
     private MediaCodecAudioTrackRenderer audioRenderer;
@@ -71,6 +75,8 @@ public class DashRendererBuilder implements ManifestFetcher.ManifestCallback<Med
         this.context = context;
         this.userAgent = userAgent;
         this.drmCallback = drmCallback;
+
+        requireManifest = true;
 
         MediaPresentationDescriptionParser parser = new MediaPresentationDescriptionParser();
         manifestDataSource = new DefaultUriDataSource(context, userAgent);
@@ -161,6 +167,8 @@ public class DashRendererBuilder implements ManifestFetcher.ManifestCallback<Med
     public void onSingleManifest(MediaPresentationDescription manifest) {
         Log.d(TAG, "Received manifest");
 
+        requireManifest = false;
+
         this.manifest = manifest;
         if (manifest.dynamic && manifest.utcTiming != null) {
             UtcTimingElementResolver.resolveTimingElement(manifestDataSource, manifest.utcTiming,
@@ -172,7 +180,25 @@ public class DashRendererBuilder implements ManifestFetcher.ManifestCallback<Med
 
     @Override
     public void onSingleManifestError(IOException e) {
-        e.printStackTrace();
+        if(requireManifest && timer == null) {
+            Log.d(TAG, "Trying to get manifest every three seconds");
+            timer = new Timer();
+            timer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "Getting manifest");
+                    manifestFetcher.singleLoad(player.getMainHandler().getLooper(), DashRendererBuilder.this);
+                }
+            }, 0, 5000);
+        } else if (!requireManifest) {
+            Log.d(TAG, "Cancel timer");
+            if(timer != null) {
+                timer.cancel();
+                timer = null;
+            }
+        }
+        // Set it to true if manifest is required
+        requireManifest = true;
     }
 
     // Implement for UTCTimingCallBack
@@ -187,5 +213,9 @@ public class DashRendererBuilder implements ManifestFetcher.ManifestCallback<Med
     public void onTimestampResolved(UtcTimingElement utcTiming, long elapsedRealtimeOffset) {
         this.elapsedRealtimeOffset = elapsedRealtimeOffset;
         buildRenderers();
+    }
+
+    public void destroy() {
+        requireManifest = false;
     }
 }
