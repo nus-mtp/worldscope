@@ -4,7 +4,7 @@ const DataDisplay = require('../components/datadisplay');
 const LogModel = require('../models/log');
 
 const Logs = module.exports = {
-  logs: m.prop()
+  logs: m.prop([])
 };
 
 const names = {
@@ -19,6 +19,7 @@ const parse = (logs) => logs.map(
     function (log) {
       return {
         time: log.timestamp().toUTCString(),
+        timestamp: log.timestamp(),
         level: log.level(),
         label: log.label(),
         msg: log.message(),
@@ -27,13 +28,27 @@ const parse = (logs) => logs.map(
     }
 );
 
+const list = (after) => LogModel.list(after).then(parse).then((logs) => logs.reverse());
+
+const update = function () {
+  let oldLogs = Logs.logs();
+
+  let latest = oldLogs[0];
+  if (latest) {
+    latest = oldLogs[0].timestamp.getTime();
+  }
+
+  Logs.logs = list(latest).then((logs) => logs.concat(oldLogs));
+};
+
 Logs.controller = function () {
-  Logs.logs = LogModel.list().then(parse).then((logs) => logs.reverse());
+  Logs.logs = list();
 };
 
 Logs.view = function () {
   return [
     m('h1', 'Logs'),
+    m('button.btn', {onclick: update}, 'Refresh'),
     m(DataDisplay, {
       names: names,
       data: Logs.logs

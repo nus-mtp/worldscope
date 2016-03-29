@@ -12,6 +12,6 @@ const Log = module.exports = function (data) {
 Log.list = (after) =>
     App.request({
       method: 'GET',
-      url: '../api/log',
+      url: '../api/log' + (after ? '?after=' + after : ''),
       type: Log
     });
