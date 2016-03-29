@@ -28,10 +28,11 @@ import android.widget.Toast;
 import android.util.Log;
 
 import com.litmus.worldscope.model.WorldScopeUser;
+import com.litmus.worldscope.model.WorldScopeViewStream;
+import com.litmus.worldscope.utility.CircleTransform;
 import com.litmus.worldscope.utility.FacebookWrapper;
 import com.litmus.worldscope.utility.WorldScopeAPIService;
 import com.litmus.worldscope.utility.WorldScopeRestAPI;
-import com.litmus.worldscope.utility.WorldScopeSocketService;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
@@ -43,7 +44,6 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
             FacebookWrapper.FacebookWrapperProfilePictureCallback,
-            WorldScopeSocketService.OnIdentifyEventListener,
             WorldScopeAPIService.OnUserRequestListener {
 
     private final String TAG = "MainActivity";
@@ -82,14 +82,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         context = this;
 
-        // Initialize Socket.IO
-        WorldScopeSocketService.initialize();
-
-        // Make an identify connection
-        WorldScopeSocketService.emitIdentify(WorldScopeAPIService.getCookie());
-
-        // Register this as a listener
-        WorldScopeSocketService.registerListener(this);
+        // Initialize FacebookSDK
+        facebookWrapper.initializeFacebookSDK(context);
 
         // Set the title of the toolbar
         setToolbarTitle();
@@ -157,13 +151,6 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    // Clean up listener
-    @Override
-    public void onStop() {
-        WorldScopeSocketService.unregisterListener(this);
-        super.onStop();
-    }
-
     private void showLoginToast(String alias) {
         // Show welcome message
         Toast toast = Toast.makeText(context,
@@ -184,7 +171,6 @@ public class MainActivity extends AppCompatActivity
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
     }
 
     // Set up the drawer fragment and state listeners
@@ -261,7 +247,7 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, "Username loaded: " + loginUser.getAlias());
 
         facebookWrapper.setFacebookWrapperProfilePictureCallbackListener(this);
-        facebookWrapper.getProfilePictureUrl();
+        facebookWrapper.getProfilePictureUrl(loginUser.getPlatformId());
     }
 
     @Override
@@ -309,42 +295,6 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-    // Class used to passed into Picasso for cropping pictures into circles
-    public class CircleTransform implements Transformation {
-        @Override
-        public Bitmap transform(Bitmap source) {
-            int size = Math.min(source.getWidth(), source.getHeight());
-
-            int x = (source.getWidth() - size) / 2;
-            int y = (source.getHeight() - size) / 2;
-
-            Bitmap squaredBitmap = Bitmap.createBitmap(source, x, y, size, size);
-            if (squaredBitmap != source) {
-                source.recycle();
-            }
-
-            Bitmap bitmap = Bitmap.createBitmap(size, size, source.getConfig());
-
-            Canvas canvas = new Canvas(bitmap);
-            Paint paint = new Paint();
-            BitmapShader shader = new BitmapShader(squaredBitmap, BitmapShader.TileMode.CLAMP, BitmapShader.TileMode.CLAMP);
-            paint.setShader(shader);
-            paint.setAntiAlias(true);
-
-            float r = size / 2f;
-            canvas.drawCircle(r, r, r, paint);
-
-            squaredBitmap.recycle();
-            return bitmap;
-        }
-
-        @Override
-        public String key() {
-            return "circle";
-        }
-    }
-
-
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -359,7 +309,8 @@ public class MainActivity extends AppCompatActivity
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return StreamRefreshListFragment.newInstance(position + 1);
+            StreamRefreshListFragment fragment = StreamRefreshListFragment.newInstance(position + 1);
+            return fragment;
         }
 
         @Override
@@ -382,11 +333,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void onIdentifyEventEmitted(String data) {
-        Log.d(TAG, "Socket.IO emitted 'identify' event with data: " + data);
-    }
-
     // Overide WorldScopeAPIService.UserRequest
     @Override
     public void getUser(WorldScopeUser user) {
@@ -395,6 +341,38 @@ public class MainActivity extends AppCompatActivity
 
     public void getUserInformation() {
         WorldScopeAPIService.registerRequestUser(context);
-        WorldScopeAPIService.requestUser();
+        WorldScopeAPIService.requestUser(this);
+    }
+
+    // Function to make API call to subscribe to user
+    private void subscribeUser(String userId) {
+
+        if(userId == null) {
+            return;
+        }
+
+        Call<Object> call = new WorldScopeRestAPI(this)
+                .buildWorldScopeAPIService()
+                .postSubscribe(userId);
+
+        Log.d(TAG, call.toString());
+
+        call.enqueue(new Callback<Object>() {
+            @Override
+            public void onResponse(Response<Object> response) {
+                if (response.isSuccess()) {
+                    Log.d(TAG, "RESPONSE SUCCESS FOR SUBSCRIPTION");
+                    Log.d(TAG, response.toString());
+                } else {
+                    Log.d(TAG, "RESPONSE FAIL");
+                    Log.d(TAG, response.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d(TAG, "NO RESPONSE");
+            }
+        });
     }
 }

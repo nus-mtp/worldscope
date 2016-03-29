@@ -2,7 +2,6 @@ package fragment;
 
 import android.content.Context;
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -12,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -111,7 +109,6 @@ public class StreamRefreshListFragment extends Fragment {
                 WorldScopeViewStream selectedStream = streams.get(position);
                 Log.d(TAG, "Stream selected");
                 Log.d(TAG, selectedStream.toString());
-
                 redirectToViewActivity(selectedStream);
             }
         });
@@ -119,9 +116,17 @@ public class StreamRefreshListFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        getStreamsData();
+    }
+
     // Passes a stream into ViewActivity
     private void redirectToViewActivity(WorldScopeViewStream stream) {
         Intent intent = new Intent(getActivity(), ViewActivity.class);
+
+        Log.d(TAG, stream.toString());
         intent.putExtra("stream", stream);
         startActivity(intent);
     }
@@ -129,8 +134,25 @@ public class StreamRefreshListFragment extends Fragment {
     private void getStreamsData() {
 
         // Make a call to backend to get streams
-        Log.d(TAG, "Getting Streams");
-        Call<List<WorldScopeViewStream>> call = new WorldScopeRestAPI(getActivity()).buildWorldScopeAPIService().getStreams("live", "time", "desc");
+        Log.d(TAG, "Getting Streams for " + sectionNumber + " tab");
+
+        Call<List<WorldScopeViewStream>> call;
+
+        switch(sectionNumber) {
+            case 1:
+                call = new WorldScopeRestAPI(getActivity()).buildWorldScopeAPIService().getStreams("live", "viewers", "desc");
+                break;
+            case 2:
+                call = new WorldScopeRestAPI(getActivity()).buildWorldScopeAPIService().getStreams("live", "time", "desc");
+                break;
+            case 3:
+                call = new WorldScopeRestAPI(getActivity()).buildWorldScopeAPIService().getSubscriberStreams();
+                break;
+            default:
+                Log.d(TAG, "sectionNumber not recognised, falling back to basic query");
+                call = new WorldScopeRestAPI(getActivity()).buildWorldScopeAPIService().getStreams("live", "viewers", "desc");
+                break;
+        }
         call.enqueue(new Callback<List<WorldScopeViewStream>>() {
             @Override
             public void onResponse(Response<List<WorldScopeViewStream>> response) {
@@ -143,14 +165,9 @@ public class StreamRefreshListFragment extends Fragment {
                     streams.clear();
 
                     for (WorldScopeViewStream stream : response.body()) {
+                        Log.d(TAG, "" + stream.toString());
                         streams.add(stream);
                     }
-
-                    WorldScopeViewStream testStream = new WorldScopeViewStream();
-                    testStream.setViewLink("http://yt-dash-mse-test.commondatastorage.googleapis.com/media/motion-20120802-manifest.mpd");
-                    testStream.setTitle("Test");
-                    streams.add(testStream);
-
                     worldScopeStreamAdapter.notifyDataSetChanged();
 
                 } else {
@@ -178,6 +195,7 @@ public class StreamRefreshListFragment extends Fragment {
         private Context context;
         private int layoutResourceId;
         private ArrayList<WorldScopeViewStream> data;
+        private WorldScopeViewStream selectedStream;
 
         public WorldScopeStreamAdapter(Context context, int layoutResourceId, ArrayList<WorldScopeViewStream> data) {
             super(context, layoutResourceId, data);
@@ -192,7 +210,7 @@ public class StreamRefreshListFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            // Declared final for accessibility within inner class of Follow button's onClick callback
+            // Declared final for accessibility within inner class of Menu button's onClick callback
             // Get the item to display from data given position
             final WorldScopeViewStream stream = data.get(position);
             final int itemPos = position;
@@ -218,9 +236,7 @@ public class StreamRefreshListFragment extends Fragment {
                 viewHolder.ownerTextView = (TextView) convertView.findViewById(R.id.streamOwner);
                 viewHolder.createdAtTextView = (TextView) convertView.findViewById(R.id.startTime);
                 viewHolder.totalViewerTextView = (TextView) convertView.findViewById(R.id.numOfViewers);
-
-                viewHolder.followButton = (ImageButton) convertView.findViewById(R.id.follow_button);
-
+                viewHolder.followingImageView = (ImageView) convertView.findViewById(R.id.followingImageView);
                 // Access convertView's XML elements now using viewHolder
                 convertView.setTag(viewHolder);
             } else {
@@ -229,19 +245,18 @@ public class StreamRefreshListFragment extends Fragment {
 
             // Set text data into the view
             viewHolder.titleTextView.setText(stream.getTitle());
-            viewHolder.ownerTextView.setText(stream.getOwner());
             viewHolder.createdAtTextView.setText(formatDate(stream.getCreatedAt()));
+            Log.d(TAG, stream.getTitle() + " has " + stream.getTotalViewers() + "viewers");
             viewHolder.totalViewerTextView.setText(String.valueOf(stream.getTotalViewers()));
+            if(stream.getStreamer() != null) {
+                viewHolder.ownerTextView.setText(stream.getStreamer().getAlias());
+            }
 
-            // Set callback for follow button
-            viewHolder.followButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d(TAG, "Follow button clicked on position: " + itemPos);
-                    Log.d(TAG, "API follow: " + stream.getOwner());
-                    viewHolder.followButton.setImageResource(R.drawable.ic_heart_full);
-                }
-            });
+            if(stream.getStreamer().getIsSubscribed()) {
+                viewHolder.followingImageView.setImageResource(R.drawable.ic_heart_full);
+            } else {
+                viewHolder.followingImageView.setImageDrawable(null);
+            }
 
             // Use Picasso to set thumbnail image
             Picasso.with(viewHolder.thumbnailImageView.getContext())
@@ -263,6 +278,6 @@ public class StreamRefreshListFragment extends Fragment {
         TextView ownerTextView;
         TextView createdAtTextView;
         TextView totalViewerTextView;
-        ImageButton followButton;
+        ImageView followingImageView;
     }
 }

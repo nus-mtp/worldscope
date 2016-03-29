@@ -57,8 +57,4 @@
             android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
-    <instrumentation
-        android:targetPackage="com.litmus.worldscope.LoginActivityTest"
-        android:name="android.test.InstrumentationTestRunner" />
-
 </manifest>

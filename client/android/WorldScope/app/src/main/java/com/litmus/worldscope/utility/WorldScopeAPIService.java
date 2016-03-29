@@ -3,16 +3,22 @@ package com.litmus.worldscope.utility;
 import android.content.Context;
 import android.util.Log;
 
+import com.litmus.worldscope.model.WorldScopeComment;
 import com.litmus.worldscope.model.WorldScopeCreatedStream;
 import com.litmus.worldscope.model.WorldScopeUser;
 import com.litmus.worldscope.model.WorldScopeViewStream;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public class WorldScopeAPIService {
@@ -34,6 +40,10 @@ public class WorldScopeAPIService {
     private static final String loginRoute = "/api/users/login";
     private static final String logoutRoute = "/api/users/logout";
     private static final String streamsRoute = "/api/streams";
+    private static final String subscriberStreamsRoute = "/api/streams/subscriptions";
+    private static final String streamsEndRoute = "/api/streams/control/end";
+    private static final String subscriptionsRoute = "/api/subscriptions/{userId}";
+    private static final String commentsRoute = "api/comments/streams/{streamId}";
 
     // WorldScope App Id
     private static final String appId = "123456789";
@@ -42,7 +52,7 @@ public class WorldScopeAPIService {
 
     private static ArrayList<OnUserRequestListener> userRequestListeners = new ArrayList<>();
 
-    // API interface requird by Retrofit to make the calls
+    // API interface required by Retrofit to make the calls
     public interface WorldScopeAPIInterface {
         @POST(loginRoute)
         Call<WorldScopeUser> loginUser(@Body LoginUserRequest body);
@@ -61,6 +71,13 @@ public class WorldScopeAPIService {
         Call<List<WorldScopeViewStream>> getStreams(@Query("state") String state, @Query("sort") String sort, @Query("order") String order);
 
         /**
+         * Method to get streams from subscribers
+         * @return streams - A list of streams
+         */
+        @GET(subscriberStreamsRoute)
+        Call<List<WorldScopeViewStream>> getSubscriberStreams();
+
+        /**
          * Method to create a stream
          * @param body - Instance of PostStreamRequest with title and description, required
          * @return stream - Newly created Stream
@@ -73,10 +90,19 @@ public class WorldScopeAPIService {
          * @param body - Instance of PostStreamEndRequest with streamId, required
          * @return void
          */
-        @POST(streamsRoute)
+        @POST(streamsEndRoute)
         Call<Object> postStreamEnd(@Body PostStreamEndRequest body);
 
+        /**
+         * Method to subscribe to another user
+         * @param userId - userId of user to subscribe to
+         * @return void
+         */
+        @POST(subscriptionsRoute)
+        Call<Object> postSubscribe(@Path("userId") String userId);
 
+        @GET(commentsRoute)
+        Call<List<Object>> getPreviousComments(@Path("streamId") String streamId);
     }
 
     public interface OnUserRequestListener {

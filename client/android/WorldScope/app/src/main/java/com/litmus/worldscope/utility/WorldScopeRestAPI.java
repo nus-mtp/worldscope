@@ -39,7 +39,7 @@ public class WorldScopeRestAPI {
 
     private static final String setCookiesHeaderTag = "set-cookie";
 
-    private static Context context;
+    private Context context;
 
     private OkHttpClient okHttpClient;
     static Retrofit.Builder retrofitBuilder;
@@ -76,7 +76,7 @@ public class WorldScopeRestAPI {
 
     /**
      * Returns the instance of Retrofit.Builder required to build requests
-     * @return
+     * @return Retrofit.Builder
      */
     private static Retrofit.Builder getRetrofitBuilderInstance() {
         if(retrofitBuilder == null) {

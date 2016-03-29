@@ -47,7 +47,7 @@
 
     <LinearLayout
         android:orientation="vertical"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:layout_weight="1"
@@ -55,31 +55,21 @@
         android:clickable="false"
         android:focusable="false">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Stream Title"
+            android:id="@+id/streamTitle"
+            android:textStyle="bold"
+            android:layout_alignParentTop="true"
+            android:layout_alignEnd="@+id/startTime"
+            android:layout_marginEnd="15dp"
+            android:layout_weight="1"
             android:focusableInTouchMode="false"
             android:clickable="false"
-            android:focusable="false">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="Stream Title"
-                android:id="@+id/streamTitle"
-                android:textStyle="bold"
-                android:layout_alignParentTop="true"
-                android:layout_alignEnd="@+id/startTime"
-                android:layout_marginEnd="15dp"
-                android:layout_weight="1"
-                android:focusableInTouchMode="false"
-                android:clickable="false"
-                android:focusable="false"
-                android:maxLines="2" />
-
-        </LinearLayout>
+            android:focusable="false"
+            android:maxLines="2" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -141,13 +131,15 @@
     </LinearLayout>
 
     <ImageButton
+        android:id="@+id/streamMenuButton"
+        android:src="@drawable/ic_more_vert"
+        android:contentDescription="streamMenuButton"
         android:layout_width="32dip"
         android:layout_height="fill_parent"
-        android:id="@+id/follow_button"
-        android:src="@drawable/ic_heart_hollow"
-        android:scaleType="fitCenter"
         android:background="#00000000"
-        android:layout_gravity="bottom"
-        android:longClickable="true" />
-
+        android:scaleType="fitCenter"
+        android:longClickable="true"
+        android:paddingLeft="4dip"
+        android:paddingRight="4dip"
+        android:paddingBottom="24dip" />
 </LinearLayout>

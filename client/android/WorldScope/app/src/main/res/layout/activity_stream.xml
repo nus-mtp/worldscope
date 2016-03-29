@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_height="fill_parent"
     android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     tools:context="com.litmus.worldscope.StreamActivity">
 
     <fragment
+        android:id="@+id/streamVideoFragment"
+        android:name="fragment.StreamVideoFragment"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:name="fragment.StreamVideoFragment"
-        android:id="@+id/streamVideoFragment"
         android:layout_gravity="center_horizontal|bottom"
         tools:layout="@layout/fragment_stream_video" />
 
     <fragment
+        android:id="@+id/commentFragment"
+        android:name="fragment.CommentFragment"
         android:layout_width="fill_parent"
         android:layout_height="200dip"
-        android:name="fragment.CommentFragment"
-        android:id="@+id/commentFragment"
-        tools:layout="@layout/fragment_comment"
-        android:layout_gravity="bottom" />
+        android:layout_gravity="bottom"
+        tools:layout="@layout/fragment_comment" />
 
     <fragment
+        android:id="@+id/streamVideoControlFragment"
+        android:name="fragment.StreamVideoControlFragment"
         android:layout_width="90dp"
         android:layout_height="90dp"
-        android:name="fragment.StreamVideoControlFragment"
-        android:id="@+id/streamVideoControlFragment"
-        tools:layout="@layout/fragment_stream_video_control"
+        android:layout_gravity="bottom|right"
         android:layout_marginBottom="60dp"
-        android:layout_gravity="bottom|right" />
+        tools:layout="@layout/fragment_stream_video_control" />
 
     <fragment
+        android:id="@+id/streamCreateFragment"
+        android:name="fragment.StreamCreateFragment"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:name="fragment.StreamCreateFragment"
-        android:id="@+id/streamCreateFragment"
         android:layout_gravity="center"
         tools:layout="@layout/fragment_stream_create" />
 
