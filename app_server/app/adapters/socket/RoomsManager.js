@@ -194,7 +194,8 @@ Class.__handleClientEvents = function(client) {
       logger.debug('Receive %s event from %s',
                    Client.EVENT_COMMENT, client.getUserId());
       this.requestInjector.createComment(client.getCredentials(), msg)
-      .catch((err) => logger.error('Failed to store comment: %s', err));
+      .catch((err) => logger.warn('Failed to store comment: %s',
+                                    JSON.stringify(err)));
     } catch (e) {
       logger.error(e);
     }
@@ -227,7 +228,8 @@ Class.__handleClientEvents = function(client) {
       this.__addClientToRoom(client, roomName);
       this.requestInjector.createView(client.getCredentials(),
                                       this.__getRoom(roomName).getStreamId())
-      .catch((err) => logger.error('Failed to create new view', err));
+      .catch((err) => logger.warn('Failed to create new view',
+                                   JSON.stringify(err)));
     } catch (e) {
       logger.error(e);
     }
