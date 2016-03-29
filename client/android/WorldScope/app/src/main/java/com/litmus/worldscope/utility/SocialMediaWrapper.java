@@ -8,5 +8,5 @@ public abstract class SocialMediaWrapper {
     // These methods must be implemented by any form of social media that WorldScope uses
     abstract void login();
     abstract void logout();
-    abstract void getProfilePictureUrl();
+    abstract void getProfilePictureUrl(String userId);
 }

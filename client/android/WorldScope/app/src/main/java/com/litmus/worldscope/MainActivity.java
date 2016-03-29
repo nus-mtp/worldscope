@@ -29,17 +29,14 @@ import android.util.Log;
 
 import com.litmus.worldscope.model.WorldScopeUser;
 import com.litmus.worldscope.model.WorldScopeViewStream;
+import com.litmus.worldscope.utility.CircleTransform;
 import com.litmus.worldscope.utility.FacebookWrapper;
 import com.litmus.worldscope.utility.WorldScopeAPIService;
 import com.litmus.worldscope.utility.WorldScopeRestAPI;
-import com.litmus.worldscope.utility.WorldScopeSocketService;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
-import java.util.List;
-
 import fragment.StreamRefreshListFragment;
-import fragment.ViewVideoFragment;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -47,9 +44,7 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
             FacebookWrapper.FacebookWrapperProfilePictureCallback,
-            WorldScopeSocketService.OnIdentifyEventListener,
-            WorldScopeAPIService.OnUserRequestListener,
-            StreamRefreshListFragment.OnStreamMenuItemSelected {
+            WorldScopeAPIService.OnUserRequestListener {
 
     private final String TAG = "MainActivity";
 
@@ -87,17 +82,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         context = this;
 
-        // Initialize Socket.IO
-        WorldScopeSocketService.initialize();
-
-        // Make an identify connection
-        WorldScopeSocketService.emitIdentify(WorldScopeAPIService.getCookie());
-
-        // Register this as a listener of WorldScopeSocketService
-        WorldScopeSocketService.registerListener(this);
-
-        // Register this as a listener of StreamRefreshListFragment.OnStreamMenuItemSelected
-        StreamRefreshListFragment.registerListener(this);
+        // Initialize FacebookSDK
+        facebookWrapper.initializeFacebookSDK(context);
 
         // Set the title of the toolbar
         setToolbarTitle();
@@ -163,13 +149,6 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    // Clean up listener
-    @Override
-    public void onStop() {
-        WorldScopeSocketService.unregisterListener(this);
-        super.onStop();
     }
 
     private void showLoginToast(String alias) {
@@ -268,7 +247,7 @@ public class MainActivity extends AppCompatActivity
         Log.d(TAG, "Username loaded: " + loginUser.getAlias());
 
         facebookWrapper.setFacebookWrapperProfilePictureCallbackListener(this);
-        facebookWrapper.getProfilePictureUrl();
+        facebookWrapper.getProfilePictureUrl(loginUser.getPlatformId());
     }
 
     @Override
@@ -316,42 +295,6 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-    // Class used to passed into Picasso for cropping pictures into circles
-    public class CircleTransform implements Transformation {
-        @Override
-        public Bitmap transform(Bitmap source) {
-            int size = Math.min(source.getWidth(), source.getHeight());
-
-            int x = (source.getWidth() - size) / 2;
-            int y = (source.getHeight() - size) / 2;
-
-            Bitmap squaredBitmap = Bitmap.createBitmap(source, x, y, size, size);
-            if (squaredBitmap != source) {
-                source.recycle();
-            }
-
-            Bitmap bitmap = Bitmap.createBitmap(size, size, source.getConfig());
-
-            Canvas canvas = new Canvas(bitmap);
-            Paint paint = new Paint();
-            BitmapShader shader = new BitmapShader(squaredBitmap, BitmapShader.TileMode.CLAMP, BitmapShader.TileMode.CLAMP);
-            paint.setShader(shader);
-            paint.setAntiAlias(true);
-
-            float r = size / 2f;
-            canvas.drawCircle(r, r, r, paint);
-
-            squaredBitmap.recycle();
-            return bitmap;
-        }
-
-        @Override
-        public String key() {
-            return "circle";
-        }
-    }
-
-
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -390,11 +333,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void onIdentifyEventEmitted(String data) {
-        Log.d(TAG, "Socket.IO emitted 'identify' event with data: " + data);
-    }
-
     // Overide WorldScopeAPIService.UserRequest
     @Override
     public void getUser(WorldScopeUser user) {
@@ -403,25 +341,7 @@ public class MainActivity extends AppCompatActivity
 
     public void getUserInformation() {
         WorldScopeAPIService.registerRequestUser(context);
-        WorldScopeAPIService.requestUser();
-    }
-
-    // Implementing StreamRefreshListFragment.OnStreamMenuItemSelected
-    @Override
-    public void onFollowClicked(WorldScopeViewStream stream) {
-        Toast.makeText(context, "You have followed " + stream.getStreamer().getAlias(), Toast.LENGTH_SHORT).show();
-        Log.d(TAG, stream.toString());
-        subscribeUser(stream.getStreamer().getUserId());
-    }
-
-    @Override
-    public void onReportClicked(WorldScopeViewStream stream) {
-        Toast.makeText(context, "You have reported " + stream.getStreamer().getAlias(), Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onBlockClicked(WorldScopeViewStream stream) {
-        Toast.makeText(context, "You have blocked " + stream.getStreamer().getAlias(), Toast.LENGTH_SHORT).show();
+        WorldScopeAPIService.requestUser(this);
     }
 
     // Function to make API call to subscribe to user
