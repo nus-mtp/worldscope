@@ -47,7 +47,6 @@ Class.getLog = function(request, reply) {
 Class.getResponseLog = function(request, reply) {
   var after = request.query.after;
   var log = MemoryLogger.responseLog;
-  console.log(after, log[0].timestamp, new Date(log[0].timestamp).getTime());
   if (after) {
     log = log.filter((item) => after < new Date(item.timestamp).getTime());
   }
