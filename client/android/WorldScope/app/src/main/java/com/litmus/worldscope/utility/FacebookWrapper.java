@@ -92,9 +92,9 @@ public class FacebookWrapper extends SocialMediaWrapper {
         this.facebookWrapperProfilePictureCallback = listener;
     }
 
-    public void getProfilePictureUrl() {
+    public void getProfilePictureUrl(String userId) {
 
-        if(facebookUserId == null) {
+        if(userId == null) {
             loadProfilePicture = true;
             return;
         }
@@ -106,7 +106,7 @@ public class FacebookWrapper extends SocialMediaWrapper {
         /* make the API call */
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
-                "/" + facebookUserId + "/picture",
+                "/" + userId + "/picture",
                 facebookGraphParams,
                 HttpMethod.GET,
                 new GraphRequest.Callback() {
@@ -114,6 +114,7 @@ public class FacebookWrapper extends SocialMediaWrapper {
                         /* handle the result */
                         try {
                             String profilePictureUrl = response.getJSONObject().getJSONObject("data").get("url").toString();
+                            Log.d(TAG, profilePictureUrl);
                             facebookWrapperProfilePictureCallback.onProfilePictureUrl(profilePictureUrl);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -140,7 +141,7 @@ public class FacebookWrapper extends SocialMediaWrapper {
                             Log.d(TAG, "Facebook User Id: " + facebookUserId);
                             // Check if profile picture is required
                             if(loadProfilePicture) {
-                                getProfilePictureUrl();
+                                getProfilePictureUrl(facebookUserId);
                                 loadProfilePicture = false;
                             }
                         } catch (JSONException e) {
