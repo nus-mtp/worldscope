@@ -71,17 +71,32 @@
             android:focusable="false"
             android:maxLines="2" />
 
-        <TextView
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Streamer"
-            android:id="@+id/streamOwner"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"
-            android:focusableInTouchMode="false"
-            android:clickable="false"
-            android:focusable="false"/>
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Streamer"
+                android:id="@+id/streamOwner"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
+                android:focusableInTouchMode="false"
+                android:clickable="false"
+                android:focusable="false"/>
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:id="@+id/followingImageView"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:layout_marginLeft="4dp" />
+        </LinearLayout>
 
         <LinearLayout
             android:orientation="horizontal"
@@ -130,16 +145,4 @@
 
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/streamMenuButton"
-        android:src="@drawable/ic_more_vert"
-        android:contentDescription="streamMenuButton"
-        android:layout_width="32dip"
-        android:layout_height="fill_parent"
-        android:background="#00000000"
-        android:scaleType="fitCenter"
-        android:longClickable="true"
-        android:paddingLeft="4dip"
-        android:paddingRight="4dip"
-        android:paddingBottom="24dip" />
 </LinearLayout>
