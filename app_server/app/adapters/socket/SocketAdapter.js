@@ -141,6 +141,14 @@ Class.getNumberOfClients = function() {
   return this.roomsManager.getNumberOfClients();
 };
 
+Class.getNumberOfClientsInStream = function(streamId) {
+  let room = this.roomsManager.getRoomByStreamId(streamId);
+  if (!room) {
+    return 0;
+  }
+  return room.getNumberOfClients();
+};
+
 var socketAdapter = new SocketAdapter();
 
 module.exports = socketAdapter;

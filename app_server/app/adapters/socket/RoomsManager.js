@@ -133,6 +133,19 @@ Class.__getRoom = function(roomName) {
   return this.rooms[roomName];
 };
 
+/**
+ * @param streamId {string}
+ * @return {Room}
+ */
+Class.getRoomByStreamId = function(streamId) {
+  for (let roomName in this.rooms) {
+    if (this.rooms[roomName].getStreamId() === streamId) {
+      return this.rooms[roomName];
+    }
+  }
+  return null;
+};
+
 Class.__removeClient = function(client) {
   logger.info('Removing client %s/%s from chat room system',
               client.getUserId(), client.getSocketId());
