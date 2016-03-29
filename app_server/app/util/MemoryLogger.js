@@ -1,4 +1,4 @@
-var writable = require('stream').Writable;
+var Writable = require('stream').Writable;
 var util = require('util');
 
 function MemoryLogger() {
@@ -10,9 +10,9 @@ var MAX_ENTRIES = 500;
 
 var LogStream = function(memory) {
   this.memory = memory;
-  writable.call(this, {objectMode: true});
+  Writable.call(this, {objectMode: true});
 };
-util.inherits(LogStream, writable);
+util.inherits(LogStream, Writable);
 
 
 LogStream.prototype._write = function(chunk, encoding, callback) {
