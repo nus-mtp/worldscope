@@ -44,6 +44,7 @@ public class WorldScopeAPIService {
     private static final String streamsEndRoute = "/api/streams/control/end";
     private static final String subscriptionsRoute = "/api/subscriptions/{userId}";
     private static final String commentsRoute = "api/comments/streams/{streamId}";
+    private static final String meRoute = "api/users/me";
 
     // WorldScope App Id
     private static final String appId = "123456789";
@@ -101,8 +102,19 @@ public class WorldScopeAPIService {
         @POST(subscriptionsRoute)
         Call<Object> postSubscribe(@Path("userId") String userId);
 
+        /**
+         * Method to unsubscribe to another user
+         * @param userId - userId of user to subscribe to
+         * @return void
+         */
+        @DELETE(subscriptionsRoute)
+        Call<Object> deleteSubscribe(@Path("userId") String userId);
+
         @GET(commentsRoute)
-        Call<List<Object>> getPreviousComments(@Path("streamId") String streamId);
+        Call<List<WorldScopeComment>> getPreviousComments(@Path("streamId") String streamId);
+
+        @GET(meRoute)
+        Call<WorldScopeUser> getMe();
     }
 
     public interface OnUserRequestListener {
@@ -160,33 +172,42 @@ public class WorldScopeAPIService {
         currentCookie = null;
     }
 
-    public static void requestUser() {
-        if(currentUser != null) {
-
-
-            Log.d(TAG, "Can return user");
-            Log.d(TAG, currentUser.toString());
-            Log.d(TAG, "" + userRequestListeners.size());
+    public static void requestUser(Context context) {
+        if(currentUser != null && false) {
             for(OnUserRequestListener userRequestListener: userRequestListeners) {
-                Log.i(TAG, "Returning real user");
                 userRequestListener.getUser(currentUser);
             }
         } else {
-
-            Log.d(TAG, "No user");
-            requestUserThroughAPI();
+            requestUserThroughAPI(context);
         }
     }
 
-    private static void requestUserThroughAPI() {
+    private static void requestUserThroughAPI(Context context) {
 
-        WorldScopeUser currentUser = new WorldScopeUser();
-        currentUser.setAlias("Dummy user");
+        Call<WorldScopeUser> call = new WorldScopeRestAPI(context)
+                .buildWorldScopeAPIService()
+                .getMe();
 
-        for(OnUserRequestListener userRequestListener: userRequestListeners) {
-            Log.d(TAG, "Returning dummy user");
-            userRequestListener.getUser(currentUser);
-        }
+        Log.d(TAG, call.toString());
+
+        call.enqueue(new Callback<WorldScopeUser>() {
+            @Override
+            public void onResponse(Response<WorldScopeUser> response) {
+                if (response.isSuccess()) {
+                    for (OnUserRequestListener userRequestListener : userRequestListeners) {
+                        userRequestListener.getUser(response.body());
+                    }
+                } else {
+                    Log.d(TAG, "RESPONSE FAIL");
+                    Log.d(TAG, response.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d(TAG, "NO RESPONSE");
+            }
+        });
     }
 
     public static void registerRequestUser(Context listener) {
@@ -194,6 +215,10 @@ public class WorldScopeAPIService {
             Log.d(TAG, "Registering OnUserRequestListener");
             userRequestListeners.add((OnUserRequestListener) listener);
         }
+    }
+
+    public static WorldScopeUser getUser() {
+        return currentUser;
     }
 
     public static void setUser(WorldScopeUser user) {
