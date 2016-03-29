@@ -117,8 +117,12 @@ Class.getStreamsFromSubscriptions = function(userId) {
   return Storage.getStreamsFromSubscriptions(userId)
     .then(function receiveResult(results) {
       if (results) {
-        return results.map((singleStream) =>
-          Utility.formatStreamObject(singleStream, 'view'));
+        return results.map((singleStream) => {
+          var formattedStream = Utility.formatStreamObject(singleStream,
+                                                           'view');
+          formattedStream.streamer.isSubscribed = true;
+          return formattedStream;
+        });
       } else {
         var err = new CustomError.NotFoundError('Stream');
         logger.error(err.message);

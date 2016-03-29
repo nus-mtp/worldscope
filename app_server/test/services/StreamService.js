@@ -373,7 +373,11 @@ lab.experiment('StreamService Tests', function() {
           return Service.getStreamsFromSubscriptions(bob.userId);
         }).then((res) => {
           Code.expect(res[0].title).to.be.equal(testStream2.title);
+          Code.expect(res[0].streamer.username).to.be.equal(alice.username);
+          Code.expect(res[0].streamer.isSubscribed).to.be.true();
           Code.expect(res[1].title).to.be.equal(testStream.title);
+          Code.expect(res[1].streamer.username).to.be.equal(alice.username);
+          Code.expect(res[1].streamer.isSubscribed).to.be.true();
           done();
         });
       });
