@@ -1,16 +1,15 @@
 /* global casper, phantom */
 var xhr = require('phantomxhr');
-var h = require('helper');
-var apiAdmins = require('api/admins');
+var h = require('../helper');
+var apiAdmins = require('../api/admins');
 
 casper.test.begin('Can login', 5, function (test) {
-  h.setUpCasper(casper, xhr, [
-    apiAdmins.login()
-  ]).start(h.root(), function () {
+  h.setUpCasper(casper, xhr).start(h.root(), function () {
     test.assertExists('#username');
     test.assertExists('#password');
     test.assertEquals(this.getCurrentUrl(), h.root('login'));
   }).then(function () {
+    xhr.fake(apiAdmins.login());
     phantom.addCookie({
       domain: 'localhost',
       name: 'x-csrf-token',
@@ -29,5 +28,3 @@ casper.test.begin('Can login', 5, function (test) {
     test.done();
   });
 });
-
-casper.run();
