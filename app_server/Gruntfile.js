@@ -20,7 +20,10 @@ module.exports = function(grunt) {
     browserify: {
       options: {
         transform: [
-          ['babelify']
+          ['babelify', {
+            presets: ['es2015'],
+            plugins: ['transform-object-assign']
+          }]
         ]
       },
       debug: {
