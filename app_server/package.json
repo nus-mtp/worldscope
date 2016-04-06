@@ -67,6 +67,7 @@
     "jquery": "^2.2.0",
     "lab": "^5.18.1",
     "materialize-css": "^0.97.5",
+    "phantomxhr": "^0.2.1",
     "socket.io-client": "^1.4.4"
   }
 }
