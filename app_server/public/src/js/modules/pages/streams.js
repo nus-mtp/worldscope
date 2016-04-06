@@ -57,9 +57,9 @@ const parse = (streams) => streams.map(
 
 Streams.controller = function () {
   let currentPage = m.route();
-  if (currentPage.startsWith('/streams/live')) {
+  if (currentPage.indexOf('/streams/live') === 0) {
     Object.assign(Streams, livePage);
-  } else if (currentPage.startsWith('/streams/all')) {
+  } else if (currentPage.indexOf('/streams/all') === 0) {
     Object.assign(Streams, allPage);
   }
 

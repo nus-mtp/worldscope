@@ -74,9 +74,9 @@ const update = function () {
 
 Logs.controller = function () {
   let currentPage = m.route();
-  if (currentPage.startsWith('/settings/logs')) {
+  if (currentPage.indexOf('/settings/logs') === 0) {
     Object.assign(Logs, logsPage);
-  } else if (currentPage.startsWith('/settings/responses')) {
+  } else if (currentPage.indexOf('/settings/responses') === 0) {
     Object.assign(Logs, responseLogsPage);
   }
 

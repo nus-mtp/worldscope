@@ -86,11 +86,11 @@ Admin.controller = function () {
   Admin.username = m.route.param('username') || '';
 
   let currentPage = m.route();
-  if (currentPage.startsWith('/admins/create')) {
+  if (currentPage.indexOf('/admins/create') === 0) {
     Object.assign(Admin, createPage);
-  } else if (currentPage.startsWith('/admins/view')) {
+  } else if (currentPage.indexOf('/admins/view') === 0) {
     Object.assign(Admin, editPage);
-  } else if (currentPage.startsWith('/admins/delete')) {
+  } else if (currentPage.indexOf('/admins/delete') === 0) {
     Object.assign(Admin, deletePage);
   }
 

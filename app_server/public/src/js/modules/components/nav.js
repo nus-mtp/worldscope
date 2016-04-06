@@ -85,7 +85,7 @@ Nav.view = function () {
 
     return m('ul', [
       items.map(function (item) {
-        let isActive = m.route().startsWith(item.href);
+        let isActive = m.route().indexOf(item.href) === 0;
         return isActive ?
             m('li.active', getLink(item), makeList(item.sub)) :
             m('li', getLink(item));
