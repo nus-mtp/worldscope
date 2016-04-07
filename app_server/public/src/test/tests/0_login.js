@@ -7,7 +7,7 @@ casper.test.begin('Can login', 5, function (test) {
   h.setUpCasper(casper, xhr).start(h.root(), function () {
     test.assertExists('#username');
     test.assertExists('#password');
-    test.assertEquals(this.getCurrentUrl(), h.root('login'));
+    test.assertUrlMatch(h.root('login'));
   }).then(function () {
     xhr.fake(apiAdmins.login());
     phantom.addCookie({
@@ -22,7 +22,7 @@ casper.test.begin('Can login', 5, function (test) {
   }).then(function () {
     this.waitForSelector('#content', function () {
       test.assertExists('#nav');
-      test.assertEquals(this.getCurrentUrl(), h.root('metrics/overview'));
+      test.assertUrlMatch(h.root('metrics/overview'));
     });
   }).run(function () {
     test.done();

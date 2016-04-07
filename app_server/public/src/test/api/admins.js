@@ -70,7 +70,7 @@ module.exports = {
   get: function (admin) {
     admin = admin || rootAdmin;
     return {
-      url: /api\/admins\/([0-9A-Za-z\-]+\?)/,
+      url: /api\/admins\/([0-9A-Za-z\-]+)$/,
       method: 'GET',
       responseBody: getAdminFields([
         'userId',
@@ -98,7 +98,7 @@ module.exports = {
   update: function (admin) {
     admin = admin || rootAdmin;
     return {
-      url: /api\/admins\/([0-9A-Za-z\-]+\?)/,
+      url: /api\/admins\/([0-9A-Za-z\-]+)$/,
       method: 'PUT',
       responseBody: getAdminFields([
         'userId',
@@ -111,7 +111,7 @@ module.exports = {
   },
   delete: function () {
     return {
-      url: /api\/admins\/([0-9A-Za-z\-]+\?)/,
+      url: /api\/admins\/([0-9A-Za-z\-]+)$/,
       method: 'DELETE'
     };
   }
