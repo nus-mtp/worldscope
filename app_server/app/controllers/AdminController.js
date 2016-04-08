@@ -118,6 +118,11 @@ Class.getListOfAdmins = function(request, reply) {
       return reply(Boom.badRequest('Unable to get list of admins'));
     }
 
+    admins = admins.map((admin) => {
+      admin.permissions = unwrapPermissionsFromDB(admin.permissions);
+      return admin;
+    });
+
     return reply(admins);
   });
 };

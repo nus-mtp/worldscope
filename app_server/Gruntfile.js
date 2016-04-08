@@ -20,7 +20,10 @@ module.exports = function(grunt) {
     browserify: {
       options: {
         transform: [
-          ['babelify']
+          ['babelify', {
+            presets: ['es2015'],
+            plugins: ['transform-object-assign']
+          }]
         ]
       },
       debug: {
@@ -76,6 +79,15 @@ module.exports = function(grunt) {
           }
         ]
       }
+    },
+    
+    connect: {
+      server: {
+        options: {
+          port: 3001,
+          base: 'public'
+        }
+      }
     }
   });
 
@@ -83,7 +95,24 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-sass');
+  grunt.loadNpmTasks('grunt-contrib-connect');
 
   grunt.registerTask('debug', ['browserify:debug', 'copy', 'sass:debug']);
   grunt.registerTask('default', ['browserify:dist', 'copy', 'uglify', 'sass:dist']);
+  grunt.registerTask('casperjs-test', function () {
+    var done = this.async();
+    
+    grunt.util.spawn({
+      cmd: 'casperjs',
+      args: ['test', 'public/src/test/tests', '--root=http://localhost:3001/index.htm']
+    }, function (err, res, code) {
+      if (err) {
+        grunt.fail.fatal('Tests failed!\n' + res.stdout, code);
+      }
+      
+      grunt.log.writeln(res.stdout);
+      done();
+    });
+  });
+  grunt.registerTask('test', ['default', 'connect', 'casperjs-test']);
 };

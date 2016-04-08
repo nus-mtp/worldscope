@@ -28,7 +28,7 @@ const parse = (admins) => admins.map(
       return {
         username: admin.username(),
         email: admin.email(),
-        permissions: admin.permissions(),
+        permissions: JSON.stringify(admin.permissions()),
         actions: getActions(admin.username())
       };
     }
