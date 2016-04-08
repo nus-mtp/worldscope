@@ -5,9 +5,12 @@ var apiAdmins = require('../api/admins');
 
 casper.test.begin('Can login', 5, function (test) {
   h.setUpCasper(casper, xhr).start(h.root(), function () {
+    this.waitForSelector('#container', function () {
+      test.assertUrlMatch(h.root('login'));
+    });
+  }).then(function () {
     test.assertExists('#username');
     test.assertExists('#password');
-    test.assertUrlMatch(h.root('login'));
   }).then(function () {
     xhr.fake(apiAdmins.login());
     phantom.addCookie({
