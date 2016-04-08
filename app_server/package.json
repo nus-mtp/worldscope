@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node ./app/Router.js",
-    "test": "./node_modules/lab/bin/lab -c -r console -o stdout -r html -o report/coverage.html -r lcov -o report/coverage.info",
+    "test": "grunt test && ./node_modules/lab/bin/lab -c -r console -o stdout -r html -o report/coverage.html -r lcov -o report/coverage.info",
     "linter": "./node_modules/.bin/eslint app/ test/ public/",
     "doc": "jsdoc -r -c config/jsdoc_conf.json -R README.md -d doc"
   },
