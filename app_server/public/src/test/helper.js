@@ -6,11 +6,11 @@ module.exports = {
   },
   setUpCasper: function (casper, xhr) {
     return casper.on('remote.message', function (msg) {
-      this.echo('log: ' + msg);
+      casper.log(msg, 'debug');
     }).on('page.initialized', function () {
       xhr.init(this.page);
     }).on('page.error', function (err) {
-      this.echo('err: ' + err);
+      casper.log(err, 'error');
     });
   },
   getTableData: function (casper, cols) {
