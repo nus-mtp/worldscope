@@ -1,7 +1,7 @@
-/* global document */
+/* global casper, document */
 module.exports = {
   root: function (path) {
-    var url = 'http://localhost:3000/admin/';
+    var url = casper.cli.get('root') || 'http://localhost:3000/admin/';
     return path ? url + '?/' + path : url;
   },
   setUpCasper: function (casper, xhr) {

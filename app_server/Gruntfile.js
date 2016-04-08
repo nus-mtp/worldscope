@@ -79,6 +79,15 @@ module.exports = function(grunt) {
           }
         ]
       }
+    },
+    
+    connect: {
+      server: {
+        options: {
+          port: 3001,
+          base: 'public'
+        }
+      }
     }
   });
 
@@ -86,6 +95,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-sass');
+  grunt.loadNpmTasks('grunt-contrib-connect');
 
   grunt.registerTask('debug', ['browserify:debug', 'copy', 'sass:debug']);
   grunt.registerTask('default', ['browserify:dist', 'copy', 'uglify', 'sass:dist']);
@@ -104,5 +114,5 @@ module.exports = function(grunt) {
       done();
     });
   });
-  grunt.registerTask('test', ['default', 'casperjs-test']);
+  grunt.registerTask('test', ['default', 'connect', 'casperjs-test']);
 };
