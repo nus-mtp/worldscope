@@ -26,7 +26,7 @@ public class WorldScopeAPIService {
     private static final String TAG = "WorldScopeAPIService";
 
     // Server address
-    public static final String WorldScopeURL = "http://54.179.170.132:3000";
+    public static final String WorldScopeURL = "http://54.169.110.179:3000";
 
     //public static final String WorldScopeURL = "http://kyleasuspc:3000";
 

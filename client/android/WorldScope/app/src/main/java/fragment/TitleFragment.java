@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -24,7 +25,7 @@ import com.squareup.picasso.Picasso;
 public class TitleFragment extends Fragment implements FacebookWrapper.FacebookWrapperProfilePictureCallback {
 
     private static final String TAG = "TitleFragment";
-    private OnTitleFragmentToggleButtonListener mListener;
+    private OnTitleFragmentButtonsListener mListener;
     private View view;
 
     public TitleFragment() {
@@ -56,8 +57,8 @@ public class TitleFragment extends Fragment implements FacebookWrapper.FacebookW
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnTitleFragmentToggleButtonListener) {
-            mListener = (OnTitleFragmentToggleButtonListener) context;
+        if (context instanceof OnTitleFragmentButtonsListener) {
+            mListener = (OnTitleFragmentButtonsListener) context;
         }
     }
 
@@ -93,6 +94,13 @@ public class TitleFragment extends Fragment implements FacebookWrapper.FacebookW
             @Override
             public void onClick(View v) {
                 mListener.onToggleButtonClicked();
+            }
+        });
+
+        view.findViewById(R.id.stickerButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.onStickerButtonClicked();
             }
         });
 
@@ -140,7 +148,8 @@ public class TitleFragment extends Fragment implements FacebookWrapper.FacebookW
         loadProfilePictureIntoView(profilePictureUrl);
     }
 
-    public interface OnTitleFragmentToggleButtonListener {
+    public interface OnTitleFragmentButtonsListener {
+        void onStickerButtonClicked();
         void onToggleButtonClicked();
     }
 }

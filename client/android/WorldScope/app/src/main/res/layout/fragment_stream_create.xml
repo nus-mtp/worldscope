@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Stop streaming?"
-            android:id="@+id/textView2"
+            android:id="@+id/stopStreamConfirmationText"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:layout_marginBottom="30dp"

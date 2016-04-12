@@ -44,5 +44,13 @@ tools:context="com.litmus.worldscope.ViewActivity">
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true" />
 
+    <fragment
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:name="fragment.StickerFragment"
+        android:id="@+id/stickerFragment"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+
 </RelativeLayout>
 

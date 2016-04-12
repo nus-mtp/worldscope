@@ -67,7 +67,8 @@ public class MainActivity extends AppCompatActivity
 
     // State variables
     private Context context;
-    private Boolean userIsLoaded;
+    private boolean userIsLoaded;
+    private boolean isRedirectedFromLoginActivity;
 
     // UI variables
     private ViewPager mViewPager;
@@ -81,6 +82,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         context = this;
+
+        checkIfRedirectedFromLoginActivity();
 
         // Initialize FacebookSDK
         facebookWrapper.initializeFacebookSDK(context);
@@ -131,17 +134,7 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_profile) {
-            // Handle the camera action
-        } else if (id == R.id.nav_followers) {
-
-        } else if (id == R.id.nav_setting) {
-
-        } else if (id == R.id.nav_streams) {
-
-        } else if (id == R.id.nav_help) {
-
-        } else if (id == R.id.nav_logout) {
+        if (id == R.id.nav_logout) {
             Log.d(TAG, "Logging out");
             logoutFromAppServer();
         }
@@ -149,6 +142,22 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void checkIfRedirectedFromLoginActivity() {
+        Intent intent = getIntent();
+        if(!intent.hasExtra("activity")) {
+            isRedirectedFromLoginActivity = false;
+            return;
+        }
+
+        String previousActivityName = intent.getStringExtra("activity");
+        if(previousActivityName.equals("LoginActivity")) {
+            isRedirectedFromLoginActivity = true;
+        } else {
+            isRedirectedFromLoginActivity = false;
+        }
+
     }
 
     private void showLoginToast(String alias) {
@@ -215,7 +224,6 @@ public class MainActivity extends AppCompatActivity
 
     protected void redirectToViewActivity() {
         Intent intent = new Intent(this, ViewActivity.class);
-        intent.putExtra("alias", loginUser.getAlias());
         startActivity(intent);
     }
 
@@ -224,7 +232,6 @@ public class MainActivity extends AppCompatActivity
 
     protected void redirectToStreamActivity() {
         Intent intent = new Intent(this, StreamActivity.class);
-        intent.putExtra("alias", loginUser.getAlias());
         startActivity(intent);
     }
 
@@ -235,7 +242,7 @@ public class MainActivity extends AppCompatActivity
 
         loginUser = user;
 
-        if(loginUser != null) {
+        if(loginUser != null && isRedirectedFromLoginActivity) {
             showLoginToast(loginUser.getAlias());
         } else {
             Log.d(TAG, "Unable to get user");
@@ -327,7 +334,7 @@ public class MainActivity extends AppCompatActivity
                 case 1:
                     return "Latest";
                 case 2:
-                    return "Followers";
+                    return "Following";
             }
             return null;
         }
