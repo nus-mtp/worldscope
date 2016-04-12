@@ -20,7 +20,7 @@ before_install:
   - phantomjs --version
 
 before_script:
-  - mysql -e 'CREATE DATABASE worldscope_db CHARACTER SET utf8 COLLATE utf8_unicode_ci;'
+  - mysql -e 'CREATE DATABASE worldscope_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;'
   - npm install -g grunt-cli
   - npm install -g casperjs
 

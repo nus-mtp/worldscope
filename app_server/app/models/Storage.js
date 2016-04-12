@@ -32,7 +32,7 @@ function Storage() {
         host: config.host,
         dialect: config.dialect,
         dialectOptions: {
-          charset: 'utf8'
+          charset: 'utf8mb4'
         },
         timezone: config.timezone,
         logging: config.logging,
