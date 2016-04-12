@@ -28,6 +28,8 @@ module.exports = function(sequelize, DataTypes) {
     freezeTableName: true,
     paranoid: true,
     timestamps: true,
+    charset: 'utf8',
+    collate: 'utf8_unicode_ci',
     setterMethods: {
       createdAt: function(newDate) {
         this.setDataValue('createdAt', newDate);
