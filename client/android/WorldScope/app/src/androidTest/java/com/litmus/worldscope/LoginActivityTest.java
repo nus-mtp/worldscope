@@ -5,8 +5,6 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.litmus.worldscope.model.WorldScopeUser;
-
 import junit.framework.TestCase;
 
 import org.junit.Before;
