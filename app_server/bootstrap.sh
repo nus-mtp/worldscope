@@ -53,7 +53,7 @@ fi
 ws_log "Setting up our MySQL database"
 if ! mysql -u$DBUSER -p$DBPASSWD -e "USE $DBNAME" ; then
     ws_log "$DBNAME created"
-    mysql -u$DBUSER -p$DBPASSWD -e "CREATE DATABASE $DBNAME CHARACTER SET utf8 COLLATE utf8_unicode_ci"
+    mysql -u$DBUSER -p$DBPASSWD -e "CREATE DATABASE $DBNAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
     mysql -uroot -p$DBPASSWD -e "grant all privileges on $DBNAME.* to '$DBUSER'@'localhost' identified by '$DBPASSWD'"
 else
     ws_log "$DBNAME already exists"
