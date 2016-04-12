@@ -6,7 +6,7 @@ As WorldScope relies on MySQL, it is required to set up a MySQL database. Downlo
 * Note the MySQL username and password 
 * Create database named `'worldscope_db'` or other names but do update the `name` field in the next step
 ```
-mysql> CREATE DATABASE worldscope_db;
+mysql> CREATE DATABASE worldscope_db CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 ```
 * Edit the `name`, `username` and `password` fields accordingly in configuration file located in [config/DatabaseConfig.js](config/DatabaseConfig.js)
 

@@ -31,6 +31,9 @@ function Storage() {
       config.password, {
         host: config.host,
         dialect: config.dialect,
+        dialectOptions: {
+          charset: 'utf8'
+        },
         timezone: config.timezone,
         logging: config.logging,
         define: {
