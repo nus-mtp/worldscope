@@ -17,10 +17,10 @@ module.exports = function(sequelize, DataTypes) {
       values: ['facebook']
     },
     platformId: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING(191)
     },
     username: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(191),
       unique: true,
       allowNull: false,
       validate: {
@@ -28,10 +28,10 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     alias: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING(191)
     },
     email: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(191),
       allowNull: true,
       unique: true,
       validate: {
@@ -46,16 +46,13 @@ module.exports = function(sequelize, DataTypes) {
       }
     },
     accessToken: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING(191)
     },
     description: {
       type: DataTypes.TEXT
     },
-    location: {
-      type: DataTypes.STRING
-    },
     permissions: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(191),
       defaultValue: null // default to null for all users
     }
   }, {

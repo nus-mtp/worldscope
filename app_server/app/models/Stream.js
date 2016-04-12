@@ -13,7 +13,7 @@ module.exports = function(sequelize, DataTypes) {
       primaryKey: true
     },
     appInstance: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(191),
       unique: true,
       allowNull: false
     },
