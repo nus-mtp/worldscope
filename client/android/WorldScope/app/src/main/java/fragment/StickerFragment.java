@@ -14,11 +14,12 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.litmus.worldscope.R;
+import com.litmus.worldscope.utility.WorldScopeSocketService;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-public class StickerFragment extends Fragment {
+public class StickerFragment extends Fragment implements WorldScopeSocketService.OnStickerEventListener {
 
     final String TAG = "StickerFragment";
     final int CUT_OFF_RANGE = 500;
@@ -58,8 +59,19 @@ public class StickerFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Register this as a listener of WorldScopeSocketService
+        WorldScopeSocketService.registerListener(this);
+    }
+
     public void sendStickers() {
         Log.d(TAG, "Sending stickers");
+        WorldScopeSocketService.emitSticker();
+    }
+
+    private void showStickers() {
         ImageView starView = createStarView();
         insertIntoStarContainer(starView);
         animateStarView(starView);
@@ -114,5 +126,17 @@ public class StickerFragment extends Fragment {
 
         animatorSet.setInterpolator(new LinearInterpolator());
         return animatorSet;
+    }
+
+    @Override
+    public void onStickerEventEmitted() {
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    showStickers();
+                }
+            });
+        }
     }
 }

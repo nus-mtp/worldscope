@@ -26,12 +26,14 @@ public class WorldScopeSocketService {
     private static ArrayList<OnJoinEventListener> joinEventListeners = new ArrayList<>();
     private static ArrayList<OnCommentEventListener> commentEventListeners = new ArrayList<>();
     private static ArrayList<OnLeaveEventListener> leaveEventListeners = new ArrayList<>();
+    private static ArrayList<OnStickerEventListener> stickerEventListeners = new ArrayList<>();
 
     // Event names
     private static String EVENT_IDENTIFY = "identify";
     private static String EVENT_JOIN = "join";
     private static String EVENT_COMMENT = "comment";
     private static String EVENT_LEAVE = "leave";
+    private static String EVENT_STICKER = "sticker";
 
 
     // Connect to Socket.IO in App Server
@@ -58,6 +60,7 @@ public class WorldScopeSocketService {
         socket.on(EVENT_JOIN, onJoinEvent);
         socket.on(EVENT_COMMENT, onCommentEvent);
         socket.on(EVENT_LEAVE, onLeaveEvent);
+        socket.on(EVENT_STICKER, onStickerEvent);
     }
 
     private static void stopListening() {
@@ -65,6 +68,7 @@ public class WorldScopeSocketService {
         socket.off(EVENT_JOIN, onJoinEvent);
         socket.off(EVENT_COMMENT, onCommentEvent);
         socket.off(EVENT_LEAVE, onLeaveEvent);
+        socket.off(EVENT_STICKER, onStickerEvent);
     }
 
     // Emits an identify event, payload should be the current cookie
@@ -99,6 +103,14 @@ public class WorldScopeSocketService {
         }
     }
 
+    // Emits a sticker event, no payload
+    public static void emitSticker() {
+        if(isInitialized) {
+            Log.d(TAG, "Emitting sticker");
+            socket.emit(EVENT_STICKER);
+        }
+    }
+
     // Adds the object as a listener if it is valid
     public static boolean registerListener(Object listener) {
 
@@ -128,6 +140,13 @@ public class WorldScopeSocketService {
             return true;
         }
 
+        if(listener instanceof OnStickerEventListener) {
+            Log.d(TAG, "Sticker listener added");
+            stickerEventListeners.add((OnStickerEventListener)listener);
+            return true;
+        }
+
+
         return false;
     }
 
@@ -154,6 +173,11 @@ public class WorldScopeSocketService {
             Log.d(TAG, "Removing Leave listener");
             leaveEventListeners.remove(listener);
         }
+
+        if(listener instanceof OnStickerEventListener) {
+            Log.d(TAG, "Removing Leave listener");
+            stickerEventListeners.remove(listener);
+        }
     }
 
     public interface OnIdentifyEventListener {
@@ -170,6 +194,10 @@ public class WorldScopeSocketService {
 
     public interface OnLeaveEventListener {
         void onLeaveEventEmitted(String data);
+    }
+
+    public interface OnStickerEventListener {
+        void onStickerEventEmitted();
     }
 
     // Generate an instance of the Emitter.Listener for identify
@@ -223,6 +251,16 @@ public class WorldScopeSocketService {
             Log.d(TAG, "Passing leave event to " + leaveEventListeners.size() + " listeners");
             for (OnLeaveEventListener listener: leaveEventListeners) {
                 listener.onLeaveEventEmitted(data);
+            }
+        }
+    };
+
+    // Generate an instance of the Emitter.Listener for sticker
+    private static Emitter.Listener onStickerEvent = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            for (OnStickerEventListener listener: stickerEventListeners) {
+                listener.onStickerEventEmitted();
             }
         }
     };
