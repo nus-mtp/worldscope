@@ -2,8 +2,12 @@ package com.litmus.worldscope;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.webkit.WebView;
 import android.widget.Toast;
@@ -12,6 +16,9 @@ import com.facebook.AccessToken;
 import com.litmus.worldscope.model.WorldScopeUser;
 import com.litmus.worldscope.utility.WorldScopeAPIService;
 import com.litmus.worldscope.utility.WorldScopeRestAPI;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import fragment.FacebookLoginFragment;
 
@@ -75,6 +82,7 @@ public class LoginActivity extends AppCompatActivity implements FacebookLoginFra
     //Redirects to MainActivity
     protected void redirectToMainActivity() {
         Intent intent = new Intent(context, MainActivity.class);
+        intent.putExtra("activity", TAG);
         startActivity(intent);
     }
 

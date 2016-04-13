@@ -488,7 +488,7 @@ public class StreamVideoFragment extends Fragment {
 
         @Override
         public void onPreviewFrame(byte[] data, Camera camera) {
-            Log.v(TAG, "Preview Frame received");
+            //Log.v(TAG, "Preview Frame received");
             if (audioRecord == null || audioRecord.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING) {
                 startTime = System.currentTimeMillis();
                 return;

@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.text.Html;
 import android.util.JsonReader;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,9 @@ import com.litmus.worldscope.model.WorldScopeComment;
 import com.litmus.worldscope.utility.WorldScopeAPIService;
 import com.litmus.worldscope.utility.WorldScopeRestAPI;
 import com.litmus.worldscope.utility.WorldScopeSocketService;
+import com.vanniktech.emoji.EmojiPopup;
+import com.vanniktech.emoji.listeners.OnSoftKeyboardCloseListener;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -61,7 +65,7 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
 
     private ImageButton sendButton;
 
-    private EditText commentEditText;
+    private com.vanniktech.emoji.EmojiEditText commentEditText;
 
     private View view;
 
@@ -78,6 +82,10 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
     private CommentArrayAdapter commentArrayAdapter;
 
     private OnCommentFragmentInteractionListener listener;
+
+    private EmojiPopup emojiPopup;
+
+    private ImageButton emojiButton;
 
     public CommentFragment() {
         // Required empty public constructor
@@ -115,7 +123,7 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
 
         sendButton = (ImageButton) view.findViewById(R.id.send_button);
 
-        commentEditText = (EditText) view.findViewById(R.id.commentEditText);
+        commentEditText = (com.vanniktech.emoji.EmojiEditText) view.findViewById(R.id.commentEditText);
 
         // Get commentListView
         commentListView = (ListView) view.findViewById(R.id.commentListView);
@@ -126,12 +134,34 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
 
         commentListView.setAdapter(commentArrayAdapter);
 
-        // Setup Send button
-        setUpButton();
+        setUpEmojiEditText();
+
+        // Setup Emoji and Send button
+        setUpButtons();
+
         return view;
     }
 
-    private void setUpButton() {
+    private void setUpEmojiEditText() {
+        EmojiPopup.Builder builder = EmojiPopup.Builder.fromRootView(view);
+        builder.setOnSoftKeyboardCloseListener(new OnSoftKeyboardCloseListener() {
+            @Override
+            public void onKeyboardClose() {
+                Log.d(TAG, "KEYBOARD CLOSE");
+                emojiPopup.dismiss();
+            }
+        });
+        emojiPopup = builder.build(commentEditText);
+
+        commentEditText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                emojiPopup.dismiss();
+            }
+        });
+    }
+
+    private void setUpButtons() {
 
         OnClickListener btnListener = new OnClickListener() {
             public void onClick(View v) {
@@ -144,6 +174,21 @@ public class CommentFragment extends Fragment implements WorldScopeSocketService
             }
         };
         sendButton.setOnClickListener(btnListener);
+
+        emojiButton = (ImageButton) view.findViewById(R.id.emojiButton);
+
+        emojiButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(emojiPopup.isShowing()) {
+                    emojiButton.setImageResource(R.drawable.ic_tag_faces);
+                } else {
+                    emojiButton.setImageResource(R.drawable.ic_keyboard);
+                }
+
+                emojiPopup.toggle(); // Toggles visibility of the Popup
+            }
+        });
     }
 
     private void sendMessage(String comment) {

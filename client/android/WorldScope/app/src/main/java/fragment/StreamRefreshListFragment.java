@@ -247,7 +247,7 @@ public class StreamRefreshListFragment extends Fragment {
             viewHolder.titleTextView.setText(stream.getTitle());
             viewHolder.createdAtTextView.setText(formatDate(stream.getCreatedAt()));
             Log.d(TAG, stream.getTitle() + " has " + stream.getTotalViewers() + "viewers");
-            viewHolder.totalViewerTextView.setText(String.valueOf(stream.getTotalViewers()));
+            viewHolder.totalViewerTextView.setText(String.valueOf(stream.getTotalViewers() + " viewers"));
             if(stream.getStreamer() != null) {
                 viewHolder.ownerTextView.setText(stream.getStreamer().getAlias());
             }

@@ -119,18 +119,12 @@ public class ViewVideoControlFragment extends Fragment {
             }
         };
 
-        // Starts hiding controls every 5000ms ~ 5s
-        timer.schedule(timerTask, 5000, 5000);
+        // Starts hiding controls every 3000ms ~ 3s
+        timer.schedule(timerTask, 3000, 3000);
     }
 
     public void toggleControlVisibility() {
-        if(isShown) {
-            // Hide control
-            hideControls();
-        } else {
-            // Show control and reset the timer
-            restartHideButtonTimerTask();
-        }
+        restartHideButtonTimerTask();
     }
 
     // Interrupt and restart the hide button task

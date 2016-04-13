@@ -150,11 +150,23 @@ public class StreamVideoControlFragment extends Fragment {
         isBlocked = false;
     }
 
-    public void startStreaming() {
+    private void startStreaming() {
         // Start recording
         isRecording = true;
         showControls();
         setFadeButtonTimerTask();
+    }
+
+    public void tutorialForceShow() {
+        cancelFadeButtonTimerTask();
+        showControls();
+        isBlocked = true;
+    }
+
+    public void tutorialCompleted() {
+        unBlockControls();
+        Log.d(TAG, "isBlock: " + isBlocked);
+        startStreaming();
     }
 
     // Initialize and run hide controls every 5 secs
@@ -166,17 +178,18 @@ public class StreamVideoControlFragment extends Fragment {
             }
         };
 
-        // Starts hiding controls every 5000ms ~ 5s
-        timer.schedule(timerTask, 5000, 5000);
+        // Starts hiding controls every 3000ms ~ 3s
+        timer.schedule(timerTask, 3000, 3000);
     }
 
     public void toggleControlVisibility() {
-        if(isShown) {
-            // Hide control
-            hideControls();
-        } else {
-            // Show control and reset the timer
-            restartHideButtonTimerTask();
+
+        restartHideButtonTimerTask();
+    }
+
+    private void cancelFadeButtonTimerTask() {
+        if(timer != null) {
+            timer.cancel();
         }
     }
 

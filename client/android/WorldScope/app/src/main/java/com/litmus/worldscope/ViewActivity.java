@@ -13,6 +13,7 @@ import com.litmus.worldscope.utility.WorldScopeAPIService;
 import com.litmus.worldscope.utility.WorldScopeRestAPI;
 
 import fragment.CommentFragment;
+import fragment.StickerFragment;
 import fragment.TitleFragment;
 import fragment.ViewVideoControlFragment;
 import fragment.ViewVideoFragment;
@@ -24,7 +25,7 @@ public class ViewActivity extends AppCompatActivity implements
         ViewVideoFragment.OnViewVideoFragmentInteractionListener,
         ViewVideoControlFragment.OnViewVideoControlFragmentListener,
         CommentFragment.OnCommentFragmentInteractionListener,
-        TitleFragment.OnTitleFragmentToggleButtonListener {
+        TitleFragment.OnTitleFragmentButtonsListener {
 
     private final String TAG = "ViewActivity";
     private final boolean IS_OWNER = true;
@@ -39,6 +40,7 @@ public class ViewActivity extends AppCompatActivity implements
     private ViewVideoControlFragment viewVideoControlFragment;
     private CommentFragment commentFragment;
     private TitleFragment titleFragment;
+    private StickerFragment stickerFragment;
     private GestureDetector gestureDetector;
     private Context context;
 
@@ -72,7 +74,7 @@ public class ViewActivity extends AppCompatActivity implements
 
         // Join room and show comment UI
         Log.d(TAG, viewStream.toString());
-        commentFragment.setupRoom(viewStream.getAppInstance(), viewStream.getStreamId(), getIntent().getStringExtra("alias"));
+        commentFragment.setupRoom(viewStream.getAppInstance(), viewStream.getStreamId(), viewStream.getStreamer().getAlias());
         commentFragment.initialize();
 
         // Show titlebar
@@ -80,6 +82,8 @@ public class ViewActivity extends AppCompatActivity implements
                 viewStream.getStreamer().getAlias(), viewStream.getTitle());
 
         titleFragment.showTitleUI();
+
+        stickerFragment = (StickerFragment) sfm.findFragmentById(R.id.stickerFragment);
 
         Log.d(TAG, "Room: " + viewStream.toString());
 
@@ -145,6 +149,11 @@ public class ViewActivity extends AppCompatActivity implements
         } else {
             followStreamer(viewStream.getStreamer().getUserId());
         }
+    }
+
+    @Override
+    public void onStickerButtonClicked() {
+        stickerFragment.sendStickers();
     }
 
     private void followStreamer(String userId) {

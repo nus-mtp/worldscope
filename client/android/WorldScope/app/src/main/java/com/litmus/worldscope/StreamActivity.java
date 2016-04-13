@@ -12,31 +12,36 @@ import android.view.MotionEvent;
 import com.litmus.worldscope.model.WorldScopeCreatedStream;
 
 import fragment.CommentFragment;
+import fragment.StickerFragment;
 import fragment.StreamCreateFragment;
 import fragment.StreamVideoControlFragment;
 import fragment.StreamVideoFragment;
 import fragment.TitleFragment;
+import fragment.TutorialFragment;
 
 public class StreamActivity extends AppCompatActivity implements StreamVideoFragment.OnStreamVideoFragmentListener,
         StreamCreateFragment.OnStreamCreateFragmentListener,
         StreamVideoControlFragment.OnStreamVideoControlFragmentListener,
         CommentFragment.OnCommentFragmentInteractionListener,
-        TitleFragment.OnTitleFragmentToggleButtonListener {
+        TitleFragment.OnTitleFragmentButtonsListener,
+        TutorialFragment.TutorialFragmentCompletionListener {
 
     private static final String TAG = "StreamActivity";
     private static final boolean IS_STREAMER = true;
     private String streamWhenReadyTag = "streamWhenReady";
     private String isRecordingTag = "isRecordingTag";
-    private String alias;
     private String rtmpLink;
     private StreamVideoFragment.StreamVideoControls control;
     private StreamCreateFragment streamCreateFragment;
     private StreamVideoControlFragment streamVideoControlFragment;
     private CommentFragment commentFragment;
     private TitleFragment titleFragment;
+    private TutorialFragment tutorialFragment;
+    private StickerFragment stickerFragment;
     private android.support.v4.app.FragmentManager sfm;
     private boolean streamWhenReady = false;
     private boolean isRecording = false;
+    private boolean isTutorial = true;
     private GestureDetector gestureDetector;
 
     @Override
@@ -47,8 +52,6 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
             savedInstanceState.getBoolean(streamWhenReadyTag);
             savedInstanceState.getBoolean(isRecordingTag);
         }
-
-        alias = getIntent().getStringExtra("alias");
 
         setContentView(R.layout.activity_stream);
         sfm = getSupportFragmentManager();
@@ -64,6 +67,10 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
         commentFragment = (CommentFragment) sfm.findFragmentById(R.id.commentFragment);
         // Get titleFragment
         titleFragment = (TitleFragment) sfm.findFragmentById(R.id.titleFragment);
+        // Get tutorialFragment
+        tutorialFragment = (TutorialFragment) sfm.findFragmentById(R.id.tutorialFragment);
+        // Get starFragment
+        stickerFragment = (StickerFragment) sfm.findFragmentById(R.id.stickerFragment);
 
         Log.d(TAG, "Streamer activity created!");
     }
@@ -104,9 +111,10 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
     public void onDestroy() {
         super.onDestroy();
 
-        Log.d(TAG, "END STREAM START");
-        streamCreateFragment.endStream();
-        Log.d(TAG, "END STREAM DONE");
+        if(rtmpLink != null && !rtmpLink.isEmpty()) {
+            Log.d(TAG, "Ending stream");
+            streamCreateFragment.endStream();
+        }
 
         // Remove recording state
         PreferenceManager.getDefaultSharedPreferences(this).edit()
@@ -148,7 +156,6 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
     public void onStreamCreationSuccess(WorldScopeCreatedStream stream) {
         this.rtmpLink = stream.getStreamLink();
 
-        this.rtmpLink = rtmpLink;
         // Find streamVideoFragment and set the rtmp link from streamCreateFragment
         StreamVideoFragment streamVideoFragment = (StreamVideoFragment) sfm.findFragmentById(R.id.streamVideoFragment);
         streamVideoFragment.setRTMPLink(rtmpLink);
@@ -161,18 +168,23 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
             streamWhenReady = true;
         }
 
+        streamVideoControlFragment.tutorialForceShow();
+
+        //Listen for completion of tutorial
+        tutorialFragment.setListener(this);
+
+        // Open tutorial
+        tutorialFragment.initialize();
+
         // Start the streamVideoControls
-        streamVideoControlFragment.startStreaming();
 
         // Join room and show comment UI
-        commentFragment.setupRoom(stream.getAppInstance(), stream.getStreamId(), alias);
-        commentFragment.initialize();
+        commentFragment.setupRoom(stream.getAppInstance(), stream.getStreamId(), stream.getStreamer().getAlias());
 
         // Show titlebar
         titleFragment.loadStreamDetails(IS_STREAMER, stream.getStreamer().getIsSubscribed(), stream.getStreamer().getPlatformId(),
                 stream.getStreamer().getAlias(), stream.getTitle());
 
-        titleFragment.showTitleUI();
     }
 
     @Override
@@ -250,13 +262,29 @@ public class StreamActivity extends AppCompatActivity implements StreamVideoFrag
         public boolean onDoubleTap(MotionEvent e) {
             // On Double Tap, calls the video control fragment back into view if hidden
             Log.d(TAG, "Double Tap detected, showing controls");
-            streamVideoControlFragment.toggleControlVisibility();
+            if(!isTutorial) {
+                streamVideoControlFragment.toggleControlVisibility();
+            }
             return true;
         }
     }
 
     @Override
     public void onToggleButtonClicked() {
-        control.toggleCamera();
+        //control.toggleCamera();
+    }
+
+    @Override
+    public void onStickerButtonClicked() {
+        stickerFragment.sendStickers();
+    }
+
+    @Override
+    public void onCompletedTutorial() {
+        Log.d(TAG, "Completed tutorial");
+        isTutorial = false;
+        streamVideoControlFragment.tutorialCompleted();
+        commentFragment.initialize();
+        titleFragment.showTitleUI();
     }
 }

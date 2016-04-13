@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/streamActivity"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     tools:context="com.litmus.worldscope.StreamActivity">
@@ -17,9 +18,16 @@
         android:id="@+id/commentFragment"
         android:name="fragment.CommentFragment"
         android:layout_width="fill_parent"
-        android:layout_height="200dip"
+        android:layout_height="190dip"
         android:layout_gravity="bottom"
         tools:layout="@layout/fragment_comment" />
+
+    <fragment
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:name="fragment.TutorialFragment"
+        android:id="@+id/tutorialFragment"
+        tools:layout="@layout/fragment_tutorial" />
 
     <fragment
         android:id="@+id/streamVideoControlFragment"
@@ -29,6 +37,13 @@
         android:layout_gravity="bottom|right"
         android:layout_marginBottom="60dp"
         tools:layout="@layout/fragment_stream_video_control" />
+
+    <fragment
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:name="fragment.StickerFragment"
+        android:id="@+id/stickerFragment"
+        tools:layout="@layout/fragment_sticker" />
 
     <fragment
         android:id="@+id/streamCreateFragment"

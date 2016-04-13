@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="bottom">
 
-    <TextView
+    <com.vanniktech.emoji.EmojiTextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="comment"
         android:id="@+id/userComment"
         android:padding="5dp"
         android:textSize="14dp"
+        app:emojiSize="24dp"
         android:layout_gravity="bottom"
-        android:background="#16000000" />
+        android:background="#64000000" />
 </LinearLayout>
