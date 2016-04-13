@@ -44,7 +44,7 @@ App.routes = {
     '/streams/all': navPage(require('./pages/streams')),
     '/streams/search': blank,
     '/streams/view/:id': navPage(require('./pages/stream')),
-    '/streams/stop/:id': blank,
+    '/streams/stop/:id': require('./pages/streamstop'),
 
     '/users': {controller: () => m.route('/users/all')},
     '/users/all': navPage(require('./pages/users')),
