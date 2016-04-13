@@ -14,7 +14,7 @@ const wrapView = function (wrapper, vElement) {
 };
 const navPage = function (page) {
   let wrappedNav = wrapView((e) => m('div#nav', [
-    m('img', {src: '/admin/img/logo.png'}),
+    m('img', {src: '/admin/img/logo.png', onclick: App.goToHome}),
     e
   ]), Nav);
   let wrappedPage = wrapView((e) => m('div#content.row', e), page);
