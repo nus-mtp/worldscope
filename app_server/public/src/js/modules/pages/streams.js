@@ -23,6 +23,7 @@ Streams.init = function () {
 const names = {
   title: 'Title',
   desc: 'Description',
+  live: 'Live',
   stats: 'Statistics',
   date: 'Start Date',
   user: 'User',
@@ -35,11 +36,11 @@ const formatStats = (viewers, stickers) => [
   m('span', stickers + 'S')
 ];
 
-const getActions = (id) =>
+const getActions = (id, live) =>
     m('select', {onchange: m.withAttr('value', m.route)}, [
       m('option', {disabled: true, selected: true}, 'Choose...'),
       m('option', {value: '/streams/view/' + id}, 'View / Edit'),
-      m('option', {value: '/streams/stop/' + id}, 'Stop')
+      live ? m('option', {value: '/streams/stop/' + id}, 'Stop') : null
     ]);
 
 const parse = (streams) => streams.map(
@@ -47,10 +48,11 @@ const parse = (streams) => streams.map(
       return {
         title: stream.title(),
         desc: stream.description(),
+        live: stream.live() ? 'Yes' : 'No',
         stats: formatStats(stream.viewers(), stream.stickers()),
         date: datetime.toShortDateTime(stream.startDateTime()),
         user: stream.user().alias(),
-        actions: getActions(stream.id())
+        actions: getActions(stream.id(), stream.live())
       };
     }
 );
