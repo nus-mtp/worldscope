@@ -16,6 +16,7 @@ import junit.framework.TestCase;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,8 +29,10 @@ import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withResourceName;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
@@ -41,13 +44,21 @@ import java.util.Map;
 public class StreamActivityTest extends TestCase{
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule(MainActivity.class);
+    public ActivityTestRule<LoginActivity> mActivityRule = new ActivityTestRule(LoginActivity.class);
 
     private final static String ROOM_TITLE = "Automated Test Room Title";
 
     private final static String ROOM_DESCRIPTION = "Automated Test Room Description";
 
     private final static String SAMPLE_COMMENT = "Automated Test Sample Comment";
+
+    @Before
+    public void setupTest() {
+        onView(withResourceName("content"))
+                .perform(waitFor(10000));
+        onView(withId(R.id.facebook_login_button))
+                .perform(click());
+    }
 
     @Test
     public void testRedirectStreamActivity() {
@@ -194,32 +205,6 @@ public class StreamActivityTest extends TestCase{
     }
 
     @Test
-    public void testHideStreamingControl() {
-        onView(withId(R.id.fab))
-                .perform(click());
-        onView(withId(R.id.titleInput))
-                .perform(typeText(ROOM_TITLE));
-        onView(withId(R.id.descriptionInput))
-                .perform(typeText(ROOM_DESCRIPTION));
-        onView(withId(R.id.createStreamButton))
-                .perform(ViewActions.closeSoftKeyboard());
-        onView(withId(R.id.createStreamButton))
-                .perform(click());
-
-        try {
-            onView(withId(R.id.tutorialButton))
-                    .perform(click());
-        } catch (PerformException e) {
-            // No tutorial, continue
-        }
-
-        onView(withId(R.id.streamActivity))
-                .perform(doubleClick());
-        onView(withId(R.id.streamVideoControlFragment))
-                .check(matches(not(isDisplayed())));
-    }
-
-    @Test
     public void testShowStreamingControl() {
         onView(withId(R.id.fab))
                 .perform(click());
@@ -231,20 +216,6 @@ public class StreamActivityTest extends TestCase{
                 .perform(ViewActions.closeSoftKeyboard());
         onView(withId(R.id.createStreamButton))
                 .perform(click());
-
-        try {
-            onView(withId(R.id.tutorialButton))
-                    .perform(click());
-        } catch (PerformException e) {
-            // No tutorial, continue
-        }
-
-        onView(withId(R.id.streamActivity))
-                .perform(doubleClick());
-        onView(withId(R.id.streamVideoControlFragment))
-                .check(matches(not(isDisplayed())));
-        onView(withId(R.id.streamActivity))
-                .perform(waitFor(1000));
         onView(withId(R.id.streamActivity))
                 .perform(doubleClick());
         onView(withId(R.id.streamActivity))
@@ -265,14 +236,6 @@ public class StreamActivityTest extends TestCase{
                 .perform(ViewActions.closeSoftKeyboard());
         onView(withId(R.id.createStreamButton))
                 .perform(click());
-
-        try {
-            onView(withId(R.id.tutorialButton))
-                    .perform(click());
-        } catch (PerformException e) {
-            // No tutorial, continue
-        }
-
         onView(withId(R.id.commentEditText))
                 .perform(typeText(SAMPLE_COMMENT));
         onView(withId(R.id.commentEditText))
@@ -291,14 +254,6 @@ public class StreamActivityTest extends TestCase{
                 .perform(ViewActions.closeSoftKeyboard());
         onView(withId(R.id.createStreamButton))
                 .perform(click());
-
-        try {
-            onView(withId(R.id.tutorialButton))
-                    .perform(click());
-        } catch (PerformException e) {
-            // No tutorial, continue
-        }
-
         onView(withId(R.id.commentEditText))
                 .perform(typeText(SAMPLE_COMMENT));
         onView(withId(R.id.commentEditText))
@@ -327,20 +282,6 @@ public class StreamActivityTest extends TestCase{
                 .perform(ViewActions.closeSoftKeyboard());
         onView(withId(R.id.createStreamButton))
                 .perform(click());
-
-        try {
-            onView(withId(R.id.tutorialButton))
-                    .perform(click());
-        } catch (PerformException e) {
-            // No tutorial, continue
-        }
-
-        onView(withId(R.id.streamActivity))
-                .perform(doubleClick());
-        onView(withId(R.id.streamVideoControlFragment))
-                .check(matches(not(isDisplayed())));
-        onView(withId(R.id.streamActivity))
-                .perform(waitFor(1000));
         onView(withId(R.id.streamActivity))
                 .perform(doubleClick());
         onView(withId(R.id.streamActivity))
@@ -365,22 +306,10 @@ public class StreamActivityTest extends TestCase{
                 .perform(typeText(ROOM_DESCRIPTION));
         onView(withId(R.id.createStreamButton))
                 .perform(ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.streamActivity))
+                .perform(waitFor(500));
         onView(withId(R.id.createStreamButton))
                 .perform(click());
-
-        try {
-            onView(withId(R.id.tutorialButton))
-                    .perform(click());
-        } catch (PerformException e) {
-            // No tutorial, continue
-        }
-
-        onView(withId(R.id.streamActivity))
-                .perform(doubleClick());
-        onView(withId(R.id.streamVideoControlFragment))
-                .check(matches(not(isDisplayed())));
-        onView(withId(R.id.streamActivity))
-                .perform(waitFor(1000));
         onView(withId(R.id.streamActivity))
                 .perform(doubleClick());
         onView(withId(R.id.streamActivity))
@@ -410,20 +339,6 @@ public class StreamActivityTest extends TestCase{
                 .perform(ViewActions.closeSoftKeyboard());
         onView(withId(R.id.createStreamButton))
                 .perform(click());
-
-        try {
-            onView(withId(R.id.tutorialButton))
-                    .perform(click());
-        } catch (PerformException e) {
-            // No tutorial, continue
-        }
-
-        onView(withId(R.id.streamActivity))
-                .perform(doubleClick());
-        onView(withId(R.id.streamVideoControlFragment))
-                .check(matches(not(isDisplayed())));
-        onView(withId(R.id.streamActivity))
-                .perform(waitFor(1000));
         onView(withId(R.id.streamActivity))
                 .perform(doubleClick());
         onView(withId(R.id.streamActivity))

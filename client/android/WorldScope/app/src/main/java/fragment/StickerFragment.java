@@ -23,6 +23,7 @@ public class StickerFragment extends Fragment implements WorldScopeSocketService
 
     final String TAG = "StickerFragment";
     final int CUT_OFF_RANGE = 500;
+    final int STAR_TYPES_COUNT = 6;
     final int STICKER_BOTTOM_MARGIN = 300;
     final int STICKER_TOP_MARGIN = 300;
     int heightLimit;
@@ -79,8 +80,32 @@ public class StickerFragment extends Fragment implements WorldScopeSocketService
 
     private ImageView createStarView() {
         ImageView starView = new ImageView(getContext());
-        starView.setImageResource(R.drawable.ic_star);
+        int randomStarResourceID = randomizeStar();
+        starView.setImageResource(randomStarResourceID);
         return starView;
+    }
+
+    private int randomizeStar() {
+        int random = rand.nextInt(STAR_TYPES_COUNT);
+        int randomStarResourceID = -1;
+        switch(random) {
+            case 0: randomStarResourceID = R.drawable.ic_star_red;
+            break;
+            case 1: randomStarResourceID = R.drawable.ic_star_orange;
+            break;
+            case 2: randomStarResourceID = R.drawable.ic_star_yellow;
+            break;
+            case 3: randomStarResourceID = R.drawable.ic_star_green;
+            break;
+            case 4: randomStarResourceID = R.drawable.ic_star_cyan;
+            break;
+            case 5: randomStarResourceID = R.drawable.ic_star_blue;
+            break;
+            case 6: randomStarResourceID = R.drawable.ic_star_purple;
+            break;
+        }
+
+        return randomStarResourceID;
     }
 
     private void insertIntoStarContainer(ImageView starView) {

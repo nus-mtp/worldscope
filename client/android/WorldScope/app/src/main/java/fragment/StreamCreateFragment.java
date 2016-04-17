@@ -81,7 +81,7 @@ public class StreamCreateFragment extends Fragment {
                     hideKeyboard();
                     createStream();
                 } else {
-                    Toast toast = Toast.makeText(context, WRONG_TITLE_MESSAGE, Toast.LENGTH_LONG);
+                    Toast toast = Toast.makeText(context, WRONG_TITLE_MESSAGE, Toast.LENGTH_SHORT);
                     toast.show();
                 }
             }

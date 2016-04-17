@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity
     private void showLoginToast(String alias) {
         // Show welcome message
         Toast toast = Toast.makeText(context,
-                String.format(WELCOME_MSG, alias), Toast.LENGTH_LONG);
+                String.format(WELCOME_MSG, alias), Toast.LENGTH_SHORT);
         toast.show();
     }
 
