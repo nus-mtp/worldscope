@@ -15,6 +15,7 @@ $nav-secondary-bg-color: color("teal", "lighten-4");
     max-height: 4.5rem - 0.5rem;
     margin: (0.5rem / 2) auto;
     filter: hue-rotate(-188deg) saturate(82%) brightness(122%);
+    cursor: pointer;
   }
 
   > ul {

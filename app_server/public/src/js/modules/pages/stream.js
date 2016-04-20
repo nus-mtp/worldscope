@@ -110,8 +110,7 @@ Stream.view = function () {
         m('div.col s6', 'Stickers: ' + stream.stickers())
       ]),
       m('div.row', [
-        m('div.col s3', 'user-image-here'),
-        m('div.row col s9', [
+        m('div.row col s12', [
           m('div.col s12', stream.user().alias()),
           m('div.col s12', 'Start: ' + datetime.toShortDateTime(stream.startDateTime())),
           stream.endDateTime() ?
