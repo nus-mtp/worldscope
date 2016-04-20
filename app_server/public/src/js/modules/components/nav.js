@@ -12,23 +12,12 @@ Nav.updateVisibleItems = function () {
 
   let contains = (str, sub) => str.indexOf(sub) > -1;
 
-  if (contains(scopes, 'metrics')) {
-    nav.push({
-      name: 'Metrics', href: '/metrics', icon: 'dashboard',
-      sub: [
-        {name: 'Overview', href: '/metrics/overview'},
-        {name: 'Real-Time', href: '/metrics/realtime'},
-        {name: 'Demographics', href: '/metrics/demographics'}
-      ]
-    });
-  }
   if (contains(scopes, 'streams')) {
     nav.push({
       name: 'Streams', href: '/streams', icon: 'videocam',
       sub: [
         {name: 'Live Streams', href: '/streams/live'},
-        {name: 'All Streams', href: '/streams/all'},
-        {name: 'Search', href: '/streams/search'}
+        {name: 'All Streams', href: '/streams/all'}
       ]
     });
   }
@@ -36,8 +25,7 @@ Nav.updateVisibleItems = function () {
     nav.push({
       name: 'Users', href: '/users', icon: 'people',
       sub: [
-        {name: 'All Users', href: '/users/all'},
-        {name: 'Search', href: '/users/search'}
+        {name: 'All Users', href: '/users/all'}
       ]
     });
   }
@@ -52,9 +40,9 @@ Nav.updateVisibleItems = function () {
   }
   if (contains(scopes, 'settings')) {
     nav.push({
-      name: 'Settings', href: '/settings', icon: 'settings',
+      name: 'Logs', href: '/settings', icon: 'settings',
       sub: [
-        {name: 'Logs', href: '/settings/logs'},
+        {name: 'General Logs', href: '/settings/logs'},
         {name: 'Response Logs', href: '/settings/responses'}
       ]
     });

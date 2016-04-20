@@ -34,21 +34,14 @@ App.routes = {
     '/login': wrapView(templatePage, require('./pages/login'))
   },
   app: {
-    '/metrics': {controller: () => m.route('/metrics/overview')},
-    '/metrics/overview': blank,
-    '/metrics/realtime': blank,
-    '/metrics/demographics': blank,
-
     '/streams': {controller: () => m.route('/streams/live')},
     '/streams/live': navPage(require('./pages/streams')),
     '/streams/all': navPage(require('./pages/streams')),
-    '/streams/search': blank,
     '/streams/view/:id': navPage(require('./pages/stream')),
     '/streams/stop/:id': require('./pages/streamstop'),
 
     '/users': {controller: () => m.route('/users/all')},
     '/users/all': navPage(require('./pages/users')),
-    '/users/search': blank,
     '/users/view/:id': navPage(require('./pages/user')),
 
     '/admins': {controller: () => m.route('/admins/all')},
@@ -57,7 +50,7 @@ App.routes = {
     '/admins/view/:username': navPage(require('./pages/admin')),
     '/admins/delete/:username': navPage(require('./pages/admin')),
 
-    '/settings': blank,
+    '/settings': {controller: () => m.route('/settings/logs')},
     '/settings/logs': navPage(require('./pages/logs')),
     '/settings/responses': navPage(require('./pages/logs')),
 
